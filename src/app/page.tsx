@@ -18,117 +18,36 @@ const trustBrands = [
 
 const marqueeBrands = [...trustBrands, ...trustBrands];
 
-type PlanCard = {
-  key: "starter" | "growth" | "pro";
-  title: string;
-  price: string;
-  cta: string;
-  recovery: string;
-  features: string[];
-  highlight?: boolean;
-};
-
 export default function LandingPage() {
   const { t } = useI18n();
-  const [currency, setCurrency] = useState<Currency | null>(null);
+  const [currency, setCurrency] = useState<Currency>("EUR");
 
   useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem("pricing_currency");
-      if (stored === "BRL" || stored === "EUR") {
-        setCurrency(stored);
-        return;
-      }
-      setCurrency(detectBrowserCurrency());
-    } catch {
-      setCurrency("EUR");
+    const stored = window.localStorage.getItem("pricing_currency");
+    if (stored === "BRL" || stored === "EUR") {
+      setCurrency(stored);
+      return;
     }
+
+    setCurrency(detectBrowserCurrency());
   }, []);
 
   const prices = useMemo(
-    () => {
-      if (!currency) return null;
-      return currency === "BRL"
+    () =>
+      currency === "BRL"
         ? { starter: "R$249", growth: "R$699", pro: "R$1299" }
-        : { starter: "€49", growth: "€129", pro: "€249" };
-    },
+        : { starter: "€49", growth: "€129", pro: "€249" },
     [currency],
   );
 
-  const revenueAtRisk = useMemo(() => {
-    if (!currency) return null;
-    return currency === "BRL" ? "R$ 10.500" : "€ 2.100";
-  }, [currency]);
-
-  const mockupLeads = useMemo(
-    () => [
-      {
-        name: "Maria",
-        message: t("landing_mockup_msg_1"),
-        badgeClass: "score-high",
-        badgeLabel: t("landing_mockup_status_high"),
-      },
-      {
-        name: "Ana",
-        message: t("landing_mockup_msg_2"),
-        badgeClass: "status-no-response",
-        badgeLabel: t("landing_mockup_status_risk"),
-      },
-      {
-        name: "João",
-        message: t("landing_mockup_msg_3"),
-        badgeClass: "status-active",
-        badgeLabel: t("landing_mockup_status_active"),
-      },
-    ],
-    [t],
+  const revenueAtRisk = useMemo(
+    () => (currency === "BRL" ? "R$ 10.500" : "€ 2.100"),
+    [currency],
   );
-
-  const planCards = useMemo<PlanCard[] | null>(() => {
-    if (!prices) return null;
-    return [
-      {
-        key: "starter",
-        title: t("pricing_starter"),
-        price: prices.starter,
-        cta: t("pricing_cta_starter"),
-        recovery: t("pricing_starter_recovery"),
-        features: [t("pricing_no_miss"), t("pricing_users_2"), t("pricing_whatsapp"), t("pricing_ai_detect")],
-      },
-      {
-        key: "growth",
-        title: t("pricing_growth"),
-        price: prices.growth,
-        cta: t("pricing_cta_growth"),
-        recovery: t("pricing_growth_recovery"),
-        features: [t("pricing_no_miss"), t("pricing_users_6"), t("pricing_multichannel"), t("pricing_ai_detect"), t("pricing_money_loss")],
-        highlight: true,
-      },
-      {
-        key: "pro",
-        title: t("pricing_pro"),
-        price: prices.pro,
-        cta: t("pricing_cta_pro"),
-        recovery: t("pricing_pro_recovery"),
-        features: [
-          t("pricing_no_miss"),
-          t("pricing_users_unlimited"),
-          t("pricing_automations_adv"),
-          t("pricing_lead_value_segment"),
-          t("pricing_predictive_insights"),
-          t("pricing_support_priority"),
-        ],
-      },
-    ];
-  }, [prices, t]);
 
   function changeCurrency(next: Currency) {
     setCurrency(next);
-    try {
-      window.localStorage.setItem("pricing_currency", next);
-    } catch {
-      // Ignore storage errors in private/blocked environments.
-    }
+    window.localStorage.setItem("pricing_currency", next);
   }
 
   return (
@@ -146,7 +65,7 @@ export default function LandingPage() {
 
           <div className="hero-actions">
             <Link className="button" href="/signup">
-              {t("cta_primary_b2b")}
+              {t("cta_try_free")}
             </Link>
             <Link className="mini-button" href="/login">
               {t("cta_signin")}
@@ -164,19 +83,31 @@ export default function LandingPage() {
             </div>
             <div className="mockup-body">
               <div className="mockup-list">
-                {mockupLeads.map((lead) => (
-                  <div key={lead.name} className="mockup-item">
-                    <div>
-                      <p className="mockup-name">{lead.name}</p>
-                      <p className="mockup-msg">{lead.message}</p>
-                    </div>
-                    <span className={`badge ${lead.badgeClass}`}>{lead.badgeLabel}</span>
+                <div className="mockup-item">
+                  <div>
+                    <p className="mockup-name">Maria</p>
+                    <p className="mockup-msg">{t("landing_mockup_msg_1")}</p>
                   </div>
-                ))}
+                  <span className="badge score-high">{t("landing_mockup_status_high")}</span>
+                </div>
+                <div className="mockup-item">
+                  <div>
+                    <p className="mockup-name">Ana</p>
+                    <p className="mockup-msg">{t("landing_mockup_msg_2")}</p>
+                  </div>
+                  <span className="badge status-no-response">{t("landing_mockup_status_risk")}</span>
+                </div>
+                <div className="mockup-item">
+                  <div>
+                    <p className="mockup-name">Joao</p>
+                    <p className="mockup-msg">{t("landing_mockup_msg_3")}</p>
+                  </div>
+                  <span className="badge status-active">{t("landing_mockup_status_active")}</span>
+                </div>
               </div>
               <div className="mockup-side">
                 <p className="mockup-kpi-label">{t("landing_mockup_revenue_at_risk")}</p>
-                <p className="mockup-kpi">{revenueAtRisk ?? "..."}</p>
+                <p className="mockup-kpi">{revenueAtRisk}</p>
                 <div className="mockup-bar">
                   <span />
                 </div>
@@ -190,7 +121,7 @@ export default function LandingPage() {
 
       <section className="trust-row card">
         <p className="label trust-label">{t("landing_trust_label")}</p>
-        <div className="trust-marquee" aria-label={t("landing_trust_aria")}>
+        <div className="trust-marquee" aria-label="Trusted teams">
           <div className="trust-track">
             {marqueeBrands.map((brand, index) => (
               <div key={`${brand.name}-${index}`} className="trust-logo-wrap">
@@ -228,7 +159,7 @@ export default function LandingPage() {
         <article className="card">
           <p className="eyebrow">{t("landing_revenue_label")}</p>
           <h3 style={{ marginTop: 0 }}>{t("landing_revenue_title")}</h3>
-          <p className="metric metric-warn">{revenueAtRisk ?? "..."}</p>
+          <p className="metric metric-warn">{revenueAtRisk}</p>
           <p className="subtitle">{t("landing_money_risk")}</p>
         </article>
       </section>
@@ -236,8 +167,8 @@ export default function LandingPage() {
       <section className="card pricing-card" id="pricing" style={{ marginBottom: 14 }}>
         <div className="pricing-head">
           <div>
-            <p className="eyebrow">{t("pricing_title")}</p>
-            <h3 style={{ marginTop: 0 }}>{t("pricing_title")}</h3>
+            <p className="eyebrow">{t("pricing_eyebrow")}</p>
+<h3 style={{ marginTop: 0 }}>{t("pricing_title")}</h3>
             <p className="subtitle">{t("pricing_subtitle")}</p>
             <p className="pricing-urgency">{t("pricing_urgency")}</p>
             <article className="pricing-pain card" style={{ marginTop: 12 }}>
@@ -246,11 +177,7 @@ export default function LandingPage() {
             </article>
             <p className="label" style={{ marginTop: 8 }}>
               {t("pricing_selected_prefix")}{" "}
-              {currency === "BRL"
-                ? t("pricing_currency_brl")
-                : currency === "EUR"
-                  ? t("pricing_currency_eur")
-                  : t("pricing_currency_loading")}
+              {currency === "BRL" ? t("pricing_currency_brl") : t("pricing_currency_eur")}
             </p>
           </div>
           <details className="prefs-menu">
@@ -277,36 +204,59 @@ export default function LandingPage() {
         </div>
 
         <div className="grid cols-3">
-          {planCards
-            ? planCards.map((plan) => (
-                <article key={plan.key} className={`card ${plan.highlight ? "pricing-highlight" : ""}`}>
-                  <div className="pricing-plan-head">
-                    <p className="eyebrow">{plan.title}</p>
-                    {plan.highlight ? <span className="badge score-high">{t("pricing_growth_badge")}</span> : null}
-                  </div>
-                  <p className="kpi">
-                    {plan.price}
-                    <span className="pricing-month">{t("pricing_month")}</span>
-                  </p>
-                  <p className="pricing-value-line">{plan.recovery}</p>
-                  {plan.features.map((feature) => (
-                    <p key={feature}>{feature}</p>
-                  ))}
-                  <Link className="button" href="/signup">
-                    {plan.cta}
-                  </Link>
-                </article>
-              ))
-            : [0, 1, 2].map((index) => (
-                <article key={`pricing-skeleton-${index}`} className="card">
-                  <div className="skeleton-list">
-                    <div className="skeleton-line" />
-                    <div className="skeleton-line" />
-                    <div className="skeleton-line" />
-                    <div className="skeleton-line" />
-                  </div>
-                </article>
-              ))}
+          <article className="card">
+            <p className="eyebrow">{t("pricing_starter")}</p>
+            <p className="kpi">
+              {prices.starter}
+              <span className="pricing-month">{t("pricing_month")}</span>
+            </p>
+            <p className="pricing-value-line">{t("pricing_starter_recovery")}</p>
+            <p>{t("pricing_no_miss")}</p>
+            <p>{t("pricing_users_2")}</p>
+            <p>{t("pricing_whatsapp")}</p>
+            <p>{t("pricing_ai_detect")}</p>
+            <Link className="button" href="/signup">
+              {t("pricing_cta_starter")}
+            </Link>
+          </article>
+
+          <article className="card pricing-highlight">
+            <div className="pricing-plan-head">
+              <p className="eyebrow">{t("pricing_growth")}</p>
+              <span className="badge score-high">{t("pricing_growth_badge")}</span>
+            </div>
+            <p className="kpi">
+              {prices.growth}
+              <span className="pricing-month">{t("pricing_month")}</span>
+            </p>
+            <p className="pricing-value-line">{t("pricing_growth_recovery")}</p>
+            <p>{t("pricing_no_miss")}</p>
+            <p>{t("pricing_users_6")}</p>
+            <p>{t("pricing_multichannel")}</p>
+            <p>{t("pricing_ai_detect")}</p>
+            <p>{t("pricing_money_loss")}</p>
+            <Link className="button" href="/signup">
+              {t("pricing_cta_growth")}
+            </Link>
+          </article>
+
+          <article className="card">
+            <p className="eyebrow">{t("pricing_pro")}</p>
+            <p className="kpi">
+              {prices.pro}
+              <span className="pricing-month">{t("pricing_month")}</span>
+            </p>
+            <p className="pricing-value-line">{t("pricing_pro_recovery")}</p>
+            <p>{t("pricing_no_miss")}</p>
+            <p>{t("pricing_users_unlimited")}</p>
+            <p>{t("pricing_automations_adv")}</p>
+            <p>{t("pricing_lead_value_segment")}</p>
+            <p>{t("pricing_predictive_insights")}</p>
+            <p>{t("pricing_support_priority")}</p>
+            <Link className="button" href="/signup">
+              {t("pricing_cta_pro")}
+            </Link>
+          </article>
         </div>
       </section>
 
