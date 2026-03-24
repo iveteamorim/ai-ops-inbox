@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Novua Inbox
 
-## Getting Started
+AI-powered operational system for revenue recovery in conversational sales workflows.
 
-First, run the development server:
+## What this project demonstrates
+
+- Production-grade AI integration inside a SaaS-style UX.
+- Multi-tenant-oriented architecture for lead and conversation operations.
+- Unified inbox flows across channels (foundation for WhatsApp/email/forms).
+- Revenue recovery logic for unanswered and at-risk conversations.
+
+## Real-world use case
+
+Businesses lose revenue because leads are not answered in time across multiple channels.
+
+Novua Inbox centralizes communication and applies AI to:
+
+- Detect high-value leads.
+- Suggest response actions.
+- Trigger follow-up actions.
+- Quantify lost or at-risk revenue.
+
+## Core stack
+
+- Frontend: Next.js (App Router)
+- Backend: Next.js Route Handlers / API routes
+- Database: Supabase (Postgres)
+- AI: OpenAI API
+- Integrations: WhatsApp Cloud API (scaffolded), email/form flows
+
+## Project structure
+
+- `src/app`: pages, routes, and API handlers
+- `src/components`: UI and i18n components
+- `src/lib`: auth, i18n, Supabase, messaging, utilities
+- `public`: static assets and logo files
+- `db`: schema and SQL assets
+- `docs-messaging.md`: webhook/message flow notes
+
+## Local setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create environment file:
+
+```bash
+cp .env.example .env.local
+```
+
+3. Run development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `http://localhost:3000`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment variables
 
-## Learn More
+Required for full auth/data behavior:
 
-To learn more about Next.js, take a look at the following resources:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Optional for webhook/admin flows:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `WHATSAPP_VERIFY_TOKEN`
+- `OPENAI_API_KEY`
 
-## Deploy on Vercel
+If Supabase env vars are missing, the project currently supports a demo auth fallback to navigate the app.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev` - start local development server
+- `npm run build` - production build
+- `npm run start` - run production server
+- `npm run lint` - lint checks
+
+## Current status
+
+- Landing + product narrative + pricing UX implemented
+- Inbox, conversation, dashboard, revenue, settings views implemented
+- i18n support (ES/PT/EN)
+- Currency detection with regional behavior (EUR/BRL) and manual override
+- WhatsApp webhook/message persistence scaffolding included
+
+## Next steps
+
+- Connect real Supabase project for production auth + persistence
+- Connect Stripe billing and trial lifecycle
+- Connect production WhatsApp Cloud API credentials
+- Add screenshots + architecture diagram for external stakeholders

@@ -1,0 +1,6 @@
+<svg width="120" height="32" viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="120" height="32" rx="8" fill="#111827"/>
+  <rect x="14" y="9" width="12" height="14" rx="2" fill="#60A5FA"/>
+  <rect x="18" y="5" width="4" height="4" rx="1" fill="#93C5FD"/>
+  <text x="34" y="20" fill="#DBEAFE" font-family="Arial, sans-serif" font-size="12" font-weight="700">INMOFLOW</text>
+</svg>
