@@ -7,7 +7,6 @@ import { MarketingNav } from "@/components/MarketingNav";
 import { createClient } from "@/lib/supabase/client";
 import { trialEndsAtIso } from "@/lib/trial";
 import { useI18n } from "@/components/i18n/LanguageProvider";
-import { DEMO_AUTH_COOKIE } from "@/lib/auth/constants";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -31,9 +30,7 @@ export default function SignupPage() {
       const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
       if (!url || !anonKey) {
-        document.cookie = `${DEMO_AUTH_COOKIE}=1; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
-        router.push("/dashboard");
-        router.refresh();
+        setError("Auth is not configured. Add Supabase env vars.");
         return;
       }
 

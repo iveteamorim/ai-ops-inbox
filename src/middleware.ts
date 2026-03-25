@@ -2,7 +2,6 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { hasTrialExpired } from "@/lib/trial";
 import { LANG_COOKIE, detectLangFromHeader, normalizeLang } from "@/lib/i18n/config";
-import { DEMO_AUTH_COOKIE } from "@/lib/auth/constants";
 
 const PUBLIC_PATHS = ["/", "/login", "/signup"];
 const INTERNAL_BYPASS = ["/_next", "/favicon.ico"];
@@ -49,16 +48,8 @@ export async function middleware(request: NextRequest) {
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !anonKey) {
-    const isDemoUser = request.cookies.get(DEMO_AUTH_COOKIE)?.value === "1";
-
-    if (!isDemoUser && !isPublicPath(pathname)) {
+    if (!isPublicPath(pathname)) {
       const redirectResponse = NextResponse.redirect(new URL("/login", request.url));
-      applyLanguageCookie(request, redirectResponse);
-      return redirectResponse;
-    }
-
-    if (isDemoUser && (pathname === "/" || pathname === "/login" || pathname === "/signup")) {
-      const redirectResponse = NextResponse.redirect(new URL("/dashboard", request.url));
       applyLanguageCookie(request, redirectResponse);
       return redirectResponse;
     }

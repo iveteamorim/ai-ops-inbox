@@ -24,7 +24,9 @@ export function AppNav() {
       <span className="nav-spacer" />
       <LocaleMenu />
       <Link href="/">{t("nav_landing")}</Link>
-      <Link href="/auth/signout">{t("nav_logout")}</Link>
+      <form action="/auth/signout" method="post">
+        <button type="submit" className="mini-button">{t("nav_logout")}</button>
+      </form>
     </nav>
   );
 }

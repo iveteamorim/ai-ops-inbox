@@ -18,6 +18,7 @@ Required for API routes:
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `WHATSAPP_VERIFY_TOKEN`
+- `WHATSAPP_APP_SECRET`
 
 ## 3) Endpoints
 ### Verify webhook
@@ -27,6 +28,7 @@ Required for API routes:
 
 ### Receive inbound WhatsApp messages
 `POST /api/webhooks/whatsapp`
+- validates `X-Hub-Signature-256` against `WHATSAPP_APP_SECRET`
 - parses Meta payload
 - maps `phone_number_id` -> `channels.external_account_id`
 - upserts contact/conversation
@@ -40,14 +42,13 @@ Required for API routes:
 `POST /api/messages`
 ```json
 {
-  "company_id": "<uuid>",
   "conversation_id": "<uuid>",
   "text": "Hello Maria"
 }
 ```
-- stores outbound message
+- stores outbound message (company inferred from authorized conversation)
 - updates conversation timestamps
 
 ## Notes
-- If Supabase is not configured yet, APIs return `202` with `supabase_not_configured`.
-- This is intentional so UI/demo can keep running before backend go-live.
+- If Supabase is not configured, `POST /api/webhooks/whatsapp` can return `202 supabase_not_configured` (safe no-op).
+- `GET/POST /api/messages` return `503 supabase_not_configured` to avoid insecure fallback behavior.

@@ -5,6 +5,11 @@ type CompanyChannel = {
   company_id: string;
 };
 
+type DbError = {
+  code?: string;
+  message?: string;
+};
+
 type ContactRow = {
   id: string;
 };
@@ -31,24 +36,21 @@ export async function persistWhatsAppInbound(
 
   const companyId = channel.company_id;
 
-  const { data: existingEvent } = await supabase
-    .from("webhook_events")
-    .select("id")
-    .eq("source", "whatsapp")
-    .eq("external_id", message.externalMessageId)
-    .maybeSingle();
-
-  if (existingEvent) {
-    return { saved: false, reason: "duplicate_event" };
-  }
-
-  await supabase.from("webhook_events").insert({
+  const { error: eventInsertError } = await supabase.from("webhook_events").insert({
     source: "whatsapp",
     external_id: message.externalMessageId,
     company_id: companyId,
     payload: message.rawMessage,
     status: "received",
   });
+
+  if (eventInsertError) {
+    const dbError = eventInsertError as DbError;
+    if (dbError.code === "23505") {
+      return { saved: false, reason: "duplicate_event" };
+    }
+    throw new Error(`Failed to insert webhook event: ${eventInsertError.message}`);
+  }
 
   let contactId: string;
   const { data: existingContact } = await supabase
@@ -129,7 +131,7 @@ export async function persistWhatsAppInbound(
     throw new Error(`Failed to insert message: ${messageError.message}`);
   }
 
-  await supabase
+  const { error: conversationUpdateError } = await supabase
     .from("conversations")
     .update({
       status: "active",
@@ -138,7 +140,11 @@ export async function persistWhatsAppInbound(
     })
     .eq("id", conversationId);
 
-  await supabase
+  if (conversationUpdateError) {
+    throw new Error(`Failed to update conversation: ${conversationUpdateError.message}`);
+  }
+
+  const { error: webhookUpdateError } = await supabase
     .from("webhook_events")
     .update({
       status: "processed",
@@ -146,6 +152,10 @@ export async function persistWhatsAppInbound(
     })
     .eq("source", "whatsapp")
     .eq("external_id", message.externalMessageId);
+
+  if (webhookUpdateError) {
+    throw new Error(`Failed to update webhook event: ${webhookUpdateError.message}`);
+  }
 
   return { saved: true };
 }

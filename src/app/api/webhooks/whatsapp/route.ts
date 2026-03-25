@@ -1,7 +1,28 @@
 import { NextResponse } from "next/server";
+import { createHmac, timingSafeEqual } from "crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { extractInboundMessages } from "@/lib/messaging/whatsapp";
 import { persistWhatsAppInbound } from "@/lib/messaging/repository";
+
+function verifyWhatsAppSignature(rawBody: string, signatureHeader: string | null): boolean {
+  const appSecret = process.env.WHATSAPP_APP_SECRET;
+  if (!appSecret || !signatureHeader || !signatureHeader.startsWith("sha256=")) {
+    return false;
+  }
+
+  const received = signatureHeader.slice("sha256=".length);
+  if (!/^[a-fA-F0-9]{64}$/.test(received)) {
+    return false;
+  }
+
+  const expected = createHmac("sha256", appSecret).update(rawBody).digest("hex");
+
+  try {
+    return timingSafeEqual(Buffer.from(received, "hex"), Buffer.from(expected, "hex"));
+  } catch {
+    return false;
+  }
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -22,7 +43,23 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const payload = await request.json().catch(() => null);
+  if (!process.env.WHATSAPP_APP_SECRET) {
+    return NextResponse.json({ ok: false, error: "whatsapp_app_secret_not_configured" }, { status: 503 });
+  }
+
+  const rawBody = await request.text();
+  const signature = request.headers.get("x-hub-signature-256");
+
+  if (!verifyWhatsAppSignature(rawBody, signature)) {
+    return NextResponse.json({ ok: false, error: "invalid_signature" }, { status: 401 });
+  }
+
+  let payload: unknown = null;
+  try {
+    payload = JSON.parse(rawBody || "null");
+  } catch {
+    return NextResponse.json({ ok: false, error: "invalid_json" }, { status: 400 });
+  }
   const inboundMessages = extractInboundMessages(payload);
 
   if (inboundMessages.length === 0) {

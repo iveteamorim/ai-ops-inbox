@@ -36,9 +36,11 @@ export default async function BillingPage() {
           <Link className="button" href="#">
             {t("billing_activate_plan")}
           </Link>
-          <Link className="mini-button" href="/auth/signout">
-            {t("billing_signout")}
-          </Link>
+          <form action="/auth/signout" method="post">
+            <button className="mini-button" type="submit">
+              {t("billing_signout")}
+            </button>
+          </form>
         </div>
       </article>
     </section>
