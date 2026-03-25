@@ -3,8 +3,8 @@
 ## Live Links
 - Live Demo: https://ai-ops-inbox-one.vercel.app
 - GitHub: https://github.com/iveteamorim/ai-ops-inbox
-- Architecture: ./docs/architecture.svg
-
+[- Architecture: ./docs/architecture.svg
+](https://github.com/iveteamorim/ai-ops-inbox/blob/main/docs/architecture.svg)
 AI-powered conversational revenue operations platform to centralize lead conversations, prioritize at-risk opportunities, and recover lost revenue.
 
 
