@@ -1,8 +1,12 @@
-# Novua Inbox
+# Novua Inbox (AI Ops Inbox)
 
-[Live Demo](https://ai-ops-inbox-one.vercel.app) • [GitHub](https://github.com/iveteamorim/ai-ops-inbox)
+## Live Links
+- Live Demo: https://ai-ops-inbox-one.vercel.app
+- GitHub: https://github.com/iveteamorim/ai-ops-inbox
+- Architecture: ./docs/architecture.svg
 
 AI-powered conversational revenue operations platform to centralize lead conversations, prioritize at-risk opportunities, and recover lost revenue.
+
 
 ## What this project demonstrates
 
