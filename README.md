@@ -72,9 +72,10 @@ Optional for webhook/admin flows:
 
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `WHATSAPP_VERIFY_TOKEN`
+- `WHATSAPP_APP_SECRET`
 - `OPENAI_API_KEY`
 
-If Supabase env vars are missing, the project currently supports a demo auth fallback to navigate the app.
+If Supabase env vars are missing, protected routes stay locked and auth actions return configuration errors.
 
 ## Scripts
 
@@ -91,9 +92,26 @@ If Supabase env vars are missing, the project currently supports a demo auth fal
 - Currency detection with regional behavior (EUR/BRL) and manual override
 - WhatsApp webhook/message persistence scaffolding included
 
+## Screenshots
+
+Landing
+
+![Landing](public/screenshots/landing.svg)
+
+Inbox
+
+![Inbox](public/screenshots/inbox.svg)
+
+Revenue
+
+![Revenue](public/screenshots/revenue.svg)
+
+## Architecture
+
+![Architecture](docs/architecture.svg)
+
 ## Next steps
 
 - Connect real Supabase project for production auth + persistence
 - Connect Stripe billing and trial lifecycle
 - Connect production WhatsApp Cloud API credentials
-- Add screenshots + architecture diagram for external stakeholders

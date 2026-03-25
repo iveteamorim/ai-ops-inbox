@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="800" viewBox="0 0 1400 800">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1a18" />
+      <stop offset="1" stop-color="#0a1211" />
+    </linearGradient>
+  </defs>
+  <rect width="1400" height="800" rx="36" fill="url(#bg)" />
+  <text x="100" y="120" fill="#ecf7f5" font-size="28" font-family="Sora, Arial">Novua Inbox Architecture</text>
+  <text x="100" y="160" fill="#9fb2ad" font-size="16" font-family="Sora, Arial">Messaging + AI + Revenue recovery pipeline</text>
+
+  <rect x="100" y="220" width="360" height="120" rx="14" fill="#122522" stroke="#1f3b35" />
+  <text x="130" y="265" fill="#e9f4f1" font-size="16" font-family="Sora, Arial">Channels</text>
+  <text x="130" y="295" fill="#9fb2ad" font-size="13" font-family="Sora, Arial">WhatsApp, Email, Web Forms</text>
+
+  <rect x="520" y="220" width="360" height="120" rx="14" fill="#122522" stroke="#1f3b35" />
+  <text x="550" y="265" fill="#e9f4f1" font-size="16" font-family="Sora, Arial">API + Webhooks</text>
+  <text x="550" y="295" fill="#9fb2ad" font-size="13" font-family="Sora, Arial">Next.js Route Handlers</text>
+
+  <rect x="940" y="220" width="360" height="120" rx="14" fill="#122522" stroke="#1f3b35" />
+  <text x="970" y="265" fill="#e9f4f1" font-size="16" font-family="Sora, Arial">Supabase</text>
+  <text x="970" y="295" fill="#9fb2ad" font-size="13" font-family="Sora, Arial">Contacts, Conversations, Messages</text>
+
+  <rect x="240" y="420" width="420" height="140" rx="14" fill="#122522" stroke="#1f3b35" />
+  <text x="270" y="465" fill="#e9f4f1" font-size="16" font-family="Sora, Arial">AI Layer (OpenAI)</text>
+  <text x="270" y="495" fill="#9fb2ad" font-size="13" font-family="Sora, Arial">Lead scoring, summaries, reply suggestions</text>
+
+  <rect x="740" y="420" width="420" height="140" rx="14" fill="#122522" stroke="#1f3b35" />
+  <text x="770" y="465" fill="#e9f4f1" font-size="16" font-family="Sora, Arial">Revenue Logic</text>
+  <text x="770" y="495" fill="#9fb2ad" font-size="13" font-family="Sora, Arial">At-risk, lost revenue, follow-up rules</text>
+
+  <rect x="520" y="620" width="360" height="120" rx="14" fill="#123326" stroke="#2b7a52" />
+  <text x="550" y="665" fill="#e9f4f1" font-size="16" font-family="Sora, Arial">App UI</text>
+  <text x="550" y="695" fill="#b5f7d1" font-size="13" font-family="Sora, Arial">Inbox, Revenue, Conversation, Dashboard</text>
+
+  <line x1="460" y1="280" x2="520" y2="280" stroke="#2b7a52" stroke-width="2" />
+  <line x1="880" y1="280" x2="940" y2="280" stroke="#2b7a52" stroke-width="2" />
+  <line x1="640" y1="340" x2="430" y2="420" stroke="#2b7a52" stroke-width="2" />
+  <line x1="760" y1="340" x2="950" y2="420" stroke="#2b7a52" stroke-width="2" />
+  <line x1="450" y1="560" x2="610" y2="620" stroke="#2b7a52" stroke-width="2" />
+  <line x1="950" y1="560" x2="790" y2="620" stroke="#2b7a52" stroke-width="2" />
+</svg>
