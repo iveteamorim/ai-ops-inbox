@@ -204,6 +204,7 @@ export const dictionary = {
     billing_signout: "Cerrar sesión",
 
     pricing_title: "Precios",
+    pricing_eyebrow: "Planes",
     pricing_subtitle: "Empiece con 7 días gratis. Cambie o cancele cuando quiera.",
     pricing_urgency: "Los leads se enfrían en minutos. El ingreso perdido ocurre en horas.",
     pricing_pain_title: "Las empresas pierden hasta 40% de los leads por respuestas lentas.",
@@ -445,6 +446,7 @@ export const dictionary = {
     billing_signout: "Sair",
 
     pricing_title: "Preços",
+    pricing_eyebrow: "Planos",
     pricing_subtitle: "Comece com 7 dias grátis. Cancele quando quiser.",
     pricing_urgency: "Leads esfriam em minutos. Receita perdida acontece em horas.",
     pricing_pain_title: "Empresas perdem até 40% dos leads por resposta lenta.",
@@ -684,6 +686,7 @@ export const dictionary = {
     billing_signout: "Sign out",
 
     pricing_title: "Pricing",
+    pricing_eyebrow: "Plans",
     pricing_subtitle: "Start with a 7-day free trial. Cancel anytime.",
     pricing_urgency: "Leads go cold in minutes. Lost revenue happens in hours.",
     pricing_pain_title: "Companies lose up to 40% of leads due to slow replies.",
