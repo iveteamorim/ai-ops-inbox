@@ -1,6 +1,8 @@
 # Novua Inbox
 
-AI-powered operational system for revenue recovery in conversational sales workflows.
+[Live Demo](https://ai-ops-inbox-one.vercel.app) • [GitHub](https://github.com/iveteamorim/ai-ops-inbox)
+
+AI-powered conversational revenue operations platform to centralize lead conversations, prioritize at-risk opportunities, and recover lost revenue.
 
 ## What this project demonstrates
 
