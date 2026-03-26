@@ -1,13 +1,24 @@
 # Novua Inbox (AI Ops Inbox)
 
 ## Live Links
+
 - Live Demo: https://ai-ops-inbox-one.vercel.app
 - GitHub: https://github.com/iveteamorim/ai-ops-inbox
 - Architecture: https://github.com/iveteamorim/ai-ops-inbox/blob/main/docs/architecture.svg
 
+## Demo Login
+
+- Email: `demo@novua.com`
+- Password: `Demo123456!`
+
 AI-powered conversational revenue operations platform to centralize lead conversations, prioritize at-risk opportunities, and recover lost revenue.
 
+## Technical Highlights
 
+- Multi-tenant access boundaries and company-scoped message flows.
+- Signed webhook validation for WhatsApp ingestion.
+- Hardened auth/session flows and production-ready middleware guards.
+- Type-safe Next.js + Supabase implementation with linted CI-friendly structure.
 
 ## What this project demonstrates
 
