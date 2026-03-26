@@ -28,7 +28,7 @@ A business receiving 50+ leads/day can lose €1,000+ per week due to slow respo
 
 This system identifies high-value conversations, prioritizes them, and enables immediate action to recover that revenue.
 
-AI-powered conversational revenue operations platform to centralize lead conversations, prioritize at-risk opportunities, and recover lost revenue.
+
 
 ## Architecture
 
