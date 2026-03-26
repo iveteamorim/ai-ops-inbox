@@ -6,10 +6,6 @@
 - GitHub: https://github.com/iveteamorim/ai-ops-inbox
 - Architecture: https://github.com/iveteamorim/ai-ops-inbox/blob/main/docs/architecture.svg
 
-## Demo Login
-
-- Email: `demo@novua.com`
-- Password: `Demo654321!`
 
 ## Demo Flow
 
