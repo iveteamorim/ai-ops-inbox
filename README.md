@@ -11,6 +11,20 @@
 - Email: `demo@novua.com`
 - Password: `Demo654321!`
 
+## Business Impact
+
+Designed to:
+
+- Reduce response time by ~60–80%
+- Recover revenue from unanswered leads
+- Automate follow-ups and lead prioritization
+
+Example:
+
+A business receiving 50+ leads/day can lose €1,000+ per week due to slow response and missed follow-ups.
+
+This system identifies high-value conversations, prioritizes them, and enables immediate action to recover that revenue.
+
 AI-powered conversational revenue operations platform to centralize lead conversations, prioritize at-risk opportunities, and recover lost revenue.
 
 ## Technical Highlights
