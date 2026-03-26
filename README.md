@@ -112,17 +112,9 @@ If Supabase env vars are missing, protected routes stay locked and auth actions 
 
 ## Screenshots
 
-Landing
+Inbox Demo
 
-![Landing](public/screenshots/landing.svg)
-
-Inbox
-
-![Inbox](public/screenshots/inbox.svg)
-
-Revenue
-
-![Revenue](public/screenshots/revenue.svg)
+![Inbox Demo](public/screenshots/inbox-demo.png)
 
 ## Architecture
 
