@@ -11,6 +11,13 @@
 - Email: `demo@novua.com`
 - Password: `Demo654321!`
 
+## Demo Flow
+
+1. Login with demo credentials
+2. Open Inbox → identify high-value or "at risk" leads
+3. Open a conversation → use suggested actions to respond
+4. Navigate to Revenue → review potential vs recovered value
+   
 ## Business Impact
 
 Designed to:
