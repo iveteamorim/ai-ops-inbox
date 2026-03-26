@@ -114,8 +114,7 @@ If Supabase env vars are missing, protected routes stay locked and auth actions 
 
 Inbox Demo
 
-![Inbox Demo](public/screenshots/inbox-demo.png)
-
+![Inbox Demo](https://raw.githubusercontent.com/iveteamorim/ai-ops-inbox/main/public/screenshots/inbox-demo.png)
 
 ## Architecture
 
