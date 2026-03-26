@@ -39,7 +39,18 @@ Core flows:
 - Priority queue generation based on business value
 - Inactivity-based follow-up triggers
 - Revenue estimation per conversation
-  
+
+   ## AI Layer
+
+- Lead scoring (high / medium / low intent)
+- Context-aware reply suggestions
+- Revenue-at-risk estimation per conversation
+- Follow-up trigger detection based on inactivity
+
+Goal:
+
+Turn raw conversations into prioritized revenue actions.
+
 ## Technical Highlights
 
 - Multi-tenant access boundaries and company-scoped message flows.
