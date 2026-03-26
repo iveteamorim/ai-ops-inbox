@@ -9,7 +9,7 @@
 ## Demo Login
 
 - Email: `demo@novua.com`
-- Password: `Demo123456!`
+- Password: `Demo654321!`
 
 AI-powered conversational revenue operations platform to centralize lead conversations, prioritize at-risk opportunities, and recover lost revenue.
 
