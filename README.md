@@ -27,6 +27,19 @@ This system identifies high-value conversations, prioritizes them, and enables i
 
 AI-powered conversational revenue operations platform to centralize lead conversations, prioritize at-risk opportunities, and recover lost revenue.
 
+## Architecture
+
+- Next.js (App Router + API routes)
+- Supabase (PostgreSQL, Auth, Row-Level Security)
+- OpenAI (classification, scoring, response generation)
+
+Core flows:
+
+- Message ingestion → classification → lead scoring
+- Priority queue generation based on business value
+- Inactivity-based follow-up triggers
+- Revenue estimation per conversation
+  
 ## Technical Highlights
 
 - Multi-tenant access boundaries and company-scoped message flows.
