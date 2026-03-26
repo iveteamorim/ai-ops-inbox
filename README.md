@@ -7,13 +7,13 @@
 - Architecture: https://github.com/iveteamorim/ai-ops-inbox/blob/main/docs/architecture.svg
 
 
-## Demo Flow
+## Product Walkthrough
 
-1. Login with demo credentials
-2. Open Inbox → identify high-value or "at risk" leads
-3. Open a conversation → use suggested actions to respond
-4. Navigate to Revenue → review potential vs recovered value
-   
+1. Open Inbox -> identify high-value or at-risk leads
+2. Open a conversation -> review suggested actions and reply options
+3. Navigate to Revenue -> review potential vs recovered value
+4. Review architecture and screenshots in this repository for implementation context
+
 ## Business Impact
 
 Designed to:
