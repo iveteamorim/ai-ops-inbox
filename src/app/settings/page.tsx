@@ -2,6 +2,7 @@ import { AppNav } from "@/components/AppNav";
 import { InviteUserForm } from "@/components/InviteUserForm";
 import { PendingInvitesList } from "@/components/PendingInvitesList";
 import { SetupRequestButton } from "@/components/SetupRequestButton";
+import { TeamMembersList } from "@/components/TeamMembersList";
 import { cookies } from "next/headers";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
@@ -34,6 +35,10 @@ function getSetupCopy(lang: string) {
       cancelPending: "Cancelando...",
       inviteResent: "Invitación reenviada.",
       inviteCancelled: "Invitación cancelada.",
+      removeUser: "Eliminar acceso",
+      removingUser: "Eliminando...",
+      removeUserSuccess: "Acceso eliminado.",
+      removeUserError: "No se pudo eliminar el acceso.",
     };
   }
 
@@ -63,6 +68,10 @@ function getSetupCopy(lang: string) {
       cancelPending: "Cancelando...",
       inviteResent: "Convite reenviado.",
       inviteCancelled: "Convite cancelado.",
+      removeUser: "Remover acesso",
+      removingUser: "Removendo...",
+      removeUserSuccess: "Acesso removido.",
+      removeUserError: "Não foi possível remover o acesso.",
     };
   }
 
@@ -91,6 +100,10 @@ function getSetupCopy(lang: string) {
     cancelPending: "Cancelling...",
     inviteResent: "Invitation resent.",
     inviteCancelled: "Invitation cancelled.",
+    removeUser: "Remove access",
+    removingUser: "Removing...",
+    removeUserSuccess: "Access removed.",
+    removeUserError: "Could not remove access.",
   };
 }
 
@@ -207,14 +220,16 @@ export default async function SettingsPage() {
           {team.length === 0 ? (
             <p className="subtitle">No team members found.</p>
           ) : (
-            <>
-              {team.map((member) => (
-                <div key={member.id} className="preview-row">
-                  <span>{member.full_name ?? "Unnamed user"} ({member.role})</span>
-                  <span className="badge status-active">{t("settings_active")}</span>
-                </div>
-              ))}
-            </>
+            <TeamMembersList
+              members={team}
+              currentUserId={context.user.id}
+              currentUserRole={context.profile.role}
+              activeLabel={t("settings_active")}
+              removeLabel={copy.removeUser}
+              removingLabel={copy.removingUser}
+              removeSuccess={copy.removeUserSuccess}
+              removeError={copy.removeUserError}
+            />
           )}
           <div style={{ marginTop: 12 }}>
             <InviteUserForm

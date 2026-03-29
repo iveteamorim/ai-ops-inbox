@@ -3,13 +3,14 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 type ProfileRow = {
+  id: string;
   company_id: string;
   role: string;
 };
 
 type ActionPayload = {
   inviteId?: string;
-  action?: "cancel" | "resend";
+  action?: "cancel" | "resend" | "remove";
 };
 
 function normalizeRole(value: unknown) {
@@ -58,6 +59,52 @@ export async function POST(request: Request) {
   const invitedUser = authUserResult.user;
   if (invitedUser.user_metadata?.company_id !== profile.company_id) {
     return NextResponse.json({ ok: false, error: "invite_not_in_company" }, { status: 403 });
+  }
+
+  if (action === "remove") {
+    if (profile.role !== "owner") {
+      return NextResponse.json({ ok: false, error: "owner_only_action" }, { status: 403 });
+    }
+
+    if (inviteId === user.id) {
+      return NextResponse.json({ ok: false, error: "cannot_remove_self" }, { status: 400 });
+    }
+
+    const { data: targetProfile, error: targetProfileError } = await admin
+      .from("profiles")
+      .select("id, company_id, role")
+      .eq("id", inviteId)
+      .maybeSingle<ProfileRow>();
+
+    if (targetProfileError) {
+      return NextResponse.json({ ok: false, error: targetProfileError.message }, { status: 500 });
+    }
+
+    if (!targetProfile || targetProfile.company_id !== profile.company_id) {
+      return NextResponse.json({ ok: false, error: "user_not_in_company" }, { status: 404 });
+    }
+
+    if (targetProfile.role === "owner") {
+      return NextResponse.json({ ok: false, error: "cannot_remove_owner" }, { status: 400 });
+    }
+
+    const { error: unassignError } = await admin
+      .from("conversations")
+      .update({ assigned_to: null })
+      .eq("company_id", profile.company_id)
+      .eq("assigned_to", inviteId)
+      .in("status", ["new", "active", "no_response"]);
+
+    if (unassignError) {
+      return NextResponse.json({ ok: false, error: unassignError.message }, { status: 500 });
+    }
+
+    const { error: deleteError } = await admin.auth.admin.deleteUser(inviteId);
+    if (deleteError) {
+      return NextResponse.json({ ok: false, error: deleteError.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ ok: true });
   }
 
   if (invitedUser.last_sign_in_at) {
