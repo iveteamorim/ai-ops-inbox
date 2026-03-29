@@ -94,11 +94,11 @@ export default async function InboxPage() {
             <h3>{t("inbox_empty_title")}</h3>
             <p>{t("inbox_empty_text")}</p>
             <div className="actions" style={{ marginTop: 12 }}>
-              <Link className="button" href="/settings">
-                Connect channel
+              <Link className="button" href="/settings#channels-setup">
+                Review setup
               </Link>
-              <Link className="mini-button" href="/settings">
-                Open settings
+              <Link className="mini-button" href="/settings#request-setup">
+                Request onboarding
               </Link>
             </div>
           </div>

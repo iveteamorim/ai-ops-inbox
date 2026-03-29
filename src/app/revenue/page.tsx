@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { cookies, headers } from "next/headers";
 import { AppNav } from "@/components/AppNav";
 import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
@@ -67,12 +68,12 @@ export default async function RevenuePage() {
             <h3>{t("revenue_empty_title")}</h3>
             <p>{t("revenue_empty_text")}</p>
             <div className="actions" style={{ marginTop: 12 }}>
-              <a className="button" href="/inbox">
+              <Link className="button" href="/inbox">
                 Go to inbox
-              </a>
-              <a className="mini-button" href="/settings">
-                Configure channels
-              </a>
+              </Link>
+              <Link className="mini-button" href="/settings#channels-setup">
+                Review setup
+              </Link>
             </div>
           </div>
         ) : (
