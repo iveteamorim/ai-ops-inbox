@@ -1,19 +1,24 @@
 "use client";
 
+import type { Lang } from "@/lib/i18n/config";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useI18n } from "./LanguageProvider";
 
+const labelByLang: Record<Lang, string> = {
+  es: "ES",
+  pt: "PT",
+  en: "EN",
+};
+
 export function LocaleMenu() {
-  const { t } = useI18n();
+  const { lang } = useI18n();
 
   return (
     <details className="prefs-menu">
-      <summary className="mini-button">{t("preferences_label")}</summary>
+      <summary className="mini-button">{labelByLang[lang]}</summary>
       <div className="prefs-panel">
-        <p className="label">{t("lang_label")}</p>
         <LanguageSwitcher />
       </div>
     </details>
   );
 }
-
