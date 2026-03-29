@@ -82,6 +82,15 @@ export type PendingInviteView = {
   invitedAt: string | null;
 };
 
+export type SetupRequestView = {
+  id: string;
+  channel: "whatsapp" | "email" | "form";
+  status: "requested" | "in_progress" | "completed" | "cancelled";
+  createdAt: string;
+  companyName: string;
+  requestedBy: string;
+};
+
 export type AppContext =
   | { kind: "unconfigured" }
   | { kind: "unauthenticated" }
@@ -471,4 +480,40 @@ export async function getSettingsData(
     pendingInvites,
     setupRequests: ((setupRequests as SetupRequestRow[] | null | undefined) ?? []),
   };
+}
+
+export async function getSetupRequestsAdminView() {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("setup_requests")
+    .select(
+      "id, channel, status, created_at, companies(name), profiles(full_name)",
+    )
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (((data as Array<{
+    id: string;
+    channel: "whatsapp" | "email" | "form";
+    status: "requested" | "in_progress" | "completed" | "cancelled";
+    created_at: string;
+    companies: { name: string } | { name: string }[] | null;
+    profiles: { full_name: string | null } | { full_name: string | null }[] | null;
+  }> | null | undefined) ?? []).map((row) => {
+    const company = Array.isArray(row.companies) ? row.companies[0] : row.companies;
+    const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+
+    return {
+      id: row.id,
+      channel: row.channel,
+      status: row.status,
+      createdAt: row.created_at,
+      companyName: company?.name ?? "Unknown company",
+      requestedBy: profile?.full_name ?? "Unknown user",
+    } satisfies SetupRequestView;
+  }));
 }

@@ -12,6 +12,7 @@ export function AppNav() {
     { href: "/inbox", label: t("nav_inbox") },
     { href: "/revenue", label: t("nav_revenue") },
     { href: "/settings", label: t("nav_settings") },
+    { href: "/setup-requests", label: "Setup" },
   ];
 
   return (
