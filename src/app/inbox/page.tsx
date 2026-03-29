@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cookies, headers } from "next/headers";
 import { AppNav } from "@/components/AppNav";
+import { InboxRowActions } from "@/components/InboxRowActions";
 import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
@@ -11,6 +12,7 @@ import {
   formatStatus,
   getAppContext,
   getConversationViews,
+  getTeamMembers,
 } from "@/lib/app-data";
 
 function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
@@ -57,7 +59,10 @@ export default async function InboxPage() {
     );
   }
 
-  const rows = await getConversationViews(context.supabase, context.profile.company_id);
+  const [rows, team] = await Promise.all([
+    getConversationViews(context.supabase, context.profile.company_id),
+    getTeamMembers(context.supabase, context.profile.company_id),
+  ]);
   const leadsAtRisk = rows.filter((row) => row.status === "new" || row.status === "no_response").length;
   const riskAmount = rows
     .filter((row) => row.status === "new" || row.status === "no_response")
@@ -142,9 +147,29 @@ export default async function InboxPage() {
                       {format(row.estimatedValue)} {t("inbox_value_potential")} | {format(row.status === "won" ? row.expectedValue : 0)} {t("inbox_value_recovered")}
                     </td>
                     <td>
-                      <Link className="mini-button" href={`/conversation/${row.id}`}>
-                        {t("inbox_reply")} → {t("inbox_recover_prefix")} {format(recoverable)}
-                      </Link>
+                      <InboxRowActions
+                        conversationId={row.id}
+                        currentStatus={row.status}
+                        currentAssignedToId={row.assignedToId}
+                        team={team}
+                        labels={{
+                          status: t("inbox_status"),
+                          assignee: t("inbox_assigned"),
+                          save: t("inbox_change_status"),
+                          saving: "...",
+                          unassigned: "Unassigned",
+                          new: t("inbox_filter_new"),
+                          active: t("inbox_filter_in_progress"),
+                          noResponse: t("inbox_filter_no_reply"),
+                          won: t("revenue_filter_won"),
+                          lost: t("inbox_filter_lost"),
+                        }}
+                      />
+                      <div style={{ marginTop: 8 }}>
+                        <Link className="mini-button" href={`/conversation/${row.id}`}>
+                          {t("inbox_reply")} → {t("inbox_recover_prefix")} {format(recoverable)}
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 );

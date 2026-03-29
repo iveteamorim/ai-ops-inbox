@@ -100,6 +100,7 @@ export type ConversationView = {
   contactPhone: string | null;
   channel: "whatsapp" | "email" | "form";
   status: ConversationRow["status"];
+  assignedToId: string | null;
   assignedTo: string | null;
   aiPriority: "high" | "medium" | "low";
   estimatedValue: number;
@@ -346,6 +347,7 @@ export async function getConversationViews(
       contactPhone: contact?.phone ?? null,
       channel: row.channel,
       status: row.status,
+      assignedToId: row.assigned_to,
       assignedTo: assigned?.full_name ?? null,
       aiPriority: normalizePriority(row.ai_priority),
       estimatedValue: Number(row.estimated_value ?? 0),
@@ -355,6 +357,23 @@ export async function getConversationViews(
       createdAt: row.created_at,
     } satisfies ConversationView;
   });
+}
+
+export async function getTeamMembers(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  companyId: string,
+) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, full_name, role")
+    .eq("company_id", companyId)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return ((data as TeamMemberView[] | null | undefined) ?? []);
 }
 
 export async function getConversationDetail(

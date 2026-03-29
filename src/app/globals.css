@@ -210,6 +210,30 @@ a {
   background: rgba(13, 29, 26, 0.9);
 }
 
+.row-actions {
+  display: grid;
+  gap: 8px;
+  min-width: 190px;
+}
+
+.row-select {
+  margin-bottom: 0;
+  padding: 8px 10px;
+  font-size: 0.84rem;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .button {
   border: 0;
   background: linear-gradient(120deg, var(--brand) 0%, #16a34a 100%);
