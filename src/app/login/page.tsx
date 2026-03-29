@@ -13,11 +13,14 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+    setMessage(null);
     setLoading(true);
 
     try {
@@ -44,6 +47,37 @@ export default function LoginPage() {
     }
   }
 
+  async function handleForgotPassword() {
+    setError(null);
+    setMessage(null);
+
+    if (!email.trim()) {
+      setError(t("login_forgot_requires_email"));
+      return;
+    }
+
+    setResetLoading(true);
+    try {
+      const supabase = createClient();
+      const redirectTo =
+        typeof window !== "undefined" ? `${window.location.origin}/reset-password` : undefined;
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo,
+      });
+
+      if (resetError) {
+        setError(resetError.message);
+        return;
+      }
+
+      setMessage(t("login_forgot_sent"));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("login_forgot_error"));
+    } finally {
+      setResetLoading(false);
+    }
+  }
+
   return (
     <section className="page">
       <MarketingNav />
@@ -62,9 +96,14 @@ export default function LoginPage() {
         <input id="password" className="input" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
 
         {error && <p className="warn">{error}</p>}
+        {message && <p className="note">{message}</p>}
 
         <button className="button" type="submit" disabled={loading}>
           {loading ? "..." : t("nav_signin")}
+        </button>
+
+        <button className="mini-button" type="button" disabled={resetLoading} onClick={handleForgotPassword}>
+          {resetLoading ? "..." : t("login_forgot_password")}
         </button>
 
         <p style={{ marginBottom: 0 }}>
