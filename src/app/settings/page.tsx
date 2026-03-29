@@ -12,9 +12,7 @@ function getSetupCopy(lang: string) {
       channelsNote: "Configurado por Novua durante onboarding.",
       requestSetup: "Solicitar setup",
       requestWhatsAppSetup: "Solicitar setup de WhatsApp",
-      usersNote: "Invita al equipo cuando el workspace ya esté activo y conectado.",
-      inviteUser: "Invitar usuario",
-      inviteUserNote: "Invitaciones activas durante onboarding.",
+      usersNote: "Invita al equipo cuando el sistema esté activo.",
       systemStatusTitle: "Estado del sistema",
       channelsConnected: "Canales conectados",
       aiSystem: "Sistema IA",
@@ -31,9 +29,7 @@ function getSetupCopy(lang: string) {
       channelsNote: "Configurado pela Novua durante o onboarding.",
       requestSetup: "Solicitar setup",
       requestWhatsAppSetup: "Solicitar setup de WhatsApp",
-      usersNote: "Convide a equipa quando o workspace já estiver ativo e conectado.",
-      inviteUser: "Convidar utilizador",
-      inviteUserNote: "Convites ativos durante o onboarding.",
+      usersNote: "Convide a equipa quando o sistema estiver ativo.",
       systemStatusTitle: "Estado do sistema",
       channelsConnected: "Canais conectados",
       aiSystem: "Sistema IA",
@@ -49,9 +45,7 @@ function getSetupCopy(lang: string) {
     channelsNote: "Configured by Novua during onboarding.",
     requestSetup: "Request setup",
     requestWhatsAppSetup: "Request WhatsApp setup",
-    usersNote: "Invite the team once the workspace is active and connected.",
-    inviteUser: "Invite user",
-    inviteUserNote: "Invites are enabled during onboarding.",
+    usersNote: "Invite the team once the system is active.",
     systemStatusTitle: "System status",
     channelsConnected: "Channels connected",
     aiSystem: "AI system",
@@ -107,11 +101,6 @@ export default async function SettingsPage() {
               </div>
               <p className="note">{copy.channelUsage}</p>
               <p className="note">{copy.channelsNote}</p>
-              <div className="actions" style={{ marginTop: 12 }}>
-                <a className="button" href="mailto:?subject=Novua%20Inbox%20Setup">
-                  {copy.requestSetup}
-                </a>
-              </div>
             </div>
           ) : (
             channels.map((channel) => (
@@ -160,7 +149,6 @@ export default async function SettingsPage() {
                 </div>
               ))}
               <p className="note">{copy.usersNote}</p>
-              <p className="note">{copy.inviteUser}: {copy.inviteUserNote}</p>
             </>
           )}
         </article>
