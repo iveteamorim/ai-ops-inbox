@@ -61,6 +61,13 @@ type ChannelRow = {
   is_active: boolean;
 };
 
+type SetupRequestRow = {
+  id: string;
+  channel: "whatsapp" | "email" | "form";
+  status: "requested" | "in_progress" | "completed" | "cancelled";
+  created_at: string;
+};
+
 export type AppContext =
   | { kind: "unconfigured" }
   | { kind: "unauthenticated" }
@@ -375,7 +382,7 @@ export async function getSettingsData(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
   companyId: string,
 ) {
-  const [{ data: channels }, { data: profiles }] = await Promise.all([
+  const [{ data: channels }, { data: profiles }, { data: setupRequests }] = await Promise.all([
     supabase
       .from("channels")
       .select("id, type, external_account_id, is_active")
@@ -386,10 +393,17 @@ export async function getSettingsData(
       .select("id, full_name, role")
       .eq("company_id", companyId)
       .order("created_at", { ascending: true }),
+    supabase
+      .from("setup_requests")
+      .select("id, channel, status, created_at")
+      .eq("company_id", companyId)
+      .order("created_at", { ascending: false })
+      .limit(10),
   ]);
 
   return {
     channels: ((channels as ChannelRow[] | null | undefined) ?? []),
     team: ((profiles as Array<{ id: string; full_name: string | null; role: string }> | null | undefined) ?? []),
+    setupRequests: ((setupRequests as SetupRequestRow[] | null | undefined) ?? []),
   };
 }

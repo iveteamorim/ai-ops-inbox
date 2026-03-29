@@ -500,6 +500,11 @@ a {
   margin-top: 10px;
 }
 
+.request-state {
+  display: grid;
+  gap: 8px;
+}
+
 @keyframes shimmer {
   from {
     background-position: 200% 0;

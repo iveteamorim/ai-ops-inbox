@@ -103,12 +103,23 @@ create table if not exists public.webhook_events (
   unique (source, external_id)
 );
 
+create table if not exists public.setup_requests (
+  id uuid primary key default gen_random_uuid(),
+  company_id uuid not null references public.companies(id) on delete cascade,
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  channel text not null check (channel in ('whatsapp', 'email', 'form')),
+  status text not null default 'requested' check (status in ('requested', 'in_progress', 'completed', 'cancelled')),
+  notes text,
+  created_at timestamptz not null default now()
+);
+
 create index if not exists idx_profiles_company on public.profiles (company_id);
 create index if not exists idx_channels_company on public.channels (company_id, type, is_active);
 create index if not exists idx_contacts_company on public.contacts (company_id);
 create index if not exists idx_conversations_company_status on public.conversations (company_id, status, last_message_at desc);
 create index if not exists idx_messages_conversation_created on public.messages (conversation_id, created_at desc);
 create index if not exists idx_webhook_events_source_status on public.webhook_events (source, status, received_at desc);
+create index if not exists idx_setup_requests_company_created on public.setup_requests (company_id, created_at desc);
 
 create or replace function public.set_updated_at()
 returns trigger
@@ -169,6 +180,7 @@ alter table public.contacts enable row level security;
 alter table public.conversations enable row level security;
 alter table public.messages enable row level security;
 alter table public.webhook_events enable row level security;
+alter table public.setup_requests enable row level security;
 
 -- Baseline RLS policy: users can only read/write their own company records.
 drop policy if exists "profiles_select_own_company" on public.profiles;
@@ -204,3 +216,12 @@ drop policy if exists "webhook_events_read_own_company" on public.webhook_events
 create policy "webhook_events_read_own_company" on public.webhook_events
 for select
 using (company_id = (select p.company_id from public.profiles p where p.id = auth.uid()));
+
+drop policy if exists "setup_requests_rw_own_company" on public.setup_requests;
+create policy "setup_requests_rw_own_company" on public.setup_requests
+for all
+using (company_id = (select p.company_id from public.profiles p where p.id = auth.uid()))
+with check (
+  company_id = (select p.company_id from public.profiles p where p.id = auth.uid())
+  and user_id = auth.uid()
+);
