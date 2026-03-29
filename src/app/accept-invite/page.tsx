@@ -31,6 +31,21 @@ export default function AcceptInvitePage() {
           if (exchangeError) {
             throw exchangeError;
           }
+        } else if (typeof window !== "undefined" && window.location.hash) {
+          const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+          const accessToken = hash.get("access_token");
+          const refreshToken = hash.get("refresh_token");
+
+          if (accessToken && refreshToken) {
+            const { error: sessionError } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+
+            if (sessionError) {
+              throw sessionError;
+            }
+          }
         } else if (tokenHash && inviteType === "invite") {
           const { error: verifyError } = await supabase.auth.verifyOtp({
             token_hash: tokenHash,
@@ -40,6 +55,7 @@ export default function AcceptInvitePage() {
             throw verifyError;
           }
         } else {
+          await new Promise((resolve) => setTimeout(resolve, 200));
           const {
             data: { session },
           } = await supabase.auth.getSession();
