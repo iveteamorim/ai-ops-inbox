@@ -13,12 +13,6 @@ function getSetupCopy(lang: string) {
       requestSetup: "Solicitar setup",
       requestWhatsAppSetup: "Solicitar setup de WhatsApp",
       usersNote: "Invita al equipo cuando el sistema esté activo.",
-      systemStatusTitle: "Estado del sistema",
-      channelsConnected: "Canales conectados",
-      aiSystem: "Sistema IA",
-      followUps: "Follow-ups",
-      nextStep: "Siguiente paso",
-      nextStepText: "Solicitar setup de WhatsApp para empezar a recibir conversaciones.",
     };
   }
 
@@ -30,12 +24,6 @@ function getSetupCopy(lang: string) {
       requestSetup: "Solicitar setup",
       requestWhatsAppSetup: "Solicitar setup de WhatsApp",
       usersNote: "Convide a equipa quando o sistema estiver ativo.",
-      systemStatusTitle: "Estado do sistema",
-      channelsConnected: "Canais conectados",
-      aiSystem: "Sistema IA",
-      followUps: "Follow-ups",
-      nextStep: "Próximo passo",
-      nextStepText: "Solicitar setup de WhatsApp para começar a receber conversas.",
     };
   }
 
@@ -46,12 +34,6 @@ function getSetupCopy(lang: string) {
     requestSetup: "Request setup",
     requestWhatsAppSetup: "Request WhatsApp setup",
     usersNote: "Invite the team once the system is active.",
-    systemStatusTitle: "System status",
-    channelsConnected: "Channels connected",
-    aiSystem: "AI system",
-    followUps: "Follow-ups",
-    nextStep: "Next step",
-    nextStepText: "Request WhatsApp setup to start receiving conversations.",
   };
 }
 
@@ -78,8 +60,6 @@ export default async function SettingsPage() {
 
   const { channels, team } = await getSettingsData(context.supabase, context.profile.company_id);
   const hasWebhookSecrets = Boolean(process.env.WHATSAPP_VERIFY_TOKEN && process.env.WHATSAPP_APP_SECRET);
-  const connectedChannels = channels.filter((channel) => channel.is_active).length;
-
   return (
     <section className="page">
       <AppNav />
@@ -156,24 +136,6 @@ export default async function SettingsPage() {
               <p className="note">{copy.usersNote}</p>
             </>
           )}
-        </article>
-
-        <article className="card" id="request-setup">
-          <p className="label">{copy.systemStatusTitle}</p>
-          <div className="preview-row">
-            <span>{copy.channelsConnected}</span>
-            <span className={`badge ${connectedChannels > 0 ? "status-active" : "status-no-response"}`}>{connectedChannels}</span>
-          </div>
-          <div className="preview-row">
-            <span>{copy.aiSystem}</span>
-            <span className="badge status-active">{t("settings_active")}</span>
-          </div>
-          <div className="preview-row">
-            <span>{copy.followUps}</span>
-            <span className="badge status-active">{t("settings_active")}</span>
-          </div>
-          <p className="label" style={{ marginTop: 16 }}>{copy.nextStep}</p>
-          <p className="subtitle">{copy.nextStepText}</p>
         </article>
       </div>
     </section>
