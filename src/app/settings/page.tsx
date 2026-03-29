@@ -42,7 +42,19 @@ export default async function SettingsPage() {
         <article className="card">
           <p className="label">{t("settings_channels")}</p>
           {channels.length === 0 ? (
-            <p className="subtitle">No channels configured yet.</p>
+            <>
+              <p className="subtitle">No channels configured yet.</p>
+              <div className="actions" style={{ marginTop: 12 }}>
+                <a
+                  className="button"
+                  href="https://developers.facebook.com/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Connect WhatsApp
+                </a>
+              </div>
+            </>
           ) : (
             channels.map((channel) => (
               <div key={channel.id} className="preview-row">
@@ -60,12 +72,19 @@ export default async function SettingsPage() {
           {team.length === 0 ? (
             <p className="subtitle">No team members found.</p>
           ) : (
-            team.map((member) => (
-              <div key={member.id} className="preview-row">
-                <span>{member.full_name ?? "Unnamed user"} ({member.role})</span>
-                <span className="badge status-active">{t("settings_active")}</span>
+            <>
+              {team.map((member) => (
+                <div key={member.id} className="preview-row">
+                  <span>{member.full_name ?? "Unnamed user"} ({member.role})</span>
+                  <span className="badge status-active">{t("settings_active")}</span>
+                </div>
+              ))}
+              <div className="actions" style={{ marginTop: 12 }}>
+                <a className="mini-button" href="mailto:?subject=Join%20Novua%20Inbox">
+                  Invite user
+                </a>
               </div>
-            ))
+            </>
           )}
         </article>
 
@@ -86,6 +105,11 @@ export default async function SettingsPage() {
             <span className={`badge ${hasWebhookSecrets ? "status-active" : "status-no-response"}`}>
               {hasWebhookSecrets ? t("settings_active") : t("settings_disconnected")}
             </span>
+          </div>
+          <div className="actions" style={{ marginTop: 12 }}>
+            <a className="mini-button" href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">
+              Configure AI
+            </a>
           </div>
         </article>
       </div>

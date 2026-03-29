@@ -66,6 +66,14 @@ export default async function RevenuePage() {
           <div className="empty-state">
             <h3>{t("revenue_empty_title")}</h3>
             <p>{t("revenue_empty_text")}</p>
+            <div className="actions" style={{ marginTop: 12 }}>
+              <a className="button" href="/inbox">
+                Go to inbox
+              </a>
+              <a className="mini-button" href="/settings">
+                Configure channels
+              </a>
+            </div>
           </div>
         ) : (
           <table className="table">
