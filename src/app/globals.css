@@ -246,6 +246,21 @@ a {
   display: inline-block;
 }
 
+.action-link {
+  align-self: flex-start;
+  border: 0;
+  background: transparent;
+  color: var(--brand);
+  font-weight: 700;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.action-link:hover {
+  text-decoration: underline;
+}
+
 .actions,
 .hero-actions {
   display: flex;

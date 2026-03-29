@@ -103,11 +103,10 @@ export default function LoginPage() {
         </button>
 
         <button
-          className="inline-link"
+          className="action-link"
           type="button"
           disabled={resetLoading}
           onClick={handleForgotPassword}
-          style={{ alignSelf: "flex-start", padding: 0, background: "transparent", border: 0 }}
         >
           {resetLoading ? "..." : t("login_forgot_password")}
         </button>
