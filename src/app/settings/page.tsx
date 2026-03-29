@@ -10,14 +10,11 @@ function getSetupCopy(lang: string) {
       channelsEmpty: "WhatsApp se configura con Novua durante el onboarding.",
       channelUsage: "Se usa para recibir y responder mensajes entrantes.",
       channelsNote: "Configurado por Novua durante onboarding.",
-      viewNextStep: "Ver siguiente paso",
       requestSetup: "Solicitar setup",
       requestWhatsAppSetup: "Solicitar setup de WhatsApp",
       usersNote: "Invita al equipo cuando el workspace ya esté activo y conectado.",
       inviteUser: "Invitar usuario",
       inviteUserNote: "Invitaciones activas durante onboarding.",
-      aiSettings: "Ajustes IA",
-      aiSetupTitle: "Ajustes de IA",
       systemStatusTitle: "Estado del sistema",
       channelsConnected: "Canales conectados",
       aiSystem: "Sistema IA",
@@ -32,14 +29,11 @@ function getSetupCopy(lang: string) {
       channelsEmpty: "O WhatsApp é configurado com a Novua durante o onboarding.",
       channelUsage: "É usado para receber e responder a mensagens de entrada.",
       channelsNote: "Configurado pela Novua durante o onboarding.",
-      viewNextStep: "Ver próximo passo",
       requestSetup: "Solicitar setup",
       requestWhatsAppSetup: "Solicitar setup de WhatsApp",
       usersNote: "Convide a equipa quando o workspace já estiver ativo e conectado.",
       inviteUser: "Convidar utilizador",
       inviteUserNote: "Convites ativos durante o onboarding.",
-      aiSettings: "Definições IA",
-      aiSetupTitle: "Definições de IA",
       systemStatusTitle: "Estado do sistema",
       channelsConnected: "Canais conectados",
       aiSystem: "Sistema IA",
@@ -53,14 +47,11 @@ function getSetupCopy(lang: string) {
     channelsEmpty: "WhatsApp is configured with Novua during onboarding.",
     channelUsage: "Used to receive and respond to inbound messages.",
     channelsNote: "Configured by Novua during onboarding.",
-    viewNextStep: "View next step",
     requestSetup: "Request setup",
     requestWhatsAppSetup: "Request WhatsApp setup",
     usersNote: "Invite the team once the workspace is active and connected.",
     inviteUser: "Invite user",
     inviteUserNote: "Invites are enabled during onboarding.",
-    aiSettings: "AI settings",
-    aiSetupTitle: "AI settings",
     systemStatusTitle: "System status",
     channelsConnected: "Channels connected",
     aiSystem: "AI system",
@@ -117,8 +108,8 @@ export default async function SettingsPage() {
               <p className="note">{copy.channelUsage}</p>
               <p className="note">{copy.channelsNote}</p>
               <div className="actions" style={{ marginTop: 12 }}>
-                <a className="button" href="#request-setup">
-                  {copy.viewNextStep}
+                <a className="button" href="mailto:?subject=Novua%20Inbox%20Setup">
+                  {copy.requestSetup}
                 </a>
               </div>
             </div>
@@ -153,21 +144,6 @@ export default async function SettingsPage() {
             <span className={`badge ${hasWebhookSecrets ? "status-active" : "status-no-response"}`}>
               {hasWebhookSecrets ? t("settings_active") : t("settings_disconnected")}
             </span>
-          </div>
-          <p className="label" style={{ marginTop: 16 }}>{copy.aiSettings}</p>
-          <div className="settings-grid" id="ai-settings">
-            <div>
-              <p className="label">Response tone</p>
-              <p className="subtitle">Friendly · Professional</p>
-            </div>
-            <div>
-              <p className="label">Language</p>
-              <p className="subtitle">ES · PT · EN</p>
-            </div>
-            <div>
-              <p className="label">Follow-up timing</p>
-              <p className="subtitle">1h · 6h · 24h</p>
-            </div>
           </div>
         </article>
 
