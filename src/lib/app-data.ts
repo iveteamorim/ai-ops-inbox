@@ -415,30 +415,29 @@ export async function getSettingsData(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
   companyId: string,
 ) {
-  const [{ data: channels }, { data: profiles }, { data: setupRequests }] = await Promise.all([
+  const admin = createAdminClient();
+  const [{ data: channels }, { data: setupRequests }, { data: adminProfiles }] = await Promise.all([
     supabase
       .from("channels")
       .select("id, type, external_account_id, is_active")
       .eq("company_id", companyId)
       .order("type", { ascending: true }),
     supabase
-      .from("profiles")
-      .select("id, full_name, role")
-      .eq("company_id", companyId)
-      .order("created_at", { ascending: true }),
-    supabase
       .from("setup_requests")
       .select("id, channel, status, created_at")
       .eq("company_id", companyId)
       .order("created_at", { ascending: false })
       .limit(10),
+    admin
+      .from("profiles")
+      .select("id, full_name, role")
+      .eq("company_id", companyId)
+      .order("created_at", { ascending: true }),
   ]);
 
   let pendingInvites: PendingInviteView[] = [];
-  let activeUserIds = new Set<string>();
 
   try {
-    const admin = createAdminClient();
     const { data, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
     if (!error) {
       const scopedUsers = data.users.filter(
@@ -457,20 +456,14 @@ export async function getSettingsData(
           invitedAt: user.invited_at ?? user.created_at ?? null,
         }))
         .filter((invite) => Boolean(invite.email));
-
-      activeUserIds = new Set(
-        scopedUsers.filter((user) => Boolean(user.last_sign_in_at)).map((user) => user.id),
-      );
     }
   } catch {
     pendingInvites = [];
   }
 
-  const allProfiles = ((profiles as TeamMemberView[] | null | undefined) ?? []);
-  const team =
-    activeUserIds.size > 0
-      ? allProfiles.filter((member) => activeUserIds.has(member.id))
-      : allProfiles;
+  const pendingInviteIds = new Set(pendingInvites.map((invite) => invite.id));
+  const allProfiles = ((adminProfiles as TeamMemberView[] | null | undefined) ?? []);
+  const team = allProfiles.filter((member) => !pendingInviteIds.has(member.id));
 
   return {
     channels: ((channels as ChannelRow[] | null | undefined) ?? []),
