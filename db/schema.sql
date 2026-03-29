@@ -47,12 +47,34 @@ create table if not exists public.conversations (
   channel text not null check (channel in ('whatsapp', 'email', 'form')),
   status text not null default 'new' check (status in ('new', 'active', 'won', 'lost', 'no_response')),
   assigned_to uuid references public.profiles(id),
+  estimated_value numeric(12,2) not null default 0,
+  expected_value numeric(12,2) not null default 0,
+  ai_priority text not null default 'medium' check (ai_priority in ('high', 'medium', 'low')),
   last_message_at timestamptz,
   last_inbound_at timestamptz,
   last_outbound_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.conversations
+  add column if not exists estimated_value numeric(12,2) not null default 0,
+  add column if not exists expected_value numeric(12,2) not null default 0,
+  add column if not exists ai_priority text not null default 'medium';
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'conversations_ai_priority_check'
+  ) then
+    alter table public.conversations
+      add constraint conversations_ai_priority_check
+      check (ai_priority in ('high', 'medium', 'low'));
+  end if;
+end
+$$;
 
 create table if not exists public.messages (
   id uuid primary key default gen_random_uuid(),
@@ -104,6 +126,42 @@ before update on public.conversations
 for each row
 execute function public.set_updated_at();
 
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  created_company_id uuid;
+  company_name text;
+  full_name text;
+begin
+  company_name := nullif(trim(coalesce(new.raw_user_meta_data ->> 'company_name', '')), '');
+  full_name := nullif(trim(coalesce(new.raw_user_meta_data ->> 'full_name', '')), '');
+
+  if company_name is null then
+    company_name := initcap(split_part(coalesce(new.email, 'novua'), '@', 1));
+  end if;
+
+  insert into public.companies (name)
+  values (company_name)
+  returning id into created_company_id;
+
+  insert into public.profiles (id, company_id, full_name, role)
+  values (new.id, created_company_id, full_name, 'owner')
+  on conflict (id) do nothing;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+after insert on auth.users
+for each row
+execute function public.handle_new_user();
+
 -- Enable RLS once real auth is connected.
 alter table public.profiles enable row level security;
 alter table public.channels enable row level security;
@@ -113,30 +171,36 @@ alter table public.messages enable row level security;
 alter table public.webhook_events enable row level security;
 
 -- Baseline RLS policy: users can only read/write their own company records.
-create policy if not exists "profiles_select_own_company" on public.profiles
+drop policy if exists "profiles_select_own_company" on public.profiles;
+create policy "profiles_select_own_company" on public.profiles
 for select
 using (company_id = (select p.company_id from public.profiles p where p.id = auth.uid()));
 
-create policy if not exists "channels_rw_own_company" on public.channels
+drop policy if exists "channels_rw_own_company" on public.channels;
+create policy "channels_rw_own_company" on public.channels
 for all
 using (company_id = (select p.company_id from public.profiles p where p.id = auth.uid()))
 with check (company_id = (select p.company_id from public.profiles p where p.id = auth.uid()));
 
-create policy if not exists "contacts_rw_own_company" on public.contacts
+drop policy if exists "contacts_rw_own_company" on public.contacts;
+create policy "contacts_rw_own_company" on public.contacts
 for all
 using (company_id = (select p.company_id from public.profiles p where p.id = auth.uid()))
 with check (company_id = (select p.company_id from public.profiles p where p.id = auth.uid()));
 
-create policy if not exists "conversations_rw_own_company" on public.conversations
+drop policy if exists "conversations_rw_own_company" on public.conversations;
+create policy "conversations_rw_own_company" on public.conversations
 for all
 using (company_id = (select p.company_id from public.profiles p where p.id = auth.uid()))
 with check (company_id = (select p.company_id from public.profiles p where p.id = auth.uid()));
 
-create policy if not exists "messages_rw_own_company" on public.messages
+drop policy if exists "messages_rw_own_company" on public.messages;
+create policy "messages_rw_own_company" on public.messages
 for all
 using (company_id = (select p.company_id from public.profiles p where p.id = auth.uid()))
 with check (company_id = (select p.company_id from public.profiles p where p.id = auth.uid()));
 
-create policy if not exists "webhook_events_read_own_company" on public.webhook_events
+drop policy if exists "webhook_events_read_own_company" on public.webhook_events;
+create policy "webhook_events_read_own_company" on public.webhook_events
 for select
 using (company_id = (select p.company_id from public.profiles p where p.id = auth.uid()));
