@@ -59,7 +59,7 @@ export async function POST(request: Request) {
   }
 
   const admin = createAdminClient();
-  const redirectTo = `${new URL(request.url).origin}/login`;
+  const redirectTo = `${new URL(request.url).origin}/accept-invite`;
   const inviteResult = await admin.auth.admin.inviteUserByEmail(email, {
     redirectTo,
     data: {
