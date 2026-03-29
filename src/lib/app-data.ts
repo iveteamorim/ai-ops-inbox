@@ -486,9 +486,7 @@ export async function getSetupRequestsAdminView() {
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("setup_requests")
-    .select(
-      "id, channel, status, created_at, companies(name), profiles(full_name)",
-    )
+    .select("id, company_id, user_id, channel, status, created_at")
     .order("created_at", { ascending: false })
     .limit(50);
 
@@ -496,24 +494,57 @@ export async function getSetupRequestsAdminView() {
     throw new Error(error.message);
   }
 
-  return (((data as Array<{
+  const rows = ((data as Array<{
     id: string;
+    company_id: string;
+    user_id: string;
     channel: "whatsapp" | "email" | "form";
     status: "requested" | "in_progress" | "completed" | "cancelled";
     created_at: string;
-    companies: { name: string } | { name: string }[] | null;
-    profiles: { full_name: string | null } | { full_name: string | null }[] | null;
-  }> | null | undefined) ?? []).map((row) => {
-    const company = Array.isArray(row.companies) ? row.companies[0] : row.companies;
-    const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+  }> | null | undefined) ?? []);
 
+  if (rows.length === 0) {
+    return [] satisfies SetupRequestView[];
+  }
+
+  const companyIds = Array.from(new Set(rows.map((row) => row.company_id)));
+  const userIds = Array.from(new Set(rows.map((row) => row.user_id)));
+
+  const [{ data: companies, error: companiesError }, { data: profiles, error: profilesError }] =
+    await Promise.all([
+      admin.from("companies").select("id, name").in("id", companyIds),
+      admin.from("profiles").select("id, full_name").in("id", userIds),
+    ]);
+
+  if (companiesError) {
+    throw new Error(companiesError.message);
+  }
+
+  if (profilesError) {
+    throw new Error(profilesError.message);
+  }
+
+  const companiesById = new Map(
+    (((companies as Array<{ id: string; name: string }> | null | undefined) ?? []).map((row) => [
+      row.id,
+      row.name,
+    ])),
+  );
+  const profilesById = new Map(
+    (((profiles as Array<{ id: string; full_name: string | null }> | null | undefined) ?? []).map((row) => [
+      row.id,
+      row.full_name,
+    ])),
+  );
+
+  return rows.map((row) => {
     return {
       id: row.id,
       channel: row.channel,
       status: row.status,
       createdAt: row.created_at,
-      companyName: company?.name ?? "Unknown company",
-      requestedBy: profile?.full_name ?? "Unknown user",
+      companyName: companiesById.get(row.company_id) ?? "Unknown company",
+      requestedBy: profilesById.get(row.user_id) ?? "Unknown user",
     } satisfies SetupRequestView;
-  }));
+  });
 }
