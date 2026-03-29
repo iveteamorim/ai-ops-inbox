@@ -1,4 +1,7 @@
-# Novua Inbox (AI Ops Inbox)
+# Novua Inbox — Recover Lost Revenue with AI
+
+Most businesses do not lose deals because of lack of demand.  
+They lose them because leads are not handled fast or consistently enough.
 
 ## Live Links
 
@@ -6,29 +9,57 @@
 - GitHub: https://github.com/iveteamorim/ai-ops-inbox
 - Architecture: https://github.com/iveteamorim/ai-ops-inbox/blob/main/docs/architecture.svg
 
+## Problem
 
-## Product Walkthrough
+Businesses lose revenue when leads are not answered fast enough, follow-ups are missed, and conversations across channels become inconsistent or fragmented.
 
-1. Open Inbox -> identify high-value or at-risk leads
-2. Open a conversation -> review suggested actions and reply options
-3. Navigate to Revenue -> review potential vs recovered value
-4. Review architecture and screenshots in this repository for implementation context
+This creates:
+
+- lost deals from delayed response
+- poor follow-up on warm leads
+- missed high-value opportunities
+- limited visibility into revenue at risk
+
+## Solution
+
+Novua Inbox combines a unified operations inbox with AI-assisted lead prioritization, response support, and revenue-aware follow-up workflows.
+
+## How it Works
+
+1. A lead enters through WhatsApp, email, or form
+2. AI classifies urgency and intent
+3. High-value leads are prioritized
+4. Suggested replies are generated
+5. Follow-up actions can be triggered based on inactivity
+
+All activity is translated into operational and revenue impact.
 
 ## Business Impact
 
-Designed to:
+- reduce response time by 60-80%
+- recover revenue from missed or delayed lead handling
+- automate follow-up on conversations with buying intent
+- improve visibility into pipeline and revenue at risk
 
-- Reduce response time by ~60–80%
-- Recover revenue from unanswered leads
-- Automate follow-ups and lead prioritization
+## Revenue Layer
 
-Example:
+Novua Inbox is built around commercial impact, not just message management.
 
-A business receiving 50+ leads/day can lose €1,000+ per week due to slow response and missed follow-ups.
+It highlights:
 
-This system identifies high-value conversations, prioritizes them, and enables immediate action to recover that revenue.
+- high-value conversations
+- at-risk revenue
+- response urgency
+- follow-up opportunities
+- recovered vs potential value
 
+## Why Novua Inbox
 
+Unlike traditional CRMs or generic chat tools, Novua Inbox is built around revenue impact:
+
+- not just messages, but money at risk
+- not just replies, but conversion outcomes
+- not just automation, but recovery workflows
 
 ## Architecture
 
@@ -38,17 +69,19 @@ This system identifies high-value conversations, prioritizes them, and enables i
 
 Core flows:
 
-- Message ingestion → classification → lead scoring
-- Priority queue generation based on business value
-- Inactivity-based follow-up triggers
-- Revenue estimation per conversation
+- message ingestion -> classification -> lead scoring
+- priority queue generation based on business value
+- inactivity-based follow-up triggers
+- revenue estimation per conversation
 
-   ## AI Layer
+![Architecture](docs/architecture.svg)
 
-- Lead scoring (high / medium / low intent)
-- Context-aware reply suggestions
-- Revenue-at-risk estimation per conversation
-- Follow-up trigger detection based on inactivity
+## AI Layer
+
+- lead scoring (high / medium / low intent)
+- context-aware reply suggestions
+- revenue-at-risk estimation per conversation
+- follow-up trigger detection based on inactivity
 
 Goal:
 
@@ -56,30 +89,12 @@ Turn raw conversations into prioritized revenue actions.
 
 ## Technical Highlights
 
-- Multi-tenant access boundaries and company-scoped message flows.
-- Signed webhook validation for WhatsApp ingestion.
-- Hardened auth/session flows and production-ready middleware guards.
-- Type-safe Next.js + Supabase implementation with linted CI-friendly structure.
+- Multi-tenant access boundaries and company-scoped message flows
+- Signed webhook validation for WhatsApp ingestion
+- Hardened auth/session flows and production-ready middleware guards
+- Type-safe Next.js + Supabase implementation with linted CI-friendly structure
 
-## What this project demonstrates
-
-- Production-grade AI integration inside a SaaS-style UX.
-- Multi-tenant-oriented architecture for lead and conversation operations.
-- Unified inbox flows across channels (foundation for WhatsApp/email/forms).
-- Revenue recovery logic for unanswered and at-risk conversations.
-
-## Real-world use case
-
-Businesses lose revenue because leads are not answered in time across multiple channels.
-
-Novua Inbox centralizes communication and applies AI to:
-
-- Detect high-value leads.
-- Suggest response actions.
-- Trigger follow-up actions.
-- Quantify lost or at-risk revenue.
-
-## Core stack
+## Core Stack
 
 - Frontend: Next.js (App Router)
 - Backend: Next.js Route Handlers / API routes
@@ -87,16 +102,30 @@ Novua Inbox centralizes communication and applies AI to:
 - AI: OpenAI API
 - Integrations: WhatsApp Cloud API (scaffolded), email/form flows
 
-## Project structure
+## Project Structure
 
-- `src/app`: pages, routes, and API handlers
-- `src/components`: UI and i18n components
-- `src/lib`: auth, i18n, Supabase, messaging, utilities
-- `public`: static assets and logo files
-- `db`: schema and SQL assets
-- `docs-messaging.md`: webhook/message flow notes
+- `src/app` - pages, routes, and API handlers
+- `src/components` - UI and i18n components
+- `src/lib` - auth, i18n, Supabase, messaging, utilities
+- `public` - static assets and screenshots
+- `db` - schema and SQL assets
+- `docs-messaging.md` - webhook and message flow notes
 
-## Local setup
+## Current Status
+
+- Landing, pricing UX, and product narrative implemented
+- Inbox, conversation, dashboard, revenue, and settings views implemented
+- i18n support (ES/PT/EN)
+- Currency detection with regional behavior (EUR/BRL) and manual override
+- WhatsApp webhook and message persistence scaffolding included
+
+## Screenshots
+
+### Inbox Demo
+
+![Inbox Demo](https://raw.githubusercontent.com/iveteamorim/ai-ops-inbox/main/public/screenshots/inbox-demo.png)
+
+## Local Setup
 
 1. Install dependencies:
 
@@ -120,7 +149,7 @@ npm run dev
 
 - `http://localhost:3000`
 
-## Environment variables
+## Environment Variables
 
 Required for full auth/data behavior:
 
@@ -143,26 +172,8 @@ If Supabase env vars are missing, protected routes stay locked and auth actions 
 - `npm run start` - run production server
 - `npm run lint` - lint checks
 
-## Current status
+## Next Steps
 
-- Landing + product narrative + pricing UX implemented
-- Inbox, conversation, dashboard, revenue, settings views implemented
-- i18n support (ES/PT/EN)
-- Currency detection with regional behavior (EUR/BRL) and manual override
-- WhatsApp webhook/message persistence scaffolding included
-
-## Screenshots
-
-Inbox Demo
-
-![Inbox Demo](https://raw.githubusercontent.com/iveteamorim/ai-ops-inbox/main/public/screenshots/inbox-demo.png)
-
-## Architecture
-
-![Architecture](docs/architecture.svg)
-
-## Next steps
-
-- Connect real Supabase project for production auth + persistence
+- Connect real Supabase project for production auth and persistence
 - Connect Stripe billing and trial lifecycle
 - Connect production WhatsApp Cloud API credentials
