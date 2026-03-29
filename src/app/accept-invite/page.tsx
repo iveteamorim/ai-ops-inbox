@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MarketingNav } from "@/components/MarketingNav";
 import { createClient } from "@/lib/supabase/client";
@@ -17,52 +18,64 @@ export default function AcceptInvitePage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const ensureInviteSession = useCallback(async () => {
+    const code = searchParams.get("code");
+    const tokenHash = searchParams.get("token_hash");
+    const inviteType = searchParams.get("type");
+
+    if (code) {
+      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+      if (exchangeError) {
+        throw exchangeError;
+      }
+    } else if (typeof window !== "undefined" && window.location.hash) {
+      const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      const accessToken = hash.get("access_token");
+      const refreshToken = hash.get("refresh_token");
+
+      if (accessToken && refreshToken) {
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+
+        if (sessionError) {
+          throw sessionError;
+        }
+      }
+    } else if (tokenHash && inviteType === "invite") {
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: "invite",
+      });
+      if (verifyError) {
+        throw verifyError;
+      }
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
+
+    if (sessionError) {
+      throw sessionError;
+    }
+
+    if (!session) {
+      throw new Error("Auth session missing!");
+    }
+
+    return session;
+  }, [searchParams, supabase]);
+
   useEffect(() => {
     let cancelled = false;
 
     async function bootstrapInviteSession() {
-      const code = searchParams.get("code");
-      const tokenHash = searchParams.get("token_hash");
-      const inviteType = searchParams.get("type");
-
       try {
-        if (code) {
-          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-          if (exchangeError) {
-            throw exchangeError;
-          }
-        } else if (typeof window !== "undefined" && window.location.hash) {
-          const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-          const accessToken = hash.get("access_token");
-          const refreshToken = hash.get("refresh_token");
-
-          if (accessToken && refreshToken) {
-            const { error: sessionError } = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken,
-            });
-
-            if (sessionError) {
-              throw sessionError;
-            }
-          }
-        } else if (tokenHash && inviteType === "invite") {
-          const { error: verifyError } = await supabase.auth.verifyOtp({
-            token_hash: tokenHash,
-            type: "invite",
-          });
-          if (verifyError) {
-            throw verifyError;
-          }
-        } else {
-          await new Promise((resolve) => setTimeout(resolve, 200));
-          const {
-            data: { session },
-          } = await supabase.auth.getSession();
-          if (!session) {
-            throw new Error("Invalid or expired invitation link.");
-          }
-        }
+        await ensureInviteSession();
 
         if (!cancelled) {
           setStatus("ready");
@@ -78,7 +91,7 @@ export default function AcceptInvitePage() {
     return () => {
       cancelled = true;
     };
-  }, [searchParams, supabase]);
+  }, [ensureInviteSession]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -96,6 +109,7 @@ export default function AcceptInvitePage() {
 
     setLoading(true);
     try {
+      await ensureInviteSession();
       const { error: updateError } = await supabase.auth.updateUser({ password });
       if (updateError) {
         throw updateError;
