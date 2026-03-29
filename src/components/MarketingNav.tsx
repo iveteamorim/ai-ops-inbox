@@ -6,9 +6,10 @@ import { LocaleMenu } from "@/components/i18n/LocaleMenu";
 
 type Props = {
   showSections?: boolean;
+  showSignIn?: boolean;
 };
 
-export function MarketingNav({ showSections = true }: Props) {
+export function MarketingNav({ showSections = true, showSignIn = true }: Props) {
   const { t } = useI18n();
 
   return (
@@ -18,7 +19,7 @@ export function MarketingNav({ showSections = true }: Props) {
       {showSections ? <a href="#features">{t("nav_features")}</a> : null}
       <span className="nav-spacer" />
       <LocaleMenu />
-      <Link href="/login">{t("nav_signin")}</Link>
+      {showSignIn ? <Link href="/login">{t("nav_signin")}</Link> : null}
       <Link className="button" href="/signup">
         {t("nav_start_free")}
       </Link>

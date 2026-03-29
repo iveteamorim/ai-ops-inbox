@@ -80,7 +80,7 @@ export default function LoginPage() {
 
   return (
     <section className="page">
-      <MarketingNav showSections={false} />
+      <MarketingNav showSections={false} showSignIn={false} />
       <header className="header">
         <div>
           <h1 className="title">{t("login_title")}</h1>
