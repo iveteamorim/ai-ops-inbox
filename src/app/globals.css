@@ -247,12 +247,14 @@ a {
 }
 
 .action-link {
+  display: block;
   align-self: flex-start;
   border: 0;
   background: transparent;
   color: var(--brand);
   font-weight: 700;
   padding: 0;
+  margin-top: 8px;
   cursor: pointer;
   text-decoration: none;
 }
