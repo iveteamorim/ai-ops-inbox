@@ -92,7 +92,7 @@ export default async function SettingsPage() {
 
       <div className="grid cols-2">
         <article className="card">
-          <p className="label">{t("settings_channels")}</p>
+          <p className="label">WhatsApp</p>
           {channels.length === 0 ? (
             <div className="setup-state">
               <div className="preview-row">
@@ -101,6 +101,11 @@ export default async function SettingsPage() {
               </div>
               <p className="note">{copy.channelUsage}</p>
               <p className="note">{copy.channelsNote}</p>
+              <div className="actions" style={{ marginTop: 12 }}>
+                <a className="button" href="mailto:?subject=Novua%20Inbox%20Setup">
+                  {copy.requestWhatsAppSetup}
+                </a>
+              </div>
             </div>
           ) : (
             channels.map((channel) => (
@@ -169,11 +174,6 @@ export default async function SettingsPage() {
           </div>
           <p className="label" style={{ marginTop: 16 }}>{copy.nextStep}</p>
           <p className="subtitle">{copy.nextStepText}</p>
-          <div className="actions" style={{ marginTop: 12 }}>
-            <a className="button" href="mailto:?subject=Novua%20Inbox%20Setup">
-              {copy.requestWhatsAppSetup}
-            </a>
-          </div>
         </article>
       </div>
     </section>
