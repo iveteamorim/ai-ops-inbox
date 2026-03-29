@@ -7,6 +7,18 @@ type ProfileRow = {
   role: string;
 };
 
+type CompanyRow = {
+  id: string;
+  plan: string;
+};
+
+const PLAN_SEAT_LIMITS: Record<string, number> = {
+  trial: 3,
+  starter: 3,
+  growth: 6,
+  pro: 15,
+};
+
 function deriveNameFromEmail(email: string) {
   const local = email.split("@")[0] ?? "agent";
   return local
@@ -59,6 +71,50 @@ export async function POST(request: Request) {
   }
 
   const admin = createAdminClient();
+  const { data: company, error: companyError } = await admin
+    .from("companies")
+    .select("id, plan")
+    .eq("id", profile.company_id)
+    .maybeSingle<CompanyRow>();
+
+  if (companyError) {
+    return NextResponse.json({ ok: false, error: companyError.message }, { status: 500 });
+  }
+
+  const plan = company?.plan ?? "trial";
+  const seatLimit = PLAN_SEAT_LIMITS[plan] ?? PLAN_SEAT_LIMITS.trial;
+  const [{ count: profileCount, error: profileCountError }, usersResult] = await Promise.all([
+    admin.from("profiles").select("*", { count: "exact", head: true }).eq("company_id", profile.company_id),
+    admin.auth.admin.listUsers({ page: 1, perPage: 200 }),
+  ]);
+
+  if (profileCountError) {
+    return NextResponse.json({ ok: false, error: profileCountError.message }, { status: 500 });
+  }
+
+  if (usersResult.error) {
+    return NextResponse.json({ ok: false, error: usersResult.error.message }, { status: 500 });
+  }
+
+  const pendingInvites = usersResult.data.users.filter(
+    (listedUser) =>
+      listedUser.user_metadata?.company_id === profile.company_id &&
+      !listedUser.last_sign_in_at,
+  );
+  const occupiedSeats = (profileCount ?? 0) + pendingInvites.length;
+
+  if (occupiedSeats >= seatLimit) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "seat_limit_reached",
+        limit: seatLimit,
+        plan,
+      },
+      { status: 403 },
+    );
+  }
+
   const redirectTo = `${new URL(request.url).origin}/accept-invite`;
   const inviteResult = await admin.auth.admin.inviteUserByEmail(email, {
     redirectTo,

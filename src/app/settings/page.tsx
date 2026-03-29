@@ -26,6 +26,7 @@ function getSetupCopy(lang: string) {
       inviteAdmin: "Admin",
       inviteAgent: "Agente",
       inviteError: "No se pudo enviar la invitación.",
+      seatLimitError: "Límite de usuarios alcanzado para este plan.",
       pendingInvites: "Invitaciones pendientes",
       resendInvite: "Reenviar",
       cancelInvite: "Cancelar",
@@ -54,6 +55,7 @@ function getSetupCopy(lang: string) {
       inviteAdmin: "Admin",
       inviteAgent: "Agente",
       inviteError: "Não foi possível enviar o convite.",
+      seatLimitError: "O limite de usuários deste plano foi atingido.",
       pendingInvites: "Convites pendentes",
       resendInvite: "Reenviar",
       cancelInvite: "Cancelar",
@@ -81,6 +83,7 @@ function getSetupCopy(lang: string) {
     inviteAdmin: "Admin",
     inviteAgent: "Agent",
     inviteError: "Could not send the invitation.",
+    seatLimitError: "This plan has reached its user limit.",
     pendingInvites: "Pending invites",
     resendInvite: "Resend",
     cancelInvite: "Cancel",
@@ -116,6 +119,15 @@ export default async function SettingsPage() {
     context.supabase,
     context.profile.company_id,
   );
+  const seatLimit =
+    context.company?.plan === "growth" ? 6 : context.company?.plan === "pro" ? 15 : 3;
+  const usedSeats = team.length + pendingInvites.length;
+  const seatsNote =
+    lang === "es"
+      ? `${usedSeats}/${seatLimit} usuarios usados en el plan ${context.company?.plan ?? "trial"}.`
+      : lang === "pt"
+        ? `${usedSeats}/${seatLimit} usuários usados no plano ${context.company?.plan ?? "trial"}.`
+        : `${usedSeats}/${seatLimit} users used on the ${context.company?.plan ?? "trial"} plan.`;
   const hasWebhookSecrets = Boolean(process.env.WHATSAPP_VERIFY_TOKEN && process.env.WHATSAPP_APP_SECRET);
   const whatsappSetupRequest = setupRequests.find((request) => request.channel === "whatsapp" && (request.status === "requested" || request.status === "in_progress"));
   return (
@@ -207,6 +219,7 @@ export default async function SettingsPage() {
           <div style={{ marginTop: 12 }}>
             <InviteUserForm
               title={copy.inviteTitle}
+              seatsNote={seatsNote}
               emailLabel={copy.inviteEmail}
               roleLabel={copy.inviteRole}
               submitLabel={copy.inviteUser}
@@ -215,6 +228,7 @@ export default async function SettingsPage() {
               adminLabel={copy.inviteAdmin}
               agentLabel={copy.inviteAgent}
               errorGeneric={copy.inviteError}
+              seatLimitError={copy.seatLimitError}
             />
           </div>
           {pendingInvites.length > 0 ? (

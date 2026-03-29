@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 
 type Props = {
   title: string;
+  seatsNote?: string;
   emailLabel: string;
   roleLabel: string;
   submitLabel: string;
@@ -13,10 +14,12 @@ type Props = {
   adminLabel: string;
   agentLabel: string;
   errorGeneric: string;
+  seatLimitError: string;
 };
 
 export function InviteUserForm({
   title,
+  seatsNote,
   emailLabel,
   roleLabel,
   submitLabel,
@@ -25,6 +28,7 @@ export function InviteUserForm({
   adminLabel,
   agentLabel,
   errorGeneric,
+  seatLimitError,
 }: Props) {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -47,7 +51,11 @@ export function InviteUserForm({
 
       const payload = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
       if (!response.ok || !payload?.ok) {
-        setError(payload?.error ?? errorGeneric);
+        if (payload?.error === "seat_limit_reached") {
+          setError(seatLimitError);
+        } else {
+          setError(payload?.error ?? errorGeneric);
+        }
         return;
       }
 
@@ -61,6 +69,7 @@ export function InviteUserForm({
   return (
     <form className="form compact-form" onSubmit={handleSubmit}>
       <p className="note">{title}</p>
+      {seatsNote ? <p className="note">{seatsNote}</p> : null}
       <label className="label" htmlFor="invite-email">
         {emailLabel}
       </label>
