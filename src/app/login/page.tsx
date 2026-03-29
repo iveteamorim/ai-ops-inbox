@@ -102,7 +102,13 @@ export default function LoginPage() {
           {loading ? "..." : t("nav_signin")}
         </button>
 
-        <button className="mini-button" type="button" disabled={resetLoading} onClick={handleForgotPassword}>
+        <button
+          className="inline-link"
+          type="button"
+          disabled={resetLoading}
+          onClick={handleForgotPassword}
+          style={{ alignSelf: "flex-start", padding: 0, background: "transparent", border: 0 }}
+        >
           {resetLoading ? "..." : t("login_forgot_password")}
         </button>
 
