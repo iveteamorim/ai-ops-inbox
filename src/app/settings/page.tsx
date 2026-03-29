@@ -1,5 +1,6 @@
 import { AppNav } from "@/components/AppNav";
 import { InviteUserForm } from "@/components/InviteUserForm";
+import { PendingInvitesList } from "@/components/PendingInvitesList";
 import { SetupRequestButton } from "@/components/SetupRequestButton";
 import { cookies } from "next/headers";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
@@ -25,6 +26,13 @@ function getSetupCopy(lang: string) {
       inviteAdmin: "Admin",
       inviteAgent: "Agente",
       inviteError: "No se pudo enviar la invitación.",
+      pendingInvites: "Invitaciones pendientes",
+      resendInvite: "Reenviar",
+      cancelInvite: "Cancelar",
+      resendPending: "Reenviando...",
+      cancelPending: "Cancelando...",
+      inviteResent: "Invitación reenviada.",
+      inviteCancelled: "Invitación cancelada.",
     };
   }
 
@@ -46,6 +54,13 @@ function getSetupCopy(lang: string) {
       inviteAdmin: "Admin",
       inviteAgent: "Agente",
       inviteError: "Não foi possível enviar o convite.",
+      pendingInvites: "Convites pendentes",
+      resendInvite: "Reenviar",
+      cancelInvite: "Cancelar",
+      resendPending: "Reenviando...",
+      cancelPending: "Cancelando...",
+      inviteResent: "Convite reenviado.",
+      inviteCancelled: "Convite cancelado.",
     };
   }
 
@@ -66,6 +81,13 @@ function getSetupCopy(lang: string) {
     inviteAdmin: "Admin",
     inviteAgent: "Agent",
     inviteError: "Could not send the invitation.",
+    pendingInvites: "Pending invites",
+    resendInvite: "Resend",
+    cancelInvite: "Cancel",
+    resendPending: "Resending...",
+    cancelPending: "Cancelling...",
+    inviteResent: "Invitation resent.",
+    inviteCancelled: "Invitation cancelled.",
   };
 }
 
@@ -90,7 +112,10 @@ export default async function SettingsPage() {
     );
   }
 
-  const { channels, team, setupRequests } = await getSettingsData(context.supabase, context.profile.company_id);
+  const { channels, team, pendingInvites, setupRequests } = await getSettingsData(
+    context.supabase,
+    context.profile.company_id,
+  );
   const hasWebhookSecrets = Boolean(process.env.WHATSAPP_VERIFY_TOKEN && process.env.WHATSAPP_APP_SECRET);
   const whatsappSetupRequest = setupRequests.find((request) => request.channel === "whatsapp" && (request.status === "requested" || request.status === "in_progress"));
   return (
@@ -192,6 +217,18 @@ export default async function SettingsPage() {
               errorGeneric={copy.inviteError}
             />
           </div>
+          {pendingInvites.length > 0 ? (
+            <PendingInvitesList
+              invites={pendingInvites}
+              title={copy.pendingInvites}
+              resendLabel={copy.resendInvite}
+              cancelLabel={copy.cancelInvite}
+              sendingLabel={copy.resendPending}
+              cancellingLabel={copy.cancelPending}
+              successResent={copy.inviteResent}
+              successCancelled={copy.inviteCancelled}
+            />
+          ) : null}
         </article>
       </div>
     </section>

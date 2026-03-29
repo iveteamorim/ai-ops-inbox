@@ -75,6 +75,13 @@ export type TeamMemberView = {
   role: string;
 };
 
+export type PendingInviteView = {
+  id: string;
+  email: string;
+  role: string;
+  invitedAt: string | null;
+};
+
 export type AppContext =
   | { kind: "unconfigured" }
   | { kind: "unauthenticated" }
@@ -408,9 +415,48 @@ export async function getSettingsData(
       .limit(10),
   ]);
 
+  let pendingInvites: PendingInviteView[] = [];
+  let activeUserIds = new Set<string>();
+
+  try {
+    const admin = createAdminClient();
+    const { data, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
+    if (!error) {
+      const scopedUsers = data.users.filter(
+        (user) => user.user_metadata?.company_id === companyId,
+      );
+
+      pendingInvites = scopedUsers
+        .filter((user) => !user.last_sign_in_at)
+        .map((user) => ({
+          id: user.id,
+          email: user.email ?? "",
+          role:
+            typeof user.user_metadata?.role === "string" && ["owner", "admin", "agent"].includes(user.user_metadata.role)
+              ? user.user_metadata.role
+              : "agent",
+          invitedAt: user.invited_at ?? user.created_at ?? null,
+        }))
+        .filter((invite) => Boolean(invite.email));
+
+      activeUserIds = new Set(
+        scopedUsers.filter((user) => Boolean(user.last_sign_in_at)).map((user) => user.id),
+      );
+    }
+  } catch {
+    pendingInvites = [];
+  }
+
+  const allProfiles = ((profiles as TeamMemberView[] | null | undefined) ?? []);
+  const team =
+    activeUserIds.size > 0
+      ? allProfiles.filter((member) => activeUserIds.has(member.id))
+      : allProfiles;
+
   return {
     channels: ((channels as ChannelRow[] | null | undefined) ?? []),
-    team: ((profiles as TeamMemberView[] | null | undefined) ?? []),
+    team,
+    pendingInvites,
     setupRequests: ((setupRequests as SetupRequestRow[] | null | undefined) ?? []),
   };
 }
