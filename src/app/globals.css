@@ -191,6 +191,14 @@ a {
   max-width: 420px;
 }
 
+.compact-form {
+  max-width: none;
+}
+
+.compact-form .input {
+  margin-bottom: 8px;
+}
+
 .input {
   width: 100%;
   border: 1px solid var(--line);

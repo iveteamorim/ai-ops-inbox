@@ -43,6 +43,7 @@ type ContactRow = {
 type ProfileNameRow = {
   id: string;
   full_name: string | null;
+  role: string;
 };
 
 type MessageRow = {
@@ -66,6 +67,12 @@ type SetupRequestRow = {
   channel: "whatsapp" | "email" | "form";
   status: "requested" | "in_progress" | "completed" | "cancelled";
   created_at: string;
+};
+
+export type TeamMemberView = {
+  id: string;
+  full_name: string | null;
+  role: string;
 };
 
 export type AppContext =
@@ -403,7 +410,7 @@ export async function getSettingsData(
 
   return {
     channels: ((channels as ChannelRow[] | null | undefined) ?? []),
-    team: ((profiles as Array<{ id: string; full_name: string | null; role: string }> | null | undefined) ?? []),
+    team: ((profiles as TeamMemberView[] | null | undefined) ?? []),
     setupRequests: ((setupRequests as SetupRequestRow[] | null | undefined) ?? []),
   };
 }

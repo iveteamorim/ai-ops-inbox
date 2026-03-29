@@ -1,4 +1,5 @@
 import { AppNav } from "@/components/AppNav";
+import { InviteUserForm } from "@/components/InviteUserForm";
 import { SetupRequestButton } from "@/components/SetupRequestButton";
 import { cookies } from "next/headers";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
@@ -15,7 +16,15 @@ function getSetupCopy(lang: string) {
       requestWhatsAppSetup: "Solicitar setup de WhatsApp",
       setupRequested: "Setup solicitado",
       setupRequestedNote: "Estamos preparando la configuración de WhatsApp.",
-      usersNote: "Invita al equipo cuando el sistema esté activo.",
+      inviteTitle: "Añade agentes o admins al mismo workspace.",
+      inviteEmail: "Email",
+      inviteRole: "Rol",
+      inviteUser: "Invitar usuario",
+      invitePending: "Enviando invitación...",
+      inviteSuccess: "Invitación enviada.",
+      inviteAdmin: "Admin",
+      inviteAgent: "Agente",
+      inviteError: "No se pudo enviar la invitación.",
     };
   }
 
@@ -28,7 +37,15 @@ function getSetupCopy(lang: string) {
       requestWhatsAppSetup: "Solicitar setup de WhatsApp",
       setupRequested: "Setup solicitado",
       setupRequestedNote: "Estamos a preparar a configuração do WhatsApp.",
-      usersNote: "Convide a equipa quando o sistema estiver ativo.",
+      inviteTitle: "Adicione agentes ou admins ao mesmo workspace.",
+      inviteEmail: "Email",
+      inviteRole: "Função",
+      inviteUser: "Convidar usuário",
+      invitePending: "Enviando convite...",
+      inviteSuccess: "Convite enviado.",
+      inviteAdmin: "Admin",
+      inviteAgent: "Agente",
+      inviteError: "Não foi possível enviar o convite.",
     };
   }
 
@@ -40,7 +57,15 @@ function getSetupCopy(lang: string) {
     requestWhatsAppSetup: "Request WhatsApp setup",
     setupRequested: "Setup requested",
     setupRequestedNote: "We are preparing the WhatsApp configuration.",
-    usersNote: "Invite the team once the system is active.",
+    inviteTitle: "Add agents or admins to the same workspace.",
+    inviteEmail: "Email",
+    inviteRole: "Role",
+    inviteUser: "Invite user",
+    invitePending: "Sending invite...",
+    inviteSuccess: "Invitation sent.",
+    inviteAdmin: "Admin",
+    inviteAgent: "Agent",
+    inviteError: "Could not send the invitation.",
   };
 }
 
@@ -154,6 +179,19 @@ export default async function SettingsPage() {
               ))}
             </>
           )}
+          <div style={{ marginTop: 12 }}>
+            <InviteUserForm
+              title={copy.inviteTitle}
+              emailLabel={copy.inviteEmail}
+              roleLabel={copy.inviteRole}
+              submitLabel={copy.inviteUser}
+              pendingLabel={copy.invitePending}
+              successLabel={copy.inviteSuccess}
+              adminLabel={copy.inviteAdmin}
+              agentLabel={copy.inviteAgent}
+              errorGeneric={copy.inviteError}
+            />
+          </div>
         </article>
       </div>
     </section>

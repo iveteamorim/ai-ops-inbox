@@ -145,23 +145,44 @@ set search_path = public
 as $$
 declare
   created_company_id uuid;
+  metadata_company_id uuid;
   company_name text;
   full_name text;
+  user_role text;
 begin
+  begin
+    metadata_company_id := nullif(new.raw_user_meta_data ->> 'company_id', '')::uuid;
+  exception
+    when others then
+      metadata_company_id := null;
+  end;
+
   company_name := nullif(trim(coalesce(new.raw_user_meta_data ->> 'company_name', '')), '');
   full_name := nullif(trim(coalesce(new.raw_user_meta_data ->> 'full_name', '')), '');
+  user_role := nullif(trim(coalesce(new.raw_user_meta_data ->> 'role', '')), '');
 
-  if company_name is null then
-    company_name := initcap(split_part(coalesce(new.email, 'novua'), '@', 1));
+  if user_role is null or user_role not in ('owner', 'admin', 'agent') then
+    user_role := case when metadata_company_id is null then 'owner' else 'agent' end;
   end if;
 
-  insert into public.companies (name)
-  values (company_name)
-  returning id into created_company_id;
+  if metadata_company_id is not null then
+    created_company_id := metadata_company_id;
+  else
+    if company_name is null then
+      company_name := initcap(split_part(coalesce(new.email, 'novua'), '@', 1));
+    end if;
+
+    insert into public.companies (name)
+    values (company_name)
+    returning id into created_company_id;
+  end if;
 
   insert into public.profiles (id, company_id, full_name, role)
-  values (new.id, created_company_id, full_name, 'owner')
-  on conflict (id) do nothing;
+  values (new.id, created_company_id, full_name, user_role)
+  on conflict (id) do update
+    set company_id = excluded.company_id,
+        full_name = coalesce(excluded.full_name, public.profiles.full_name),
+        role = excluded.role;
 
   return new;
 end;
