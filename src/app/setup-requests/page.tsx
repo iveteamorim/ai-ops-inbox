@@ -1,6 +1,8 @@
 import { AppNav } from "@/components/AppNav";
 import { SetupRequestsTable } from "@/components/SetupRequestsTable";
 import { getAppContext, getSetupRequestsAdminView } from "@/lib/app-data";
+import { isNovuaInternalUser } from "@/lib/internal-access";
+import { notFound } from "next/navigation";
 
 export default async function SetupRequestsPage() {
   const context = await getAppContext();
@@ -19,18 +21,8 @@ export default async function SetupRequestsPage() {
     );
   }
 
-  if (!["owner", "admin"].includes(context.profile.role)) {
-    return (
-      <section className="page">
-        <AppNav />
-        <header className="header">
-          <div>
-            <h1 className="title">Setup requests</h1>
-            <p className="subtitle">Only owners and admins can view setup requests.</p>
-          </div>
-        </header>
-      </section>
-    );
+  if (!isNovuaInternalUser(context.user.email)) {
+    notFound();
   }
 
   const requests = await getSetupRequestsAdminView();

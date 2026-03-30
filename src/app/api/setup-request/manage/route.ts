@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isNovuaInternalUser } from "@/lib/internal-access";
 
 type ProfileRow = {
   role: string;
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: profileError.message }, { status: 500 });
   }
 
-  if (!profile || !["owner", "admin"].includes(profile.role)) {
+  if (!profile || !["owner", "admin"].includes(profile.role) || !isNovuaInternalUser(user.email)) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
 
