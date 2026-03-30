@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
 import { formatChannel, getAppContext, getSettingsData } from "@/lib/app-data";
+import { isNovuaInternalUser } from "@/lib/internal-access";
 
 function getSetupCopy(lang: string) {
   if (lang === "es") {
@@ -144,6 +145,7 @@ export default async function SettingsPage() {
     context.supabase,
     context.profile.company_id,
   );
+  const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
   const seatLimit =
     context.company?.plan === "growth" ? 6 : context.company?.plan === "pro" ? 15 : 3;
   const usedSeats = team.length + pendingInvites.length;
@@ -157,7 +159,7 @@ export default async function SettingsPage() {
   const whatsappSetupRequest = setupRequests.find((request) => request.channel === "whatsapp" && (request.status === "requested" || request.status === "in_progress"));
   return (
     <section className="page">
-      <AppNav />
+      <AppNav showSetup={canSeeInternalSetup} />
       <header className="header">
         <div>
           <h1 className="title">{t("settings_title")}</h1>

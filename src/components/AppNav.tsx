@@ -4,7 +4,11 @@ import Link from "next/link";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 import { LocaleMenu } from "@/components/i18n/LocaleMenu";
 
-export function AppNav() {
+type AppNavProps = {
+  showSetup?: boolean;
+};
+
+export function AppNav({ showSetup = false }: AppNavProps) {
   const { t } = useI18n();
 
   const links = [
@@ -12,6 +16,7 @@ export function AppNav() {
     { href: "/inbox", label: t("nav_inbox") },
     { href: "/revenue", label: t("nav_revenue") },
     { href: "/settings", label: t("nav_settings") },
+    ...(showSetup ? [{ href: "/setup-requests", label: "Setup" }] : []),
   ];
 
   return (

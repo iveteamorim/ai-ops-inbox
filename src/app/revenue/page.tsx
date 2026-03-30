@@ -5,6 +5,7 @@ import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
 import { formatStatus, formatRelativeTime, getAppContext, getConversationViews } from "@/lib/app-data";
+import { isNovuaInternalUser } from "@/lib/internal-access";
 
 function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
   return new Intl.NumberFormat(lang, {
@@ -36,6 +37,7 @@ export default async function RevenuePage() {
       </section>
     );
   }
+  const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
 
   const opportunities = await getConversationViews(context.supabase, context.profile.company_id);
   const monthPotential = opportunities.reduce((sum, item) => sum + item.estimatedValue, 0);
@@ -48,7 +50,7 @@ export default async function RevenuePage() {
 
   return (
     <section className="page">
-      <AppNav />
+      <AppNav showSetup={canSeeInternalSetup} />
       <header className="header">
         <div>
           <h1 className="title">{t("revenue_title")}</h1>

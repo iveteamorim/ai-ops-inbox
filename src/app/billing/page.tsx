@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatTrialEnd } from "@/lib/trial";
 import { normalizeLang, LANG_COOKIE } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
+import { isNovuaInternalUser } from "@/lib/internal-access";
 
 export default async function BillingPage() {
   const cookieStore = await cookies();
@@ -17,10 +18,11 @@ export default async function BillingPage() {
   } = await supabase.auth.getUser();
 
   const trialEndsAt = (user?.user_metadata?.trial_ends_at as string | undefined) ?? null;
+  const canSeeInternalSetup = isNovuaInternalUser(user?.email);
 
   return (
     <section className="page">
-      <AppNav />
+      <AppNav showSetup={canSeeInternalSetup} />
       <header className="header">
         <div>
           <h1 className="title">{t("billing_title")}</h1>

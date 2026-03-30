@@ -11,6 +11,7 @@ import {
   getAppContext,
   getConversationViews,
 } from "@/lib/app-data";
+import { isNovuaInternalUser } from "@/lib/internal-access";
 
 function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
   return new Intl.NumberFormat(lang, {
@@ -51,6 +52,7 @@ export default async function DashboardPage() {
       </section>
     );
   }
+  const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
 
   const conversations = await getConversationViews(context.supabase, context.profile.company_id);
   const openStatuses = new Set(["new", "active", "no_response"]);
@@ -76,7 +78,7 @@ export default async function DashboardPage() {
 
   return (
     <section className="page">
-      <AppNav />
+      <AppNav showSetup={canSeeInternalSetup} />
       <header className="header">
         <div>
           <h1 className="title">{t("dashboard_title")}</h1>

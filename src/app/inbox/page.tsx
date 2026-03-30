@@ -14,6 +14,7 @@ import {
   getConversationViews,
   getTeamMembers,
 } from "@/lib/app-data";
+import { isNovuaInternalUser } from "@/lib/internal-access";
 
 function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
   return new Intl.NumberFormat(lang, {
@@ -63,6 +64,7 @@ export default async function InboxPage() {
     getConversationViews(context.supabase, context.profile.company_id),
     getTeamMembers(context.supabase, context.profile.company_id),
   ]);
+  const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
   const canAssign = context.profile.role === "owner" || context.profile.role === "admin";
   const leadsAtRisk = rows.filter((row) => row.status === "new" || row.status === "no_response").length;
   const riskAmount = rows
@@ -74,7 +76,7 @@ export default async function InboxPage() {
 
   return (
     <section className="page">
-      <AppNav />
+      <AppNav showSetup={canSeeInternalSetup} />
       <header className="header">
         <div>
           <h1 className="title">{t("inbox_title")}</h1>

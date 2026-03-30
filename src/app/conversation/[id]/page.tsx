@@ -6,6 +6,7 @@ import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
 import { getAppContext, getConversationDetail } from "@/lib/app-data";
+import { isNovuaInternalUser } from "@/lib/internal-access";
 
 export default async function ConversationPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -24,10 +25,11 @@ export default async function ConversationPage({ params }: { params: Promise<{ i
   if (!detail) {
     notFound();
   }
+  const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
 
   return (
     <section className="page">
-      <AppNav />
+      <AppNav showSetup={canSeeInternalSetup} />
       <header className="header">
         <div>
           <h1 className="title">
