@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { InboxRowActions } from "@/components/InboxRowActions";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 import type { ConversationView, MessageView } from "@/lib/app-data";
 
@@ -8,6 +9,9 @@ type Props = {
   conversation: ConversationView;
   initialMessages: MessageView[];
   currency: "EUR" | "BRL";
+  team: Array<{ id: string; full_name: string | null; role: string }>;
+  unitOptions: string[];
+  canAssign: boolean;
 };
 
 function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
@@ -44,7 +48,14 @@ function formatChannel(channel: ConversationView["channel"]) {
   return "Form";
 }
 
-export function ConversationWorkspace({ conversation, initialMessages, currency }: Props) {
+export function ConversationWorkspace({
+  conversation,
+  initialMessages,
+  currency,
+  team,
+  unitOptions,
+  canAssign,
+}: Props) {
   const { t, lang } = useI18n();
   const [messages, setMessages] = useState(initialMessages);
   const [draft, setDraft] = useState("");
@@ -179,6 +190,31 @@ export function ConversationWorkspace({ conversation, initialMessages, currency 
         <p><strong>{t("inbox_assigned")}:</strong> {conversation.assignedTo ?? "Unassigned"}</p>
         <p><strong>{t("inbox_channel")}:</strong> {formatChannel(conversation.channel)}</p>
         {conversation.contactPhone ? <p><strong>Phone:</strong> {conversation.contactPhone}</p> : null}
+        <div style={{ marginTop: 16 }}>
+          <InboxRowActions
+            conversationId={conversation.id}
+            currentStatus={conversation.status}
+            currentAssignedToId={conversation.assignedToId}
+            currentUnit={conversation.unit}
+            unitOptions={unitOptions}
+            team={team}
+            canAssign={canAssign}
+            labels={{
+              status: t("inbox_status"),
+              assignee: t("inbox_assigned"),
+              unit: t("inbox_unit"),
+              noUnit: t("inbox_no_unit"),
+              save: t("inbox_change_status"),
+              saving: "...",
+              unassigned: "Unassigned",
+              new: t("inbox_filter_new"),
+              active: t("inbox_filter_in_progress"),
+              noResponse: t("inbox_filter_no_reply"),
+              won: t("revenue_filter_won"),
+              lost: t("inbox_filter_lost"),
+            }}
+          />
+        </div>
       </aside>
     </div>
   );

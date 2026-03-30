@@ -216,6 +216,12 @@ a {
   min-width: 190px;
 }
 
+.stack-actions {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
 .row-select {
   margin-bottom: 0;
   padding: 8px 10px;

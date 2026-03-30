@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { cookies, headers } from "next/headers";
 import { AppNav } from "@/components/AppNav";
-import { InboxRowActions } from "@/components/InboxRowActions";
 import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
@@ -70,7 +69,6 @@ export default async function InboxPage({
     getTeamMembers(context.supabase, context.profile.company_id),
   ]);
   const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
-  const canAssign = context.profile.role === "owner" || context.profile.role === "admin";
   const unitOptions = Array.from(new Set(rows.map((row) => row.unit).filter((value): value is string => Boolean(value))));
   const selectedUnit = resolvedSearchParams?.unit?.trim() || "";
   const visibleRows = selectedUnit ? rows.filter((row) => row.unit === selectedUnit) : rows;
@@ -81,6 +79,7 @@ export default async function InboxPage({
   const lostAmount = rows
     .filter((row) => row.status === "lost")
     .reduce((sum, row) => sum + row.estimatedValue, 0);
+  void team;
 
   return (
     <section className="page">
@@ -179,33 +178,13 @@ export default async function InboxPage({
                       {format(row.estimatedValue)} {t("inbox_value_potential")} | {format(row.status === "won" ? row.expectedValue : 0)} {t("inbox_value_recovered")}
                     </td>
                     <td>
-                      <InboxRowActions
-                        conversationId={row.id}
-                        currentStatus={row.status}
-                        currentAssignedToId={row.assignedToId}
-                        currentUnit={row.unit}
-                        unitOptions={unitOptions}
-                        team={team}
-                        canAssign={canAssign}
-                        labels={{
-                          status: t("inbox_status"),
-                          assignee: t("inbox_assigned"),
-                          unit: t("inbox_unit"),
-                          noUnit: t("inbox_no_unit"),
-                          save: t("inbox_change_status"),
-                          saving: "...",
-                          unassigned: "Unassigned",
-                          new: t("inbox_filter_new"),
-                          active: t("inbox_filter_in_progress"),
-                          noResponse: t("inbox_filter_no_reply"),
-                          won: t("revenue_filter_won"),
-                          lost: t("inbox_filter_lost"),
-                        }}
-                      />
-                      <div style={{ marginTop: 8 }}>
+                      <div className="stack-actions">
                         <Link className="mini-button" href={`/conversation/${row.id}`}>
-                          {t("inbox_reply")} → {t("inbox_recover_prefix")} {format(recoverable)}
+                          Abrir conversación
                         </Link>
+                        <span className="note">
+                          {t("inbox_recover_prefix")} {format(recoverable)}
+                        </span>
                       </div>
                     </td>
                   </tr>

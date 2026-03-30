@@ -5,7 +5,7 @@ import { ConversationWorkspace } from "@/components/ConversationWorkspace";
 import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
-import { getAppContext, getConversationDetail } from "@/lib/app-data";
+import { getAppContext, getConversationDetail, getConversationViews, getTeamMembers } from "@/lib/app-data";
 import { isNovuaInternalUser } from "@/lib/internal-access";
 
 export default async function ConversationPage({ params }: { params: Promise<{ id: string }> }) {
@@ -25,6 +25,12 @@ export default async function ConversationPage({ params }: { params: Promise<{ i
   if (!detail) {
     notFound();
   }
+  const [rows, team] = await Promise.all([
+    getConversationViews(context.supabase, context.profile.company_id),
+    getTeamMembers(context.supabase, context.profile.company_id),
+  ]);
+  const unitOptions = Array.from(new Set(rows.map((row) => row.unit).filter((value): value is string => Boolean(value))));
+  const canAssign = context.profile.role === "owner" || context.profile.role === "admin";
   const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
 
   return (
@@ -43,6 +49,9 @@ export default async function ConversationPage({ params }: { params: Promise<{ i
         conversation={detail.conversation}
         initialMessages={detail.messages}
         currency={currency}
+        team={team}
+        unitOptions={unitOptions}
+        canAssign={canAssign}
       />
     </section>
   );
