@@ -16,6 +16,7 @@ type Payload = {
   conversationId?: string;
   status?: "new" | "active" | "no_response" | "won" | "lost";
   assignedTo?: string | null;
+  unit?: string | null;
 };
 
 const ALLOWED_STATUSES = new Set(["new", "active", "no_response", "won", "lost"]);
@@ -25,12 +26,14 @@ export async function POST(request: Request) {
   const conversationId = typeof body.conversationId === "string" ? body.conversationId : "";
   const status = typeof body.status === "string" && ALLOWED_STATUSES.has(body.status) ? body.status : undefined;
   const assignedTo = typeof body.assignedTo === "string" ? body.assignedTo : body.assignedTo === null ? null : undefined;
+  const unit =
+    typeof body.unit === "string" ? body.unit.trim().slice(0, 80) : body.unit === null ? null : undefined;
 
   if (!conversationId) {
     return NextResponse.json({ ok: false, error: "conversation_id_required" }, { status: 400 });
   }
 
-  if (status === undefined && assignedTo === undefined) {
+  if (status === undefined && assignedTo === undefined && unit === undefined) {
     return NextResponse.json({ ok: false, error: "no_changes_requested" }, { status: 400 });
   }
 
@@ -102,6 +105,7 @@ export async function POST(request: Request) {
   const patch: {
     status?: string;
     assigned_to?: string | null;
+    unit?: string | null;
     updated_at?: string;
   } = {
     updated_at: new Date().toISOString(),
@@ -113,6 +117,10 @@ export async function POST(request: Request) {
 
   if (assignedTo !== undefined) {
     patch.assigned_to = assignedTo;
+  }
+
+  if (unit !== undefined) {
+    patch.unit = unit || null;
   }
 
   const { error: updateError } = await supabase

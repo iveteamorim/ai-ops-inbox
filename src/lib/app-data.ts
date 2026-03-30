@@ -21,6 +21,7 @@ type ConversationRow = {
   company_id: string;
   contact_id: string;
   assigned_to: string | null;
+  unit: string | null;
   channel: "whatsapp" | "instagram" | "email" | "form";
   status: "new" | "active" | "won" | "lost" | "no_response";
   last_message_at: string | null;
@@ -109,6 +110,7 @@ export type ConversationView = {
   id: string;
   contactName: string;
   contactPhone: string | null;
+  unit: string | null;
   channel: "whatsapp" | "instagram" | "email" | "form";
   status: ConversationRow["status"];
   assignedToId: string | null;
@@ -303,7 +305,7 @@ export async function getConversationViews(
   const { data: conversations, error } = await supabase
     .from("conversations")
     .select(
-      "id, company_id, contact_id, assigned_to, channel, status, last_message_at, last_inbound_at, last_outbound_at, created_at, updated_at, estimated_value, expected_value, ai_priority",
+      "id, company_id, contact_id, assigned_to, unit, channel, status, last_message_at, last_inbound_at, last_outbound_at, created_at, updated_at, estimated_value, expected_value, ai_priority",
     )
     .eq("company_id", companyId)
     .order("updated_at", { ascending: false });
@@ -357,6 +359,7 @@ export async function getConversationViews(
       id: row.id,
       contactName: contact?.name?.trim() || contact?.phone || contact?.email || "Unknown contact",
       contactPhone: contact?.phone ?? null,
+      unit: row.unit?.trim() || null,
       channel: row.channel,
       status: row.status,
       assignedToId: row.assigned_to,

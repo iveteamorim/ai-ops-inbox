@@ -175,6 +175,7 @@ export function ConversationWorkspace({ conversation, initialMessages, currency 
         </p>
         <p><strong>{t("revenue_estimated")}:</strong> {formatMoney(lang, currency, conversation.estimatedValue)}</p>
         <p><strong>{t("revenue_expected")}:</strong> {formatMoney(lang, currency, conversation.expectedValue)}</p>
+        <p><strong>{t("inbox_unit")}:</strong> {conversation.unit ?? t("inbox_no_unit")}</p>
         <p><strong>{t("inbox_assigned")}:</strong> {conversation.assignedTo ?? "Unassigned"}</p>
         <p><strong>{t("inbox_channel")}:</strong> {formatChannel(conversation.channel)}</p>
         {conversation.contactPhone ? <p><strong>Phone:</strong> {conversation.contactPhone}</p> : null}

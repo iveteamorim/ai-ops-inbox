@@ -47,6 +47,7 @@ create table if not exists public.conversations (
   channel text not null check (channel in ('whatsapp', 'instagram', 'email', 'form')),
   status text not null default 'new' check (status in ('new', 'active', 'won', 'lost', 'no_response')),
   assigned_to uuid references public.profiles(id),
+  unit text,
   estimated_value numeric(12,2) not null default 0,
   expected_value numeric(12,2) not null default 0,
   ai_priority text not null default 'medium' check (ai_priority in ('high', 'medium', 'low')),
@@ -58,6 +59,7 @@ create table if not exists public.conversations (
 );
 
 alter table public.conversations
+  add column if not exists unit text,
   add column if not exists estimated_value numeric(12,2) not null default 0,
   add column if not exists expected_value numeric(12,2) not null default 0,
   add column if not exists ai_priority text not null default 'medium';

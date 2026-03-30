@@ -37,9 +37,14 @@ function priorityClass(priority: string) {
   return "score-low";
 }
 
-export default async function InboxPage() {
+export default async function InboxPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ unit?: string }>;
+}) {
   const cookieStore = await cookies();
   const headerStore = await headers();
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const lang = normalizeLang(cookieStore.get(LANG_COOKIE)?.value);
   const t = (key: Parameters<typeof translate>[1]) => translate(lang, key);
   const currency = detectCurrencyFromLocale(headerStore.get("accept-language"));
@@ -66,6 +71,9 @@ export default async function InboxPage() {
   ]);
   const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
   const canAssign = context.profile.role === "owner" || context.profile.role === "admin";
+  const unitOptions = Array.from(new Set(rows.map((row) => row.unit).filter((value): value is string => Boolean(value))));
+  const selectedUnit = resolvedSearchParams?.unit?.trim() || "";
+  const visibleRows = selectedUnit ? rows.filter((row) => row.unit === selectedUnit) : rows;
   const leadsAtRisk = rows.filter((row) => row.status === "new" || row.status === "no_response").length;
   const riskAmount = rows
     .filter((row) => row.status === "new" || row.status === "no_response")
@@ -97,7 +105,7 @@ export default async function InboxPage() {
       </article>
 
       <article className="card">
-        {rows.length === 0 ? (
+        {visibleRows.length === 0 ? (
           <div className="empty-state">
             <h3>{t("inbox_empty_title")}</h3>
             <p>{t("inbox_empty_text")}</p>
@@ -111,11 +119,31 @@ export default async function InboxPage() {
             </div>
           </div>
         ) : (
-          <table className="table">
+          <>
+            <form method="GET" className="actions" style={{ marginBottom: 12 }}>
+              <select className="input row-select" name="unit" defaultValue={selectedUnit}>
+                <option value="">{t("inbox_all_units")}</option>
+                {unitOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              <button className="mini-button" type="submit">
+                {t("inbox_filter_units")}
+              </button>
+              {selectedUnit ? (
+                <Link className="mini-button" href="/inbox">
+                  {t("inbox_clear_unit_filter")}
+                </Link>
+              ) : null}
+            </form>
+            <table className="table">
             <thead>
               <tr>
                 <th>{t("inbox_client")}</th>
                 <th>{t("inbox_last_msg")}</th>
+                <th>{t("inbox_unit")}</th>
                 <th>{t("inbox_channel")}</th>
                 <th>{t("inbox_status")}</th>
                 <th>{t("inbox_score")}</th>
@@ -125,7 +153,7 @@ export default async function InboxPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => {
+              {visibleRows.map((row) => {
                 const recoverable = Math.max(0, row.estimatedValue - row.expectedValue);
                 return (
                   <tr key={row.id}>
@@ -138,6 +166,7 @@ export default async function InboxPage() {
                         {formatRelativeTime(row.lastMessageAt)}
                       </div>
                     </td>
+                    <td>{row.unit ?? t("inbox_no_unit")}</td>
                     <td>{formatChannel(row.channel)}</td>
                     <td>
                       <span className={`badge ${statusClass(row.status)}`}>{formatStatus(row.status, t)}</span>
@@ -154,11 +183,15 @@ export default async function InboxPage() {
                         conversationId={row.id}
                         currentStatus={row.status}
                         currentAssignedToId={row.assignedToId}
+                        currentUnit={row.unit}
+                        unitOptions={unitOptions}
                         team={team}
                         canAssign={canAssign}
                         labels={{
                           status: t("inbox_status"),
                           assignee: t("inbox_assigned"),
+                          unit: t("inbox_unit"),
+                          noUnit: t("inbox_no_unit"),
                           save: t("inbox_change_status"),
                           saving: "...",
                           unassigned: "Unassigned",
@@ -179,7 +212,8 @@ export default async function InboxPage() {
                 );
               })}
             </tbody>
-          </table>
+            </table>
+          </>
         )}
       </article>
     </section>
