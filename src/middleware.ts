@@ -3,7 +3,15 @@ import { createServerClient } from "@supabase/ssr";
 import { hasTrialExpired } from "@/lib/trial";
 import { LANG_COOKIE, detectLangFromHeader, normalizeLang } from "@/lib/i18n/config";
 
-const PUBLIC_PATHS = ["/", "/login", "/signup", "/accept-invite", "/reset-password"];
+const PUBLIC_PATHS = [
+  "/",
+  "/login",
+  "/signup",
+  "/accept-invite",
+  "/reset-password",
+  "/api/webhooks/whatsapp",
+  "/api/webhooks/instagram",
+];
 const INTERNAL_BYPASS = ["/_next", "/favicon.ico"];
 
 function isPublicPath(pathname: string): boolean {
