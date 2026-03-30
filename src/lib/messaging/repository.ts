@@ -42,6 +42,13 @@ async function persistInboundMessage(
     .eq("is_active", true)
     .maybeSingle<CompanyChannel>();
 
+  console.log("[inbound-message] channel lookup", {
+    source: message.source,
+    channelType: message.channelType,
+    externalAccountId: message.externalAccountId,
+    channel,
+  });
+
   if (!channel?.company_id) {
     return { saved: false, reason: "missing_channel_mapping" };
   }
