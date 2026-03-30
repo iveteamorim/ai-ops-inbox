@@ -11,7 +11,7 @@ They lose them because leads are not handled fast or consistently enough.
 
 ## Problem
 
-Businesses lose revenue when leads are not answered fast enough, follow-ups are missed, and conversations across channels become inconsistent or fragmented.
+Businesses lose revenue when WhatsApp leads are not answered fast enough, follow-ups are missed, and the team has no clear view of revenue at risk.
 
 This creates:
 
@@ -22,11 +22,11 @@ This creates:
 
 ## Solution
 
-Novua Inbox combines a unified operations inbox with AI-assisted lead prioritization, response support, and revenue-aware follow-up workflows.
+Novua Inbox is a WhatsApp-first operations inbox with AI-assisted lead prioritization, response support, and revenue-aware follow-up workflows.
 
 ## How it Works
 
-1. A lead enters through WhatsApp, email, or form
+1. A lead enters through WhatsApp
 2. AI classifies urgency and intent
 3. High-value leads are prioritized
 4. Suggested replies are generated
@@ -91,7 +91,10 @@ Turn raw conversations into prioritized revenue actions.
 
 - Multi-tenant access boundaries and company-scoped message flows
 - Signed webhook validation for WhatsApp ingestion
-- Hardened auth/session flows and production-ready middleware guards
+- Hardened auth/session flows: invite acceptance, password reset, and protected middleware guards
+- Real setup request workflow and internal setup operations view
+- Team management: invite, pending invites, cancel/resend, safe user removal
+- Inbox operations: assignment, status updates, and role-based permissions
 - Type-safe Next.js + Supabase implementation with linted CI-friendly structure
 
 ## Core Stack
@@ -100,7 +103,7 @@ Turn raw conversations into prioritized revenue actions.
 - Backend: Next.js Route Handlers / API routes
 - Database: Supabase (Postgres)
 - AI: OpenAI API
-- Integrations: WhatsApp Cloud API (scaffolded), email/form flows
+- Integrations: WhatsApp Cloud API (current focus), future expansion prepared for additional channels
 
 ## Project Structure
 
@@ -113,10 +116,13 @@ Turn raw conversations into prioritized revenue actions.
 
 ## Current Status
 
-- Landing, pricing UX, and product narrative implemented
-- Inbox, conversation, dashboard, revenue, and settings views implemented
+- Landing and pricing aligned to the current WhatsApp-first product
+- Inbox, conversation, dashboard, revenue, settings, and internal setup views implemented
 - i18n support (ES/PT/EN)
 - Currency detection with regional behavior (EUR/BRL) and manual override
+- Real setup request workflow for concierge onboarding
+- Team management with invite, accept-invite, password setup, pending invites, and seat limits by plan
+- Role-based inbox actions: only owners/admins can reassign conversations
 - WhatsApp webhook and message persistence scaffolding included
 
 ## Screenshots
@@ -172,8 +178,9 @@ If Supabase env vars are missing, protected routes stay locked and auth actions 
 - `npm run start` - run production server
 - `npm run lint` - lint checks
 
-## Next Steps
+## Roadmap
 
-- Connect real Supabase project for production auth and persistence
-- Connect Stripe billing and trial lifecycle
 - Connect production WhatsApp Cloud API credentials
+- Add a second real channel end-to-end once WhatsApp onboarding is fully operational
+- Connect Stripe billing and trial lifecycle
+- Expand internal operations tooling for setup and support workflows

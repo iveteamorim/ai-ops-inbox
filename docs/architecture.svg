@@ -11,7 +11,7 @@
 
   <rect x="100" y="220" width="360" height="120" rx="14" fill="#122522" stroke="#1f3b35" />
   <text x="130" y="265" fill="#e9f4f1" font-size="16" font-family="Sora, Arial">Channels</text>
-  <text x="130" y="295" fill="#9fb2ad" font-size="13" font-family="Sora, Arial">WhatsApp, Email, Web Forms</text>
+  <text x="130" y="295" fill="#9fb2ad" font-size="13" font-family="Sora, Arial">WhatsApp live, additional channels planned</text>
 
   <rect x="520" y="220" width="360" height="120" rx="14" fill="#122522" stroke="#1f3b35" />
   <text x="550" y="265" fill="#e9f4f1" font-size="16" font-family="Sora, Arial">API + Webhooks</text>
