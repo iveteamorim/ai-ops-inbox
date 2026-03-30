@@ -71,6 +71,11 @@ type SetupRequestRow = {
   created_at: string;
 };
 
+function isMissingConversationUnitColumnError(error: { message?: string } | null | undefined) {
+  const message = error?.message?.toLowerCase() ?? "";
+  return message.includes("unit") && message.includes("conversations");
+}
+
 export type TeamMemberView = {
   id: string;
   full_name: string | null;
@@ -302,13 +307,24 @@ export async function getConversationViews(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
   companyId: string,
 ) {
-  const { data: conversations, error } = await supabase
+  const baseSelect =
+    "id, company_id, contact_id, assigned_to, channel, status, last_message_at, last_inbound_at, last_outbound_at, created_at, updated_at, estimated_value, expected_value, ai_priority";
+  let { data: conversations, error } = await supabase
     .from("conversations")
-    .select(
-      "id, company_id, contact_id, assigned_to, unit, channel, status, last_message_at, last_inbound_at, last_outbound_at, created_at, updated_at, estimated_value, expected_value, ai_priority",
-    )
+    .select(`${baseSelect}, unit`)
     .eq("company_id", companyId)
     .order("updated_at", { ascending: false });
+
+  if (isMissingConversationUnitColumnError(error)) {
+    const fallback = await supabase
+      .from("conversations")
+      .select(baseSelect)
+      .eq("company_id", companyId)
+      .order("updated_at", { ascending: false });
+
+    conversations = fallback.data?.map((row) => ({ ...row, unit: null })) ?? null;
+    error = fallback.error;
+  }
 
   if (error || !conversations) {
     throw new Error(error?.message ?? "Failed to load conversations");
