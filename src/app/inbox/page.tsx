@@ -63,6 +63,7 @@ export default async function InboxPage() {
     getConversationViews(context.supabase, context.profile.company_id),
     getTeamMembers(context.supabase, context.profile.company_id),
   ]);
+  const canAssign = context.profile.role === "owner" || context.profile.role === "admin";
   const leadsAtRisk = rows.filter((row) => row.status === "new" || row.status === "no_response").length;
   const riskAmount = rows
     .filter((row) => row.status === "new" || row.status === "no_response")
@@ -152,6 +153,7 @@ export default async function InboxPage() {
                         currentStatus={row.status}
                         currentAssignedToId={row.assignedToId}
                         team={team}
+                        canAssign={canAssign}
                         labels={{
                           status: t("inbox_status"),
                           assignee: t("inbox_assigned"),

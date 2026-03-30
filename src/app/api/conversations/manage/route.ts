@@ -9,6 +9,7 @@ type ConversationRow = {
 type ProfileRow = {
   id: string;
   company_id: string;
+  role: string;
 };
 
 type Payload = {
@@ -62,10 +63,30 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "conversation_not_found" }, { status: 404 });
   }
 
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("id, company_id, role")
+    .eq("id", user.id)
+    .maybeSingle<ProfileRow>();
+
+  if (profileError) {
+    return NextResponse.json({ ok: false, error: profileError.message }, { status: 500 });
+  }
+
+  if (!profile || profile.company_id !== conversation.company_id) {
+    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
+  }
+
+  const canManageAssignment = profile.role === "owner" || profile.role === "admin";
+
+  if (assignedTo !== undefined && !canManageAssignment) {
+    return NextResponse.json({ ok: false, error: "assignment_forbidden" }, { status: 403 });
+  }
+
   if (assignedTo) {
     const { data: assignee, error: assigneeError } = await supabase
       .from("profiles")
-      .select("id, company_id")
+      .select("id, company_id, role")
       .eq("id", assignedTo)
       .maybeSingle<ProfileRow>();
 

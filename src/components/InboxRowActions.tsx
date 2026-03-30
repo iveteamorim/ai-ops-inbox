@@ -14,6 +14,7 @@ type Props = {
   currentStatus: "new" | "active" | "no_response" | "won" | "lost";
   currentAssignedToId: string | null;
   team: TeamOption[];
+  canAssign: boolean;
   labels: {
     status: string;
     assignee: string;
@@ -33,6 +34,7 @@ export function InboxRowActions({
   currentStatus,
   currentAssignedToId,
   team,
+  canAssign,
   labels,
 }: Props) {
   const router = useRouter();
@@ -50,7 +52,7 @@ export function InboxRowActions({
         body: JSON.stringify({
           conversationId,
           status,
-          assignedTo: assignedTo || null,
+          assignedTo: canAssign ? assignedTo || null : undefined,
         }),
       });
 
@@ -82,22 +84,26 @@ export function InboxRowActions({
         <option value="lost">{labels.lost}</option>
       </select>
 
-      <label className="sr-only" htmlFor={`assignee-${conversationId}`}>
-        {labels.assignee}
-      </label>
-      <select
-        id={`assignee-${conversationId}`}
-        className="input row-select"
-        value={assignedTo}
-        onChange={(event) => setAssignedTo(event.target.value)}
-      >
-        <option value="">{labels.unassigned}</option>
-        {team.map((member) => (
-          <option key={member.id} value={member.id}>
-            {member.full_name ?? "Unnamed user"} ({member.role})
-          </option>
-        ))}
-      </select>
+      {canAssign ? (
+        <>
+          <label className="sr-only" htmlFor={`assignee-${conversationId}`}>
+            {labels.assignee}
+          </label>
+          <select
+            id={`assignee-${conversationId}`}
+            className="input row-select"
+            value={assignedTo}
+            onChange={(event) => setAssignedTo(event.target.value)}
+          >
+            <option value="">{labels.unassigned}</option>
+            {team.map((member) => (
+              <option key={member.id} value={member.id}>
+                {member.full_name ?? "Unnamed user"} ({member.role})
+              </option>
+            ))}
+          </select>
+        </>
+      ) : null}
 
       <button className="mini-button" type="button" disabled={isPending} onClick={save}>
         {isPending ? labels.saving : labels.save}
