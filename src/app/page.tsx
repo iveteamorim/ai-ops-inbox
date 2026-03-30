@@ -211,7 +211,7 @@ export default function LandingPage() {
             </p>
             <p className="pricing-value-line">{t("pricing_starter_recovery")}</p>
             <p>{t("pricing_no_miss")}</p>
-            <p>{t("pricing_users_2")}</p>
+            <p>{t("pricing_users_3")}</p>
             <p>{t("pricing_whatsapp")}</p>
             <p>{t("pricing_ai_detect")}</p>
             <Link className="button" href="/signup">
@@ -231,8 +231,8 @@ export default function LandingPage() {
             <p className="pricing-value-line">{t("pricing_growth_recovery")}</p>
             <p>{t("pricing_no_miss")}</p>
             <p>{t("pricing_users_6")}</p>
-            <p>{t("pricing_multichannel")}</p>
-            <p>{t("pricing_ai_detect")}</p>
+            <p>{t("pricing_whatsapp")}</p>
+            <p>{t("pricing_ai_full")}</p>
             <p>{t("pricing_money_loss")}</p>
             <Link className="button" href="/signup">
               {t("pricing_cta_growth")}
@@ -247,7 +247,7 @@ export default function LandingPage() {
             </p>
             <p className="pricing-value-line">{t("pricing_pro_recovery")}</p>
             <p>{t("pricing_no_miss")}</p>
-            <p>{t("pricing_users_unlimited")}</p>
+            <p>{t("pricing_users_15")}</p>
             <p>{t("pricing_automations_adv")}</p>
             <p>{t("pricing_lead_value_segment")}</p>
             <p>{t("pricing_predictive_insights")}</p>
