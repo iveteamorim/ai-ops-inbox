@@ -54,7 +54,18 @@ export async function POST(request: Request) {
   }
 
   if (existing) {
-    return NextResponse.json({ ok: true, alreadyRequested: true, request: existing });
+    const { data: updated, error: updateError } = await supabase
+      .from("setup_requests")
+      .update({ notes })
+      .eq("id", existing.id)
+      .select("id, status, channel, notes, created_at")
+      .single();
+
+    if (updateError) {
+      return NextResponse.json({ ok: false, error: updateError.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ ok: true, alreadyRequested: true, request: updated });
   }
 
   const { data, error } = await supabase
@@ -66,7 +77,7 @@ export async function POST(request: Request) {
       status: "requested",
       notes,
     })
-    .select("id, status, channel, created_at")
+    .select("id, status, channel, notes, created_at")
     .single();
 
   if (error) {

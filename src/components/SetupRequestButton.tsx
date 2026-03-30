@@ -3,31 +3,54 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
+function parseRequestNotes(notes?: string | null) {
+  const lines = (notes ?? "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const phoneLine = lines.find((line) => line.toLowerCase().startsWith("whatsapp number:"));
+  const phoneNumber = phoneLine ? phoneLine.split(":").slice(1).join(":").trim() : "";
+  const extraNotes = lines.filter((line) => line !== phoneLine).join("\n");
+
+  return { phoneNumber, extraNotes };
+}
+
 type Props = {
   channel?: "whatsapp" | "email" | "form";
   idleLabel: string;
+  updateLabel: string;
   requestedLabel: string;
   requestedNote: string;
   numberLabel: string;
   numberPlaceholder: string;
   notesLabel: string;
   notesPlaceholder: string;
+  phoneRequiredError: string;
+  existingStatus?: "requested" | "in_progress" | "completed" | "cancelled" | null;
+  existingNotes?: string | null;
 };
 
 export function SetupRequestButton({
   channel = "whatsapp",
   idleLabel,
+  updateLabel,
   requestedLabel,
   requestedNote,
   numberLabel,
   numberPlaceholder,
   notesLabel,
   notesPlaceholder,
+  phoneRequiredError,
+  existingStatus = null,
+  existingNotes = null,
 }: Props) {
+  const initial = parseRequestNotes(existingNotes);
   const router = useRouter();
-  const [status, setStatus] = useState<"idle" | "requested">("idle");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [notes, setNotes] = useState("");
+  const [status, setStatus] = useState<"idle" | "requested" | "in_progress">(
+    existingStatus === "in_progress" ? "in_progress" : existingStatus === "requested" ? "requested" : "idle",
+  );
+  const [phoneNumber, setPhoneNumber] = useState(initial.phoneNumber);
+  const [notes, setNotes] = useState(initial.extraNotes);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -35,6 +58,11 @@ export function SetupRequestButton({
     setError(null);
 
     const trimmedPhone = phoneNumber.trim();
+    if (!trimmedPhone) {
+      setError(phoneRequiredError);
+      return;
+    }
+
     const trimmedNotes = notes.trim();
     const payloadNotes = [trimmedPhone ? `WhatsApp number: ${trimmedPhone}` : "", trimmedNotes]
       .filter(Boolean)
@@ -59,23 +87,22 @@ export function SetupRequestButton({
       return;
     }
 
-    setStatus("requested");
+    setStatus(data.alreadyRequested ? (existingStatus === "in_progress" ? "in_progress" : "requested") : "requested");
     startTransition(() => {
       router.refresh();
     });
   }
 
-  if (status === "requested") {
-    return (
-      <div className="request-state">
-        <span className="badge status-active">{requestedLabel}</span>
-        <p className="note">{requestedNote}</p>
-      </div>
-    );
-  }
-
   return (
     <div className="request-state">
+      {status !== "idle" ? (
+        <>
+          <span className={`badge ${status === "in_progress" ? "status-new" : "status-active"}`}>
+            {status === "in_progress" ? "Setup in progress" : requestedLabel}
+          </span>
+          <p className="note">{requestedNote}</p>
+        </>
+      ) : null}
       <label className="label" htmlFor={`setup-number-${channel}`}>
         {numberLabel}
       </label>
@@ -100,7 +127,7 @@ export function SetupRequestButton({
         rows={3}
       />
       <button className="button" type="button" onClick={handleClick} disabled={isPending}>
-        {isPending ? "..." : idleLabel}
+        {isPending ? "..." : status === "idle" ? idleLabel : updateLabel}
       </button>
       {error ? <p className="note">{error}</p> : null}
     </div>

@@ -66,6 +66,7 @@ type SetupRequestRow = {
   id: string;
   channel: "whatsapp" | "email" | "form";
   status: "requested" | "in_progress" | "completed" | "cancelled";
+  notes: string | null;
   created_at: string;
 };
 
@@ -434,7 +435,7 @@ export async function getSettingsData(
       .order("type", { ascending: true }),
     supabase
       .from("setup_requests")
-      .select("id, channel, status, created_at")
+      .select("id, channel, status, notes, created_at")
       .eq("company_id", companyId)
       .order("created_at", { ascending: false })
       .limit(10),

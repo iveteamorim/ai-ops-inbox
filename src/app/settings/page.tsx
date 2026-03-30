@@ -17,8 +17,10 @@ function getSetupCopy(lang: string) {
       channelsNote: "Configurado por Novua durante onboarding.",
       requestSetup: "Solicitar setup",
       requestWhatsAppSetup: "Solicitar setup de WhatsApp",
+      updateWhatsAppSetup: "Actualizar solicitud",
       setupRequested: "Setup solicitado",
       setupRequestedNote: "Estamos preparando la configuración de WhatsApp.",
+      setupPhoneRequired: "Es obligatorio indicar el número de WhatsApp.",
       setupNumberLabel: "Número de WhatsApp",
       setupNumberPlaceholder: "+34 600 111 222",
       setupNotesLabel: "Nota",
@@ -54,8 +56,10 @@ function getSetupCopy(lang: string) {
       channelsNote: "Configurado pela Novua durante o onboarding.",
       requestSetup: "Solicitar setup",
       requestWhatsAppSetup: "Solicitar setup de WhatsApp",
+      updateWhatsAppSetup: "Atualizar solicitação",
       setupRequested: "Setup solicitado",
       setupRequestedNote: "Estamos a preparar a configuração do WhatsApp.",
+      setupPhoneRequired: "O número de WhatsApp é obrigatório.",
       setupNumberLabel: "Número de WhatsApp",
       setupNumberPlaceholder: "+351 912 345 678",
       setupNotesLabel: "Nota",
@@ -90,8 +94,10 @@ function getSetupCopy(lang: string) {
     channelsNote: "Configured by Novua during onboarding.",
     requestSetup: "Request setup",
     requestWhatsAppSetup: "Request WhatsApp setup",
+    updateWhatsAppSetup: "Update request",
     setupRequested: "Setup requested",
     setupRequestedNote: "We are preparing the WhatsApp configuration.",
+    setupPhoneRequired: "WhatsApp number is required.",
     setupNumberLabel: "WhatsApp number",
     setupNumberPlaceholder: "+34 600 111 222",
     setupNotesLabel: "Note",
@@ -179,24 +185,19 @@ export default async function SettingsPage() {
               <p className="note">{copy.channelUsage}</p>
               <p className="note">{copy.channelsNote}</p>
               <div className="actions" style={{ marginTop: 12 }}>
-                {whatsappSetupRequest ? (
-                  <div className="request-state">
-                    <span className={`badge ${whatsappSetupRequest.status === "in_progress" ? "status-new" : "status-active"}`}>
-                      {whatsappSetupRequest.status === "in_progress" ? "Setup in progress" : copy.setupRequested}
-                    </span>
-                    <p className="note">{copy.setupRequestedNote}</p>
-                  </div>
-                ) : (
-                  <SetupRequestButton
-                    idleLabel={copy.requestWhatsAppSetup}
-                    requestedLabel={copy.setupRequested}
-                    requestedNote={copy.setupRequestedNote}
-                    numberLabel={copy.setupNumberLabel}
-                    numberPlaceholder={copy.setupNumberPlaceholder}
-                    notesLabel={copy.setupNotesLabel}
-                    notesPlaceholder={copy.setupNotesPlaceholder}
-                  />
-                )}
+                <SetupRequestButton
+                  idleLabel={copy.requestWhatsAppSetup}
+                  updateLabel={copy.updateWhatsAppSetup}
+                  requestedLabel={copy.setupRequested}
+                  requestedNote={copy.setupRequestedNote}
+                  numberLabel={copy.setupNumberLabel}
+                  numberPlaceholder={copy.setupNumberPlaceholder}
+                  notesLabel={copy.setupNotesLabel}
+                  notesPlaceholder={copy.setupNotesPlaceholder}
+                  phoneRequiredError={copy.setupPhoneRequired}
+                  existingStatus={whatsappSetupRequest?.status ?? null}
+                  existingNotes={whatsappSetupRequest?.notes ?? null}
+                />
               </div>
             </div>
           ) : (
