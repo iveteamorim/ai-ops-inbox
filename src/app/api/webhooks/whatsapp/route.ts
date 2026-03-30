@@ -60,14 +60,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "invalid_json" }, { status: 400 });
   }
   const inboundMessages = extractInboundMessages(payload);
-  console.log("[whatsapp-webhook] parsed", {
-    inboundCount: inboundMessages.length,
-    entryCount:
-      payload && typeof payload === "object" && Array.isArray((payload as { entry?: unknown[] }).entry)
-        ? (payload as { entry: unknown[] }).entry.length
-        : 0,
-    payload,
-  });
 
   if (inboundMessages.length === 0) {
     return NextResponse.json({ ok: true, processed: 0, note: "no_inbound_text_messages" });
@@ -102,6 +94,5 @@ export async function POST(request: Request) {
   }
 
   const processed = results.filter((r) => r.saved).length;
-  console.log("[whatsapp-webhook] results", { processed, results });
   return NextResponse.json({ ok: true, processed, results });
 }

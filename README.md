@@ -125,6 +125,32 @@ Turn raw conversations into prioritized revenue actions.
 - Role-based inbox actions: only owners/admins can reassign conversations
 - WhatsApp webhook and message persistence scaffolding included
 
+## WhatsApp Demo Checklist
+
+Use this sequence to reproduce the current WhatsApp demo setup:
+
+1. Create a Meta app and add the WhatsApp use case
+2. In Meta WhatsApp setup, get:
+   - `Phone number ID`
+   - `WhatsApp Business Account ID`
+3. In Vercel, set:
+   - `WHATSAPP_VERIFY_TOKEN`
+   - `WHATSAPP_APP_SECRET`
+4. Configure the webhook callback in Meta:
+   - `https://ai-ops-inbox-one.vercel.app/api/webhooks/whatsapp`
+5. Subscribe the webhook field:
+   - `messages`
+6. In Supabase, create the company channel with the real `Phone number ID`
+7. Authorize a recipient number in Meta test setup
+8. Send the test outbound message from Meta
+9. Reply from the authorized phone in WhatsApp
+10. Confirm the inbound conversation appears in Novua Inbox
+
+Notes:
+
+- The Meta `Test` button for webhook payloads may use a fake `external_account_id` such as `123456123`; that is only useful to validate the endpoint, not the real channel mapping.
+- Remove any fake test mapping after debugging so only the real `Phone number ID` remains in `public.channels`.
+
 ## Screenshots
 
 ### Inbox Demo
