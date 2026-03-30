@@ -9,10 +9,13 @@ function parseRequestNotes(notes?: string | null) {
     .map((line) => line.trim())
     .filter(Boolean);
   const phoneLine = lines.find((line) => line.toLowerCase().startsWith("whatsapp number:"));
+  const metaLine = lines.find((line) => line.toLowerCase().startsWith("meta business verified:"));
   const phoneNumber = phoneLine ? phoneLine.split(":").slice(1).join(":").trim() : "";
-  const extraNotes = lines.filter((line) => line !== phoneLine).join("\n");
+  const metaVerifiedRaw = metaLine ? metaLine.split(":").slice(1).join(":").trim().toLowerCase() : "";
+  const metaVerified = metaVerifiedRaw === "yes" || metaVerifiedRaw === "no" ? metaVerifiedRaw : "no";
+  const extraNotes = lines.filter((line) => line !== phoneLine && line !== metaLine).join("\n");
 
-  return { phoneNumber, extraNotes };
+  return { phoneNumber, metaVerified, extraNotes };
 }
 
 type Props = {
@@ -23,6 +26,9 @@ type Props = {
   requestedNote: string;
   numberLabel: string;
   numberPlaceholder: string;
+  metaVerifiedLabel: string;
+  metaVerifiedYes: string;
+  metaVerifiedNo: string;
   notesLabel: string;
   notesPlaceholder: string;
   phoneRequiredError: string;
@@ -38,6 +44,9 @@ export function SetupRequestButton({
   requestedNote,
   numberLabel,
   numberPlaceholder,
+  metaVerifiedLabel,
+  metaVerifiedYes,
+  metaVerifiedNo,
   notesLabel,
   notesPlaceholder,
   phoneRequiredError,
@@ -50,6 +59,7 @@ export function SetupRequestButton({
     existingStatus === "in_progress" ? "in_progress" : existingStatus === "requested" ? "requested" : "idle",
   );
   const [phoneNumber, setPhoneNumber] = useState(initial.phoneNumber);
+  const [metaVerified, setMetaVerified] = useState<"yes" | "no">(initial.metaVerified as "yes" | "no");
   const [notes, setNotes] = useState(initial.extraNotes);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -64,7 +74,11 @@ export function SetupRequestButton({
     }
 
     const trimmedNotes = notes.trim();
-    const payloadNotes = [trimmedPhone ? `WhatsApp number: ${trimmedPhone}` : "", trimmedNotes]
+    const payloadNotes = [
+      trimmedPhone ? `WhatsApp number: ${trimmedPhone}` : "",
+      `Meta Business verified: ${metaVerified}`,
+      trimmedNotes,
+    ]
       .filter(Boolean)
       .join("\n");
 
@@ -115,6 +129,18 @@ export function SetupRequestButton({
         placeholder={numberPlaceholder}
         autoComplete="tel"
       />
+      <label className="label" htmlFor={`setup-meta-${channel}`} style={{ marginTop: 10 }}>
+        {metaVerifiedLabel}
+      </label>
+      <select
+        id={`setup-meta-${channel}`}
+        className="input"
+        value={metaVerified}
+        onChange={(event) => setMetaVerified(event.target.value === "yes" ? "yes" : "no")}
+      >
+        <option value="yes">{metaVerifiedYes}</option>
+        <option value="no">{metaVerifiedNo}</option>
+      </select>
       <label className="label" htmlFor={`setup-notes-${channel}`} style={{ marginTop: 10 }}>
         {notesLabel}
       </label>

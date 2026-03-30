@@ -23,6 +23,9 @@ function getSetupCopy(lang: string) {
       setupPhoneRequired: "Es obligatorio indicar el número de WhatsApp.",
       setupNumberLabel: "Número de WhatsApp",
       setupNumberPlaceholder: "+34 600 111 222",
+      setupMetaVerifiedLabel: "¿Tienes Meta Business verificado?",
+      setupMetaVerifiedYes: "Sí",
+      setupMetaVerifiedNo: "No",
       setupNotesLabel: "Nota",
       setupNotesPlaceholder: "Nombre de contacto, disponibilidad o cualquier detalle útil.",
       inviteTitle: "Añade agentes o admins al mismo workspace.",
@@ -62,6 +65,9 @@ function getSetupCopy(lang: string) {
       setupPhoneRequired: "O número de WhatsApp é obrigatório.",
       setupNumberLabel: "Número de WhatsApp",
       setupNumberPlaceholder: "+351 912 345 678",
+      setupMetaVerifiedLabel: "Tem Meta Business verificado?",
+      setupMetaVerifiedYes: "Sim",
+      setupMetaVerifiedNo: "Não",
       setupNotesLabel: "Nota",
       setupNotesPlaceholder: "Nome do contato, disponibilidade ou qualquer detalhe útil.",
       inviteTitle: "Adicione agentes ou admins ao mesmo workspace.",
@@ -100,6 +106,9 @@ function getSetupCopy(lang: string) {
     setupPhoneRequired: "WhatsApp number is required.",
     setupNumberLabel: "WhatsApp number",
     setupNumberPlaceholder: "+34 600 111 222",
+    setupMetaVerifiedLabel: "Do you have Meta Business verified?",
+    setupMetaVerifiedYes: "Yes",
+    setupMetaVerifiedNo: "No",
     setupNotesLabel: "Note",
     setupNotesPlaceholder: "Contact name, availability, or any useful detail.",
     inviteTitle: "Add agents or admins to the same workspace.",
@@ -192,6 +201,9 @@ export default async function SettingsPage() {
                   requestedNote={copy.setupRequestedNote}
                   numberLabel={copy.setupNumberLabel}
                   numberPlaceholder={copy.setupNumberPlaceholder}
+                  metaVerifiedLabel={copy.setupMetaVerifiedLabel}
+                  metaVerifiedYes={copy.setupMetaVerifiedYes}
+                  metaVerifiedNo={copy.setupMetaVerifiedNo}
                   notesLabel={copy.setupNotesLabel}
                   notesPlaceholder={copy.setupNotesPlaceholder}
                   phoneRequiredError={copy.setupPhoneRequired}
