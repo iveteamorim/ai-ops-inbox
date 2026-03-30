@@ -21,7 +21,7 @@ type ConversationRow = {
   company_id: string;
   contact_id: string;
   assigned_to: string | null;
-  channel: "whatsapp" | "email" | "form";
+  channel: "whatsapp" | "instagram" | "email" | "form";
   status: "new" | "active" | "won" | "lost" | "no_response";
   last_message_at: string | null;
   last_inbound_at: string | null;
@@ -57,14 +57,14 @@ type MessageRow = {
 
 type ChannelRow = {
   id: string;
-  type: "whatsapp" | "email" | "form";
+  type: "whatsapp" | "instagram" | "email" | "form";
   external_account_id: string | null;
   is_active: boolean;
 };
 
 type SetupRequestRow = {
   id: string;
-  channel: "whatsapp" | "email" | "form";
+  channel: "whatsapp" | "instagram" | "email" | "form";
   status: "requested" | "in_progress" | "completed" | "cancelled";
   notes: string | null;
   created_at: string;
@@ -85,7 +85,7 @@ export type PendingInviteView = {
 
 export type SetupRequestView = {
   id: string;
-  channel: "whatsapp" | "email" | "form";
+  channel: "whatsapp" | "instagram" | "email" | "form";
   status: "requested" | "in_progress" | "completed" | "cancelled";
   createdAt: string;
   companyName: string;
@@ -109,7 +109,7 @@ export type ConversationView = {
   id: string;
   contactName: string;
   contactPhone: string | null;
-  channel: "whatsapp" | "email" | "form";
+  channel: "whatsapp" | "instagram" | "email" | "form";
   status: ConversationRow["status"];
   assignedToId: string | null;
   assignedTo: string | null;
@@ -260,6 +260,7 @@ function normalizePriority(priority: ConversationRow["ai_priority"]): "high" | "
 
 export function formatChannel(channel: ConversationView["channel"]) {
   if (channel === "whatsapp") return "WhatsApp";
+  if (channel === "instagram") return "Instagram";
   if (channel === "email") return "Email";
   return "Form";
 }
@@ -500,7 +501,7 @@ export async function getSetupRequestsAdminView() {
     id: string;
     company_id: string;
     user_id: string;
-    channel: "whatsapp" | "email" | "form";
+    channel: "whatsapp" | "instagram" | "email" | "form";
     status: "requested" | "in_progress" | "completed" | "cancelled";
     notes: string | null;
     created_at: string;

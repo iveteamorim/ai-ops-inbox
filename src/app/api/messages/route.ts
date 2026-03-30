@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 type ConversationRow = {
   id: string;
   company_id: string;
+  channel: "whatsapp" | "instagram" | "email" | "form";
 };
 
 type PostBody = {
@@ -23,7 +24,7 @@ async function getAuthenticatedClient() {
 async function getAuthorizedConversation(supabase: Awaited<ReturnType<typeof createClient>>, conversationId: string) {
   const { data: conversation, error: conversationError } = await supabase
     .from("conversations")
-    .select("id, company_id")
+    .select("id, company_id, channel")
     .eq("id", conversationId)
     .maybeSingle<ConversationRow>();
 
@@ -108,7 +109,7 @@ export async function POST(request: Request) {
     conversation_id: access.conversation.id,
     direction: "outbound",
     sender_type: "agent",
-    channel: "whatsapp",
+    channel: access.conversation.channel,
     text,
     raw_payload: { source: "api/messages" },
   });

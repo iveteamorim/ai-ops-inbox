@@ -39,6 +39,7 @@ function priorityClass(priority: string) {
 
 function formatChannel(channel: ConversationView["channel"]) {
   if (channel === "whatsapp") return "WhatsApp";
+  if (channel === "instagram") return "Instagram";
   if (channel === "email") return "Email";
   return "Form";
 }

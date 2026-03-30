@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { WhatsAppInboundMessage } from "@/lib/messaging/whatsapp";
+import type { InstagramInboundMessage } from "@/lib/messaging/instagram";
 
 type CompanyChannel = {
   company_id: string;
@@ -18,15 +19,26 @@ type ConversationRow = {
   id: string;
 };
 
-export async function persistWhatsAppInbound(
+type InboundMessageInput = {
+  source: "whatsapp" | "instagram";
+  channelType: "whatsapp" | "instagram";
+  externalAccountId: string;
+  contactKey: { phone?: string | null; externalRef?: string | null };
+  contactName: string | null;
+  text: string;
+  externalMessageId: string;
+  rawMessage: unknown;
+};
+
+async function persistInboundMessage(
   supabase: SupabaseClient,
-  message: WhatsAppInboundMessage,
+  message: InboundMessageInput,
 ): Promise<{ saved: boolean; reason?: string }> {
   const { data: channel } = await supabase
     .from("channels")
     .select("company_id")
-    .eq("type", "whatsapp")
-    .eq("external_account_id", message.phoneNumberId)
+    .eq("type", message.channelType)
+    .eq("external_account_id", message.externalAccountId)
     .eq("is_active", true)
     .maybeSingle<CompanyChannel>();
 
@@ -37,7 +49,7 @@ export async function persistWhatsAppInbound(
   const companyId = channel.company_id;
 
   const { error: eventInsertError } = await supabase.from("webhook_events").insert({
-    source: "whatsapp",
+    source: message.source,
     external_id: message.externalMessageId,
     company_id: companyId,
     payload: message.rawMessage,
@@ -53,12 +65,11 @@ export async function persistWhatsAppInbound(
   }
 
   let contactId: string;
-  const { data: existingContact } = await supabase
-    .from("contacts")
-    .select("id")
-    .eq("company_id", companyId)
-    .eq("phone", message.fromPhone)
-    .maybeSingle<ContactRow>();
+  const contactQuery = supabase.from("contacts").select("id").eq("company_id", companyId);
+  const contactLookup = message.contactKey.phone
+    ? contactQuery.eq("phone", message.contactKey.phone)
+    : contactQuery.eq("external_ref", message.contactKey.externalRef ?? "");
+  const { data: existingContact } = await contactLookup.maybeSingle<ContactRow>();
 
   if (existingContact?.id) {
     contactId = existingContact.id;
@@ -67,8 +78,9 @@ export async function persistWhatsAppInbound(
       .from("contacts")
       .insert({
         company_id: companyId,
-        name: message.fromName,
-        phone: message.fromPhone,
+        name: message.contactName,
+        phone: message.contactKey.phone ?? null,
+        external_ref: message.contactKey.externalRef ?? null,
       })
       .select("id")
       .single<ContactRow>();
@@ -86,7 +98,7 @@ export async function persistWhatsAppInbound(
     .select("id")
     .eq("company_id", companyId)
     .eq("contact_id", contactId)
-    .eq("channel", "whatsapp")
+    .eq("channel", message.channelType)
     .order("updated_at", { ascending: false })
     .limit(1)
     .maybeSingle<ConversationRow>();
@@ -94,15 +106,16 @@ export async function persistWhatsAppInbound(
   if (existingConversation?.id) {
     conversationId = existingConversation.id;
   } else {
+    const now = new Date().toISOString();
     const { data: insertedConversation, error: conversationError } = await supabase
       .from("conversations")
       .insert({
         company_id: companyId,
         contact_id: contactId,
-        channel: "whatsapp",
+        channel: message.channelType,
         status: "new",
-        last_message_at: new Date().toISOString(),
-        last_inbound_at: new Date().toISOString(),
+        last_message_at: now,
+        last_inbound_at: now,
       })
       .select("id")
       .single<ConversationRow>();
@@ -121,7 +134,7 @@ export async function persistWhatsAppInbound(
     conversation_id: conversationId,
     direction: "inbound",
     sender_type: "customer",
-    channel: "whatsapp",
+    channel: message.channelType,
     external_id: message.externalMessageId,
     text: message.text,
     raw_payload: message.rawMessage,
@@ -131,12 +144,13 @@ export async function persistWhatsAppInbound(
     throw new Error(`Failed to insert message: ${messageError.message}`);
   }
 
+  const now = new Date().toISOString();
   const { error: conversationUpdateError } = await supabase
     .from("conversations")
     .update({
       status: "active",
-      last_message_at: new Date().toISOString(),
-      last_inbound_at: new Date().toISOString(),
+      last_message_at: now,
+      last_inbound_at: now,
     })
     .eq("id", conversationId);
 
@@ -148,9 +162,9 @@ export async function persistWhatsAppInbound(
     .from("webhook_events")
     .update({
       status: "processed",
-      processed_at: new Date().toISOString(),
+      processed_at: now,
     })
-    .eq("source", "whatsapp")
+    .eq("source", message.source)
     .eq("external_id", message.externalMessageId);
 
   if (webhookUpdateError) {
@@ -158,4 +172,36 @@ export async function persistWhatsAppInbound(
   }
 
   return { saved: true };
+}
+
+export async function persistWhatsAppInbound(
+  supabase: SupabaseClient,
+  message: WhatsAppInboundMessage,
+): Promise<{ saved: boolean; reason?: string }> {
+  return persistInboundMessage(supabase, {
+    source: "whatsapp",
+    channelType: "whatsapp",
+    externalAccountId: message.phoneNumberId,
+    contactKey: { phone: message.fromPhone, externalRef: null },
+    contactName: message.fromName,
+    text: message.text,
+    externalMessageId: message.externalMessageId,
+    rawMessage: message.rawMessage,
+  });
+}
+
+export async function persistInstagramInbound(
+  supabase: SupabaseClient,
+  message: InstagramInboundMessage,
+): Promise<{ saved: boolean; reason?: string }> {
+  return persistInboundMessage(supabase, {
+    source: "instagram",
+    channelType: "instagram",
+    externalAccountId: message.instagramAccountId,
+    contactKey: { phone: null, externalRef: message.fromExternalId },
+    contactName: message.fromName,
+    text: message.text,
+    externalMessageId: message.externalMessageId,
+    rawMessage: message.rawMessage,
+  });
 }

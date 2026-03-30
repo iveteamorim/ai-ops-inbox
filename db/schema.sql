@@ -21,7 +21,7 @@ create table if not exists public.profiles (
 create table if not exists public.channels (
   id uuid primary key default gen_random_uuid(),
   company_id uuid not null references public.companies(id) on delete cascade,
-  type text not null check (type in ('whatsapp', 'email', 'form')),
+  type text not null check (type in ('whatsapp', 'instagram', 'email', 'form')),
   external_account_id text,
   is_active boolean not null default true,
   config jsonb not null default '{}'::jsonb,
@@ -44,7 +44,7 @@ create table if not exists public.conversations (
   id uuid primary key default gen_random_uuid(),
   company_id uuid not null references public.companies(id) on delete cascade,
   contact_id uuid not null references public.contacts(id) on delete cascade,
-  channel text not null check (channel in ('whatsapp', 'email', 'form')),
+  channel text not null check (channel in ('whatsapp', 'instagram', 'email', 'form')),
   status text not null default 'new' check (status in ('new', 'active', 'won', 'lost', 'no_response')),
   assigned_to uuid references public.profiles(id),
   estimated_value numeric(12,2) not null default 0,
@@ -82,7 +82,7 @@ create table if not exists public.messages (
   conversation_id uuid not null references public.conversations(id) on delete cascade,
   direction text not null check (direction in ('inbound', 'outbound')),
   sender_type text not null check (sender_type in ('customer', 'agent', 'system')),
-  channel text not null check (channel in ('whatsapp', 'email', 'form')),
+  channel text not null check (channel in ('whatsapp', 'instagram', 'email', 'form')),
   external_id text,
   text text,
   raw_payload jsonb not null default '{}'::jsonb,
@@ -107,11 +107,43 @@ create table if not exists public.setup_requests (
   id uuid primary key default gen_random_uuid(),
   company_id uuid not null references public.companies(id) on delete cascade,
   user_id uuid not null references public.profiles(id) on delete cascade,
-  channel text not null check (channel in ('whatsapp', 'email', 'form')),
+  channel text not null check (channel in ('whatsapp', 'instagram', 'email', 'form')),
   status text not null default 'requested' check (status in ('requested', 'in_progress', 'completed', 'cancelled')),
   notes text,
   created_at timestamptz not null default now()
 );
+
+do $$
+begin
+  if exists (select 1 from pg_constraint where conname = 'channels_type_check') then
+    alter table public.channels drop constraint channels_type_check;
+  end if;
+  alter table public.channels
+    add constraint channels_type_check
+    check (type in ('whatsapp', 'instagram', 'email', 'form'));
+
+  if exists (select 1 from pg_constraint where conname = 'conversations_channel_check') then
+    alter table public.conversations drop constraint conversations_channel_check;
+  end if;
+  alter table public.conversations
+    add constraint conversations_channel_check
+    check (channel in ('whatsapp', 'instagram', 'email', 'form'));
+
+  if exists (select 1 from pg_constraint where conname = 'messages_channel_check') then
+    alter table public.messages drop constraint messages_channel_check;
+  end if;
+  alter table public.messages
+    add constraint messages_channel_check
+    check (channel in ('whatsapp', 'instagram', 'email', 'form'));
+
+  if exists (select 1 from pg_constraint where conname = 'setup_requests_channel_check') then
+    alter table public.setup_requests drop constraint setup_requests_channel_check;
+  end if;
+  alter table public.setup_requests
+    add constraint setup_requests_channel_check
+    check (channel in ('whatsapp', 'instagram', 'email', 'form'));
+end
+$$;
 
 create index if not exists idx_profiles_company on public.profiles (company_id);
 create index if not exists idx_channels_company on public.channels (company_id, type, is_active);
