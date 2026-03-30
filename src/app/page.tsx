@@ -51,7 +51,7 @@ export default function LandingPage() {
 
   return (
     <section className="landing page">
-      <MarketingNav />
+      <MarketingNav showHome={false} showSections={false} />
 
       <header className="hero hero-stripe card">
         <div className="hero-copy">
