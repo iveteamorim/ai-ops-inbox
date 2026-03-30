@@ -83,6 +83,7 @@ export function SetupRequestsTable({ requests }: Props) {
             <div className="note">
               {request.channel} · {request.requestedBy}
             </div>
+            {request.notes ? <div className="note" style={{ marginTop: 6, whiteSpace: "pre-line" }}>{request.notes}</div> : null}
           </div>
           <div className="actions">
             <span className={`badge ${

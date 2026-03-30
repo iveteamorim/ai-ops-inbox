@@ -18,6 +18,10 @@ function getSetupCopy(lang: string) {
       requestWhatsAppSetup: "Solicitar setup de WhatsApp",
       setupRequested: "Setup solicitado",
       setupRequestedNote: "Estamos preparando la configuración de WhatsApp.",
+      setupNumberLabel: "Número de WhatsApp",
+      setupNumberPlaceholder: "+34 600 111 222",
+      setupNotesLabel: "Nota",
+      setupNotesPlaceholder: "Nombre de contacto, disponibilidad o cualquier detalle útil.",
       inviteTitle: "Añade agentes o admins al mismo workspace.",
       inviteEmail: "Email",
       inviteRole: "Rol",
@@ -51,6 +55,10 @@ function getSetupCopy(lang: string) {
       requestWhatsAppSetup: "Solicitar setup de WhatsApp",
       setupRequested: "Setup solicitado",
       setupRequestedNote: "Estamos a preparar a configuração do WhatsApp.",
+      setupNumberLabel: "Número de WhatsApp",
+      setupNumberPlaceholder: "+351 912 345 678",
+      setupNotesLabel: "Nota",
+      setupNotesPlaceholder: "Nome do contato, disponibilidade ou qualquer detalhe útil.",
       inviteTitle: "Adicione agentes ou admins ao mesmo workspace.",
       inviteEmail: "Email",
       inviteRole: "Função",
@@ -83,6 +91,10 @@ function getSetupCopy(lang: string) {
     requestWhatsAppSetup: "Request WhatsApp setup",
     setupRequested: "Setup requested",
     setupRequestedNote: "We are preparing the WhatsApp configuration.",
+    setupNumberLabel: "WhatsApp number",
+    setupNumberPlaceholder: "+34 600 111 222",
+    setupNotesLabel: "Note",
+    setupNotesPlaceholder: "Contact name, availability, or any useful detail.",
     inviteTitle: "Add agents or admins to the same workspace.",
     inviteEmail: "Email",
     inviteRole: "Role",
@@ -177,6 +189,10 @@ export default async function SettingsPage() {
                     idleLabel={copy.requestWhatsAppSetup}
                     requestedLabel={copy.setupRequested}
                     requestedNote={copy.setupRequestedNote}
+                    numberLabel={copy.setupNumberLabel}
+                    numberPlaceholder={copy.setupNumberPlaceholder}
+                    notesLabel={copy.setupNotesLabel}
+                    notesPlaceholder={copy.setupNotesPlaceholder}
                   />
                 )}
               </div>

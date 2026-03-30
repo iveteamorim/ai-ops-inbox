@@ -89,6 +89,7 @@ export type SetupRequestView = {
   createdAt: string;
   companyName: string;
   requestedBy: string;
+  notes: string | null;
 };
 
 export type AppContext =
@@ -486,7 +487,7 @@ export async function getSetupRequestsAdminView() {
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("setup_requests")
-    .select("id, company_id, user_id, channel, status, created_at")
+    .select("id, company_id, user_id, channel, status, notes, created_at")
     .order("created_at", { ascending: false })
     .limit(50);
 
@@ -500,6 +501,7 @@ export async function getSetupRequestsAdminView() {
     user_id: string;
     channel: "whatsapp" | "email" | "form";
     status: "requested" | "in_progress" | "completed" | "cancelled";
+    notes: string | null;
     created_at: string;
   }> | null | undefined) ?? []);
 
@@ -545,6 +547,7 @@ export async function getSetupRequestsAdminView() {
       createdAt: row.created_at,
       companyName: companiesById.get(row.company_id) ?? "Unknown company",
       requestedBy: profilesById.get(row.user_id) ?? "Unknown user",
+      notes: row.notes,
     } satisfies SetupRequestView;
   });
 }
