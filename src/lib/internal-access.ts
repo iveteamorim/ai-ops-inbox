@@ -3,7 +3,7 @@ export function isNovuaInternalUser(email?: string | null) {
 
   const normalizedEmail = email.trim().toLowerCase();
   const allowedEmails = (
-    process.env.NOVUA_INTERNAL_EMAILS?.split(",") ?? ["iveteamorim@gmail.com"]
+    process.env.NOVUA_INTERNAL_EMAILS?.split(",") ?? ["iveteamorim@gmail.com", "saraarubioo1@gmail.com"]
   )
     .map((value) => value.trim().toLowerCase())
     .filter(Boolean);
