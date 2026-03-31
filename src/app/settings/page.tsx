@@ -289,7 +289,9 @@ export default async function SettingsPage() {
             </span>
           </div>
         </article>
+      </div>
 
+      <div className="grid cols-2" style={{ marginTop: 12 }}>
         <article className="card">
           <p className="label">{t("settings_users")}</p>
           {team.length === 0 ? (
@@ -334,9 +336,7 @@ export default async function SettingsPage() {
             />
           ) : null}
         </article>
-      </div>
 
-      <div style={{ marginTop: 12 }}>
         <BusinessSetupForm
           initialValue={businessSetup}
           labels={{
