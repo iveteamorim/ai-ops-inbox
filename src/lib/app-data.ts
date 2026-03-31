@@ -215,6 +215,24 @@ const LEAD_KEYWORD_HINTS: Record<string, string[]> = {
   premium: ["premium", "tratamiento completo", "tratamiento avanzado"],
 };
 
+const GENERIC_INQUIRY_HINTS = [
+  "precio",
+  "precios",
+  "coste",
+  "costo",
+  "tarifa",
+  "tarifas",
+  "disponibilidad",
+  "horario",
+  "horarios",
+  "informacion",
+  "info",
+  "cita",
+  "reservar",
+  "reserva",
+  "semana",
+];
+
 function classifyLeadFromMessage(message: string, leadTypes: BusinessLeadType[]): ClassifiedLead {
   const text = normalizeLeadText(message);
 
@@ -222,25 +240,61 @@ function classifyLeadFromMessage(message: string, leadTypes: BusinessLeadType[])
     return { leadType: null, estimatedValue: 0 };
   }
 
+  let bestMatch: ClassifiedLead | null = null;
+  let bestScore = 0;
+
   for (const leadType of leadTypes) {
     const normalizedName = normalizeLeadText(leadType.name);
     if (!normalizedName) continue;
 
-    const directTokens = normalizedName.split(/\s+/).filter(Boolean);
+    const directTokens = normalizedName
+      .split(/\s+/)
+      .filter(Boolean)
+      .filter((token) => token.length > 2);
     const hints = LEAD_KEYWORD_HINTS[normalizedName] ?? [];
 
-    const matchedByName =
-      text.includes(normalizedName) ||
-      directTokens.some((token) => token.length > 3 && text.includes(token));
+    let score = 0;
 
-    const matchedByHint = hints.some((hint) => text.includes(normalizeLeadText(hint)));
+    if (text.includes(normalizedName)) {
+      score += 5;
+    }
 
-    if (matchedByName || matchedByHint) {
-      return {
+    for (const token of directTokens) {
+      if (text.includes(token)) {
+        score += 2;
+      }
+    }
+
+    for (const hint of hints) {
+      if (text.includes(normalizeLeadText(hint))) {
+        score += 3;
+      }
+    }
+
+    if (score === 0) {
+      const hasGenericInquiry = GENERIC_INQUIRY_HINTS.some((hint) => text.includes(hint));
+      const isBroadInquiryType =
+        normalizedName.includes("visita") ||
+        normalizedName.includes("consulta") ||
+        normalizedName.includes("cita") ||
+        normalizedName.includes("tratamiento");
+
+      if (hasGenericInquiry && isBroadInquiryType) {
+        score += 1;
+      }
+    }
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = {
         leadType: leadType.name,
         estimatedValue: Number.isFinite(leadType.estimatedValue) ? leadType.estimatedValue : 0,
       };
     }
+  }
+
+  if (bestMatch && bestScore > 0) {
+    return bestMatch;
   }
 
   return { leadType: null, estimatedValue: 0 };
