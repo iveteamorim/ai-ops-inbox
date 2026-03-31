@@ -2,6 +2,7 @@ import { createClient as createSupabaseServerClient } from "@/lib/supabase/serve
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { User } from "@supabase/supabase-js";
 import type { DictionaryKey } from "@/lib/i18n/dictionaries";
+import { classifyLeadFromMessage } from "@/lib/revenue/classify";
 
 type ProfileRow = {
   id: string;
@@ -23,6 +24,7 @@ type ConversationRow = {
   contact_id: string;
   assigned_to: string | null;
   unit: string | null;
+  lead_type: string | null;
   channel: "whatsapp" | "instagram" | "email" | "form";
   status: "new" | "active" | "won" | "lost" | "no_response";
   last_message_at: string | null;
@@ -74,7 +76,10 @@ type SetupRequestRow = {
 
 function isMissingConversationUnitColumnError(error: { message?: string } | null | undefined) {
   const message = error?.message?.toLowerCase() ?? "";
-  return message.includes("unit") && message.includes("conversations");
+  return (
+    message.includes("conversations") &&
+    (message.includes("unit") || message.includes("lead_type"))
+  );
 }
 
 export type TeamMemberView = {
@@ -180,11 +185,6 @@ export type ConversationView = {
   createdAt: string;
 };
 
-type ClassifiedLead = {
-  leadType: string | null;
-  estimatedValue: number;
-};
-
 export type MessageView = {
   id: string;
   direction: "inbound" | "outbound";
@@ -199,105 +199,6 @@ function titleCase(value: string) {
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
     .join(" ");
-}
-
-function normalizeLeadText(value: string) {
-  return value
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .trim();
-}
-
-const LEAD_KEYWORD_HINTS: Record<string, string[]> = {
-  "primera visita": ["primera visita", "primera cita", "quiero cita", "agendar", "marcar cita"],
-  "bono sesiones": ["bono", "pack", "sesiones", "5 sesiones", "10 sesiones"],
-  premium: ["premium", "tratamiento completo", "tratamiento avanzado"],
-};
-
-const GENERIC_INQUIRY_HINTS = [
-  "precio",
-  "precios",
-  "coste",
-  "costo",
-  "tarifa",
-  "tarifas",
-  "disponibilidad",
-  "horario",
-  "horarios",
-  "informacion",
-  "info",
-  "cita",
-  "reservar",
-  "reserva",
-  "semana",
-];
-
-function classifyLeadFromMessage(message: string, leadTypes: BusinessLeadType[]): ClassifiedLead {
-  const text = normalizeLeadText(message);
-
-  if (!text || leadTypes.length === 0) {
-    return { leadType: null, estimatedValue: 0 };
-  }
-
-  let bestMatch: ClassifiedLead | null = null;
-  let bestScore = 0;
-
-  for (const leadType of leadTypes) {
-    const normalizedName = normalizeLeadText(leadType.name);
-    if (!normalizedName) continue;
-
-    const directTokens = normalizedName
-      .split(/\s+/)
-      .filter(Boolean)
-      .filter((token) => token.length > 2);
-    const hints = LEAD_KEYWORD_HINTS[normalizedName] ?? [];
-
-    let score = 0;
-
-    if (text.includes(normalizedName)) {
-      score += 5;
-    }
-
-    for (const token of directTokens) {
-      if (text.includes(token)) {
-        score += 2;
-      }
-    }
-
-    for (const hint of hints) {
-      if (text.includes(normalizeLeadText(hint))) {
-        score += 3;
-      }
-    }
-
-    if (score === 0) {
-      const hasGenericInquiry = GENERIC_INQUIRY_HINTS.some((hint) => text.includes(hint));
-      const isBroadInquiryType =
-        normalizedName.includes("visita") ||
-        normalizedName.includes("consulta") ||
-        normalizedName.includes("cita") ||
-        normalizedName.includes("tratamiento");
-
-      if (hasGenericInquiry && isBroadInquiryType) {
-        score += 1;
-      }
-    }
-
-    if (score > bestScore) {
-      bestScore = score;
-      bestMatch = {
-        leadType: leadType.name,
-        estimatedValue: Number.isFinite(leadType.estimatedValue) ? leadType.estimatedValue : 0,
-      };
-    }
-  }
-
-  if (bestMatch && bestScore > 0) {
-    return bestMatch;
-  }
-
-  return { leadType: null, estimatedValue: 0 };
 }
 
 function deriveCompanyName(user: User) {
@@ -464,7 +365,7 @@ export async function getConversationViews(
   companyId: string,
 ) {
   const baseSelect =
-    "id, company_id, contact_id, assigned_to, channel, status, last_message_at, last_inbound_at, last_outbound_at, created_at, updated_at, estimated_value, expected_value, ai_priority";
+    "id, company_id, contact_id, assigned_to, channel, status, last_message_at, last_inbound_at, last_outbound_at, created_at, updated_at, estimated_value, expected_value, ai_priority, lead_type";
   let { data: conversations, error } = await supabase
     .from("conversations")
     .select(`${baseSelect}, unit`)
@@ -478,7 +379,7 @@ export async function getConversationViews(
       .eq("company_id", companyId)
       .order("updated_at", { ascending: false });
 
-    conversations = fallback.data?.map((row) => ({ ...row, unit: null })) ?? null;
+    conversations = fallback.data?.map((row) => ({ ...row, unit: null, lead_type: null })) ?? null;
     error = fallback.error;
   }
 
@@ -547,7 +448,7 @@ export async function getConversationViews(
       contactName: contact?.name?.trim() || contact?.phone || contact?.email || "Unknown contact",
       contactPhone: contact?.phone ?? null,
       unit: row.unit?.trim() || null,
-      leadType: classification.leadType,
+      leadType: row.lead_type?.trim() || classification.leadType,
       channel: row.channel,
       status: row.status,
       assignedToId: row.assigned_to,
