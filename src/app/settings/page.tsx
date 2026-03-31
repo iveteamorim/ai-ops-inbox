@@ -62,6 +62,9 @@ function getSetupCopy(lang: string) {
       businessSetupRemoveLeadType: "Eliminar",
       businessSetupSave: "Guardar configuración",
       businessSetupSaving: "Guardando...",
+      businessSetupBackfill: "Recalcular conversaciones",
+      businessSetupBackfilling: "Recalculando...",
+      businessSetupBackfillSuccess: "Conversaciones actualizadas",
       businessSetupSuccess: "Configuración guardada.",
       businessSetupError: "No se pudo guardar la configuración.",
     };
@@ -118,6 +121,9 @@ function getSetupCopy(lang: string) {
       businessSetupRemoveLeadType: "Remover",
       businessSetupSave: "Guardar configuração",
       businessSetupSaving: "Guardando...",
+      businessSetupBackfill: "Recalcular conversas",
+      businessSetupBackfilling: "Recalculando...",
+      businessSetupBackfillSuccess: "Conversas atualizadas",
       businessSetupSuccess: "Configuração guardada.",
       businessSetupError: "Não foi possível guardar a configuração.",
     };
@@ -173,6 +179,9 @@ function getSetupCopy(lang: string) {
     businessSetupRemoveLeadType: "Remove",
     businessSetupSave: "Save configuration",
     businessSetupSaving: "Saving...",
+    businessSetupBackfill: "Recalculate conversations",
+    businessSetupBackfilling: "Recalculating...",
+    businessSetupBackfillSuccess: "Conversations updated",
     businessSetupSuccess: "Configuration saved.",
     businessSetupError: "Could not save the configuration.",
   };
@@ -351,6 +360,9 @@ export default async function SettingsPage() {
             removeLeadType: copy.businessSetupRemoveLeadType,
             save: copy.businessSetupSave,
             saving: copy.businessSetupSaving,
+            backfill: copy.businessSetupBackfill,
+            backfilling: copy.businessSetupBackfilling,
+            backfillSuccess: copy.businessSetupBackfillSuccess,
             success: copy.businessSetupSuccess,
             error: copy.businessSetupError,
           }}

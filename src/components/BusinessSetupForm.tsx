@@ -18,6 +18,9 @@ type Props = {
     removeLeadType: string;
     save: string;
     saving: string;
+    backfill: string;
+    backfilling: string;
+    backfillSuccess: string;
     success: string;
     error: string;
   };
@@ -42,6 +45,7 @@ export function BusinessSetupForm({ initialValue, labels }: Props) {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isBackfilling, startBackfill] = useTransition();
 
   function updateLeadType(id: string, patch: Partial<LeadTypeRow>) {
     setLeadTypes((current) => current.map((row) => (row.id === id ? { ...row, ...patch } : row)));
@@ -84,6 +88,32 @@ export function BusinessSetupForm({ initialValue, labels }: Props) {
       }
 
       setMessage(labels.success);
+      router.refresh();
+    });
+  }
+
+  function backfill() {
+    setMessage(null);
+    setError(null);
+    startBackfill(async () => {
+      const response = await fetch("/api/business-setup/backfill", {
+        method: "POST",
+      });
+
+      const payload = (await response.json().catch(() => null)) as
+        | { ok?: boolean; error?: string; updated?: number }
+        | null;
+
+      if (!response.ok || !payload?.ok) {
+        setError(payload?.error ?? labels.error);
+        return;
+      }
+
+      setMessage(
+        typeof payload.updated === "number"
+          ? `${labels.backfillSuccess} (${payload.updated})`
+          : labels.backfillSuccess,
+      );
       router.refresh();
     });
   }
@@ -169,6 +199,9 @@ export function BusinessSetupForm({ initialValue, labels }: Props) {
       <div className="actions" style={{ marginTop: 12 }}>
         <button className="button" type="button" disabled={isPending} onClick={save}>
           {isPending ? labels.saving : labels.save}
+        </button>
+        <button className="mini-button" type="button" disabled={isBackfilling} onClick={backfill}>
+          {isBackfilling ? labels.backfilling : labels.backfill}
         </button>
       </div>
     </article>

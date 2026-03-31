@@ -9,6 +9,35 @@ export type ClassifiedLead = {
   estimatedValue: number;
 };
 
+export function getLeadTypesFromBusinessConfig(config: Record<string, unknown> | null | undefined): LeadTypeRule[] {
+  const businessSetup =
+    config && typeof config === "object" && "business_setup" in config
+      ? (config.business_setup as Record<string, unknown> | null)
+      : null;
+
+  const leadTypes = Array.isArray(businessSetup?.lead_types) ? businessSetup.lead_types : [];
+  return leadTypes
+    .map((row) => {
+      if (!row || typeof row !== "object") return null;
+      const item = row as Record<string, unknown>;
+      const name = typeof item.name === "string" ? item.name.trim() : "";
+      const estimatedValue =
+        typeof item.estimated_value === "number"
+          ? item.estimated_value
+          : typeof item.estimated_value === "string"
+            ? Number(item.estimated_value)
+            : 0;
+
+      return name
+        ? {
+            name,
+            estimatedValue: Number.isFinite(estimatedValue) ? estimatedValue : 0,
+          }
+        : null;
+    })
+    .filter((value): value is LeadTypeRule => Boolean(value));
+}
+
 function normalizeLeadText(value: string) {
   return value
     .toLowerCase()

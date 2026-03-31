@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { WhatsAppInboundMessage } from "@/lib/messaging/whatsapp";
 import type { InstagramInboundMessage } from "@/lib/messaging/instagram";
-import { classifyLeadFromMessage, type LeadTypeRule } from "@/lib/revenue/classify";
+import { classifyLeadFromMessage, getLeadTypesFromBusinessConfig } from "@/lib/revenue/classify";
 
 type CompanyChannel = {
   company_id: string;
@@ -35,35 +35,6 @@ type InboundMessageInput = {
   rawMessage: unknown;
 };
 
-function getLeadTypesFromConfig(config: Record<string, unknown> | null | undefined): LeadTypeRule[] {
-  const businessSetup =
-    config && typeof config === "object" && "business_setup" in config
-      ? (config.business_setup as Record<string, unknown> | null)
-      : null;
-
-  const leadTypes = Array.isArray(businessSetup?.lead_types) ? businessSetup.lead_types : [];
-  return leadTypes
-    .map((row) => {
-      if (!row || typeof row !== "object") return null;
-      const item = row as Record<string, unknown>;
-      const name = typeof item.name === "string" ? item.name.trim() : "";
-      const estimatedValue =
-        typeof item.estimated_value === "number"
-          ? item.estimated_value
-          : typeof item.estimated_value === "string"
-            ? Number(item.estimated_value)
-            : 0;
-
-      return name
-        ? {
-            name,
-            estimatedValue: Number.isFinite(estimatedValue) ? estimatedValue : 0,
-          }
-        : null;
-    })
-    .filter((value): value is LeadTypeRule => Boolean(value));
-}
-
 async function persistInboundMessage(
   supabase: SupabaseClient,
   message: InboundMessageInput,
@@ -86,7 +57,7 @@ async function persistInboundMessage(
     .select("config")
     .eq("id", companyId)
     .maybeSingle<CompanyRow>();
-  const leadTypes = getLeadTypesFromConfig(company?.config);
+  const leadTypes = getLeadTypesFromBusinessConfig(company?.config);
   const classification = classifyLeadFromMessage(message.text, leadTypes);
 
   const { error: eventInsertError } = await supabase.from("webhook_events").insert({
