@@ -442,19 +442,24 @@ export async function getConversationViews(
       latestInboundMessage?.text?.trim() || latestMessage?.text?.trim() || "",
       leadTypes,
     );
+    const persistedLeadType = row.lead_type?.trim() || null;
+    const persistedEstimatedValue = Number(row.estimated_value ?? 0);
 
     return {
       id: row.id,
       contactName: contact?.name?.trim() || contact?.phone || contact?.email || "Unknown contact",
       contactPhone: contact?.phone ?? null,
       unit: row.unit?.trim() || null,
-      leadType: row.lead_type?.trim() || classification.leadType,
+      leadType: persistedLeadType || classification.leadType,
       channel: row.channel,
       status: row.status,
       assignedToId: row.assigned_to,
       assignedTo: assigned?.full_name ?? null,
       aiPriority: normalizePriority(row.ai_priority),
-      estimatedValue: classification.estimatedValue > 0 ? classification.estimatedValue : Number(row.estimated_value ?? 0),
+      estimatedValue:
+        persistedLeadType || persistedEstimatedValue > 0
+          ? persistedEstimatedValue
+          : classification.estimatedValue,
       expectedValue: Number(row.expected_value ?? 0),
       lastMessageText: latestMessage?.text?.trim() || "No messages yet",
       lastMessageAt: row.last_message_at ?? latestMessage?.created_at ?? row.updated_at,

@@ -75,6 +75,9 @@ export default async function DashboardPage() {
       );
     })
     .slice(0, 5);
+  const pipelineValue = conversations
+    .filter((item) => openStatuses.has(item.status))
+    .reduce((sum, item) => sum + item.estimatedValue, 0);
 
   return (
     <section className="page">
@@ -88,7 +91,7 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <div className="grid cols-3" style={{ marginBottom: 12 }}>
+      <div className="grid cols-4" style={{ marginBottom: 12 }}>
         <article className="card">
           <p className="label">{t("dashboard_leads_today")}</p>
           <p className="kpi">{leadsToday}</p>
@@ -100,6 +103,10 @@ export default async function DashboardPage() {
         <article className="card">
           <p className="label">{t("dashboard_revenue_risk")}</p>
           <p className="kpi warn">{format(revenueAtRisk)}</p>
+        </article>
+        <article className="card">
+          <p className="label">{t("revenue_month_potential")}</p>
+          <p className="kpi">{format(pipelineValue)}</p>
         </article>
       </div>
 
@@ -124,7 +131,14 @@ export default async function DashboardPage() {
               <tbody>
                 {queue.map((item) => (
                   <tr key={item.id}>
-                    <td>{item.contactName}</td>
+                    <td>
+                      <div style={{ display: "grid", gap: 4 }}>
+                        <span>{item.contactName}</span>
+                        <span className="label" style={{ fontSize: 12 }}>
+                          {item.leadType ?? t("inbox_unclassified")}
+                        </span>
+                      </div>
+                    </td>
                     <td>{formatPriority(item.aiPriority, t)}</td>
                     <td>{format(item.estimatedValue)}</td>
                     <td>
@@ -150,7 +164,7 @@ export default async function DashboardPage() {
             conversations.slice(0, 4).map((item) => (
               <div key={item.id} className="preview-row">
                 <span>
-                  <strong>{item.contactName}</strong> · {item.lastMessageText}
+                  <strong>{item.contactName}</strong> · {item.leadType ?? t("inbox_unclassified")} · {format(item.estimatedValue)}
                 </span>
                 <span>{formatRelativeTime(item.lastMessageAt)}</span>
               </div>

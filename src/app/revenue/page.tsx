@@ -40,6 +40,12 @@ export default async function RevenuePage() {
   const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
 
   const opportunities = await getConversationViews(context.supabase, context.profile.company_id);
+  const sortedOpportunities = [...opportunities].sort((a, b) => {
+    return (
+      b.estimatedValue - a.estimatedValue ||
+      new Date(b.lastMessageAt ?? 0).getTime() - new Date(a.lastMessageAt ?? 0).getTime()
+    );
+  });
   const monthPotential = opportunities.reduce((sum, item) => sum + item.estimatedValue, 0);
   const atRisk = opportunities
     .filter((item) => item.status === "new" || item.status === "no_response")
@@ -65,7 +71,7 @@ export default async function RevenuePage() {
       </div>
 
       <article className="card" style={{ marginTop: 12 }}>
-        {opportunities.length === 0 ? (
+        {sortedOpportunities.length === 0 ? (
           <div className="empty-state">
             <h3>{t("revenue_empty_title")}</h3>
             <p>{t("revenue_empty_text")}</p>
@@ -83,6 +89,7 @@ export default async function RevenuePage() {
             <thead>
               <tr>
                 <th>{t("revenue_client")}</th>
+                <th>{t("dashboard_lead")}</th>
                 <th>{t("revenue_estimated")}</th>
                 <th>{t("revenue_expected")}</th>
                 <th>{t("inbox_status")}</th>
@@ -90,9 +97,12 @@ export default async function RevenuePage() {
               </tr>
             </thead>
             <tbody>
-              {opportunities.map((item) => (
+              {sortedOpportunities.map((item) => (
                 <tr key={item.id}>
-                  <td>{item.contactName}</td>
+                  <td>
+                    <Link href={`/conversation/${item.id}`}>{item.contactName}</Link>
+                  </td>
+                  <td>{item.leadType ?? t("inbox_unclassified")}</td>
                   <td>{format(item.estimatedValue)}</td>
                   <td>{format(item.expectedValue)}</td>
                   <td>{formatStatus(item.status, t)}</td>
