@@ -53,6 +53,16 @@ export default async function RevenuePage() {
   const lostEstimated = opportunities
     .filter((item) => item.status === "lost")
     .reduce((sum, item) => sum + item.estimatedValue, 0);
+  const byLeadType = Array.from(
+    opportunities.reduce((map, item) => {
+      const key = item.leadType ?? t("inbox_unclassified");
+      const current = map.get(key) ?? { leadType: key, count: 0, estimatedValue: 0 };
+      current.count += 1;
+      current.estimatedValue += item.estimatedValue;
+      map.set(key, current);
+      return map;
+    }, new Map<string, { leadType: string; count: number; estimatedValue: number }>()).values(),
+  ).sort((a, b) => b.estimatedValue - a.estimatedValue);
 
   return (
     <section className="page">
@@ -69,6 +79,21 @@ export default async function RevenuePage() {
         <article className="card"><p className="label">{t("revenue_at_risk")}</p><p className="kpi warn">{format(atRisk)}</p></article>
         <article className="card"><p className="label">{t("revenue_lost_estimated")}</p><p className="kpi warn">{format(lostEstimated)}</p></article>
       </div>
+
+      {byLeadType.length > 0 ? (
+        <article className="card" style={{ marginTop: 12 }}>
+          <p className="label" style={{ marginBottom: 12 }}>{t("dashboard_lead")}</p>
+          <div className="grid cols-3">
+            {byLeadType.map((item) => (
+              <div key={item.leadType} className="card" style={{ padding: 16 }}>
+                <p className="label" style={{ marginBottom: 6 }}>{item.leadType}</p>
+                <p className="kpi" style={{ marginBottom: 6 }}>{format(item.estimatedValue)}</p>
+                <p className="subtitle" style={{ margin: 0 }}>{item.count} conversations</p>
+              </div>
+            ))}
+          </div>
+        </article>
+      ) : null}
 
       <article className="card" style={{ marginTop: 12 }}>
         {sortedOpportunities.length === 0 ? (
