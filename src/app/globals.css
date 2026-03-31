@@ -210,6 +210,17 @@ a {
   background: rgba(13, 29, 26, 0.9);
 }
 
+.checkbox-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+
+.checkbox-row input {
+  margin: 0;
+}
+
 .row-actions {
   display: grid;
   gap: 8px;
@@ -445,6 +456,10 @@ a {
   .app-shell {
     padding: 16px;
   }
+
+  .lead-type-main {
+    grid-template-columns: 1fr;
+  }
 }
 
 .screenshot-card {
@@ -558,6 +573,44 @@ a {
 .request-state {
   display: grid;
   gap: 8px;
+}
+
+.lead-types-list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.lead-type-row {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(9, 19, 18, 0.9);
+}
+
+.lead-type-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(140px, 0.8fr);
+  gap: 10px;
+}
+
+.lead-type-main .input {
+  margin-bottom: 0;
+}
+
+.lead-type-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.compact-checkbox {
+  font-size: 0.92rem;
+  color: var(--muted);
 }
 
 @keyframes shimmer {

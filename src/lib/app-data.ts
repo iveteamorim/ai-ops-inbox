@@ -14,6 +14,7 @@ type CompanyRow = {
   id: string;
   name: string;
   plan: string;
+  config?: Record<string, unknown> | null;
 };
 
 type ConversationRow = {
@@ -111,6 +112,70 @@ export type AppContext =
       company: CompanyRow | null;
     };
 
+export type BusinessLeadType = {
+  id: string;
+  name: string;
+  estimatedValue: number;
+  priority: boolean;
+};
+
+export type BusinessSetupView = {
+  businessName: string;
+  businessType: string;
+  hasMultipleUnits: boolean;
+  units: string[];
+  leadTypes: BusinessLeadType[];
+};
+
+function parseBusinessSetup(company: CompanyRow | null): BusinessSetupView {
+  const config = company?.config;
+  const businessSetup =
+    config && typeof config === "object" && "business_setup" in config
+      ? (config.business_setup as Record<string, unknown> | null)
+      : null;
+
+  const leadTypesRaw = Array.isArray(businessSetup?.lead_types) ? businessSetup?.lead_types : [];
+  const unitsRaw = Array.isArray(businessSetup?.units) ? businessSetup?.units : [];
+
+  return {
+    businessName:
+      typeof businessSetup?.business_name === "string" && businessSetup.business_name.trim()
+        ? businessSetup.business_name.trim()
+        : company?.name ?? "",
+    businessType:
+      typeof businessSetup?.business_type === "string" ? businessSetup.business_type.trim() : "",
+    hasMultipleUnits: Boolean(businessSetup?.has_multiple_units),
+    units: unitsRaw
+      .filter((value): value is string => typeof value === "string")
+      .map((value) => value.trim())
+      .filter(Boolean),
+    leadTypes: leadTypesRaw
+      .map((value) => {
+        if (!value || typeof value !== "object") return null;
+        const row = value as Record<string, unknown>;
+        const name = typeof row.name === "string" ? row.name.trim() : "";
+        const estimatedValue =
+          typeof row.estimated_value === "number"
+            ? row.estimated_value
+            : typeof row.estimated_value === "string"
+              ? Number(row.estimated_value)
+              : 0;
+        return name
+          ? {
+              id:
+                typeof row.id === "string" && row.id.trim()
+                  ? row.id
+                  : `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Math.random().toString(36).slice(2, 8)}`,
+              name,
+              estimatedValue: Number.isFinite(estimatedValue) ? estimatedValue : 0,
+              priority: Boolean(row.priority),
+            }
+          : null;
+      })
+      .filter((value): value is BusinessLeadType => Boolean(value)),
+  };
+}
+
 export type ConversationView = {
   id: string;
   contactName: string;
@@ -180,7 +245,7 @@ async function getProfileAndCompany(
 
   const { data: company } = await supabase
     .from("companies")
-    .select("id, name, plan")
+    .select("id, name, plan, config")
     .eq("id", profile.company_id)
     .maybeSingle<CompanyRow>();
 
@@ -195,7 +260,7 @@ async function bootstrapProfile(user: User) {
   const { data: company, error: companyError } = await admin
     .from("companies")
     .insert({ name: companyName })
-    .select("id, name, plan")
+    .select("id, name, plan, config")
     .single<CompanyRow>();
 
   if (companyError || !company) {
@@ -502,6 +567,10 @@ export async function getSettingsData(
     pendingInvites,
     setupRequests: ((setupRequests as SetupRequestRow[] | null | undefined) ?? []),
   };
+}
+
+export function getBusinessSetup(company: CompanyRow | null) {
+  return parseBusinessSetup(company);
 }
 
 export async function getSetupRequestsAdminView() {

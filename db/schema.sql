@@ -7,8 +7,12 @@ create table if not exists public.companies (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   plan text not null default 'trial',
+  config jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
+
+alter table public.companies
+  add column if not exists config jsonb not null default '{}'::jsonb;
 
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,

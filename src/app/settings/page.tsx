@@ -1,4 +1,5 @@
 import { AppNav } from "@/components/AppNav";
+import { BusinessSetupForm } from "@/components/BusinessSetupForm";
 import { InviteUserForm } from "@/components/InviteUserForm";
 import { PendingInvitesList } from "@/components/PendingInvitesList";
 import { SetupRequestButton } from "@/components/SetupRequestButton";
@@ -6,7 +7,7 @@ import { TeamMembersList } from "@/components/TeamMembersList";
 import { cookies } from "next/headers";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
-import { formatChannel, getAppContext, getSettingsData } from "@/lib/app-data";
+import { formatChannel, getAppContext, getBusinessSetup, getSettingsData } from "@/lib/app-data";
 import { isNovuaInternalUser } from "@/lib/internal-access";
 
 function getSetupCopy(lang: string) {
@@ -49,6 +50,26 @@ function getSetupCopy(lang: string) {
       removingUser: "Eliminando...",
       removeUserSuccess: "Acceso eliminado.",
       removeUserError: "No se pudo eliminar el acceso.",
+      businessSetupTitle: "Tu negocio",
+      businessSetupHelp:
+        "Esto ayuda a Novua a priorizar mejor tus conversaciones y estimar el valor de cada cliente.",
+      businessSetupBlock: "Tu negocio",
+      businessSetupName: "Nombre del negocio",
+      businessSetupType: "Tipo de negocio",
+      businessSetupMultipleUnits: "¿Tienes varias unidades?",
+      businessSetupUnits: "Unidades",
+      businessSetupUnitsPlaceholder: "Centro 1, Centro 2, Centro 3",
+      businessSetupLeadTypesBlock: "Tipos de consulta",
+      businessSetupLeadTypes: "¿Qué tipo de consultas recibes?",
+      businessSetupAddLeadType: "+ Añadir tipo",
+      businessSetupLeadTypeName: "Nombre",
+      businessSetupEstimatedValue: "Valor estimado (€)",
+      businessSetupPriority: "Consulta prioritaria",
+      businessSetupRemoveLeadType: "Eliminar",
+      businessSetupSave: "Guardar configuración",
+      businessSetupSaving: "Guardando...",
+      businessSetupSuccess: "Configuración guardada.",
+      businessSetupError: "No se pudo guardar la configuración.",
     };
   }
 
@@ -91,6 +112,26 @@ function getSetupCopy(lang: string) {
       removingUser: "Removendo...",
       removeUserSuccess: "Acesso removido.",
       removeUserError: "Não foi possível remover o acesso.",
+      businessSetupTitle: "Seu negócio",
+      businessSetupHelp:
+        "Isto ajuda a Novua a priorizar melhor as suas conversas e estimar o valor de cada cliente.",
+      businessSetupBlock: "Seu negócio",
+      businessSetupName: "Nome do negócio",
+      businessSetupType: "Tipo de negócio",
+      businessSetupMultipleUnits: "Tem várias unidades?",
+      businessSetupUnits: "Unidades",
+      businessSetupUnitsPlaceholder: "Clínica 1, Clínica 2, Clínica 3",
+      businessSetupLeadTypesBlock: "Tipos de consulta",
+      businessSetupLeadTypes: "Que tipo de consultas recebes?",
+      businessSetupAddLeadType: "+ Adicionar tipo",
+      businessSetupLeadTypeName: "Nome",
+      businessSetupEstimatedValue: "Valor estimado (€)",
+      businessSetupPriority: "Consulta prioritária",
+      businessSetupRemoveLeadType: "Remover",
+      businessSetupSave: "Guardar configuração",
+      businessSetupSaving: "Guardando...",
+      businessSetupSuccess: "Configuração guardada.",
+      businessSetupError: "Não foi possível guardar a configuração.",
     };
   }
 
@@ -132,6 +173,26 @@ function getSetupCopy(lang: string) {
     removingUser: "Removing...",
     removeUserSuccess: "Access removed.",
     removeUserError: "Could not remove access.",
+    businessSetupTitle: "Your business",
+    businessSetupHelp:
+      "This helps Novua prioritize your conversations better and estimate the value of each customer.",
+    businessSetupBlock: "Your business",
+    businessSetupName: "Business name",
+    businessSetupType: "Business type",
+    businessSetupMultipleUnits: "Do you have multiple units?",
+    businessSetupUnits: "Units",
+    businessSetupUnitsPlaceholder: "Location 1, Location 2, Location 3",
+    businessSetupLeadTypesBlock: "Inquiry types",
+    businessSetupLeadTypes: "What types of inquiries do you receive?",
+    businessSetupAddLeadType: "+ Add type",
+    businessSetupLeadTypeName: "Name",
+    businessSetupEstimatedValue: "Estimated value (€)",
+    businessSetupPriority: "Priority inquiry",
+    businessSetupRemoveLeadType: "Remove",
+    businessSetupSave: "Save configuration",
+    businessSetupSaving: "Saving...",
+    businessSetupSuccess: "Configuration saved.",
+    businessSetupError: "Could not save the configuration.",
   };
 }
 
@@ -172,6 +233,7 @@ export default async function SettingsPage() {
         : `${usedSeats}/${seatLimit} users used on the ${context.company?.plan ?? "trial"} plan.`;
   const hasWebhookSecrets = Boolean(process.env.WHATSAPP_VERIFY_TOKEN && process.env.WHATSAPP_APP_SECRET);
   const whatsappSetupRequest = setupRequests.find((request) => request.channel === "whatsapp" && (request.status === "requested" || request.status === "in_progress"));
+  const businessSetup = getBusinessSetup(context.company);
   return (
     <section className="page">
       <AppNav showSetup={canSeeInternalSetup} />
@@ -290,6 +352,33 @@ export default async function SettingsPage() {
             />
           ) : null}
         </article>
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        <BusinessSetupForm
+          initialValue={businessSetup}
+          labels={{
+            title: copy.businessSetupTitle,
+            help: copy.businessSetupHelp,
+            businessBlock: copy.businessSetupBlock,
+            businessName: copy.businessSetupName,
+            businessType: copy.businessSetupType,
+            multipleUnits: copy.businessSetupMultipleUnits,
+            units: copy.businessSetupUnits,
+            unitsPlaceholder: copy.businessSetupUnitsPlaceholder,
+            leadTypesBlock: copy.businessSetupLeadTypesBlock,
+            leadTypes: copy.businessSetupLeadTypes,
+            addLeadType: copy.businessSetupAddLeadType,
+            leadTypeName: copy.businessSetupLeadTypeName,
+            estimatedValue: copy.businessSetupEstimatedValue,
+            priority: copy.businessSetupPriority,
+            removeLeadType: copy.businessSetupRemoveLeadType,
+            save: copy.businessSetupSave,
+            saving: copy.businessSetupSaving,
+            success: copy.businessSetupSuccess,
+            error: copy.businessSetupError,
+          }}
+        />
       </div>
     </section>
   );
