@@ -116,14 +116,10 @@ export type BusinessLeadType = {
   id: string;
   name: string;
   estimatedValue: number;
-  priority: boolean;
 };
 
 export type BusinessSetupView = {
   businessName: string;
-  businessType: string;
-  hasMultipleUnits: boolean;
-  units: string[];
   leadTypes: BusinessLeadType[];
 };
 
@@ -135,20 +131,11 @@ function parseBusinessSetup(company: CompanyRow | null): BusinessSetupView {
       : null;
 
   const leadTypesRaw = Array.isArray(businessSetup?.lead_types) ? businessSetup?.lead_types : [];
-  const unitsRaw = Array.isArray(businessSetup?.units) ? businessSetup?.units : [];
-
   return {
     businessName:
       typeof businessSetup?.business_name === "string" && businessSetup.business_name.trim()
         ? businessSetup.business_name.trim()
         : company?.name ?? "",
-    businessType:
-      typeof businessSetup?.business_type === "string" ? businessSetup.business_type.trim() : "",
-    hasMultipleUnits: Boolean(businessSetup?.has_multiple_units),
-    units: unitsRaw
-      .filter((value): value is string => typeof value === "string")
-      .map((value) => value.trim())
-      .filter(Boolean),
     leadTypes: leadTypesRaw
       .map((value) => {
         if (!value || typeof value !== "object") return null;
@@ -168,7 +155,6 @@ function parseBusinessSetup(company: CompanyRow | null): BusinessSetupView {
                   : `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Math.random().toString(36).slice(2, 8)}`,
               name,
               estimatedValue: Number.isFinite(estimatedValue) ? estimatedValue : 0,
-              priority: Boolean(row.priority),
             }
           : null;
       })

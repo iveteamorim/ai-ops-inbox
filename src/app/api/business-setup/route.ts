@@ -5,14 +5,10 @@ type LeadTypeInput = {
   id?: string;
   name?: string;
   estimatedValue?: number;
-  priority?: boolean;
 };
 
 type Payload = {
   businessName?: string;
-  businessType?: string;
-  hasMultipleUnits?: boolean;
-  units?: string[];
   leadTypes?: LeadTypeInput[];
 };
 
@@ -59,14 +55,6 @@ export async function POST(request: Request) {
   }
 
   const businessName = typeof body.businessName === "string" ? body.businessName.trim().slice(0, 120) : "";
-  const businessType = typeof body.businessType === "string" ? body.businessType.trim().slice(0, 120) : "";
-  const hasMultipleUnits = Boolean(body.hasMultipleUnits);
-  const units = Array.isArray(body.units)
-    ? body.units
-        .filter((value): value is string => typeof value === "string")
-        .map((value) => value.trim().slice(0, 80))
-        .filter(Boolean)
-    : [];
   const leadTypes = Array.isArray(body.leadTypes)
     ? body.leadTypes
         .map((row) => {
@@ -85,10 +73,9 @@ export async function POST(request: Request) {
                 : `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Math.random().toString(36).slice(2, 8)}`,
             name,
             estimated_value: Number.isFinite(estimatedValue) ? Math.max(0, estimatedValue) : 0,
-            priority: Boolean(row?.priority),
           };
         })
-        .filter((value): value is { id: string; name: string; estimated_value: number; priority: boolean } => Boolean(value))
+        .filter((value): value is { id: string; name: string; estimated_value: number } => Boolean(value))
         .slice(0, 12)
     : [];
 
@@ -107,13 +94,15 @@ export async function POST(request: Request) {
   }
 
   const currentConfig = company.config && typeof company.config === "object" ? company.config : {};
+  const currentBusinessSetup =
+    "business_setup" in currentConfig && currentConfig.business_setup && typeof currentConfig.business_setup === "object"
+      ? (currentConfig.business_setup as Record<string, unknown>)
+      : {};
   const nextConfig = {
     ...currentConfig,
     business_setup: {
+      ...currentBusinessSetup,
       business_name: businessName,
-      business_type: businessType,
-      has_multiple_units: hasMultipleUnits,
-      units,
       lead_types: leadTypes,
     },
   };

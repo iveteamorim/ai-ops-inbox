@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import type { BusinessLeadType, BusinessSetupView } from "@/lib/app-data";
 
 type Props = {
@@ -9,18 +9,12 @@ type Props = {
   labels: {
     title: string;
     help: string;
-    businessBlock: string;
     businessName: string;
-    businessType: string;
-    multipleUnits: string;
-    units: string;
-    unitsPlaceholder: string;
     leadTypesBlock: string;
     leadTypes: string;
     addLeadType: string;
     leadTypeName: string;
     estimatedValue: string;
-    priority: string;
     removeLeadType: string;
     save: string;
     saving: string;
@@ -36,31 +30,18 @@ function createLeadType(): LeadTypeRow {
     id: `lead-${Math.random().toString(36).slice(2, 8)}`,
     name: "",
     estimatedValue: 0,
-    priority: false,
   };
 }
 
 export function BusinessSetupForm({ initialValue, labels }: Props) {
   const router = useRouter();
   const [businessName, setBusinessName] = useState(initialValue.businessName);
-  const [businessType, setBusinessType] = useState(initialValue.businessType);
-  const [hasMultipleUnits, setHasMultipleUnits] = useState(initialValue.hasMultipleUnits);
-  const [unitsText, setUnitsText] = useState(initialValue.units.join(", "));
   const [leadTypes, setLeadTypes] = useState<LeadTypeRow[]>(
     initialValue.leadTypes.length > 0 ? initialValue.leadTypes : [createLeadType()],
   );
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-
-  const parsedUnits = useMemo(
-    () =>
-      unitsText
-        .split(",")
-        .map((value) => value.trim())
-        .filter(Boolean),
-    [unitsText],
-  );
 
   function updateLeadType(id: string, patch: Partial<LeadTypeRow>) {
     setLeadTypes((current) => current.map((row) => (row.id === id ? { ...row, ...patch } : row)));
@@ -86,15 +67,11 @@ export function BusinessSetupForm({ initialValue, labels }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           businessName,
-          businessType,
-          hasMultipleUnits,
-          units: hasMultipleUnits ? parsedUnits : [],
           leadTypes: leadTypes
             .map((row) => ({
               id: row.id,
               name: row.name.trim(),
               estimatedValue: Number(row.estimatedValue) || 0,
-              priority: row.priority,
             }))
             .filter((row) => row.name),
         }),
@@ -119,61 +96,23 @@ export function BusinessSetupForm({ initialValue, labels }: Props) {
       </p>
 
       <section className="setup-panel">
-        <p className="label" style={{ marginBottom: 10 }}>
-          {labels.businessBlock}
-        </p>
-        <div className="grid cols-2">
-          <div>
-            <label className="label" htmlFor="business-name">
-              {labels.businessName}
-            </label>
-            <input
-              id="business-name"
-              className="input"
-              value={businessName}
-              onChange={(event) => setBusinessName(event.target.value)}
-            />
-          </div>
-          <div>
-            <label className="label" htmlFor="business-type">
-              {labels.businessType}
-            </label>
-            <input
-              id="business-type"
-              className="input"
-              value={businessType}
-              onChange={(event) => setBusinessType(event.target.value)}
-            />
-          </div>
-        </div>
-        <label className="checkbox-row" style={{ marginBottom: hasMultipleUnits ? 12 : 0 }}>
-          <input
-            type="checkbox"
-            checked={hasMultipleUnits}
-            onChange={(event) => setHasMultipleUnits(event.target.checked)}
-          />
-          <span>{labels.multipleUnits}</span>
+        <label className="label" htmlFor="business-name">
+          {labels.businessName}
         </label>
-
-        {hasMultipleUnits ? (
-          <div>
-            <label className="label" htmlFor="business-units">
-              {labels.units}
-            </label>
-            <input
-              id="business-units"
-              className="input"
-              placeholder={labels.unitsPlaceholder}
-              value={unitsText}
-              onChange={(event) => setUnitsText(event.target.value)}
-            />
-          </div>
-        ) : null}
+        <input
+          id="business-name"
+          className="input"
+          value={businessName}
+          onChange={(event) => setBusinessName(event.target.value)}
+        />
       </section>
 
       <section className="setup-panel">
         <p className="label" style={{ marginBottom: 10 }}>
           {labels.leadTypesBlock}
+        </p>
+        <p className="subtitle" style={{ marginBottom: 12 }}>
+          {labels.leadTypes}
         </p>
         <div className="lead-types-list">
           {leadTypes.map((row) => (
@@ -210,16 +149,8 @@ export function BusinessSetupForm({ initialValue, labels }: Props) {
                 </div>
               </div>
               <div className="lead-type-meta">
-                <label className="checkbox-row compact-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={row.priority}
-                    onChange={(event) => updateLeadType(row.id, { priority: event.target.checked })}
-                  />
-                  <span>{labels.priority}</span>
-                </label>
                 {leadTypes.length > 1 ? (
-                  <button className="mini-button" type="button" onClick={() => removeLeadType(row.id)}>
+                  <button className="action-link" type="button" onClick={() => removeLeadType(row.id)}>
                     {labels.removeLeadType}
                   </button>
                 ) : null}
