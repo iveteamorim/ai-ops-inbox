@@ -176,6 +176,9 @@ export default async function InboxPage({
                     <td>{row.assignedTo ?? "Unassigned"}</td>
                     <td>
                       {format(row.estimatedValue)} {t("inbox_value_potential")} | {format(row.status === "won" ? row.expectedValue : 0)} {t("inbox_value_recovered")}
+                      <div className="label" style={{ marginTop: 4, marginBottom: 0, textTransform: "none" }}>
+                        {row.leadType ?? t("inbox_unclassified")}
+                      </div>
                     </td>
                     <td>
                       <div className="stack-actions">

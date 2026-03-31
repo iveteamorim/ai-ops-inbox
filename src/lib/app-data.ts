@@ -167,6 +167,7 @@ export type ConversationView = {
   contactName: string;
   contactPhone: string | null;
   unit: string | null;
+  leadType: string | null;
   channel: "whatsapp" | "instagram" | "email" | "form";
   status: ConversationRow["status"];
   assignedToId: string | null;
@@ -177,6 +178,11 @@ export type ConversationView = {
   lastMessageText: string;
   lastMessageAt: string | null;
   createdAt: string;
+};
+
+type ClassifiedLead = {
+  leadType: string | null;
+  estimatedValue: number;
 };
 
 export type MessageView = {
@@ -193,6 +199,51 @@ function titleCase(value: string) {
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
     .join(" ");
+}
+
+function normalizeLeadText(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .trim();
+}
+
+const LEAD_KEYWORD_HINTS: Record<string, string[]> = {
+  "primera visita": ["primera visita", "primera cita", "quiero cita", "agendar", "marcar cita"],
+  "bono sesiones": ["bono", "pack", "sesiones", "5 sesiones", "10 sesiones"],
+  premium: ["premium", "tratamiento completo", "tratamiento avanzado"],
+};
+
+function classifyLeadFromMessage(message: string, leadTypes: BusinessLeadType[]): ClassifiedLead {
+  const text = normalizeLeadText(message);
+
+  if (!text || leadTypes.length === 0) {
+    return { leadType: null, estimatedValue: 0 };
+  }
+
+  for (const leadType of leadTypes) {
+    const normalizedName = normalizeLeadText(leadType.name);
+    if (!normalizedName) continue;
+
+    const directTokens = normalizedName.split(/\s+/).filter(Boolean);
+    const hints = LEAD_KEYWORD_HINTS[normalizedName] ?? [];
+
+    const matchedByName =
+      text.includes(normalizedName) ||
+      directTokens.some((token) => token.length > 3 && text.includes(token));
+
+    const matchedByHint = hints.some((hint) => text.includes(normalizeLeadText(hint)));
+
+    if (matchedByName || matchedByHint) {
+      return {
+        leadType: leadType.name,
+        estimatedValue: Number.isFinite(leadType.estimatedValue) ? leadType.estimatedValue : 0,
+      };
+    }
+  }
+
+  return { leadType: null, estimatedValue: 0 };
 }
 
 function deriveCompanyName(user: User) {
@@ -391,7 +442,7 @@ export async function getConversationViews(
     new Set(conversationRows.map((row) => row.assigned_to).filter((value): value is string => Boolean(value))),
   );
 
-  const [{ data: contacts }, { data: profiles }, { data: messages }] = await Promise.all([
+  const [{ data: contacts }, { data: profiles }, { data: messages }, { data: company }] = await Promise.all([
     supabase.from("contacts").select("id, name, phone, email").in("id", contactIds),
     assignedIds.length > 0
       ? supabase.from("profiles").select("id, full_name").in("id", assignedIds)
@@ -405,15 +456,25 @@ export async function getConversationViews(
       )
       .order("created_at", { ascending: false })
       .limit(500),
+    supabase.from("companies").select("id, name, config").eq("id", companyId).maybeSingle<CompanyRow>(),
   ]);
 
   const contactsById = new Map((contacts as ContactRow[] | null | undefined)?.map((row) => [row.id, row]) ?? []);
   const profilesById = new Map((profiles as ProfileNameRow[] | null | undefined)?.map((row) => [row.id, row]) ?? []);
   const lastMessageByConversation = new Map<string, MessageRow>();
+  const lastInboundMessageByConversation = new Map<string, MessageRow>();
+  const leadTypes = parseBusinessSetup((company as CompanyRow | null | undefined) ?? null).leadTypes;
 
   for (const message of (messages as MessageRow[] | null | undefined) ?? []) {
     if (!lastMessageByConversation.has(message.conversation_id)) {
       lastMessageByConversation.set(message.conversation_id, message);
+    }
+    if (
+      !lastInboundMessageByConversation.has(message.conversation_id) &&
+      message.direction === "inbound" &&
+      message.sender_type === "customer"
+    ) {
+      lastInboundMessageByConversation.set(message.conversation_id, message);
     }
   }
 
@@ -421,18 +482,24 @@ export async function getConversationViews(
     const contact = contactsById.get(row.contact_id);
     const assigned = row.assigned_to ? profilesById.get(row.assigned_to) : null;
     const latestMessage = lastMessageByConversation.get(row.id);
+    const latestInboundMessage = lastInboundMessageByConversation.get(row.id);
+    const classification = classifyLeadFromMessage(
+      latestInboundMessage?.text?.trim() || latestMessage?.text?.trim() || "",
+      leadTypes,
+    );
 
     return {
       id: row.id,
       contactName: contact?.name?.trim() || contact?.phone || contact?.email || "Unknown contact",
       contactPhone: contact?.phone ?? null,
       unit: row.unit?.trim() || null,
+      leadType: classification.leadType,
       channel: row.channel,
       status: row.status,
       assignedToId: row.assigned_to,
       assignedTo: assigned?.full_name ?? null,
       aiPriority: normalizePriority(row.ai_priority),
-      estimatedValue: Number(row.estimated_value ?? 0),
+      estimatedValue: classification.estimatedValue > 0 ? classification.estimatedValue : Number(row.estimated_value ?? 0),
       expectedValue: Number(row.expected_value ?? 0),
       lastMessageText: latestMessage?.text?.trim() || "No messages yet",
       lastMessageAt: row.last_message_at ?? latestMessage?.created_at ?? row.updated_at,

@@ -184,6 +184,7 @@ export function ConversationWorkspace({
           <strong>{t("inbox_score")}:</strong>{" "}
           <span className={`badge ${priorityClass(conversation.aiPriority)}`}>{priorityLabel}</span>
         </p>
+        <p><strong>{t("dashboard_lead")}:</strong> {conversation.leadType ?? t("inbox_unclassified")}</p>
         <p><strong>{t("revenue_estimated")}:</strong> {formatMoney(lang, currency, conversation.estimatedValue)}</p>
         <p><strong>{t("revenue_expected")}:</strong> {formatMoney(lang, currency, conversation.expectedValue)}</p>
         <p><strong>{t("inbox_unit")}:</strong> {conversation.unit ?? t("inbox_no_unit")}</p>
