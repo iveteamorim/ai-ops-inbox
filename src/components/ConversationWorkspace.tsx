@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { InboxRowActions } from "@/components/InboxRowActions";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 import type { ConversationView, MessageView } from "@/lib/app-data";
@@ -35,12 +35,6 @@ function statusClass(status: string) {
   return "status-lost";
 }
 
-function priorityClass(priority: string) {
-  if (priority === "high") return "score-high";
-  if (priority === "medium") return "score-medium";
-  return "score-low";
-}
-
 function formatChannel(channel: ConversationView["channel"]) {
   if (channel === "whatsapp") return "WhatsApp";
   if (channel === "instagram") return "Instagram";
@@ -61,6 +55,7 @@ export function ConversationWorkspace({
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const aiSuggestion = useMemo(() => {
     if (lang === "pt") return "Posso ajudar a avançar com a reserva hoje?";
@@ -76,14 +71,8 @@ export function ConversationWorkspace({
     return t("inbox_filter_lost");
   }, [conversation.status, t]);
 
-  const priorityLabel = useMemo(() => {
-    if (conversation.aiPriority === "high") return t("dashboard_risk_high");
-    if (conversation.aiPriority === "medium") return t("dashboard_risk_medium");
-    return "Low";
-  }, [conversation.aiPriority, t]);
-
-  async function sendReply() {
-    const text = draft.trim();
+  async function sendReply(overrideText?: string) {
+    const text = (overrideText ?? draft).trim();
     if (!text) return;
 
     setSending(true);
@@ -115,7 +104,7 @@ export function ConversationWorkspace({
           createdAt: new Date().toISOString(),
         },
       ]);
-      setDraft("");
+      setDraft(overrideText ? draft : "");
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Failed to send message");
     } finally {
@@ -150,6 +139,7 @@ export function ConversationWorkspace({
 
         <div className="composer">
           <textarea
+            ref={textareaRef}
             className="input"
             rows={3}
             placeholder={t("conversation_placeholder")}
@@ -157,17 +147,24 @@ export function ConversationWorkspace({
             onChange={(event) => setDraft(event.target.value)}
           />
           <p className="subtitle" style={{ marginTop: 0 }}>
-            💰 {t("revenue_estimated")}: {formatMoney(lang, currency, conversation.estimatedValue)}
-          </p>
-          <p className="subtitle" style={{ marginTop: 0 }}>
             {t("conversation_ai_label")}: “{aiSuggestion}”
           </p>
           {error ? <p className="warn">{error}</p> : null}
           <div className="actions">
-            <button className="mini-button" type="button" onClick={() => setDraft(aiSuggestion)}>
-              {t("conversation_use_ai")}
+            <button className="button" type="button" onClick={() => sendReply(aiSuggestion)} disabled={sending}>
+              {sending ? "..." : t("conversation_reply_with_ai")}
             </button>
-            <button className="button" type="button" onClick={sendReply} disabled={sending}>
+            <button
+              className="mini-button"
+              type="button"
+              onClick={() => {
+                setDraft((current) => current || aiSuggestion);
+                textareaRef.current?.focus();
+              }}
+            >
+              {t("conversation_write_manually")}
+            </button>
+            <button className="mini-button" type="button" onClick={() => sendReply()} disabled={sending || !draft.trim()}>
               {sending ? "..." : t("inbox_reply")}
             </button>
           </div>
@@ -176,46 +173,50 @@ export function ConversationWorkspace({
 
       <aside className="card">
         <p className="label">{t("conversation_lead_panel")}</p>
+        <p className="kpi warn" style={{ marginBottom: 6 }}>
+          {formatMoney(lang, currency, conversation.estimatedValue)} en juego
+        </p>
+        <p style={{ marginTop: 0, marginBottom: 12 }}>
+          <strong>{conversation.leadType ?? t("inbox_unclassified")}</strong>
+        </p>
         <p>
           <strong>{t("inbox_status")}:</strong>{" "}
           <span className={`badge ${statusClass(conversation.status)}`}>{statusLabel}</span>
         </p>
-        <p>
-          <strong>{t("inbox_score")}:</strong>{" "}
-          <span className={`badge ${priorityClass(conversation.aiPriority)}`}>{priorityLabel}</span>
-        </p>
-        <p><strong>{t("dashboard_lead")}:</strong> {conversation.leadType ?? t("inbox_unclassified")}</p>
-        <p><strong>{t("revenue_estimated")}:</strong> {formatMoney(lang, currency, conversation.estimatedValue)}</p>
-        <p><strong>{t("revenue_expected")}:</strong> {formatMoney(lang, currency, conversation.expectedValue)}</p>
-        <p><strong>{t("inbox_unit")}:</strong> {conversation.unit ?? t("inbox_no_unit")}</p>
-        <p><strong>{t("inbox_assigned")}:</strong> {conversation.assignedTo ?? "Unassigned"}</p>
-        <p><strong>{t("inbox_channel")}:</strong> {formatChannel(conversation.channel)}</p>
-        {conversation.contactPhone ? <p><strong>Phone:</strong> {conversation.contactPhone}</p> : null}
-        <div style={{ marginTop: 16 }}>
-          <InboxRowActions
-            conversationId={conversation.id}
-            currentStatus={conversation.status}
-            currentAssignedToId={conversation.assignedToId}
-            currentUnit={conversation.unit}
-            unitOptions={unitOptions}
-            team={team}
-            canAssign={canAssign}
-            labels={{
-              status: t("inbox_status"),
-              assignee: t("inbox_assigned"),
-              unit: t("inbox_unit"),
-              noUnit: t("inbox_no_unit"),
-              save: t("inbox_change_status"),
-              saving: "...",
-              unassigned: "Unassigned",
-              new: t("inbox_filter_new"),
-              active: t("inbox_filter_in_progress"),
-              noResponse: t("inbox_filter_no_reply"),
-              won: t("revenue_filter_won"),
-              lost: t("inbox_filter_lost"),
-            }}
-          />
-        </div>
+        <details style={{ marginTop: 16 }}>
+          <summary style={{ cursor: "pointer", color: "var(--muted)" }}>{t("conversation_details")}</summary>
+          <div style={{ marginTop: 12 }}>
+            <p><strong>{t("inbox_unit")}:</strong> {conversation.unit ?? t("inbox_no_unit")}</p>
+            <p><strong>{t("inbox_assigned")}:</strong> {conversation.assignedTo ?? "Unassigned"}</p>
+            <p><strong>{t("inbox_channel")}:</strong> {formatChannel(conversation.channel)}</p>
+            {conversation.contactPhone ? <p><strong>Phone:</strong> {conversation.contactPhone}</p> : null}
+            <div style={{ marginTop: 16 }}>
+              <InboxRowActions
+                conversationId={conversation.id}
+                currentStatus={conversation.status}
+                currentAssignedToId={conversation.assignedToId}
+                currentUnit={conversation.unit}
+                unitOptions={unitOptions}
+                team={team}
+                canAssign={canAssign}
+                labels={{
+                  status: t("inbox_status"),
+                  assignee: t("inbox_assigned"),
+                  unit: t("inbox_unit"),
+                  noUnit: t("inbox_no_unit"),
+                  save: t("inbox_change_status"),
+                  saving: "...",
+                  unassigned: "Unassigned",
+                  new: t("inbox_filter_new"),
+                  active: t("inbox_filter_in_progress"),
+                  noResponse: t("inbox_filter_no_reply"),
+                  won: t("revenue_filter_won"),
+                  lost: t("inbox_filter_lost"),
+                }}
+              />
+            </div>
+          </div>
+        </details>
       </aside>
     </div>
   );
