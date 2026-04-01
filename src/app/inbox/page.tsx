@@ -5,8 +5,6 @@ import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
 import {
-  formatChannel,
-  formatPriority,
   formatRelativeTime,
   formatStatus,
   getAppContext,
@@ -28,12 +26,6 @@ function statusClass(status: string) {
   if (status === "active") return "status-active";
   if (status === "no_response") return "status-no-response";
   return "status-lost";
-}
-
-function priorityClass(priority: string) {
-  if (priority === "high") return "score-high";
-  if (priority === "medium") return "score-medium";
-  return "score-low";
 }
 
 export default async function InboxPage({
@@ -142,11 +134,7 @@ export default async function InboxPage({
               <tr>
                 <th>{t("inbox_client")}</th>
                 <th>{t("inbox_last_msg")}</th>
-                <th>{t("inbox_unit")}</th>
-                <th>{t("inbox_channel")}</th>
                 <th>{t("inbox_status")}</th>
-                <th>{t("inbox_score")}</th>
-                <th>{t("inbox_assigned")}</th>
                 <th>{t("inbox_value")}</th>
                 <th>{t("inbox_actions")}</th>
               </tr>
@@ -165,15 +153,9 @@ export default async function InboxPage({
                         {formatRelativeTime(row.lastMessageAt)}
                       </div>
                     </td>
-                    <td>{row.unit ?? t("inbox_no_unit")}</td>
-                    <td>{formatChannel(row.channel)}</td>
                     <td>
                       <span className={`badge ${statusClass(row.status)}`}>{formatStatus(row.status, t)}</span>
                     </td>
-                    <td>
-                      <span className={`badge ${priorityClass(row.aiPriority)}`}>{formatPriority(row.aiPriority, t)}</span>
-                    </td>
-                    <td>{row.assignedTo ?? "Unassigned"}</td>
                     <td>
                       {format(row.estimatedValue)} {t("inbox_value_potential")} | {format(row.status === "won" ? row.expectedValue : 0)} {t("inbox_value_recovered")}
                       <div className="label" style={{ marginTop: 4, marginBottom: 0, textTransform: "none" }}>
