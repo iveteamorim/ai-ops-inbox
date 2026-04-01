@@ -46,10 +46,15 @@ export default async function RevenuePage() {
       new Date(b.lastMessageAt ?? 0).getTime() - new Date(a.lastMessageAt ?? 0).getTime()
     );
   });
-  const monthPotential = opportunities.reduce((sum, item) => sum + item.estimatedValue, 0);
+  const openPotential = opportunities
+    .filter((item) => item.status === "new" || item.status === "active" || item.status === "no_response")
+    .reduce((sum, item) => sum + item.estimatedValue, 0);
   const atRisk = opportunities
     .filter((item) => item.status === "new" || item.status === "no_response")
     .reduce((sum, item) => sum + item.estimatedValue, 0);
+  const recoveredRevenue = opportunities
+    .filter((item) => item.status === "won")
+    .reduce((sum, item) => sum + (item.expectedValue || item.estimatedValue), 0);
   const lostEstimated = opportunities
     .filter((item) => item.status === "lost")
     .reduce((sum, item) => sum + item.estimatedValue, 0);
@@ -88,9 +93,22 @@ export default async function RevenuePage() {
       </header>
 
       <div className="grid cols-3">
-        <article className="card"><p className="label">{t("revenue_month_potential")}</p><p className="kpi">{format(monthPotential)}</p></article>
+        <article className="card"><p className="label">{t("revenue_open_pipeline")}</p><p className="kpi">{format(openPotential)}</p></article>
         <article className="card"><p className="label">{t("revenue_at_risk")}</p><p className="kpi warn">{format(atRisk)}</p></article>
+        <article className="card"><p className="label">{t("revenue_recovered")}</p><p className="kpi">{format(recoveredRevenue)}</p></article>
+      </div>
+
+      <div className="grid cols-2" style={{ marginTop: 12 }}>
         <article className="card"><p className="label">{t("revenue_lost_estimated")}</p><p className="kpi warn">{format(lostEstimated)}</p></article>
+        <article className="card">
+          <p className="label">{t("revenue_business_states")}</p>
+          <p className="subtitle" style={{ margin: 0 }}>
+            {opportunities.filter((item) => item.status === "won").length} {t("revenue_filter_won").toLowerCase()} ·{" "}
+            {opportunities.filter((item) => item.status === "lost").length} {t("revenue_filter_lost").toLowerCase()} ·{" "}
+            {opportunities.filter((item) => item.status === "new" || item.status === "active" || item.status === "no_response").length}{" "}
+            {t("revenue_open_label").toLowerCase()}
+          </p>
+        </article>
       </div>
 
       <article className="card" style={{ marginTop: 12 }}>
@@ -172,8 +190,8 @@ export default async function RevenuePage() {
               <tr>
                 <th>{t("revenue_client")}</th>
                 <th>{t("dashboard_lead")}</th>
-                <th>{t("revenue_estimated")}</th>
-                <th>{t("revenue_expected")}</th>
+                <th>{t("revenue_potential")}</th>
+                <th>{t("revenue_recovered")}</th>
                 <th>{t("inbox_status")}</th>
                 <th>{t("revenue_last_contact")}</th>
               </tr>
@@ -186,7 +204,7 @@ export default async function RevenuePage() {
                   </td>
                   <td>{item.leadType ?? t("inbox_unclassified")}</td>
                   <td>{format(item.estimatedValue)}</td>
-                  <td>{format(item.expectedValue)}</td>
+                  <td>{item.status === "won" ? format(item.expectedValue || item.estimatedValue) : "—"}</td>
                   <td>{formatStatus(item.status, t)}</td>
                   <td>{formatRelativeTime(item.lastMessageAt)}</td>
                 </tr>
