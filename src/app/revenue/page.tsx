@@ -103,10 +103,10 @@ export default async function RevenuePage() {
         <article className="card">
           <p className="label">{t("revenue_business_states")}</p>
           <p className="subtitle" style={{ margin: 0 }}>
-            {opportunities.filter((item) => item.status === "won").length} {t("revenue_filter_won").toLowerCase()} ·{" "}
-            {opportunities.filter((item) => item.status === "lost").length} {t("revenue_filter_lost").toLowerCase()} ·{" "}
             {opportunities.filter((item) => item.status === "new" || item.status === "active" || item.status === "no_response").length}{" "}
-            {t("revenue_open_label").toLowerCase()}
+            {t("revenue_active_opportunities").toLowerCase()} ·{" "}
+            {opportunities.filter((item) => item.status === "won").length} {t("revenue_filter_won").toLowerCase()} ·{" "}
+            {opportunities.filter((item) => item.status === "lost").length} {t("revenue_filter_lost").toLowerCase()}
           </p>
         </article>
       </div>
