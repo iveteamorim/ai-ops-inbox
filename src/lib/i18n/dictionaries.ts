@@ -196,6 +196,10 @@ export const dictionary = {
     revenue_estimated: "Valor estimado",
     revenue_expected: "Valor esperado",
     revenue_last_contact: "Último contacto",
+    revenue_risk_queue_title: "Acción requerida",
+    revenue_risk_queue_subtitle: "Conversaciones sin respuesta que pueden convertirse en ingresos.",
+    revenue_risk_queue_empty_title: "Todo al día",
+    revenue_risk_queue_empty_text: "No hay conversaciones pendientes de respuesta.",
 
     settings_title: "Configuración",
     settings_subtitle: "Revisa conexión de WhatsApp y estado operativo.",
@@ -466,6 +470,10 @@ export const dictionary = {
     revenue_estimated: "Valor estimado",
     revenue_expected: "Valor esperado",
     revenue_last_contact: "Último contato",
+    revenue_risk_queue_title: "Ação necessária",
+    revenue_risk_queue_subtitle: "Conversas sem resposta que podem virar receita.",
+    revenue_risk_queue_empty_title: "Tudo em dia",
+    revenue_risk_queue_empty_text: "Não há conversas pendentes de resposta.",
 
     settings_title: "Configurações",
     settings_subtitle: "Revise a conexão do WhatsApp e o estado operacional.",
@@ -734,6 +742,10 @@ export const dictionary = {
     revenue_estimated: "Estimated value",
     revenue_expected: "Expected value",
     revenue_last_contact: "Last contact",
+    revenue_risk_queue_title: "Action required",
+    revenue_risk_queue_subtitle: "Unanswered conversations that can still become revenue.",
+    revenue_risk_queue_empty_title: "All caught up",
+    revenue_risk_queue_empty_text: "There are no unanswered conversations right now.",
 
     settings_title: "Settings",
     settings_subtitle: "Review WhatsApp connection and operating status.",

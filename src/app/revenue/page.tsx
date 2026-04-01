@@ -53,6 +53,19 @@ export default async function RevenuePage() {
   const lostEstimated = opportunities
     .filter((item) => item.status === "lost")
     .reduce((sum, item) => sum + item.estimatedValue, 0);
+  const riskThresholdMs = 2 * 60 * 60 * 1000;
+  const now = Date.now();
+  const atRiskQueue = sortedOpportunities.filter((item) => {
+    const inboundTime = item.lastInboundAt ? new Date(item.lastInboundAt).getTime() : null;
+    const outboundTime = item.lastOutboundAt ? new Date(item.lastOutboundAt).getTime() : null;
+    const customerWaiting = Boolean(
+      inboundTime &&
+      (!outboundTime || inboundTime > outboundTime),
+    );
+    const staleEnough = Boolean(inboundTime && now - inboundTime >= riskThresholdMs);
+    const openConversation = item.status === "new" || item.status === "active" || item.status === "no_response";
+    return openConversation && item.estimatedValue > 0 && customerWaiting && staleEnough;
+  });
   const byLeadType = Array.from(
     opportunities.reduce((map, item) => {
       const key = item.leadType ?? t("inbox_unclassified");
@@ -79,6 +92,50 @@ export default async function RevenuePage() {
         <article className="card"><p className="label">{t("revenue_at_risk")}</p><p className="kpi warn">{format(atRisk)}</p></article>
         <article className="card"><p className="label">{t("revenue_lost_estimated")}</p><p className="kpi warn">{format(lostEstimated)}</p></article>
       </div>
+
+      <article className="card" style={{ marginTop: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 12 }}>
+          <div>
+            <p className="label">{t("revenue_risk_queue_title")}</p>
+            <p className="subtitle" style={{ margin: 0 }}>{t("revenue_risk_queue_subtitle")}</p>
+          </div>
+          <p className="kpi warn" style={{ margin: 0 }}>{format(atRiskQueue.reduce((sum, item) => sum + item.estimatedValue, 0))}</p>
+        </div>
+
+        {atRiskQueue.length === 0 ? (
+          <div className="empty-state">
+            <h3>{t("revenue_risk_queue_empty_title")}</h3>
+            <p>{t("revenue_risk_queue_empty_text")}</p>
+          </div>
+        ) : (
+          <table className="table">
+            <thead>
+              <tr>
+                <th>{t("revenue_client")}</th>
+                <th>{t("dashboard_lead")}</th>
+                <th>{t("revenue_estimated")}</th>
+                <th>{t("revenue_last_contact")}</th>
+                <th>{t("dashboard_action")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {atRiskQueue.map((item) => (
+                <tr key={item.id}>
+                  <td>{item.contactName}</td>
+                  <td>{item.leadType ?? t("inbox_unclassified")}</td>
+                  <td>{format(item.estimatedValue)}</td>
+                  <td>{formatRelativeTime(item.lastInboundAt ?? item.lastMessageAt)}</td>
+                  <td>
+                    <Link className="mini-button" href={`/conversation/${item.id}`}>
+                      {t("dashboard_action_reply_now")}
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </article>
 
       {byLeadType.length > 0 ? (
         <article className="card" style={{ marginTop: 12 }}>

@@ -78,6 +78,24 @@ export default async function DashboardPage() {
   const pipelineValue = conversations
     .filter((item) => openStatuses.has(item.status))
     .reduce((sum, item) => sum + item.estimatedValue, 0);
+  const riskThresholdMs = 2 * 60 * 60 * 1000;
+  const now = Date.now();
+  const actionQueue = conversations
+    .filter((item) => {
+      const inboundTime = item.lastInboundAt ? new Date(item.lastInboundAt).getTime() : null;
+      const outboundTime = item.lastOutboundAt ? new Date(item.lastOutboundAt).getTime() : null;
+      const customerWaiting = Boolean(inboundTime && (!outboundTime || inboundTime > outboundTime));
+      const staleEnough = Boolean(inboundTime && now - inboundTime >= riskThresholdMs);
+      const openConversation = item.status === "new" || item.status === "active" || item.status === "no_response";
+      return openConversation && customerWaiting && staleEnough;
+    })
+    .sort((a, b) => {
+      const waitA = a.lastInboundAt ? now - new Date(a.lastInboundAt).getTime() : 0;
+      const waitB = b.lastInboundAt ? now - new Date(b.lastInboundAt).getTime() : 0;
+      return b.estimatedValue - a.estimatedValue || waitB - waitA;
+    })
+    .slice(0, 5);
+  const actionQueueValue = actionQueue.reduce((sum, item) => sum + item.estimatedValue, 0);
 
   return (
     <section className="page">
@@ -109,6 +127,52 @@ export default async function DashboardPage() {
           <p className="kpi">{format(pipelineValue)}</p>
         </article>
       </div>
+
+      <article className="card" style={{ marginBottom: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 12, flexWrap: "wrap" }}>
+          <div>
+            <p className="label">{t("revenue_risk_queue_title")}</p>
+            <p className="subtitle" style={{ margin: 0 }}>{t("revenue_risk_queue_subtitle")}</p>
+          </div>
+          <p className="kpi warn" style={{ margin: 0 }}>
+            {format(actionQueueValue)} · {actionQueue.length} conversations
+          </p>
+        </div>
+
+        {actionQueue.length === 0 ? (
+          <div className="empty-state">
+            <h3>{t("revenue_risk_queue_empty_title")}</h3>
+            <p>{t("revenue_risk_queue_empty_text")}</p>
+          </div>
+        ) : (
+          <table className="table">
+            <thead>
+              <tr>
+                <th>{t("revenue_client")}</th>
+                <th>{t("dashboard_lead")}</th>
+                <th>{t("revenue_estimated")}</th>
+                <th>{t("revenue_last_contact")}</th>
+                <th>{t("dashboard_action")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {actionQueue.map((item) => (
+                <tr key={item.id}>
+                  <td>{item.contactName}</td>
+                  <td>{item.leadType ?? t("inbox_unclassified")}</td>
+                  <td>{format(item.estimatedValue)}</td>
+                  <td>{formatRelativeTime(item.lastInboundAt ?? item.lastMessageAt)}</td>
+                  <td>
+                    <Link className="button" href={`/conversation/${item.id}`}>
+                      {t("dashboard_action_reply_now")}
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </article>
 
       <div className="grid cols-2">
         <article className="card">

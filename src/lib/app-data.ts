@@ -182,6 +182,8 @@ export type ConversationView = {
   expectedValue: number;
   lastMessageText: string;
   lastMessageAt: string | null;
+  lastInboundAt: string | null;
+  lastOutboundAt: string | null;
   createdAt: string;
 };
 
@@ -463,6 +465,8 @@ export async function getConversationViews(
       expectedValue: Number(row.expected_value ?? 0),
       lastMessageText: latestMessage?.text?.trim() || "No messages yet",
       lastMessageAt: row.last_message_at ?? latestMessage?.created_at ?? row.updated_at,
+      lastInboundAt: row.last_inbound_at,
+      lastOutboundAt: row.last_outbound_at,
       createdAt: row.created_at,
     } satisfies ConversationView;
   });
