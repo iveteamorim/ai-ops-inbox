@@ -353,13 +353,13 @@ export function formatRelativeTime(isoDate: string | null) {
 
   const diffMs = Date.now() - timestamp;
   const diffMinutes = Math.max(0, Math.round(diffMs / (1000 * 60)));
-  if (diffMinutes < 60) return `${diffMinutes}m`;
+  if (diffMinutes < 60) return `Hace ${diffMinutes} min`;
 
   const diffHours = Math.round(diffMinutes / 60);
-  if (diffHours < 24) return `${diffHours}h`;
+  if (diffHours < 24) return `Hace ${diffHours}h`;
 
   const diffDays = Math.round(diffHours / 24);
-  return `${diffDays}d`;
+  return `Hace ${diffDays} días`;
 }
 
 export async function getConversationViews(

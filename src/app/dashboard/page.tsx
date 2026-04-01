@@ -4,13 +4,7 @@ import { AppNav } from "@/components/AppNav";
 import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
-import {
-  formatPriority,
-  formatRelativeTime,
-  formatStatus,
-  getAppContext,
-  getConversationViews,
-} from "@/lib/app-data";
+import { formatRelativeTime, getAppContext, getConversationViews } from "@/lib/app-data";
 import { isNovuaInternalUser } from "@/lib/internal-access";
 
 function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
@@ -64,17 +58,6 @@ export default async function DashboardPage() {
   const revenueAtRisk = conversations
     .filter((item) => item.status === "new" || item.status === "no_response")
     .reduce((sum, item) => sum + item.estimatedValue, 0);
-  const queue = conversations
-    .filter((item) => openStatuses.has(item.status))
-    .sort((a, b) => {
-      const priorityScore = { high: 3, medium: 2, low: 1 };
-      return (
-        priorityScore[b.aiPriority] - priorityScore[a.aiPriority] ||
-        b.estimatedValue - a.estimatedValue ||
-        (new Date(b.lastMessageAt ?? 0).getTime() - new Date(a.lastMessageAt ?? 0).getTime())
-      );
-    })
-    .slice(0, 5);
   const pipelineValue = conversations
     .filter((item) => openStatuses.has(item.status))
     .reduce((sum, item) => sum + item.estimatedValue, 0);
@@ -87,7 +70,7 @@ export default async function DashboardPage() {
       const customerWaiting = Boolean(inboundTime && (!outboundTime || inboundTime > outboundTime));
       const staleEnough = Boolean(inboundTime && now - inboundTime >= riskThresholdMs);
       const openConversation = item.status === "new" || item.status === "active" || item.status === "no_response";
-      return openConversation && customerWaiting && staleEnough;
+      return openConversation && item.estimatedValue > 0 && customerWaiting && staleEnough;
     })
     .sort((a, b) => {
       const waitA = a.lastInboundAt ? now - new Date(a.lastInboundAt).getTime() : 0;
@@ -135,7 +118,7 @@ export default async function DashboardPage() {
             <p className="subtitle" style={{ margin: 0 }}>{t("revenue_risk_queue_subtitle")}</p>
           </div>
           <p className="kpi warn" style={{ margin: 0 }}>
-            {format(actionQueueValue)} · {actionQueue.length} conversations
+            {format(actionQueueValue)} · {actionQueue.length} conversaciones
           </p>
         </div>
 
@@ -158,10 +141,15 @@ export default async function DashboardPage() {
             <tbody>
               {actionQueue.map((item) => (
                 <tr key={item.id}>
-                  <td>{item.contactName}</td>
+                  <td>
+                    <div style={{ display: "grid", gap: 4 }}>
+                      <span>{item.contactName}</span>
+                      <span className="subtitle" style={{ margin: 0 }}>{item.leadType ?? t("inbox_unclassified")}</span>
+                    </div>
+                  </td>
                   <td>{item.leadType ?? t("inbox_unclassified")}</td>
-                  <td>{format(item.estimatedValue)}</td>
-                  <td>{formatRelativeTime(item.lastInboundAt ?? item.lastMessageAt)}</td>
+                  <td><strong>{format(item.estimatedValue)}</strong></td>
+                  <td><span className="subtitle" style={{ margin: 0 }}>{formatRelativeTime(item.lastInboundAt ?? item.lastMessageAt)}</span></td>
                   <td>
                     <Link className="button" href={`/conversation/${item.id}`}>
                       {t("dashboard_action_reply_now")}
@@ -173,69 +161,6 @@ export default async function DashboardPage() {
           </table>
         )}
       </article>
-
-      <div className="grid cols-2">
-        <article className="card">
-          <p className="label">{t("dashboard_priority_queue")}</p>
-          {queue.length === 0 ? (
-            <div className="empty-state">
-              <h3>No active conversations yet</h3>
-              <p>Connect a channel or create inbound traffic to populate the queue.</p>
-            </div>
-          ) : (
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>{t("dashboard_lead")}</th>
-                  <th>{t("dashboard_risk")}</th>
-                  <th>{t("dashboard_value")}</th>
-                  <th>{t("dashboard_action")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {queue.map((item) => (
-                  <tr key={item.id}>
-                    <td>
-                      <div style={{ display: "grid", gap: 4 }}>
-                        <span>{item.contactName}</span>
-                        <span className="label" style={{ fontSize: 12 }}>
-                          {item.leadType ?? t("inbox_unclassified")}
-                        </span>
-                      </div>
-                    </td>
-                    <td>{formatPriority(item.aiPriority, t)}</td>
-                    <td>{format(item.estimatedValue)}</td>
-                    <td>
-                      <Link href={`/conversation/${item.id}`}>
-                        {formatStatus(item.status, t)}
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </article>
-
-        <article className="card">
-          <p className="label">{t("dashboard_recent_activity")}</p>
-          {conversations.length === 0 ? (
-            <div className="empty-state">
-              <h3>No activity yet</h3>
-              <p>Recent conversation events will appear here once messages start flowing.</p>
-            </div>
-          ) : (
-            conversations.slice(0, 4).map((item) => (
-              <div key={item.id} className="preview-row">
-                <span>
-                  <strong>{item.contactName}</strong> · {item.leadType ?? t("inbox_unclassified")} · {format(item.estimatedValue)}
-                </span>
-                <span>{formatRelativeTime(item.lastMessageAt)}</span>
-              </div>
-            ))
-          )}
-        </article>
-      </div>
     </section>
   );
 }
