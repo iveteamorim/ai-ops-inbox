@@ -49,15 +49,11 @@ export default async function DashboardPage() {
   const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
 
   const conversations = await getConversationViews(context.supabase, context.profile.company_id);
-  const openStatuses = new Set(["new", "active", "no_response"]);
   const leadsToday = conversations.filter((item) => {
     const created = new Date(item.createdAt).toDateString();
     return created === new Date().toDateString();
   }).length;
   const unanswered = conversations.filter((item) => item.status === "new" || item.status === "no_response").length;
-  const pipelineValue = conversations
-    .filter((item) => openStatuses.has(item.status))
-    .reduce((sum, item) => sum + item.estimatedValue, 0);
   const riskThresholdMs = 2 * 60 * 60 * 1000;
   const now = Date.now();
   const actionQueue = conversations
@@ -90,7 +86,7 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <div className="grid cols-4" style={{ marginBottom: 12 }}>
+      <div className="grid cols-3" style={{ marginBottom: 12 }}>
         <article className="card">
           <p className="label">{t("dashboard_leads_today")}</p>
           <p className="kpi">{leadsToday}</p>
@@ -102,10 +98,6 @@ export default async function DashboardPage() {
         <article className="card">
           <p className="label">{t("dashboard_revenue_risk")}</p>
           <p className="kpi warn">{format(revenueAtRisk)}</p>
-        </article>
-        <article className="card">
-          <p className="label">{t("revenue_month_potential")}</p>
-          <p className="kpi">{format(pipelineValue)}</p>
         </article>
       </div>
 
@@ -140,10 +132,7 @@ export default async function DashboardPage() {
               {actionQueue.map((item) => (
                 <tr key={item.id}>
                   <td>
-                    <div style={{ display: "grid", gap: 4 }}>
-                      <span>{item.contactName}</span>
-                      <span className="subtitle" style={{ margin: 0 }}>{item.leadType ?? t("inbox_unclassified")}</span>
-                    </div>
+                    <span>{item.contactName}</span>
                   </td>
                   <td>{item.leadType ?? t("inbox_unclassified")}</td>
                   <td><strong>{format(item.estimatedValue)}</strong></td>
