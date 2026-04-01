@@ -49,11 +49,6 @@ export default async function DashboardPage() {
   const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
 
   const conversations = await getConversationViews(context.supabase, context.profile.company_id);
-  const leadsToday = conversations.filter((item) => {
-    const created = new Date(item.createdAt).toDateString();
-    return created === new Date().toDateString();
-  }).length;
-  const unanswered = conversations.filter((item) => item.status === "new" || item.status === "no_response").length;
   const riskThresholdMs = 2 * 60 * 60 * 1000;
   const now = Date.now();
   const actionQueue = conversations
@@ -86,18 +81,14 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <div className="grid cols-3" style={{ marginBottom: 12 }}>
-        <article className="card">
-          <p className="label">{t("dashboard_leads_today")}</p>
-          <p className="kpi">{leadsToday}</p>
-        </article>
-        <article className="card">
-          <p className="label">{t("dashboard_no_reply")}</p>
-          <p className="kpi warn">{unanswered}</p>
-        </article>
+      <div className="grid cols-2" style={{ marginBottom: 12 }}>
         <article className="card">
           <p className="label">{t("dashboard_revenue_risk")}</p>
           <p className="kpi warn">{format(revenueAtRisk)}</p>
+        </article>
+        <article className="card">
+          <p className="label">{t("dashboard_pending_conversations")}</p>
+          <p className="kpi">{actionQueue.length}</p>
         </article>
       </div>
 
@@ -108,7 +99,7 @@ export default async function DashboardPage() {
             <p className="subtitle" style={{ margin: 0 }}>{t("revenue_risk_queue_subtitle")}</p>
           </div>
           <p className="kpi warn" style={{ margin: 0 }}>
-            {format(actionQueueValue)} · {actionQueue.length} conversaciones
+            {format(actionQueueValue)} · {actionQueue.length} {t("dashboard_pending_conversations").toLowerCase()}
           </p>
         </div>
 
