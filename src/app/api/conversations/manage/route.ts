@@ -4,6 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 type ConversationRow = {
   id: string;
   company_id: string;
+  estimated_value: number | null;
+  expected_value: number | null;
+  status: "new" | "active" | "no_response" | "won" | "lost";
 };
 
 type ProfileRow = {
@@ -54,7 +57,7 @@ export async function POST(request: Request) {
 
   const { data: conversation, error: conversationError } = await supabase
     .from("conversations")
-    .select("id, company_id")
+    .select("id, company_id, estimated_value, expected_value, status")
     .eq("id", conversationId)
     .maybeSingle<ConversationRow>();
 
@@ -106,6 +109,7 @@ export async function POST(request: Request) {
     status?: string;
     assigned_to?: string | null;
     unit?: string | null;
+    expected_value?: number;
     updated_at?: string;
   } = {
     updated_at: new Date().toISOString(),
@@ -113,6 +117,11 @@ export async function POST(request: Request) {
 
   if (status !== undefined) {
     patch.status = status;
+    if (status === "won") {
+      patch.expected_value = Number(conversation.expected_value ?? conversation.estimated_value ?? 0);
+    } else if (conversation.status === "won" || status === "lost") {
+      patch.expected_value = 0;
+    }
   }
 
   if (assignedTo !== undefined) {

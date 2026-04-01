@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { InboxRowActions } from "@/components/InboxRowActions";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 import type { ConversationView, MessageView } from "@/lib/app-data";
@@ -50,11 +51,13 @@ export function ConversationWorkspace({
   unitOptions,
   canAssign,
 }: Props) {
+  const router = useRouter();
   const { t, lang } = useI18n();
   const [messages, setMessages] = useState(initialMessages);
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState<"won" | "lost" | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const aiSuggestion = useMemo(() => {
@@ -109,6 +112,34 @@ export function ConversationWorkspace({
       setError(requestError instanceof Error ? requestError.message : "Failed to send message");
     } finally {
       setSending(false);
+    }
+  }
+
+  async function updateBusinessStatus(status: "won" | "lost") {
+    setUpdatingStatus(status);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/conversations/manage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversationId: conversation.id,
+          status,
+        }),
+      });
+
+      const payload = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+      if (!response.ok || !payload?.ok) {
+        setError(payload?.error ?? "Could not update conversation.");
+        return;
+      }
+
+      router.refresh();
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Could not update conversation.");
+    } finally {
+      setUpdatingStatus(null);
     }
   }
 
@@ -183,6 +214,27 @@ export function ConversationWorkspace({
           <strong>{t("inbox_status")}:</strong>{" "}
           <span className={`badge ${statusClass(conversation.status)}`}>{statusLabel}</span>
         </p>
+        {conversation.status === "won" ? (
+          <p><strong>{t("conversation_recovered")}:</strong> {formatMoney(lang, currency, conversation.expectedValue || conversation.estimatedValue)}</p>
+        ) : null}
+        <div className="actions" style={{ marginTop: 12 }}>
+          <button
+            className="button"
+            type="button"
+            disabled={updatingStatus !== null || conversation.status === "won"}
+            onClick={() => updateBusinessStatus("won")}
+          >
+            {updatingStatus === "won" ? "..." : t("conversation_mark_won")}
+          </button>
+          <button
+            className="mini-button mini-warn"
+            type="button"
+            disabled={updatingStatus !== null || conversation.status === "lost"}
+            onClick={() => updateBusinessStatus("lost")}
+          >
+            {updatingStatus === "lost" ? "..." : t("conversation_mark_lost")}
+          </button>
+        </div>
         <details style={{ marginTop: 16 }}>
           <summary style={{ cursor: "pointer", color: "var(--muted)" }}>{t("conversation_details")}</summary>
           <div style={{ marginTop: 12 }}>
