@@ -55,9 +55,6 @@ export default async function DashboardPage() {
     return created === new Date().toDateString();
   }).length;
   const unanswered = conversations.filter((item) => item.status === "new" || item.status === "no_response").length;
-  const revenueAtRisk = conversations
-    .filter((item) => item.status === "new" || item.status === "no_response")
-    .reduce((sum, item) => sum + item.estimatedValue, 0);
   const pipelineValue = conversations
     .filter((item) => openStatuses.has(item.status))
     .reduce((sum, item) => sum + item.estimatedValue, 0);
@@ -79,6 +76,7 @@ export default async function DashboardPage() {
     })
     .slice(0, 5);
   const actionQueueValue = actionQueue.reduce((sum, item) => sum + item.estimatedValue, 0);
+  const revenueAtRisk = actionQueueValue;
 
   return (
     <section className="page">
