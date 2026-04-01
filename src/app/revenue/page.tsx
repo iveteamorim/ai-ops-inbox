@@ -4,7 +4,7 @@ import { AppNav } from "@/components/AppNav";
 import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
-import { formatStatus, formatRelativeTime, getAppContext, getConversationViews } from "@/lib/app-data";
+import { formatNoReplyDuration, formatStatus, formatRelativeTime, getAppContext, getConversationViews } from "@/lib/app-data";
 import { isNovuaInternalUser } from "@/lib/internal-access";
 
 function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
@@ -124,7 +124,7 @@ export default async function RevenuePage() {
                   <td>{item.contactName}</td>
                   <td>{item.leadType ?? t("inbox_unclassified")}</td>
                   <td>{format(item.estimatedValue)}</td>
-                  <td>{formatRelativeTime(item.lastInboundAt ?? item.lastMessageAt)}</td>
+                  <td>{formatNoReplyDuration(item.lastInboundAt ?? item.lastMessageAt)}</td>
                   <td>
                     <Link className="mini-button" href={`/conversation/${item.id}`}>
                       {t("dashboard_action_reply_now")}

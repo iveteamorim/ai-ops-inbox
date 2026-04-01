@@ -362,6 +362,23 @@ export function formatRelativeTime(isoDate: string | null) {
   return `Hace ${diffDays} días`;
 }
 
+export function formatNoReplyDuration(isoDate: string | null) {
+  if (!isoDate) return "-";
+
+  const timestamp = new Date(isoDate).getTime();
+  if (Number.isNaN(timestamp)) return "-";
+
+  const diffMs = Date.now() - timestamp;
+  const diffMinutes = Math.max(0, Math.round(diffMs / (1000 * 60)));
+  if (diffMinutes < 60) return `${diffMinutes} min sin responder`;
+
+  const diffHours = Math.round(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours}h sin responder`;
+
+  const diffDays = Math.round(diffHours / 24);
+  return `${diffDays} días sin responder`;
+}
+
 export async function getConversationViews(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
   companyId: string,
