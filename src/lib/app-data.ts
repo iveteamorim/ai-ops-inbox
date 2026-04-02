@@ -82,6 +82,8 @@ type PilotFeedbackRow = {
   message: string;
   page_path: string | null;
   status: "new" | "reviewed" | "closed";
+  admin_reply: string | null;
+  replied_at: string | null;
   created_at: string;
 };
 
@@ -124,6 +126,19 @@ export type PilotFeedbackView = {
   message: string;
   pagePath: string | null;
   status: "new" | "reviewed" | "closed";
+  adminReply: string | null;
+  repliedAt: string | null;
+  createdAt: string;
+};
+
+export type UserPilotFeedbackView = {
+  id: string;
+  category: "bug" | "feedback" | "feature_request";
+  message: string;
+  pagePath: string | null;
+  status: "new" | "reviewed" | "closed";
+  adminReply: string | null;
+  repliedAt: string | null;
   createdAt: string;
 };
 
@@ -566,9 +581,11 @@ export async function getConversationDetail(
 export async function getSettingsData(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
   companyId: string,
+  userId: string,
 ) {
   const admin = createAdminClient();
-  const [{ data: channels }, { data: setupRequests }, { data: adminProfiles }] = await Promise.all([
+  const [{ data: channels }, { data: setupRequests }, { data: adminProfiles }, { data: feedbackHistory }] =
+    await Promise.all([
     supabase
       .from("channels")
       .select("id, type, external_account_id, is_active")
@@ -585,6 +602,13 @@ export async function getSettingsData(
       .select("id, full_name, role")
       .eq("company_id", companyId)
       .order("created_at", { ascending: true }),
+    supabase
+      .from("pilot_feedback")
+      .select("id, category, message, page_path, status, admin_reply, replied_at, created_at")
+      .eq("company_id", companyId)
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(20),
   ]);
 
   let pendingInvites: PendingInviteView[] = [];
@@ -622,6 +646,25 @@ export async function getSettingsData(
     team,
     pendingInvites,
     setupRequests: ((setupRequests as SetupRequestRow[] | null | undefined) ?? []),
+    feedbackHistory: (((feedbackHistory as Array<{
+      id: string;
+      category: "bug" | "feedback" | "feature_request";
+      message: string;
+      page_path: string | null;
+      status: "new" | "reviewed" | "closed";
+      admin_reply: string | null;
+      replied_at: string | null;
+      created_at: string;
+    }> | null | undefined) ?? [])).map((row) => ({
+      id: row.id,
+      category: row.category,
+      message: row.message,
+      pagePath: row.page_path,
+      status: row.status,
+      adminReply: row.admin_reply,
+      repliedAt: row.replied_at,
+      createdAt: row.created_at,
+    })) satisfies UserPilotFeedbackView[],
   };
 }
 
@@ -702,7 +745,7 @@ export async function getPilotFeedbackAdminView() {
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("pilot_feedback")
-    .select("id, company_id, user_id, category, message, page_path, status, created_at")
+    .select("id, company_id, user_id, category, message, page_path, status, admin_reply, replied_at, created_at")
     .order("created_at", { ascending: false })
     .limit(100);
 
@@ -751,6 +794,8 @@ export async function getPilotFeedbackAdminView() {
     message: row.message,
     pagePath: row.page_path,
     status: row.status,
+    adminReply: row.admin_reply,
+    repliedAt: row.replied_at,
     createdAt: row.created_at,
   })) satisfies PilotFeedbackView[];
 }

@@ -3,6 +3,7 @@ import { BusinessSetupForm } from "@/components/BusinessSetupForm";
 import { InviteUserForm } from "@/components/InviteUserForm";
 import { PendingInvitesList } from "@/components/PendingInvitesList";
 import { PilotFeedbackForm } from "@/components/PilotFeedbackForm";
+import { PilotFeedbackHistory } from "@/components/PilotFeedbackHistory";
 import { SetupRequestButton } from "@/components/SetupRequestButton";
 import { TeamMembersList } from "@/components/TeamMembersList";
 import { cookies } from "next/headers";
@@ -79,6 +80,14 @@ function getSetupCopy(lang: string) {
       pilotFeedbackBug: "Bug",
       pilotFeedbackGeneral: "Feedback",
       pilotFeedbackFeature: "Feature request",
+      pilotFeedbackHistoryTitle: "Tus reportes",
+      pilotFeedbackHistoryEmpty: "Todavía no has enviado reportes.",
+      pilotFeedbackHistoryStatus: "Estado",
+      pilotFeedbackHistoryPage: "Página",
+      pilotFeedbackHistoryReply: "Respuesta de Novua",
+      pilotFeedbackStatusNew: "Nuevo",
+      pilotFeedbackStatusReviewed: "Revisado",
+      pilotFeedbackStatusClosed: "Cerrado",
     };
   }
 
@@ -149,6 +158,14 @@ function getSetupCopy(lang: string) {
       pilotFeedbackBug: "Bug",
       pilotFeedbackGeneral: "Feedback",
       pilotFeedbackFeature: "Feature request",
+      pilotFeedbackHistoryTitle: "Seus reportes",
+      pilotFeedbackHistoryEmpty: "Ainda não enviaste reportes.",
+      pilotFeedbackHistoryStatus: "Estado",
+      pilotFeedbackHistoryPage: "Página",
+      pilotFeedbackHistoryReply: "Resposta da Novua",
+      pilotFeedbackStatusNew: "Novo",
+      pilotFeedbackStatusReviewed: "Revisado",
+      pilotFeedbackStatusClosed: "Fechado",
     };
   }
 
@@ -218,6 +235,14 @@ function getSetupCopy(lang: string) {
     pilotFeedbackBug: "Bug",
     pilotFeedbackGeneral: "Feedback",
     pilotFeedbackFeature: "Feature request",
+    pilotFeedbackHistoryTitle: "Your reports",
+    pilotFeedbackHistoryEmpty: "You have not sent any reports yet.",
+    pilotFeedbackHistoryStatus: "Status",
+    pilotFeedbackHistoryPage: "Page",
+    pilotFeedbackHistoryReply: "Reply from Novua",
+    pilotFeedbackStatusNew: "New",
+    pilotFeedbackStatusReviewed: "Reviewed",
+    pilotFeedbackStatusClosed: "Closed",
   };
 }
 
@@ -242,9 +267,10 @@ export default async function SettingsPage() {
     );
   }
 
-  const { channels, team, pendingInvites, setupRequests } = await getSettingsData(
+  const { channels, team, pendingInvites, setupRequests, feedbackHistory } = await getSettingsData(
     context.supabase,
     context.profile.company_id,
+    context.user.id,
   );
   const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
   const seatLimit =
@@ -416,6 +442,19 @@ export default async function SettingsPage() {
           bug: copy.pilotFeedbackBug,
           feedback: copy.pilotFeedbackGeneral,
           featureRequest: copy.pilotFeedbackFeature,
+        }}
+      />
+      <PilotFeedbackHistory
+        items={feedbackHistory}
+        labels={{
+          title: copy.pilotFeedbackHistoryTitle,
+          empty: copy.pilotFeedbackHistoryEmpty,
+          status: copy.pilotFeedbackHistoryStatus,
+          page: copy.pilotFeedbackHistoryPage,
+          reply: copy.pilotFeedbackHistoryReply,
+          new: copy.pilotFeedbackStatusNew,
+          reviewed: copy.pilotFeedbackStatusReviewed,
+          closed: copy.pilotFeedbackStatusClosed,
         }}
       />
     </section>

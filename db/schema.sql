@@ -129,8 +129,14 @@ create table if not exists public.pilot_feedback (
   message text not null,
   page_path text,
   status text not null default 'new' check (status in ('new', 'reviewed', 'closed')),
+  admin_reply text,
+  replied_at timestamptz,
   created_at timestamptz not null default now()
 );
+
+alter table public.pilot_feedback
+  add column if not exists admin_reply text,
+  add column if not exists replied_at timestamptz;
 
 do $$
 begin

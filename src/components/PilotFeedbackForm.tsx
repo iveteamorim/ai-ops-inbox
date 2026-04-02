@@ -54,7 +54,7 @@ export function PilotFeedbackForm({ labels }: Props) {
   return (
     <article className="card" style={{ marginTop: 12 }}>
       <p className="label">{labels.title}</p>
-      <p className="subtitle" style={{ marginTop: 0 }}>{labels.help}</p>
+      {labels.help ? <p className="subtitle" style={{ marginTop: 0 }}>{labels.help}</p> : null}
 
       <label className="sr-only" htmlFor="pilot-feedback-category">
         {labels.category}
