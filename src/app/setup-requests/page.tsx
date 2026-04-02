@@ -1,6 +1,7 @@
 import { AppNav } from "@/components/AppNav";
+import { PilotFeedbackTable } from "@/components/PilotFeedbackTable";
 import { SetupRequestsTable } from "@/components/SetupRequestsTable";
-import { getAppContext, getSetupRequestsAdminView } from "@/lib/app-data";
+import { getAppContext, getPilotFeedbackAdminView, getSetupRequestsAdminView } from "@/lib/app-data";
 import { isNovuaInternalUser } from "@/lib/internal-access";
 import { notFound } from "next/navigation";
 
@@ -25,7 +26,10 @@ export default async function SetupRequestsPage() {
     notFound();
   }
 
-  const requests = await getSetupRequestsAdminView();
+  const [requests, feedback] = await Promise.all([
+    getSetupRequestsAdminView(),
+    getPilotFeedbackAdminView(),
+  ]);
 
   return (
     <section className="page">
@@ -37,6 +41,7 @@ export default async function SetupRequestsPage() {
         </div>
       </header>
       <SetupRequestsTable requests={requests} />
+      <PilotFeedbackTable items={feedback} />
     </section>
   );
 }

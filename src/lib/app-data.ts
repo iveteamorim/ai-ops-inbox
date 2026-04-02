@@ -74,6 +74,17 @@ type SetupRequestRow = {
   created_at: string;
 };
 
+type PilotFeedbackRow = {
+  id: string;
+  company_id: string;
+  user_id: string;
+  category: "bug" | "feedback" | "feature_request";
+  message: string;
+  page_path: string | null;
+  status: "new" | "reviewed" | "closed";
+  created_at: string;
+};
+
 function isMissingConversationUnitColumnError(error: { message?: string } | null | undefined) {
   const message = error?.message?.toLowerCase() ?? "";
   return (
@@ -103,6 +114,17 @@ export type SetupRequestView = {
   companyName: string;
   requestedBy: string;
   notes: string | null;
+};
+
+export type PilotFeedbackView = {
+  id: string;
+  companyName: string;
+  sentBy: string;
+  category: "bug" | "feedback" | "feature_request";
+  message: string;
+  pagePath: string | null;
+  status: "new" | "reviewed" | "closed";
+  createdAt: string;
 };
 
 export type AppContext =
@@ -674,4 +696,61 @@ export async function getSetupRequestsAdminView() {
       notes: row.notes,
     } satisfies SetupRequestView;
   });
+}
+
+export async function getPilotFeedbackAdminView() {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("pilot_feedback")
+    .select("id, company_id, user_id, category, message, page_path, status, created_at")
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const rows = ((data as PilotFeedbackRow[] | null | undefined) ?? []);
+
+  if (rows.length === 0) {
+    return [] satisfies PilotFeedbackView[];
+  }
+
+  const companyIds = Array.from(new Set(rows.map((row) => row.company_id)));
+  const userIds = Array.from(new Set(rows.map((row) => row.user_id)));
+
+  const [{ data: companies, error: companiesError }, { data: profiles, error: profilesError }] =
+    await Promise.all([
+      admin.from("companies").select("id, name").in("id", companyIds),
+      admin.from("profiles").select("id, full_name").in("id", userIds),
+    ]);
+
+  if (companiesError) {
+    throw new Error(companiesError.message);
+  }
+
+  if (profilesError) {
+    throw new Error(profilesError.message);
+  }
+
+  const companiesById = new Map(
+    (((companies as Array<{ id: string; name: string }> | null | undefined) ?? [])).map((row) => [row.id, row.name]),
+  );
+  const profilesById = new Map(
+    (((profiles as Array<{ id: string; full_name: string | null }> | null | undefined) ?? [])).map((row) => [
+      row.id,
+      row.full_name?.trim() || "Unknown user",
+    ]),
+  );
+
+  return rows.map((row) => ({
+    id: row.id,
+    companyName: companiesById.get(row.company_id) ?? "Unknown company",
+    sentBy: profilesById.get(row.user_id) ?? "Unknown user",
+    category: row.category,
+    message: row.message,
+    pagePath: row.page_path,
+    status: row.status,
+    createdAt: row.created_at,
+  })) satisfies PilotFeedbackView[];
 }
