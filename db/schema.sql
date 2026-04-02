@@ -121,6 +121,17 @@ create table if not exists public.setup_requests (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.pilot_feedback (
+  id uuid primary key default gen_random_uuid(),
+  company_id uuid not null references public.companies(id) on delete cascade,
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  category text not null check (category in ('bug', 'feedback', 'feature_request')),
+  message text not null,
+  page_path text,
+  status text not null default 'new' check (status in ('new', 'reviewed', 'closed')),
+  created_at timestamptz not null default now()
+);
+
 do $$
 begin
   if exists (select 1 from pg_constraint where conname = 'channels_type_check') then
@@ -160,6 +171,7 @@ create index if not exists idx_conversations_company_status on public.conversati
 create index if not exists idx_messages_conversation_created on public.messages (conversation_id, created_at desc);
 create index if not exists idx_webhook_events_source_status on public.webhook_events (source, status, received_at desc);
 create index if not exists idx_setup_requests_company_created on public.setup_requests (company_id, created_at desc);
+create index if not exists idx_pilot_feedback_company_created on public.pilot_feedback (company_id, created_at desc);
 
 create or replace function public.set_updated_at()
 returns trigger
@@ -242,6 +254,7 @@ alter table public.conversations enable row level security;
 alter table public.messages enable row level security;
 alter table public.webhook_events enable row level security;
 alter table public.setup_requests enable row level security;
+alter table public.pilot_feedback enable row level security;
 
 -- Baseline RLS policy: users can only read/write their own company records.
 drop policy if exists "profiles_select_own_company" on public.profiles;
@@ -251,6 +264,12 @@ using (company_id = (select p.company_id from public.profiles p where p.id = aut
 
 drop policy if exists "channels_rw_own_company" on public.channels;
 create policy "channels_rw_own_company" on public.channels
+for all
+using (company_id = (select p.company_id from public.profiles p where p.id = auth.uid()))
+with check (company_id = (select p.company_id from public.profiles p where p.id = auth.uid()));
+
+drop policy if exists "pilot_feedback_rw_own_company" on public.pilot_feedback;
+create policy "pilot_feedback_rw_own_company" on public.pilot_feedback
 for all
 using (company_id = (select p.company_id from public.profiles p where p.id = auth.uid()))
 with check (company_id = (select p.company_id from public.profiles p where p.id = auth.uid()));

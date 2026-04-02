@@ -2,6 +2,7 @@ import { AppNav } from "@/components/AppNav";
 import { BusinessSetupForm } from "@/components/BusinessSetupForm";
 import { InviteUserForm } from "@/components/InviteUserForm";
 import { PendingInvitesList } from "@/components/PendingInvitesList";
+import { PilotFeedbackForm } from "@/components/PilotFeedbackForm";
 import { SetupRequestButton } from "@/components/SetupRequestButton";
 import { TeamMembersList } from "@/components/TeamMembersList";
 import { cookies } from "next/headers";
@@ -67,6 +68,17 @@ function getSetupCopy(lang: string) {
       businessSetupBackfillSuccess: "Conversaciones actualizadas",
       businessSetupSuccess: "Configuración guardada.",
       businessSetupError: "No se pudo guardar la configuración.",
+      pilotFeedbackTitle: "Feedback piloto",
+      pilotFeedbackHelp: "Reporta bugs, fricción o ideas mientras validamos con primeros clientes.",
+      pilotFeedbackCategory: "Tipo",
+      pilotFeedbackMessage: "Cuéntanos qué ha pasado o qué mejorarías.",
+      pilotFeedbackSubmit: "Enviar feedback",
+      pilotFeedbackSubmitting: "Enviando...",
+      pilotFeedbackSuccess: "Feedback enviado.",
+      pilotFeedbackError: "No se pudo enviar el feedback.",
+      pilotFeedbackBug: "Bug",
+      pilotFeedbackGeneral: "Feedback",
+      pilotFeedbackFeature: "Feature request",
     };
   }
 
@@ -126,6 +138,17 @@ function getSetupCopy(lang: string) {
       businessSetupBackfillSuccess: "Conversas atualizadas",
       businessSetupSuccess: "Configuração guardada.",
       businessSetupError: "Não foi possível guardar a configuração.",
+      pilotFeedbackTitle: "Feedback do piloto",
+      pilotFeedbackHelp: "Reporte bugs, fricção ou ideias enquanto validamos com os primeiros clientes.",
+      pilotFeedbackCategory: "Tipo",
+      pilotFeedbackMessage: "Conta-nos o que aconteceu ou o que melhorarias.",
+      pilotFeedbackSubmit: "Enviar feedback",
+      pilotFeedbackSubmitting: "Enviando...",
+      pilotFeedbackSuccess: "Feedback enviado.",
+      pilotFeedbackError: "Não foi possível enviar o feedback.",
+      pilotFeedbackBug: "Bug",
+      pilotFeedbackGeneral: "Feedback",
+      pilotFeedbackFeature: "Feature request",
     };
   }
 
@@ -184,6 +207,17 @@ function getSetupCopy(lang: string) {
     businessSetupBackfillSuccess: "Conversations updated",
     businessSetupSuccess: "Configuration saved.",
     businessSetupError: "Could not save the configuration.",
+    pilotFeedbackTitle: "Pilot feedback",
+    pilotFeedbackHelp: "Report bugs, friction, or ideas while validating with early customers.",
+    pilotFeedbackCategory: "Type",
+    pilotFeedbackMessage: "Tell us what happened or what you would improve.",
+    pilotFeedbackSubmit: "Send feedback",
+    pilotFeedbackSubmitting: "Sending...",
+    pilotFeedbackSuccess: "Feedback sent.",
+    pilotFeedbackError: "Could not send feedback.",
+    pilotFeedbackBug: "Bug",
+    pilotFeedbackGeneral: "Feedback",
+    pilotFeedbackFeature: "Feature request",
   };
 }
 
@@ -368,6 +402,22 @@ export default async function SettingsPage() {
           }}
         />
       </div>
+
+      <PilotFeedbackForm
+        labels={{
+          title: copy.pilotFeedbackTitle,
+          help: copy.pilotFeedbackHelp,
+          category: copy.pilotFeedbackCategory,
+          message: copy.pilotFeedbackMessage,
+          submit: copy.pilotFeedbackSubmit,
+          submitting: copy.pilotFeedbackSubmitting,
+          success: copy.pilotFeedbackSuccess,
+          error: copy.pilotFeedbackError,
+          bug: copy.pilotFeedbackBug,
+          feedback: copy.pilotFeedbackGeneral,
+          featureRequest: copy.pilotFeedbackFeature,
+        }}
+      />
     </section>
   );
 }
