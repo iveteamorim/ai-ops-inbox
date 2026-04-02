@@ -1,6 +1,7 @@
 import { AppNav } from "@/components/AppNav";
 import { PilotFeedbackTable } from "@/components/PilotFeedbackTable";
 import { SetupRequestsTable } from "@/components/SetupRequestsTable";
+import Link from "next/link";
 import { getAppContext, getPilotFeedbackAdminView, getSetupRequestsAdminView } from "@/lib/app-data";
 import { isNovuaInternalUser } from "@/lib/internal-access";
 import { notFound } from "next/navigation";
@@ -38,6 +39,11 @@ export default async function SetupRequestsPage() {
         <div>
           <h1 className="title">Setup requests</h1>
           <p className="subtitle">Review and update WhatsApp onboarding requests.</p>
+        </div>
+        <div className="actions">
+          <Link className="button" href="/setup-requests/triage-preview">
+            Triage preview
+          </Link>
         </div>
       </header>
       <SetupRequestsTable requests={requests} />

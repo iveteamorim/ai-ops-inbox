@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import type { User } from "@supabase/supabase-js";
 import type { DictionaryKey } from "@/lib/i18n/dictionaries";
 import { classifyLeadFromMessage } from "@/lib/revenue/classify";
+import { triageConversation, type ServiceType, type TriageResult } from "@/lib/triage/triage-conversation";
 
 type ProfileRow = {
   id: string;
@@ -230,6 +231,18 @@ export type MessageView = {
   senderType: "customer" | "agent" | "system";
   text: string;
   createdAt: string;
+};
+
+export type ConversationTriagePreviewView = {
+  conversationId: string;
+  contactName: string;
+  conversationStatus: "new" | "in_conversation" | "no_response" | "won" | "lost";
+  currentLeadType: string | null;
+  currentEstimatedValue: number;
+  lastCustomerMessage: string;
+  lastCustomerMessageAt: string | null;
+  lastContactHoursAgo: number;
+  triage: TriageResult;
 };
 
 function titleCase(value: string) {
@@ -576,6 +589,92 @@ export async function getConversationDetail(
       createdAt: message.created_at,
     })) satisfies MessageView[],
   };
+}
+
+export async function getConversationTriagePreview(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  companyId: string,
+) {
+  const conversations = await getConversationViews(supabase, companyId);
+  const { data: messages, error: messagesError } = await supabase
+    .from("messages")
+    .select("id, conversation_id, direction, sender_type, text, created_at")
+    .eq("company_id", companyId)
+    .eq("sender_type", "customer")
+    .order("created_at", { ascending: false })
+    .limit(1000);
+
+  if (messagesError) {
+    throw new Error(messagesError.message);
+  }
+
+  const { data: company, error: companyError } = await supabase
+    .from("companies")
+    .select("id, name, config")
+    .eq("id", companyId)
+    .maybeSingle<CompanyRow>();
+
+  if (companyError) {
+    throw new Error(companyError.message);
+  }
+
+  const serviceCatalog: ServiceType[] = parseBusinessSetup((company as CompanyRow | null | undefined) ?? null)
+    .leadTypes
+    .map((item) => ({
+      name: item.name,
+      estimatedValue: item.estimatedValue,
+    }));
+
+  const messagesByConversation = new Map<string, MessageRow>();
+  for (const message of (messages as MessageRow[] | null | undefined) ?? []) {
+    if (!messagesByConversation.has(message.conversation_id) && message.text?.trim()) {
+      messagesByConversation.set(message.conversation_id, message);
+    }
+  }
+
+  return conversations
+    .map((conversation) => {
+      const lastCustomerMessage = messagesByConversation.get(conversation.id);
+      const lastCustomerMessageText = lastCustomerMessage?.text?.trim() || conversation.lastMessageText.trim();
+      const referenceTimestamp =
+        conversation.lastOutboundAt ??
+        conversation.lastInboundAt ??
+        conversation.lastMessageAt ??
+        conversation.createdAt;
+      const lastContactHoursAgo = Math.max(
+        0,
+        Math.round((Date.now() - new Date(referenceTimestamp).getTime()) / (1000 * 60 * 60)),
+      );
+      const triage = triageConversation(
+        {
+          customerName: conversation.contactName,
+          lastCustomerMessage: lastCustomerMessageText,
+          conversationStatus:
+            conversation.status === "active"
+              ? "in_conversation"
+              : conversation.status,
+          lastContactHoursAgo,
+          assignedUnit: conversation.unit,
+        },
+        serviceCatalog,
+      );
+
+      return {
+        conversationId: conversation.id,
+        contactName: conversation.contactName,
+        conversationStatus:
+          conversation.status === "active"
+            ? "in_conversation"
+            : conversation.status,
+        currentLeadType: conversation.leadType,
+        currentEstimatedValue: conversation.estimatedValue,
+        lastCustomerMessage: lastCustomerMessageText,
+        lastCustomerMessageAt: lastCustomerMessage?.createdAt ?? conversation.lastInboundAt,
+        lastContactHoursAgo,
+        triage,
+      } satisfies ConversationTriagePreviewView;
+    })
+    .slice(0, 20);
 }
 
 export async function getSettingsData(
