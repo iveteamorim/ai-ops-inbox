@@ -204,7 +204,7 @@ export const dictionary = {
     revenue_expected: "Valor esperado",
     revenue_last_contact: "Último contacto",
     revenue_risk_queue_title: "Acción requerida",
-    revenue_risk_queue_subtitle: "Conversaciones sin respuesta con dinero en juego.",
+    revenue_risk_queue_subtitle: "Conversaciones abiertas con dinero en juego que requieren respuesta.",
     revenue_risk_queue_empty_title: "Todo al día",
     revenue_risk_queue_empty_text: "No hay conversaciones pendientes de respuesta.",
 
@@ -491,7 +491,7 @@ export const dictionary = {
     revenue_expected: "Valor esperado",
     revenue_last_contact: "Último contato",
     revenue_risk_queue_title: "Ação necessária",
-    revenue_risk_queue_subtitle: "Conversas sem resposta com dinheiro em jogo.",
+    revenue_risk_queue_subtitle: "Conversas abertas com dinheiro em jogo que exigem resposta.",
     revenue_risk_queue_empty_title: "Tudo em dia",
     revenue_risk_queue_empty_text: "Não há conversas pendentes de resposta.",
 
@@ -776,7 +776,7 @@ export const dictionary = {
     revenue_expected: "Expected value",
     revenue_last_contact: "Last contact",
     revenue_risk_queue_title: "Action required",
-    revenue_risk_queue_subtitle: "Unanswered conversations with money at stake.",
+    revenue_risk_queue_subtitle: "Open conversations with money at stake that require a response.",
     revenue_risk_queue_empty_title: "All caught up",
     revenue_risk_queue_empty_text: "There are no unanswered conversations right now.",
 

@@ -61,10 +61,29 @@ export function ConversationWorkspace({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const aiSuggestion = useMemo(() => {
-    if (lang === "pt") return "Posso ajudar a avançar com a reserva hoje?";
-    if (lang === "en") return "Can I help you move this booking forward today?";
-    return "¿Puedo ayudarte a avanzar esta reserva hoy?";
-  }, [lang]);
+    const leadType = (conversation.leadType ?? "").toLowerCase();
+
+    if (conversation.estimatedValue === 0 || !conversation.leadType) {
+      if (lang === "pt") return "Obrigado por escrever. Pode contar-me um pouco mais sobre o que precisa?";
+      if (lang === "en") return "Thanks for reaching out. Can you share a bit more about what you need?";
+      return "Gracias por escribir. ¿Me puedes contar un poco más sobre lo que necesitas?";
+    }
+
+    if (
+      leadType.includes("visita") ||
+      leadType.includes("consulta") ||
+      leadType.includes("sesión") ||
+      leadType.includes("sesion")
+    ) {
+      if (lang === "pt") return "Posso ajudar com a primeira visita e rever a melhor disponibilidade para si.";
+      if (lang === "en") return "I can help with the first visit and check the best availability for you.";
+      return "Puedo ayudarte con la primera visita y revisar la mejor disponibilidad para ti.";
+    }
+
+    if (lang === "pt") return `Posso ajudar com ${conversation.leadType.toLowerCase()} e indicar o próximo passo.`;
+    if (lang === "en") return `I can help with ${conversation.leadType.toLowerCase()} and guide the next step.`;
+    return `Puedo ayudarte con ${conversation.leadType.toLowerCase()} y orientarte en el siguiente paso.`;
+  }, [conversation.estimatedValue, conversation.leadType, lang]);
 
   const statusLabel = useMemo(() => {
     if (conversation.status === "new") return t("inbox_filter_new");

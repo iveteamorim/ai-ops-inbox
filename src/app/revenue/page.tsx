@@ -49,9 +49,6 @@ export default async function RevenuePage() {
   const openPotential = opportunities
     .filter((item) => item.status === "new" || item.status === "active" || item.status === "no_response")
     .reduce((sum, item) => sum + item.estimatedValue, 0);
-  const atRisk = opportunities
-    .filter((item) => item.status === "new" || item.status === "no_response")
-    .reduce((sum, item) => sum + item.estimatedValue, 0);
   const recoveredRevenue = opportunities
     .filter((item) => item.status === "won")
     .reduce((sum, item) => sum + (item.expectedValue || item.estimatedValue), 0);
@@ -71,6 +68,7 @@ export default async function RevenuePage() {
     const openConversation = item.status === "new" || item.status === "active" || item.status === "no_response";
     return openConversation && item.estimatedValue > 0 && customerWaiting && staleEnough;
   });
+  const atRisk = atRiskQueue.reduce((sum, item) => sum + item.estimatedValue, 0);
   const byLeadType = Array.from(
     opportunities.reduce((map, item) => {
       const key = item.leadType ?? t("inbox_unclassified");
