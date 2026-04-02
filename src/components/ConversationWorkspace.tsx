@@ -201,7 +201,15 @@ export function ConversationWorkspace({
           </p>
           {error ? <p className="warn">{error}</p> : null}
           <div className="actions">
-            <button className="button" type="button" onClick={() => sendReply(aiSuggestion)} disabled={sending}>
+            <button
+              className="button"
+              type="button"
+              onClick={() => {
+                setDraft(aiSuggestion);
+                textareaRef.current?.focus();
+              }}
+              disabled={sending}
+            >
               {sending ? "..." : t("conversation_reply_with_ai")}
             </button>
             <button
