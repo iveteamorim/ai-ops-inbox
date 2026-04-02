@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { classifyLeadFromMessage, getLeadTypesFromBusinessConfig } from "@/lib/revenue/classify";
+import { getLeadTypesFromBusinessConfig } from "@/lib/revenue/classify";
+import { triageConversation, type ServiceType } from "@/lib/triage/triage-conversation";
 
 type ProfileRow = {
   id: string;
@@ -17,6 +18,12 @@ type ConversationRow = {
   id: string;
   lead_type: string | null;
   estimated_value: number | null;
+  status: "new" | "active" | "won" | "lost" | "no_response";
+  unit: string | null;
+  last_message_at: string | null;
+  last_inbound_at: string | null;
+  last_outbound_at: string | null;
+  created_at: string;
 };
 
 type MessageRow = {
@@ -64,7 +71,7 @@ export async function POST() {
       admin.from("companies").select("id, config").eq("id", profile.company_id).maybeSingle<CompanyRow>(),
       admin
         .from("conversations")
-        .select("id, lead_type, estimated_value")
+        .select("id, lead_type, estimated_value, status, unit, last_message_at, last_inbound_at, last_outbound_at, created_at")
         .eq("company_id", profile.company_id)
         .order("updated_at", { ascending: false }) as PromiseLike<{
         data: ConversationRow[] | null;
@@ -88,6 +95,10 @@ export async function POST() {
   if (leadTypes.length === 0) {
     return NextResponse.json({ ok: true, updated: 0, note: "no_lead_types_configured" });
   }
+  const serviceCatalog: ServiceType[] = leadTypes.map((item) => ({
+    name: item.name,
+    estimatedValue: item.estimatedValue,
+  }));
 
   const rows = (conversations ?? []) as ConversationRow[];
   if (rows.length === 0) {
@@ -121,16 +132,34 @@ export async function POST() {
     }
   }
 
-  const updates = rows
+  const updates: Array<{ id: string; lead_type: string | null; estimated_value: number }> = rows
     .map((row) => {
       const latestMessage =
         latestInboundByConversation.get(row.id)?.text?.trim() ||
         latestAnyByConversation.get(row.id)?.text?.trim() ||
         "";
-      const classification = classifyLeadFromMessage(latestMessage, leadTypes);
+      const referenceTimestamp =
+        row.last_outbound_at ??
+        row.last_inbound_at ??
+        row.last_message_at ??
+        row.created_at;
+      const lastContactHoursAgo = Math.max(
+        0,
+        Math.round((Date.now() - new Date(referenceTimestamp).getTime()) / (1000 * 60 * 60)),
+      );
+      const triage = triageConversation(
+        {
+          customerName: "",
+          lastCustomerMessage: latestMessage,
+          conversationStatus: row.status === "active" ? "in_conversation" : row.status,
+          lastContactHoursAgo,
+          assignedUnit: row.unit,
+        },
+        serviceCatalog,
+      );
 
-      const nextLeadType = classification.leadType;
-      const nextEstimatedValue = classification.estimatedValue;
+      const nextLeadType = triage.leadType;
+      const nextEstimatedValue = triage.estimatedValue;
       const currentEstimatedValue = Number(row.estimated_value ?? 0);
 
       if ((row.lead_type ?? null) === nextLeadType && currentEstimatedValue === nextEstimatedValue) {
@@ -143,7 +172,7 @@ export async function POST() {
         estimated_value: nextEstimatedValue,
       };
     })
-    .filter((value): value is { id: string; lead_type: string | null; estimated_value: number } => Boolean(value));
+    .filter((value) => value !== null);
 
   for (const update of updates) {
     const { error } = await admin
