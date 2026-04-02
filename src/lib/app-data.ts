@@ -669,7 +669,7 @@ export async function getConversationTriagePreview(
         currentLeadType: conversation.leadType,
         currentEstimatedValue: conversation.estimatedValue,
         lastCustomerMessage: lastCustomerMessageText,
-        lastCustomerMessageAt: lastCustomerMessage?.createdAt ?? conversation.lastInboundAt,
+        lastCustomerMessageAt: lastCustomerMessage?.created_at ?? conversation.lastInboundAt,
         lastContactHoursAgo,
         triage,
       } satisfies ConversationTriagePreviewView;
