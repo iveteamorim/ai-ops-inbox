@@ -1,7 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { WhatsAppInboundMessage } from "@/lib/messaging/whatsapp";
 import type { InstagramInboundMessage } from "@/lib/messaging/instagram";
-import { classifyLeadFromMessage, getLeadTypesFromBusinessConfig } from "@/lib/revenue/classify";
+import { getLeadTypesFromBusinessConfig } from "@/lib/revenue/classify";
+import { triageConversation, type ServiceType } from "@/lib/triage/triage-conversation";
 
 type CompanyChannel = {
   company_id: string;
@@ -22,6 +23,12 @@ type ContactRow = {
 
 type ConversationRow = {
   id: string;
+  status: "new" | "active" | "won" | "lost" | "no_response";
+  unit: string | null;
+  last_message_at: string | null;
+  last_inbound_at: string | null;
+  last_outbound_at: string | null;
+  created_at: string;
 };
 
 type InboundMessageInput = {
@@ -58,7 +65,10 @@ async function persistInboundMessage(
     .eq("id", companyId)
     .maybeSingle<CompanyRow>();
   const leadTypes = getLeadTypesFromBusinessConfig(company?.config);
-  const classification = classifyLeadFromMessage(message.text, leadTypes);
+  const serviceCatalog: ServiceType[] = leadTypes.map((item) => ({
+    name: item.name,
+    estimatedValue: item.estimatedValue,
+  }));
 
   const { error: eventInsertError } = await supabase.from("webhook_events").insert({
     source: message.source,
@@ -107,7 +117,7 @@ async function persistInboundMessage(
   let conversationId: string;
   const { data: existingConversation } = await supabase
     .from("conversations")
-    .select("id")
+    .select("id, status, unit, last_message_at, last_inbound_at, last_outbound_at, created_at")
     .eq("company_id", companyId)
     .eq("contact_id", contactId)
     .eq("channel", message.channelType)
@@ -141,6 +151,39 @@ async function persistInboundMessage(
     conversationId = insertedConversation.id;
   }
 
+  const conversationForTriage = existingConversation ?? {
+    id: conversationId,
+    status: "new" as const,
+    unit: null,
+    last_message_at: null,
+    last_inbound_at: null,
+    last_outbound_at: null,
+    created_at: new Date().toISOString(),
+  };
+
+  const referenceTimestamp =
+    conversationForTriage.last_outbound_at ??
+    conversationForTriage.last_inbound_at ??
+    conversationForTriage.last_message_at ??
+    conversationForTriage.created_at;
+  const lastContactHoursAgo = Math.max(
+    0,
+    Math.round((Date.now() - new Date(referenceTimestamp).getTime()) / (1000 * 60 * 60)),
+  );
+  const triage = triageConversation(
+    {
+      customerName: message.contactName ?? "",
+      lastCustomerMessage: message.text,
+      conversationStatus:
+        conversationForTriage.status === "active"
+          ? "in_conversation"
+          : conversationForTriage.status,
+      lastContactHoursAgo,
+      assignedUnit: conversationForTriage.unit,
+    },
+    serviceCatalog,
+  );
+
   const { error: messageError } = await supabase.from("messages").insert({
     company_id: companyId,
     conversation_id: conversationId,
@@ -161,8 +204,8 @@ async function persistInboundMessage(
     .from("conversations")
     .update({
       status: "active",
-      lead_type: classification.leadType,
-      estimated_value: classification.estimatedValue,
+      lead_type: triage.leadType,
+      estimated_value: triage.estimatedValue,
       last_message_at: now,
       last_inbound_at: now,
     })
