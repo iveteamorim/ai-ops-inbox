@@ -92,7 +92,6 @@ export default async function InboxPage({
   const lostAmount = rows
     .filter((row) => row.status === "lost")
     .reduce((sum, row) => sum + row.estimatedValue, 0);
-  const topRow = visibleRows[0] ?? null;
   void team;
 
   return (
@@ -141,16 +140,6 @@ export default async function InboxPage({
                 </p>
               </div>
             ) : null}
-            {topRow ? (
-              <div className="demo-notice" style={{ marginBottom: 12 }}>
-                <p className="label" style={{ marginBottom: 6 }}>
-                  {lang === "es" ? "Responder primero" : lang === "pt" ? "Responder primeiro" : "Reply first"}
-                </p>
-                <p className="subtitle" style={{ margin: 0 }}>
-                  <strong>{topRow.contactName}</strong> · {format(topRow.estimatedValue)} · {formatStatus(topRow.status, t)}
-                </p>
-              </div>
-            ) : null}
             <form method="GET" className="actions" style={{ marginBottom: 12 }}>
               <select className="input row-select" name="unit" defaultValue={selectedUnit}>
                 <option value="">{t("inbox_all_units")}</option>
@@ -182,8 +171,15 @@ export default async function InboxPage({
             <tbody>
               {visibleRows.map((row) => {
                 const recoverable = Math.max(0, row.estimatedValue - row.expectedValue);
+                const isPriorityRow = visibleRows[0]?.id === row.id;
+                const rowClassName = [
+                  row.id === focusedConversationId ? "table-row-focus" : "",
+                  isPriorityRow ? "table-row-priority" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ");
                 return (
-                  <tr key={row.id} className={row.id === focusedConversationId ? "table-row-focus" : undefined}>
+                  <tr key={row.id} className={rowClassName || undefined}>
                     <td>
                       <Link href={`/conversation/${row.id}`}>{row.contactName}</Link>
                     </td>
@@ -204,7 +200,7 @@ export default async function InboxPage({
                     </td>
                     <td>
                       <div className="stack-actions">
-                        <Link className="mini-button" href={`/conversation/${row.id}`}>
+                        <Link className={isPriorityRow ? "button" : "mini-button"} href={`/conversation/${row.id}`}>
                           Abrir conversación
                         </Link>
                         <span className="note">
