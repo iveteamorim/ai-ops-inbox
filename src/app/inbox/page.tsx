@@ -28,6 +28,40 @@ function statusClass(status: string) {
   return "status-lost";
 }
 
+function priorityClass(priority: "high" | "medium" | "low") {
+  if (priority === "high") return "score-high";
+  if (priority === "medium") return "score-medium";
+  return "score-low";
+}
+
+function priorityLabel(lang: string, priority: "high" | "medium" | "low") {
+  if (lang === "es") {
+    if (priority === "high") return "Prioridad alta";
+    if (priority === "medium") return "Prioridad media";
+    return "Prioridad baja";
+  }
+  if (lang === "pt") {
+    if (priority === "high") return "Prioridade alta";
+    if (priority === "medium") return "Prioridade média";
+    return "Prioridade baixa";
+  }
+  if (priority === "high") return "High priority";
+  if (priority === "medium") return "Medium priority";
+  return "Low priority";
+}
+
+function conversationPriorityRank(row: {
+  status: "new" | "active" | "won" | "lost" | "no_response";
+  aiPriority: "high" | "medium" | "low";
+  estimatedValue: number;
+  lastMessageAt: string | null;
+}) {
+  const statusRank = row.status === "no_response" ? 4 : row.status === "new" ? 3 : row.status === "active" ? 2 : 1;
+  const aiRank = row.aiPriority === "high" ? 3 : row.aiPriority === "medium" ? 2 : 1;
+  const recencyRank = row.lastMessageAt ? new Date(row.lastMessageAt).getTime() : 0;
+  return [statusRank, aiRank, row.estimatedValue, recencyRank] as const;
+}
+
 export default async function InboxPage({
   searchParams,
 }: {
@@ -65,7 +99,14 @@ export default async function InboxPage({
   const selectedUnit = resolvedSearchParams?.unit?.trim() || "";
   const showDemoNotice = resolvedSearchParams?.demo?.trim() === "1";
   const focusedConversationId = resolvedSearchParams?.focus?.trim() || "";
-  const visibleRows = selectedUnit ? rows.filter((row) => row.unit === selectedUnit) : rows;
+  const visibleRows = (selectedUnit ? rows.filter((row) => row.unit === selectedUnit) : rows).sort((a, b) => {
+    const aRank = conversationPriorityRank(a);
+    const bRank = conversationPriorityRank(b);
+    if (aRank[0] !== bRank[0]) return bRank[0] - aRank[0];
+    if (aRank[1] !== bRank[1]) return bRank[1] - aRank[1];
+    if (aRank[2] !== bRank[2]) return bRank[2] - aRank[2];
+    return bRank[3] - aRank[3];
+  });
   const leadsAtRisk = rows.filter((row) => row.status === "new" || row.status === "no_response").length;
   const riskAmount = rows
     .filter((row) => row.status === "new" || row.status === "no_response")
@@ -152,9 +193,15 @@ export default async function InboxPage({
             <tbody>
               {visibleRows.map((row) => {
                 const recoverable = Math.max(0, row.estimatedValue - row.expectedValue);
+                const isPriorityLead = visibleRows[0]?.id === row.id;
                 return (
                   <tr key={row.id} className={row.id === focusedConversationId ? "table-row-focus" : undefined}>
                     <td>
+                      {isPriorityLead ? (
+                        <div className="label" style={{ marginBottom: 6, color: "#9de8bf" }}>
+                          {lang === "es" ? "Lead prioritario" : lang === "pt" ? "Lead prioritário" : "Priority lead"}
+                        </div>
+                      ) : null}
                       <Link href={`/conversation/${row.id}`}>{row.contactName}</Link>
                     </td>
                     <td>
@@ -167,6 +214,9 @@ export default async function InboxPage({
                       <span className={`badge ${statusClass(row.status)}`}>{formatStatus(row.status, t)}</span>
                     </td>
                     <td>
+                      <div style={{ marginBottom: 6 }}>
+                        <span className={`badge ${priorityClass(row.aiPriority)}`}>{priorityLabel(lang, row.aiPriority)}</span>
+                      </div>
                       {format(row.estimatedValue)} {t("inbox_value_potential")} | {format(row.status === "won" ? row.expectedValue : 0)} {t("inbox_value_recovered")}
                       <div className="label" style={{ marginTop: 4, marginBottom: 0, textTransform: "none" }}>
                         {row.leadType ?? t("inbox_unclassified")}
