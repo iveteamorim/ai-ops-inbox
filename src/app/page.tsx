@@ -39,10 +39,6 @@ export default function LandingPage() {
     [currency],
   );
 
-  const mockupRevenueAtRisk = useMemo(
-    () => (currency === "BRL" ? "R$ 10.500" : "€ 2.100"),
-    [currency],
-  );
   const decisionSignal = "8";
 
   return (
@@ -102,7 +98,7 @@ export default function LandingPage() {
               </div>
               <div className="mockup-side">
                 <p className="mockup-kpi-label">{t("landing_mockup_revenue_at_risk")}</p>
-                <p className="mockup-kpi">{mockupRevenueAtRisk}</p>
+                <p className="mockup-kpi">{t("landing_mockup_status_high")}</p>
                 <div className="mockup-bar">
                   <span />
                 </div>
