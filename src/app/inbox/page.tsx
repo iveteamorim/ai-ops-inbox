@@ -28,16 +28,15 @@ function statusClass(status: string) {
   return "status-lost";
 }
 
-function conversationPriorityRank(row: {
+function conversationPriorityScore(row: {
   status: "new" | "active" | "won" | "lost" | "no_response";
   aiPriority: "high" | "medium" | "low";
   estimatedValue: number;
-  lastMessageAt: string | null;
 }) {
-  const statusRank = row.status === "no_response" ? 4 : row.status === "new" ? 3 : row.status === "active" ? 2 : 1;
-  const aiRank = row.aiPriority === "high" ? 3 : row.aiPriority === "medium" ? 2 : 1;
-  const recencyRank = row.lastMessageAt ? new Date(row.lastMessageAt).getTime() : 0;
-  return [statusRank, aiRank, row.estimatedValue, recencyRank] as const;
+  const statusBonus =
+    row.status === "no_response" ? 20 : row.status === "new" ? 12 : row.status === "active" ? 6 : 0;
+  const aiBonus = row.aiPriority === "high" ? 18 : row.aiPriority === "medium" ? 8 : 0;
+  return row.estimatedValue + statusBonus + aiBonus;
 }
 
 export default async function InboxPage({
@@ -78,12 +77,11 @@ export default async function InboxPage({
   const showDemoNotice = resolvedSearchParams?.demo?.trim() === "1";
   const focusedConversationId = resolvedSearchParams?.focus?.trim() || "";
   const visibleRows = (selectedUnit ? rows.filter((row) => row.unit === selectedUnit) : rows).sort((a, b) => {
-    const aRank = conversationPriorityRank(a);
-    const bRank = conversationPriorityRank(b);
-    if (aRank[0] !== bRank[0]) return bRank[0] - aRank[0];
-    if (aRank[1] !== bRank[1]) return bRank[1] - aRank[1];
-    if (aRank[2] !== bRank[2]) return bRank[2] - aRank[2];
-    return bRank[3] - aRank[3];
+    const scoreDiff = conversationPriorityScore(b) - conversationPriorityScore(a);
+    if (scoreDiff !== 0) return scoreDiff;
+    const recencyA = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
+    const recencyB = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
+    return recencyB - recencyA;
   });
   const leadsAtRisk = rows.filter((row) => row.status === "new" || row.status === "no_response").length;
   const riskAmount = rows
