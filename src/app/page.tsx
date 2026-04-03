@@ -39,10 +39,11 @@ export default function LandingPage() {
     [currency],
   );
 
-  const revenueAtRisk = useMemo(
+  const mockupRevenueAtRisk = useMemo(
     () => (currency === "BRL" ? "R$ 10.500" : "€ 2.100"),
     [currency],
   );
+  const decisionSignal = "8";
 
   function changeCurrency(next: Currency) {
     setCurrency(next);
@@ -106,7 +107,7 @@ export default function LandingPage() {
               </div>
               <div className="mockup-side">
                 <p className="mockup-kpi-label">{t("landing_mockup_revenue_at_risk")}</p>
-                <p className="mockup-kpi">{revenueAtRisk}</p>
+                <p className="mockup-kpi">{mockupRevenueAtRisk}</p>
                 <div className="mockup-bar">
                   <span />
                 </div>
@@ -158,7 +159,7 @@ export default function LandingPage() {
         <article className="card">
           <p className="eyebrow">{t("landing_revenue_label")}</p>
           <h3 style={{ marginTop: 0 }}>{t("landing_revenue_title")}</h3>
-          <p className="metric metric-warn">{revenueAtRisk}</p>
+          <p className="metric metric-warn">{decisionSignal}</p>
           <p className="subtitle">{t("landing_money_risk")}</p>
         </article>
       </section>
