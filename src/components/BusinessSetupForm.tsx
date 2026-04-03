@@ -81,13 +81,23 @@ export function BusinessSetupForm({ initialValue, labels }: Props) {
         }),
       });
 
-      const payload = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+      const payload = (await response.json().catch(() => null)) as
+        | { ok?: boolean; error?: string; seeded?: number; focusConversationId?: string | null }
+        | null;
       if (!response.ok || !payload?.ok) {
         setError(payload?.error ?? labels.error);
         return;
       }
 
       setMessage(labels.success);
+      if ((payload.seeded ?? 0) > 0) {
+        router.push(
+          payload.focusConversationId
+            ? `/inbox?demo=1&focus=${encodeURIComponent(payload.focusConversationId)}`
+            : "/inbox?demo=1",
+        );
+        return;
+      }
       router.refresh();
     });
   }

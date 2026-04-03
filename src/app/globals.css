@@ -139,6 +139,14 @@ a {
   vertical-align: top;
 }
 
+.table-row-focus td {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.table-row-focus td:first-child {
+  box-shadow: inset 3px 0 0 var(--brand);
+}
+
 .badge {
   display: inline-block;
   padding: 4px 8px;
@@ -534,6 +542,13 @@ a {
   color: var(--muted);
   font-size: 0.92rem;
   line-height: 1.5;
+}
+
+.demo-notice {
+  border: 1px solid rgba(134, 239, 172, 0.35);
+  background: rgba(22, 163, 74, 0.12);
+  border-radius: 12px;
+  padding: 12px;
 }
 
 .onboarding-card {

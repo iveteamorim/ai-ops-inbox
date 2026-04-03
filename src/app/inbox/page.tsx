@@ -31,7 +31,7 @@ function statusClass(status: string) {
 export default async function InboxPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ unit?: string }>;
+  searchParams?: Promise<{ unit?: string; demo?: string; focus?: string }>;
 }) {
   const cookieStore = await cookies();
   const headerStore = await headers();
@@ -63,6 +63,8 @@ export default async function InboxPage({
   const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
   const unitOptions = Array.from(new Set(rows.map((row) => row.unit).filter((value): value is string => Boolean(value))));
   const selectedUnit = resolvedSearchParams?.unit?.trim() || "";
+  const showDemoNotice = resolvedSearchParams?.demo?.trim() === "1";
+  const focusedConversationId = resolvedSearchParams?.focus?.trim() || "";
   const visibleRows = selectedUnit ? rows.filter((row) => row.unit === selectedUnit) : rows;
   const leadsAtRisk = rows.filter((row) => row.status === "new" || row.status === "no_response").length;
   const riskAmount = rows
@@ -111,6 +113,14 @@ export default async function InboxPage({
           </div>
         ) : (
           <>
+            {showDemoNotice ? (
+              <div className="demo-notice" style={{ marginBottom: 12 }}>
+                <p className="label" style={{ marginBottom: 6 }}>Demo lista</p>
+                <p className="subtitle" style={{ margin: 0 }}>
+                  Hemos creado conversaciones de ejemplo para que veas prioridad, valor y acción desde el primer minuto.
+                </p>
+              </div>
+            ) : null}
             <form method="GET" className="actions" style={{ marginBottom: 12 }}>
               <select className="input row-select" name="unit" defaultValue={selectedUnit}>
                 <option value="">{t("inbox_all_units")}</option>
@@ -143,7 +153,7 @@ export default async function InboxPage({
               {visibleRows.map((row) => {
                 const recoverable = Math.max(0, row.estimatedValue - row.expectedValue);
                 return (
-                  <tr key={row.id}>
+                  <tr key={row.id} className={row.id === focusedConversationId ? "table-row-focus" : undefined}>
                     <td>
                       <Link href={`/conversation/${row.id}`}>{row.contactName}</Link>
                     </td>

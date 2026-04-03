@@ -82,6 +82,8 @@ async function seedDemoConversations(params: {
 }) {
   const { companyId, serviceCatalog, admin } = params;
   const seeds = buildDemoConversationSeeds(serviceCatalog);
+  let focusConversationId: string | null = null;
+  let focusRank = -1;
 
   for (const seed of seeds) {
     const inboundAt = new Date(Date.now() - seed.hoursAgo * 60 * 60 * 1000).toISOString();
@@ -145,6 +147,15 @@ async function seedDemoConversations(params: {
       );
     }
 
+    const priorityRank =
+      triage.priority === "high" ? 3 : triage.priority === "medium" ? 2 : 1;
+    const statusRank = seed.status === "no_response" ? 1 : 0;
+    const rank = priorityRank * 10 + statusRank;
+    if (rank > focusRank) {
+      focusRank = rank;
+      focusConversationId = conversation.id;
+    }
+
     const messageRows: DemoMessageInsert[] = [
       {
         company_id: companyId,
@@ -177,7 +188,7 @@ async function seedDemoConversations(params: {
     }
   }
 
-  return seeds.length;
+  return { seeded: seeds.length, focusConversationId };
 }
 
 export async function POST(request: Request) {
@@ -283,6 +294,7 @@ export async function POST(request: Request) {
     estimatedValue: item.estimated_value,
   }));
   let seeded = 0;
+  let focusConversationId: string | null = null;
 
   if (serviceCatalog.length > 0) {
     const { count, error: conversationsCountError } = await admin
@@ -296,11 +308,13 @@ export async function POST(request: Request) {
 
     if ((count ?? 0) === 0) {
       try {
-        seeded = await seedDemoConversations({
+        const seedResult = await seedDemoConversations({
           companyId: company.id,
           serviceCatalog,
           admin,
         });
+        seeded = seedResult.seeded;
+        focusConversationId = seedResult.focusConversationId;
       } catch (seedError) {
         return NextResponse.json(
           {
@@ -313,5 +327,5 @@ export async function POST(request: Request) {
     }
   }
 
-  return NextResponse.json({ ok: true, seeded });
+  return NextResponse.json({ ok: true, seeded, focusConversationId });
 }
