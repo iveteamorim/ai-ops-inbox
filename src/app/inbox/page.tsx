@@ -28,28 +28,6 @@ function statusClass(status: string) {
   return "status-lost";
 }
 
-function priorityClass(priority: "high" | "medium" | "low") {
-  if (priority === "high") return "score-high";
-  if (priority === "medium") return "score-medium";
-  return "score-low";
-}
-
-function priorityLabel(lang: string, priority: "high" | "medium" | "low") {
-  if (lang === "es") {
-    if (priority === "high") return "Prioridad alta";
-    if (priority === "medium") return "Prioridad media";
-    return "Prioridad baja";
-  }
-  if (lang === "pt") {
-    if (priority === "high") return "Prioridade alta";
-    if (priority === "medium") return "Prioridade média";
-    return "Prioridade baixa";
-  }
-  if (priority === "high") return "High priority";
-  if (priority === "medium") return "Medium priority";
-  return "Low priority";
-}
-
 function conversationPriorityRank(row: {
   status: "new" | "active" | "won" | "lost" | "no_response";
   aiPriority: "high" | "medium" | "low";
@@ -114,6 +92,7 @@ export default async function InboxPage({
   const lostAmount = rows
     .filter((row) => row.status === "lost")
     .reduce((sum, row) => sum + row.estimatedValue, 0);
+  const topRow = visibleRows[0] ?? null;
   void team;
 
   return (
@@ -162,6 +141,16 @@ export default async function InboxPage({
                 </p>
               </div>
             ) : null}
+            {topRow ? (
+              <div className="demo-notice" style={{ marginBottom: 12 }}>
+                <p className="label" style={{ marginBottom: 6 }}>
+                  {lang === "es" ? "Responder primero" : lang === "pt" ? "Responder primeiro" : "Reply first"}
+                </p>
+                <p className="subtitle" style={{ margin: 0 }}>
+                  <strong>{topRow.contactName}</strong> · {format(topRow.estimatedValue)} · {formatStatus(topRow.status, t)}
+                </p>
+              </div>
+            ) : null}
             <form method="GET" className="actions" style={{ marginBottom: 12 }}>
               <select className="input row-select" name="unit" defaultValue={selectedUnit}>
                 <option value="">{t("inbox_all_units")}</option>
@@ -193,15 +182,9 @@ export default async function InboxPage({
             <tbody>
               {visibleRows.map((row) => {
                 const recoverable = Math.max(0, row.estimatedValue - row.expectedValue);
-                const isPriorityLead = visibleRows[0]?.id === row.id;
                 return (
                   <tr key={row.id} className={row.id === focusedConversationId ? "table-row-focus" : undefined}>
                     <td>
-                      {isPriorityLead ? (
-                        <div className="label" style={{ marginBottom: 6, color: "#9de8bf" }}>
-                          {lang === "es" ? "Lead prioritario" : lang === "pt" ? "Lead prioritário" : "Priority lead"}
-                        </div>
-                      ) : null}
                       <Link href={`/conversation/${row.id}`}>{row.contactName}</Link>
                     </td>
                     <td>
@@ -214,9 +197,6 @@ export default async function InboxPage({
                       <span className={`badge ${statusClass(row.status)}`}>{formatStatus(row.status, t)}</span>
                     </td>
                     <td>
-                      <div style={{ marginBottom: 6 }}>
-                        <span className={`badge ${priorityClass(row.aiPriority)}`}>{priorityLabel(lang, row.aiPriority)}</span>
-                      </div>
                       {format(row.estimatedValue)} {t("inbox_value_potential")} | {format(row.status === "won" ? row.expectedValue : 0)} {t("inbox_value_recovered")}
                       <div className="label" style={{ marginTop: 4, marginBottom: 0, textTransform: "none" }}>
                         {row.leadType ?? t("inbox_unclassified")}
