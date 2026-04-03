@@ -45,11 +45,6 @@ export default function LandingPage() {
   );
   const decisionSignal = "8";
 
-  function changeCurrency(next: Currency) {
-    setCurrency(next);
-    window.localStorage.setItem("pricing_currency", next);
-  }
-
   return (
     <section className="landing page">
       <MarketingNav showHome={false} showSections={false} showLocale={false} />
@@ -175,32 +170,7 @@ export default function LandingPage() {
               <p className="warn" style={{ margin: 0 }}>{t("pricing_pain_title")}</p>
               <p className="subtitle" style={{ marginTop: 6 }}>{t("pricing_pain_text")}</p>
             </article>
-            <p className="label" style={{ marginTop: 8 }}>
-              {t("pricing_selected_prefix")}{" "}
-              {currency === "BRL" ? t("pricing_currency_brl") : t("pricing_currency_eur")}
-            </p>
           </div>
-          <details className="prefs-menu">
-            <summary className="mini-button">{t("pricing_currency")}</summary>
-            <div className="prefs-panel">
-              <div className="filter-row">
-                <button
-                  type="button"
-                  className={`mini-button ${currency === "BRL" ? "is-active" : ""}`}
-                  onClick={() => changeCurrency("BRL")}
-                >
-                  {t("pricing_currency_brl")}
-                </button>
-                <button
-                  type="button"
-                  className={`mini-button ${currency === "EUR" ? "is-active" : ""}`}
-                  onClick={() => changeCurrency("EUR")}
-                >
-                  {t("pricing_currency_eur")}
-                </button>
-              </div>
-            </div>
-          </details>
         </div>
 
         <div className="grid cols-3">
