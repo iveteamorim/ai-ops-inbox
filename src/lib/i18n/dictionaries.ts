@@ -207,6 +207,10 @@ export const dictionary = {
     revenue_risk_queue_subtitle: "Conversaciones abiertas con dinero en juego que requieren respuesta.",
     revenue_risk_queue_empty_title: "Todo al día",
     revenue_risk_queue_empty_text: "No hay conversaciones pendientes de respuesta.",
+    revenue_conversation_singular: "conversación",
+    revenue_conversation_plural: "conversaciones",
+    revenue_more_types_label: "Más tipos",
+    revenue_more_types_subtitle: "agrupados fuera del top 6",
 
     settings_title: "Configuración",
     settings_subtitle: "Revisa conexión de WhatsApp y estado operativo.",
@@ -494,6 +498,10 @@ export const dictionary = {
     revenue_risk_queue_subtitle: "Conversas abertas com dinheiro em jogo que exigem resposta.",
     revenue_risk_queue_empty_title: "Tudo em dia",
     revenue_risk_queue_empty_text: "Não há conversas pendentes de resposta.",
+    revenue_conversation_singular: "conversa",
+    revenue_conversation_plural: "conversas",
+    revenue_more_types_label: "Mais tipos",
+    revenue_more_types_subtitle: "agrupados fora do top 6",
 
     settings_title: "Configurações",
     settings_subtitle: "Revise a conexão do WhatsApp e o estado operacional.",
@@ -779,6 +787,10 @@ export const dictionary = {
     revenue_risk_queue_subtitle: "Open conversations with money at stake that require a response.",
     revenue_risk_queue_empty_title: "All caught up",
     revenue_risk_queue_empty_text: "There are no unanswered conversations right now.",
+    revenue_conversation_singular: "conversation",
+    revenue_conversation_plural: "conversations",
+    revenue_more_types_label: "More types",
+    revenue_more_types_subtitle: "grouped outside the top 6",
 
     settings_title: "Settings",
     settings_subtitle: "Review WhatsApp connection and operating status.",

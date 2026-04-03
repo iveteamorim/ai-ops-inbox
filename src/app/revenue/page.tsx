@@ -79,6 +79,8 @@ export default async function RevenuePage() {
       return map;
     }, new Map<string, { leadType: string; count: number; estimatedValue: number }>()).values(),
   ).sort((a, b) => b.estimatedValue - a.estimatedValue);
+  const topLeadTypes = byLeadType.slice(0, 6);
+  const hiddenLeadTypesCount = Math.max(0, byLeadType.length - topLeadTypes.length);
 
   return (
     <section className="page">
@@ -157,13 +159,22 @@ export default async function RevenuePage() {
         <article className="card" style={{ marginTop: 12 }}>
           <p className="label" style={{ marginBottom: 12 }}>{t("dashboard_lead")}</p>
           <div className="grid cols-3">
-            {byLeadType.map((item) => (
+            {topLeadTypes.map((item) => (
               <div key={item.leadType} className="card" style={{ padding: 16 }}>
                 <p className="label" style={{ marginBottom: 6 }}>{item.leadType}</p>
                 <p className="kpi" style={{ marginBottom: 6 }}>{format(item.estimatedValue)}</p>
-                <p className="subtitle" style={{ margin: 0 }}>{item.count} conversations</p>
+                <p className="subtitle" style={{ margin: 0 }}>
+                  {item.count} {item.count === 1 ? t("revenue_conversation_singular") : t("revenue_conversation_plural")}
+                </p>
               </div>
             ))}
+            {hiddenLeadTypesCount > 0 ? (
+              <div className="card" style={{ padding: 16 }}>
+                <p className="label" style={{ marginBottom: 6 }}>{t("revenue_more_types_label")}</p>
+                <p className="kpi" style={{ marginBottom: 6 }}>+{hiddenLeadTypesCount}</p>
+                <p className="subtitle" style={{ margin: 0 }}>{t("revenue_more_types_subtitle")}</p>
+              </div>
+            ) : null}
           </div>
         </article>
       ) : null}
