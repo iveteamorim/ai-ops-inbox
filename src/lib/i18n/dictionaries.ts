@@ -22,9 +22,9 @@ export const dictionary = {
     tour_finish: "Finalizar",
 
     landing_badge: "Conversational Revenue OS",
-    landing_title: "Prioriza los leads que realmente importan",
+    landing_title: "Convierte conversaciones en decisiones comerciales",
     landing_subtitle:
-      "Centraliza tus conversaciones y detecta qué clientes tienen mayor potencial para que tu equipo responda primero donde importa.",
+      "Detecta qué conversaciones tienen mayor impacto, cuáles están en riesgo y qué hacer en cada una.",
     landing_overview: "Vista general (demo conceptual)",
     landing_messages: "Mensajes centralizados",
     landing_multi: "WhatsApp-first",
@@ -310,9 +310,9 @@ export const dictionary = {
     tour_finish: "Finalizar",
 
     landing_badge: "Conversational Revenue OS",
-    landing_title: "Priorize os leads que realmente importam",
+    landing_title: "Transforme conversas em decisões comerciais",
     landing_subtitle:
-      "Centralize suas conversas e identifique quais clientes têm maior potencial para que sua equipe responda primeiro onde importa.",
+      "Identifique quais conversas têm maior impacto, quais estão em risco e o que fazer em cada uma.",
     landing_overview: "Visão geral (demo conceitual)",
     landing_messages: "Mensagens centralizadas",
     landing_multi: "WhatsApp-first",
@@ -597,9 +597,9 @@ export const dictionary = {
     tour_finish: "Finish",
 
     landing_badge: "Conversational Revenue OS",
-    landing_title: "Prioritize the leads that actually matter",
+    landing_title: "Turn conversations into commercial decisions",
     landing_subtitle:
-      "Centralize your conversations and identify which customers have the highest potential so your team responds first where it matters.",
+      "Identify which conversations have the highest impact, which are at risk, and what to do in each one.",
     landing_overview: "Overview (concept demo)",
     landing_messages: "Centralized messages",
     landing_multi: "WhatsApp-first",
