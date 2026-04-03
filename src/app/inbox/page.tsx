@@ -168,7 +168,11 @@ export default async function InboxPage({
             </thead>
             <tbody>
               {visibleRows.map((row) => {
-                const recoverable = Math.max(0, row.estimatedValue - row.expectedValue);
+                const recoveredAmount = row.status === "won" ? row.expectedValue : 0;
+                const recoverable =
+                  row.status === "won" || row.status === "lost"
+                    ? 0
+                    : Math.max(0, row.estimatedValue - row.expectedValue);
                 const isPriorityRow = visibleRows[0]?.id === row.id;
                 const rowClassName = [
                   row.id === focusedConversationId ? "table-row-focus" : "",
@@ -191,7 +195,7 @@ export default async function InboxPage({
                       <span className={`badge ${statusClass(row.status)}`}>{formatStatus(row.status, t)}</span>
                     </td>
                     <td>
-                      {format(row.estimatedValue)} {t("inbox_value_potential")} | {format(row.status === "won" ? row.expectedValue : 0)} {t("inbox_value_recovered")}
+                      {format(row.estimatedValue)} {t("inbox_value_potential")} | {format(recoveredAmount)} {t("inbox_value_recovered")}
                       <div className="label" style={{ marginTop: 4, marginBottom: 0, textTransform: "none" }}>
                         {row.leadType ?? t("inbox_unclassified")}
                       </div>
@@ -201,9 +205,15 @@ export default async function InboxPage({
                         <Link className={isPriorityRow ? "mini-button is-active" : "mini-button"} href={`/conversation/${row.id}`}>
                           Abrir conversación
                         </Link>
-                        <span className="note">
-                          {t("inbox_recover_prefix")} {format(recoverable)}
-                        </span>
+                        {row.status === "won" ? (
+                          <span className="note">
+                            {t("conversation_recovered")}: {format(recoveredAmount)}
+                          </span>
+                        ) : row.status === "lost" ? null : (
+                          <span className="note">
+                            {t("inbox_recover_prefix")} {format(recoverable)}
+                          </span>
+                        )}
                       </div>
                     </td>
                   </tr>
