@@ -200,7 +200,7 @@ export default async function InboxPage({
                     </td>
                     <td>
                       <div className="stack-actions">
-                        <Link className={isPriorityRow ? "button" : "mini-button"} href={`/conversation/${row.id}`}>
+                        <Link className={isPriorityRow ? "mini-button is-active" : "mini-button"} href={`/conversation/${row.id}`}>
                           Abrir conversación
                         </Link>
                         <span className="note">
