@@ -203,7 +203,7 @@ export default async function InboxPage({
                       <span className={`badge ${statusClass(row.status)}`}>{formatStatus(row.status, t)}</span>
                     </td>
                     <td>
-                      {valueLabel}
+                      <span style={row.status === "won" ? { whiteSpace: "nowrap" } : undefined}>{valueLabel}</span>
                       <div className="label" style={{ marginTop: 4, marginBottom: 0, textTransform: "none" }}>
                         {row.leadType ?? t("inbox_unclassified")}
                       </div>
