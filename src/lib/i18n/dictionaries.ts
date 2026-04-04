@@ -194,7 +194,7 @@ export const dictionary = {
     revenue_filter_all: "Todos",
     revenue_filter_risk: "En riesgo",
     revenue_filter_lost: "Perdidos",
-    revenue_filter_won: "Ganados",
+    revenue_filter_won: "Ganado",
     revenue_empty_title: "No hay oportunidades para este filtro",
     revenue_empty_text:
       "Prueba con \"Todos\" o \"En riesgo\" para revisar el pipeline comercial.",
@@ -486,7 +486,7 @@ export const dictionary = {
     revenue_filter_all: "Todos",
     revenue_filter_risk: "Em risco",
     revenue_filter_lost: "Perdidos",
-    revenue_filter_won: "Ganhos",
+    revenue_filter_won: "Ganho",
     revenue_empty_title: "Não há oportunidades para este filtro",
     revenue_empty_text:
       "Tente \"Todos\" ou \"Em risco\" para revisar o pipeline.",

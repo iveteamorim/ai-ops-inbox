@@ -6,7 +6,7 @@ type DemoContactSeed = {
   phone: string;
   message: string;
   hoursAgo: number;
-  status: "new" | "active" | "no_response";
+  status: "new" | "active" | "no_response" | "won" | "lost";
   replyOffsetHours?: number;
 };
 
@@ -26,6 +26,7 @@ export const DEMO_SEED_PHONES = [
   "+34600000011",
   "+34600000012",
   "+34600000013",
+  "+34600000014",
 ] as const;
 
 export function buildDemoConversationSeeds(serviceCatalog: ServiceType[]): DemoContactSeed[] {
@@ -42,11 +43,12 @@ export function buildDemoConversationSeeds(serviceCatalog: ServiceType[]): DemoC
       status: "new",
     },
     {
-      name: "Lucia Demo",
+      name: "Carlos Ejemplo",
       phone: "+34600000011",
-      message: `Hola, quiero reservar ${primary.toLowerCase()} esta semana. ¿Tenéis disponibilidad?`,
-      hoursAgo: 12,
+      message: `Hola, me interesa ${tertiary.toLowerCase()}. ¿Podéis darme más información?`,
+      hoursAgo: 4,
       status: "active",
+      replyOffsetHours: 1,
     },
     {
       name: "Marina Test",
@@ -54,14 +56,22 @@ export function buildDemoConversationSeeds(serviceCatalog: ServiceType[]): DemoC
       message: `Hola, quería saber el precio de ${secondary.toLowerCase()}.`,
       hoursAgo: 18,
       status: "no_response",
-      replyOffsetHours: 12,
     },
     {
-      name: "Carlos Ejemplo",
+      name: "Lucia Demo",
       phone: "+34600000013",
-      message: `Hola, me interesa ${tertiary.toLowerCase()}. ¿Podéis darme más información?`,
-      hoursAgo: 4,
-      status: "active",
+      message: `Hola, quiero reservar ${primary.toLowerCase()} esta semana. ¿Tenéis disponibilidad?`,
+      hoursAgo: 12,
+      status: "won",
+      replyOffsetHours: 10,
+    },
+    {
+      name: "Diego Perdido",
+      phone: "+34600000014",
+      message: `Hola, quería reservar ${secondary.toLowerCase()} esta semana.`,
+      hoursAgo: 24,
+      status: "lost",
+      replyOffsetHours: 18,
     },
   ];
 }
@@ -96,7 +106,9 @@ export async function seedDemoConversations(params: {
             ? "in_conversation"
             : seed.status === "new"
               ? "new"
-              : "no_response",
+              : seed.status === "no_response"
+                ? "no_response"
+                : seed.status,
         lastContactHoursAgo,
         assignedUnit: null,
       },
@@ -126,7 +138,7 @@ export async function seedDemoConversations(params: {
         status: seed.status,
         lead_type: triage.leadType,
         estimated_value: triage.estimatedValue,
-        expected_value: triage.estimatedValue,
+        expected_value: seed.status === "won" ? triage.estimatedValue : 0,
         ai_priority: triage.priority,
         last_message_at: lastTouchAt,
         last_inbound_at: inboundAt,
@@ -144,7 +156,14 @@ export async function seedDemoConversations(params: {
     }
 
     const priorityRank = triage.priority === "high" ? 3 : triage.priority === "medium" ? 2 : 1;
-    const statusRank = seed.status === "no_response" ? 2 : seed.status === "new" ? 1 : 0;
+    const statusRank =
+      seed.status === "no_response"
+        ? 3
+        : seed.status === "new"
+          ? 2
+          : seed.status === "active"
+            ? 1
+            : 0;
     const rank = priorityRank * 10 + statusRank;
     if (rank > focusRank) {
       focusRank = rank;
