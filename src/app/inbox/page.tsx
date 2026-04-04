@@ -176,7 +176,7 @@ export default async function InboxPage({
                     ? 0
                     : Math.max(0, row.estimatedValue - row.expectedValue);
                 const valueLabel =
-                  row.status === "new"
+                  row.status === "new" || row.status === "active" || row.status === "no_response"
                     ? `${format(row.estimatedValue)} ${t("inbox_value_potential")}`
                     : `${format(row.estimatedValue)} ${t("inbox_value_potential")} | ${format(recoveredAmount)} ${t("inbox_value_recovered")}`;
                 const isPriorityRow = visibleRows[0]?.id === row.id;
