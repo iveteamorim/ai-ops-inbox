@@ -1,212 +1,314 @@
-# Novua Inbox — Recover Lost Revenue with AI
+# Novua Inbox
 
-Most businesses do not lose deals because of lack of demand.  
-They lose them because leads are not handled fast or consistently enough.
+**AI decision system for inbound conversations.**
+
+Novua Inbox helps businesses improve response speed, prioritization, and follow-up consistency to avoid losing revenue from inbound leads.
+
+---
 
 ## Live Links
 
-- Live Demo: https://ai-ops-inbox-one.vercel.app
-- GitHub: https://github.com/iveteamorim/ai-ops-inbox
-- Architecture: https://github.com/iveteamorim/ai-ops-inbox/blob/main/docs/architecture.svg
+* Live Demo: https://ai-ops-inbox-one.vercel.app
+* GitHub: https://github.com/iveteamorim/ai-ops-inbox
 
-## Problem
+---
 
-Businesses lose revenue when WhatsApp leads are not answered fast enough, follow-ups are missed, and the team has no clear view of revenue at risk.
+## Overview
 
-This creates:
+Many businesses don't lose deals due to lack of demand — they lose them due to slow replies, missed follow-ups, and poor lead prioritization.
 
-- lost deals from delayed response
-- poor follow-up on warm leads
-- missed high-value opportunities
-- limited visibility into revenue at risk
+Novua Inbox introduces an AI-assisted operational layer on top of inbound conversations, helping teams:
 
-## Solution
+* Identify high-value leads
+* Prioritize conversations effectively
+* Maintain consistent follow-ups
+* Surface revenue at risk in real time
 
-Novua Inbox is a WhatsApp-first operations inbox with AI-assisted lead prioritization, response support, and revenue-aware follow-up workflows.
+---
 
-## How it Works
+## Who is this for
 
-1. A lead enters through WhatsApp
-2. AI classifies urgency and intent
-3. High-value leads are prioritized
-4. Suggested replies are generated
-5. Follow-up actions can be triggered based on inactivity
+Teams handling inbound leads through messaging channels (e.g. WhatsApp) who need to:
 
-All activity is translated into operational and revenue impact.
+* Respond faster without increasing headcount
+* Prioritize high-value conversations
+* Avoid losing revenue due to delayed replies
 
-## Business Impact
+---
 
-- reduce response time by 60-80%
-- recover revenue from missed or delayed lead handling
-- automate follow-up on conversations with buying intent
-- improve visibility into pipeline and revenue at risk
+## Demo
 
-## Revenue Layer
+Live Demo: https://ai-ops-inbox-one.vercel.app
+Email: [demo@novua.com](mailto:demo@novua.com)
+Password: Demo654321!
 
-Novua Inbox is built around commercial impact, not just message management.
+---
 
-It highlights:
+## How It Works
 
-- high-value conversations
-- at-risk revenue
-- response urgency
-- follow-up opportunities
-- recovered vs potential value
+1. **Message ingestion**
+   Incoming conversations are captured (WhatsApp-first design).
 
-## Why Novua Inbox
+2. **Classification**
+   AI-assisted intent detection categorizes the lead.
 
-Unlike traditional CRMs or generic chat tools, Novua Inbox is built around revenue impact:
+3. **Lead scoring**
+   Each conversation is scored based on intent, response delay, and conversation state.
 
-- not just messages, but money at risk
-- not just replies, but conversion outcomes
-- not just automation, but recovery workflows
+4. **Inbox prioritization**
+   Conversations are ranked to highlight high-value and at-risk leads.
+
+5. **Follow-up system**
+   Unanswered leads trigger follow-up actions.
+
+6. **Revenue visibility**
+   Estimated value is assigned to conversations to highlight potential loss.
+
+---
 
 ## Architecture
 
-- Next.js (App Router + API routes)
-- Supabase (PostgreSQL, Auth, Row-Level Security)
-- OpenAI (classification, scoring, response generation)
+![Architecture](./docs/architecture.svg)
 
-Core flows:
+### Stack
 
-- message ingestion -> classification -> lead scoring
-- priority queue generation based on business value
-- inactivity-based follow-up triggers
-- revenue estimation per conversation
+* **Frontend / Backend:** Next.js (App Router + API routes)
+* **Database & Auth:** Supabase (PostgreSQL + Row-Level Security)
+* **AI Layer:** OpenAI (classification, prioritization signals, suggestions)
+* **Deployment:** Vercel
 
-![Architecture](docs/architecture.svg)
+---
 
-## AI Layer
+## Technical Decisions
 
-- lead scoring (high / medium / low intent)
-- context-aware reply suggestions
-- revenue-at-risk estimation per conversation
-- follow-up trigger detection based on inactivity
+This system is designed as an AI-assisted operational layer, not a full CRM.
 
-Goal:
+* **Next.js App Router**
+  Enables co-located UI and backend logic, allowing fast iteration and simplified API handling for message processing and scoring.
 
-Turn raw conversations into prioritized revenue actions.
+* **Supabase (PostgreSQL + Auth)**
+  Provides multi-tenant support and authentication out of the box, reducing backend complexity in early stages.
 
-## Technical Highlights
+* **Deterministic vs AI-assisted logic**
+  Core system behavior (conversation state, follow-ups, revenue tracking) is deterministic.
+  AI is used for classification, prioritization signals, and response suggestions.
 
-- Multi-tenant access boundaries and company-scoped message flows
-- Signed webhook validation for WhatsApp ingestion
-- Hardened auth/session flows: invite acceptance, password reset, and protected middleware guards
-- Real setup request workflow and internal setup operations view
-- Team management: invite, pending invites, cancel/resend, safe user removal
-- Inbox operations: assignment, status updates, and role-based permissions
-- Type-safe Next.js + Supabase implementation with linted CI-friendly structure
+* **Lead scoring strategy**
+  Does not rely purely on LLM output.
+  Combines heuristics (intent type, response delay, conversation state) with AI signals to reduce volatility and hallucination risk.
 
-## Core Stack
+---
 
-- Frontend: Next.js (App Router)
-- Backend: Next.js Route Handlers / API routes
-- Database: Supabase (Postgres)
-- AI: OpenAI API
-- Integrations: WhatsApp Cloud API (current focus), future expansion prepared for additional channels
+## System Boundaries
 
-## Project Structure
+This system focuses on:
 
-- `src/app` - pages, routes, and API handlers
-- `src/components` - UI and i18n components
-- `src/lib` - auth, i18n, Supabase, messaging, utilities
-- `public` - static assets and screenshots
-- `db` - schema and SQL assets
-- `docs-messaging.md` - webhook and message flow notes
+* Inbound conversation handling
+* Lead prioritization and follow-up
+* Revenue visibility at conversation level
 
-## Current Status
+It does not attempt to solve:
 
-- Landing and pricing aligned to the current WhatsApp-first product
-- Inbox, conversation, dashboard, revenue, settings, and internal setup views implemented
-- i18n support (ES/PT/EN)
-- Currency detection with regional behavior (EUR/BRL) and manual override
-- Real setup request workflow for concierge onboarding
-- Team management with invite, accept-invite, password setup, pending invites, and seat limits by plan
-- Role-based inbox actions: only owners/admins can reassign conversations
-- WhatsApp webhook and message persistence scaffolding included
+* Full customer lifecycle management
+* Marketing automation
+* Long-term CRM workflows
 
-## WhatsApp Demo Checklist
+---
 
-Use this sequence to reproduce the current WhatsApp demo setup:
+## Trade-offs
 
-1. Create a Meta app and add the WhatsApp use case
-2. In Meta WhatsApp setup, get:
-   - `Phone number ID`
-   - `WhatsApp Business Account ID`
-3. In Vercel, set:
-   - `WHATSAPP_VERIFY_TOKEN`
-   - `WHATSAPP_APP_SECRET`
-4. Configure the webhook callback in Meta:
-   - `https://ai-ops-inbox-one.vercel.app/api/webhooks/whatsapp`
-5. Subscribe the webhook field:
-   - `messages`
-6. In Supabase, create the company channel with the real `Phone number ID`
-7. Authorize a recipient number in Meta test setup
-8. Send the test outbound message from Meta
-9. Reply from the authorized phone in WhatsApp
-10. Confirm the inbound conversation appears in Novua Inbox
+* **Demo-first architecture vs production hardening**
+  Prioritized clarity and speed of iteration over full reliability.
+  Some flows (e.g. ingestion, retries) are simplified.
 
-Notes:
+* **Heuristic revenue estimation vs real attribution**
+  Uses predefined lead values instead of measured conversion data.
+  Enables immediate visibility but lacks precision.
 
-- The Meta `Test` button for webhook payloads may use a fake `external_account_id` such as `123456123`; that is only useful to validate the endpoint, not the real channel mapping.
-- Remove any fake test mapping after debugging so only the real `Phone number ID` remains in `public.channels`.
+* **Inbox-first workflow vs full CRM scope**
+  Focuses on response speed and prioritization rather than full customer lifecycle management.
+
+* **Single-channel (WhatsApp-first) vs multi-channel abstraction**
+  Validates workflow on one channel before expanding.
+
+---
+
+## Expected Impact
+
+This system is designed to:
+
+* Improve response time on inbound leads
+* Increase visibility of high-value conversations
+* Reduce missed follow-ups
+* Surface revenue at risk in real time
+
+> Note: Impact is based on system design and expected behavior, not measured production data.
+
+---
+
+## Production Readiness
+
+This system is currently designed as a functional demo with a clear path to production.
+
+### Current capabilities
+
+* Multi-workspace structure
+* Basic role-based access
+* WhatsApp webhook scaffolding
+* Deterministic conversation state handling
+* Demo reseed flow for onboarding and product walkthroughs
+
+### Current limitations
+
+* AI layer not provider-isolated
+* No retry logic for webhook failures
+* Limited observability and logging
+* Revenue estimation not tied to real conversions
+
+### Next steps
+
+* Provider-agnostic AI layer
+* Retry + queue system for ingestion
+* Audit trail for decisions and actions
+* Integration with real conversion data
+
+---
+
+## Failure Modes & Engineering Risks
+
+While the system is designed for clarity and speed of iteration, several failure modes are expected when moving toward production:
+
+* **Duplicate message ingestion**
+  Messaging platforms may retry events, leading to duplicated processing.
+
+* **LLM misclassification**
+  Incorrect intent detection may affect prioritization and lead scoring.
+
+* **Latency in scoring pipeline**
+  AI-assisted classification introduces delays in real-time ranking.
+
+* **Revenue estimation bias**
+  Heuristic value assignment may distort prioritization without real data.
+
+* **Multi-tenant isolation risks**
+  Misconfigured queries or policies may expose cross-tenant data.
+
+---
+
+## Mitigation Strategy (Planned)
+
+* Idempotent message processing
+* Confidence thresholds + fallback rules
+* Async processing pipeline
+* Manual override mechanisms
+* Strict tenant isolation (RLS)
+* Observability layer (logging + metrics)
+
+---
+
+## Example: End-to-End Flow (High-Value Lead)
+
+**Step 1 — Message received**
+"Hi, I’d like information about your premium treatment package."
+
+**Step 2 — Classification**
+Intent: high-value inquiry
+Category: premium service
+
+**Step 3 — Scoring**
+Based on intent, freshness, and response delay → **High priority**
+
+**Step 4 — Inbox prioritization**
+Conversation surfaces at the top of the queue
+
+**Step 5 — Follow-up**
+If no response → flagged as "at risk"
+
+**Step 6 — Revenue visibility**
+Assigned estimated high ticket value
+
+---
+
+## Operational Model
+
+1. Conversations enter inbox
+2. System highlights priority
+3. Team responds
+4. Follow-ups triggered
+5. Revenue visibility updated
+
+Focus: **speed + consistency over complexity**
+
+---
+
+## Design Principles
+
+* AI assists, not replaces decisions
+* Speed over completeness
+* Clarity over abstraction
+* Single-problem focus
+
+---
+
+## Positioning
+
+Novua Inbox is not a CRM.
+
+It is an **AI decision system for inbound conversations**, designed to improve response operations and recover revenue from existing demand.
+
+The goal is not to manage customers —
+but to ensure no valuable conversation is lost due to slow or inconsistent handling.
+
+---
 
 ## Screenshots
 
-### Inbox Demo
-
 ![Inbox Demo](https://raw.githubusercontent.com/iveteamorim/ai-ops-inbox/main/public/screenshots/inbox-demo.png)
+
+---
+
+## Project Structure
+
+* `src/app` – pages, routes, API handlers
+* `src/components` – UI and flows
+* `src/lib` – auth, data, messaging, AI
+* `public` – static assets
+* `db` – schema
+* `docs` – architecture
+
+---
 
 ## Local Setup
 
-1. Install dependencies:
-
 ```bash
 npm install
-```
-
-2. Create environment file:
-
-```bash
 cp .env.example .env.local
-```
-
-3. Run development server:
-
-```bash
 npm run dev
 ```
 
-4. Open:
+Open: http://localhost:3000
 
-- `http://localhost:3000`
+---
 
 ## Environment Variables
 
-Required for full auth/data behavior:
+Required:
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+* NEXT_PUBLIC_SUPABASE_URL
+* NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-Optional for webhook/admin flows:
+Optional:
 
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `WHATSAPP_VERIFY_TOKEN`
-- `WHATSAPP_APP_SECRET`
-- `OPENAI_API_KEY`
+* SUPABASE_SERVICE_ROLE_KEY
+* WHATSAPP_VERIFY_TOKEN
+* WHATSAPP_APP_SECRET
+* OPENAI_API_KEY
 
-If Supabase env vars are missing, protected routes stay locked and auth actions return configuration errors.
+---
 
 ## Scripts
 
-- `npm run dev` - start local development server
-- `npm run build` - production build
-- `npm run start` - run production server
-- `npm run lint` - lint checks
-
-## Roadmap
-
-- Connect production WhatsApp Cloud API credentials
-- Add a second real channel end-to-end once WhatsApp onboarding is fully operational
-- Connect Stripe billing and trial lifecycle
-- Expand internal operations tooling for setup and support workflows
+* `npm run dev`
+* `npm run build`
+* `npm run start`
+* `npm run lint`
