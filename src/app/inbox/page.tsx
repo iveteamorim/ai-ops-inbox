@@ -169,7 +169,7 @@ export default async function InboxPage({
             </thead>
             <tbody>
               {visibleRows.map((row) => {
-                const recoveredAmount = row.expectedValue;
+                const recoveredAmount = row.status === "won" ? row.expectedValue : 0;
                 const recoverable =
                   row.status === "won" || row.status === "lost"
                     ? 0
