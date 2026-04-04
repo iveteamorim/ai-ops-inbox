@@ -175,12 +175,7 @@ export default async function InboxPage({
                   row.status === "won" || row.status === "lost"
                     ? 0
                     : Math.max(0, row.estimatedValue - row.expectedValue);
-                const valueLabel =
-                  row.status === "won"
-                    ? `${format(row.estimatedValue)} ${t("inbox_value_potential")} | ${t("inbox_value_recovered")}`
-                    : row.status === "new" || row.status === "active" || row.status === "no_response"
-                    ? `${format(row.estimatedValue)} ${t("inbox_value_potential")}`
-                    : `${format(row.estimatedValue)} ${t("inbox_value_potential")} | ${format(recoveredAmount)} ${t("inbox_value_recovered")}`;
+                const valueLabel = `${format(row.estimatedValue)} ${t("inbox_value_potential")}`;
                 const isPriorityRow = visibleRows[0]?.id === row.id;
                 const rowClassName = [
                   row.id === focusedConversationId ? "table-row-focus" : "",
@@ -203,7 +198,7 @@ export default async function InboxPage({
                       <span className={`badge ${statusClass(row.status)}`}>{formatStatus(row.status, t)}</span>
                     </td>
                     <td>
-                      <span style={row.status === "won" ? { whiteSpace: "nowrap" } : undefined}>{valueLabel}</span>
+                      {valueLabel}
                       <div className="label" style={{ marginTop: 4, marginBottom: 0, textTransform: "none" }}>
                         {row.leadType ?? t("inbox_unclassified")}
                       </div>
