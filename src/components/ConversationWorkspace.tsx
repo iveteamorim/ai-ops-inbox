@@ -32,6 +32,7 @@ function formatTime(isoDate: string) {
 function statusClass(status: string) {
   if (status === "new") return "status-new";
   if (status === "active") return "status-active";
+  if (status === "won") return "status-won";
   if (status === "no_response") return "status-no-response";
   return "status-lost";
 }

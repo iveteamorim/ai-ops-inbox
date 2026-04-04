@@ -24,8 +24,8 @@ function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
 function statusClass(status: string) {
   if (status === "new") return "status-new";
   if (status === "active") return "status-active";
+  if (status === "won") return "status-won";
   if (status === "no_response") return "status-no-response";
-  if (status === "won") return "status-active";
   return "status-lost";
 }
 
