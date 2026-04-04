@@ -2,8 +2,7 @@
 
 **AI decision system for inbound conversations.**
 
-Novua Inbox helps businesses improve response speed, prioritization, and follow-up consistency to avoid losing revenue from inbound leads.
-
+Novua Inbox helps businesses improve response speed, prioritization, and follow-up consistency on inbound conversations.
 ---
 
 ## Live Links
@@ -198,49 +197,6 @@ While the system is designed for clarity and speed of iteration, several failure
 
 ---
 
-## Example: End-to-End Flow (High-Value Lead)
-
-**Step 1 — Message received**
-"Hi, I’d like information about your premium treatment package."
-
-**Step 2 — Classification**
-Intent: high-value inquiry
-Category: premium service
-
-**Step 3 — Scoring**
-Based on intent, freshness, and response delay → **High priority**
-
-**Step 4 — Inbox prioritization**
-Conversation surfaces at the top of the queue
-
-**Step 5 — Follow-up**
-If no response → flagged as "at risk"
-
-**Step 6 — Revenue visibility**
-Assigned estimated high ticket value
-
----
-
-## Operational Model
-
-1. Conversations enter inbox
-2. System highlights priority
-3. Team responds
-4. Follow-ups triggered
-5. Revenue visibility updated
-
-Focus: **speed + consistency over complexity**
-
----
-
-## Design Principles
-
-* AI assists, not replaces decisions
-* Speed over completeness
-* Clarity over abstraction
-* Single-problem focus
-
----
 
 ## Positioning
 
