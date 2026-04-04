@@ -57,7 +57,8 @@ export function ConversationWorkspace({
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
-  const [updatingStatus, setUpdatingStatus] = useState<"won" | "lost" | null>(null);
+  const [generatingSuggestion, setGeneratingSuggestion] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState<"active" | "won" | "lost" | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const aiSuggestion = useMemo(() => {
@@ -134,7 +135,7 @@ export function ConversationWorkspace({
     }
   }
 
-  async function updateBusinessStatus(status: "won" | "lost") {
+  async function updateBusinessStatus(status: "active" | "won" | "lost") {
     setUpdatingStatus(status);
     setError(null);
 
@@ -159,6 +160,39 @@ export function ConversationWorkspace({
       setError(requestError instanceof Error ? requestError.message : "Could not update conversation.");
     } finally {
       setUpdatingStatus(null);
+    }
+  }
+
+  async function fillDraftWithSuggestion() {
+    setGeneratingSuggestion(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/conversations/suggest-reply", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          conversation_id: conversation.id,
+        }),
+      });
+
+      const payload = (await response.json().catch(() => null)) as
+        | { ok?: boolean; suggestion?: string; error?: string }
+        | null;
+
+      if (!response.ok || !payload?.ok || !payload.suggestion?.trim()) {
+        setDraft(aiSuggestion);
+        textareaRef.current?.focus();
+        return;
+      }
+
+      setDraft(payload.suggestion.trim());
+      textareaRef.current?.focus();
+    } catch {
+      setDraft(aiSuggestion);
+      textareaRef.current?.focus();
+    } finally {
+      setGeneratingSuggestion(false);
     }
   }
 
@@ -204,13 +238,10 @@ export function ConversationWorkspace({
             <button
               className="button"
               type="button"
-              onClick={() => {
-                setDraft(aiSuggestion);
-                textareaRef.current?.focus();
-              }}
-              disabled={sending}
+              onClick={fillDraftWithSuggestion}
+              disabled={sending || generatingSuggestion}
             >
-              {sending ? "..." : t("conversation_reply_with_ai")}
+              {generatingSuggestion ? "..." : t("conversation_reply_with_ai")}
             </button>
             <button
               className="mini-button"
@@ -245,6 +276,14 @@ export function ConversationWorkspace({
           <p><strong>{t("conversation_recovered")}:</strong> {formatMoney(lang, currency, conversation.expectedValue || conversation.estimatedValue)}</p>
         ) : null}
         <div className="actions" style={{ marginTop: 12 }}>
+          <button
+            className="mini-button"
+            type="button"
+            disabled={updatingStatus !== null || conversation.status === "active"}
+            onClick={() => updateBusinessStatus("active")}
+          >
+            {updatingStatus === "active" ? "..." : t("conversation_mark_active")}
+          </button>
           <button
             className="button"
             type="button"
