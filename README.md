@@ -36,14 +36,6 @@ Teams handling inbound leads through messaging channels (e.g. WhatsApp) who need
 
 ---
 
-## Demo
-
-Live Demo: https://ai-ops-inbox-one.vercel.app
-Email: [demo@novua.com](mailto:demo@novua.com)
-Password: Demo654321!
-
----
-
 ## How It Works
 
 1. **Message ingestion**
