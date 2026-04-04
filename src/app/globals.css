@@ -171,15 +171,15 @@ a {
 }
 
 .status-active {
-  background: rgba(22, 163, 74, 0.25);
-  border-color: rgba(134, 239, 172, 0.5);
+  background: rgba(21, 128, 61, 0.18);
+  border-color: rgba(134, 239, 172, 0.3);
   color: #dcfce7;
 }
 
 .status-won {
-  background: rgba(8, 145, 178, 0.24);
-  border-color: rgba(103, 232, 249, 0.45);
-  color: #cffafe;
+  background: rgba(22, 163, 74, 0.34);
+  border-color: rgba(134, 239, 172, 0.62);
+  color: #f0fdf4;
 }
 
 .status-no-response {
