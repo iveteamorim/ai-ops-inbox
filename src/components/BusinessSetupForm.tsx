@@ -21,6 +21,10 @@ type Props = {
     backfill: string;
     backfilling: string;
     backfillSuccess: string;
+    reseedDemo: string;
+    reseedingDemo: string;
+    reseedDemoSuccess: string;
+    reseedDemoConfirm: string;
     success: string;
     error: string;
   };
@@ -46,6 +50,7 @@ export function BusinessSetupForm({ initialValue, labels }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isBackfilling, startBackfill] = useTransition();
+  const [isReseedingDemo, startReseedDemo] = useTransition();
 
   function updateLeadType(id: string, patch: Partial<LeadTypeRow>) {
     setLeadTypes((current) => current.map((row) => (row.id === id ? { ...row, ...patch } : row)));
@@ -125,6 +130,36 @@ export function BusinessSetupForm({ initialValue, labels }: Props) {
           : labels.backfillSuccess,
       );
       router.refresh();
+    });
+  }
+
+  function reseedDemo() {
+    if (typeof window !== "undefined" && !window.confirm(labels.reseedDemoConfirm)) {
+      return;
+    }
+
+    setMessage(null);
+    setError(null);
+    startReseedDemo(async () => {
+      const response = await fetch("/api/business-setup/reseed-demo", {
+        method: "POST",
+      });
+
+      const payload = (await response.json().catch(() => null)) as
+        | { ok?: boolean; error?: string; seeded?: number; focusConversationId?: string | null }
+        | null;
+
+      if (!response.ok || !payload?.ok) {
+        setError(payload?.error ?? labels.error);
+        return;
+      }
+
+      setMessage(labels.reseedDemoSuccess);
+      router.push(
+        payload.focusConversationId
+          ? `/inbox?demo=1&focus=${encodeURIComponent(payload.focusConversationId)}`
+          : "/inbox?demo=1",
+      );
     });
   }
 
@@ -212,6 +247,9 @@ export function BusinessSetupForm({ initialValue, labels }: Props) {
         </button>
         <button className="mini-button" type="button" disabled={isBackfilling} onClick={backfill}>
           {isBackfilling ? labels.backfilling : labels.backfill}
+        </button>
+        <button className="mini-button" type="button" disabled={isReseedingDemo} onClick={reseedDemo}>
+          {isReseedingDemo ? labels.reseedingDemo : labels.reseedDemo}
         </button>
       </div>
     </article>
