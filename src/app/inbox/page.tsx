@@ -217,7 +217,7 @@ export default async function InboxPage({
                           <span className="note">
                             {t("conversation_recovered")}: {format(recoveredAmount)}
                           </span>
-                        ) : row.status === "lost" ? null : (
+                        ) : row.status === "lost" || recoverable === 0 ? null : (
                           <span className="note">
                             {t("inbox_recover_prefix")} {format(recoverable)}
                           </span>
