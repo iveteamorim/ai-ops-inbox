@@ -25,6 +25,7 @@ function statusClass(status: string) {
   if (status === "new") return "status-new";
   if (status === "active") return "status-active";
   if (status === "no_response") return "status-no-response";
+  if (status === "won") return "status-active";
   return "status-lost";
 }
 
@@ -168,7 +169,7 @@ export default async function InboxPage({
             </thead>
             <tbody>
               {visibleRows.map((row) => {
-                const recoveredAmount = row.status === "won" ? row.expectedValue : 0;
+                const recoveredAmount = row.expectedValue;
                 const recoverable =
                   row.status === "won" || row.status === "lost"
                     ? 0

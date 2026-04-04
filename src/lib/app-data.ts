@@ -395,6 +395,27 @@ export function formatPriority(priority: ConversationView["aiPriority"], t: (key
   return "Low";
 }
 
+function deriveEffectiveConversationStatus(row: ConversationRow): ConversationRow["status"] {
+  if (row.status === "won" || row.status === "lost") {
+    return row.status;
+  }
+
+  const inboundTimestamp = row.last_inbound_at ? new Date(row.last_inbound_at).getTime() : null;
+  const outboundTimestamp = row.last_outbound_at ? new Date(row.last_outbound_at).getTime() : null;
+
+  if (
+    inboundTimestamp &&
+    outboundTimestamp &&
+    !Number.isNaN(inboundTimestamp) &&
+    !Number.isNaN(outboundTimestamp) &&
+    outboundTimestamp >= inboundTimestamp
+  ) {
+    return "active";
+  }
+
+  return row.status;
+}
+
 export function formatRelativeTime(isoDate: string | null) {
   if (!isoDate) return "-";
 
@@ -513,6 +534,7 @@ export async function getConversationViews(
     );
     const persistedLeadType = row.lead_type?.trim() || null;
     const persistedEstimatedValue = Number(row.estimated_value ?? 0);
+    const effectiveStatus = deriveEffectiveConversationStatus(row);
 
     return {
       id: row.id,
@@ -521,7 +543,7 @@ export async function getConversationViews(
       unit: row.unit?.trim() || null,
       leadType: persistedLeadType || classification.leadType,
       channel: row.channel,
-      status: row.status,
+      status: effectiveStatus,
       assignedToId: row.assigned_to,
       assignedTo: assigned?.full_name ?? null,
       aiPriority: normalizePriority(row.ai_priority),
