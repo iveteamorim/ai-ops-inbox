@@ -74,6 +74,7 @@ Teams handling inbound leads through messaging channels (e.g. WhatsApp) who need
 ## Technical Docs
 
 * [Decisions](./docs/DECISIONS.md)
+* [Failure Modes](./docs/FAILURE_MODES.md)
 
 ---
 
