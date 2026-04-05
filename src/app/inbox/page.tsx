@@ -9,9 +9,9 @@ import {
   formatStatus,
   getAppContext,
   getConversationViews,
-  getDecisionType,
   getTeamMembers,
 } from "@/lib/app-data";
+import { type DecisionType } from "@/lib/conversation-decision";
 import { isNovuaInternalUser } from "@/lib/internal-access";
 
 function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
@@ -30,7 +30,7 @@ function statusClass(status: string) {
   return "status-lost";
 }
 
-function decisionTypeLabel(type: ReturnType<typeof getDecisionType>) {
+function decisionTypeLabel(type: DecisionType) {
   if (type === "recover") return "Oportunidad en riesgo";
   if (type === "complex") return "Requiere humano";
   if (type === "new") return "Nuevo lead";
@@ -39,7 +39,7 @@ function decisionTypeLabel(type: ReturnType<typeof getDecisionType>) {
   return "En progreso";
 }
 
-function actionLabel(type: ReturnType<typeof getDecisionType>) {
+function actionLabel(type: DecisionType) {
   if (type === "recover") return "Responder ahora";
   if (type === "complex") return "Revisar manualmente";
   if (type === "new") return "Revisar lead";

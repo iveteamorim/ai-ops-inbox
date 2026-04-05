@@ -4,6 +4,7 @@ import type { User } from "@supabase/supabase-js";
 import type { DictionaryKey } from "@/lib/i18n/dictionaries";
 import { classifyLeadFromMessage } from "@/lib/revenue/classify";
 import { triageConversation, type ServiceType, type TriageResult } from "@/lib/triage/triage-conversation";
+import { getDecisionType, type DecisionType } from "@/lib/conversation-decision";
 
 type ProfileRow = {
   id: string;
@@ -215,7 +216,7 @@ export type ConversationView = {
   isComplex: boolean;
   channel: "whatsapp" | "instagram" | "email" | "form";
   status: ConversationRow["status"];
-  decisionType: "new" | "recover" | "active" | "complex" | "won" | "lost";
+  decisionType: DecisionType;
   assignedToId: string | null;
   assignedTo: string | null;
   aiPriority: "high" | "medium" | "low";
@@ -396,15 +397,6 @@ export function formatPriority(priority: ConversationView["aiPriority"], t: (key
   if (priority === "high") return t("dashboard_risk_high");
   if (priority === "medium") return t("dashboard_risk_medium");
   return "Low";
-}
-
-export function getDecisionType(conversation: Pick<ConversationView, "status" | "isComplex">) {
-  if (conversation.status === "won") return "won";
-  if (conversation.status === "lost") return "lost";
-  if (conversation.isComplex) return "complex";
-  if (conversation.status === "new") return "new";
-  if (conversation.status === "no_response") return "recover";
-  return "active";
 }
 
 function deriveEffectiveConversationStatus(row: ConversationRow): ConversationRow["status"] {

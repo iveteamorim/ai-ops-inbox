@@ -4,7 +4,8 @@ import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { InboxRowActions } from "@/components/InboxRowActions";
 import { useI18n } from "@/components/i18n/LanguageProvider";
-import { getDecisionType, type ConversationView, type MessageView } from "@/lib/app-data";
+import { getDecisionType } from "@/lib/conversation-decision";
+import type { ConversationView, MessageView } from "@/lib/app-data";
 
 type Props = {
   conversation: ConversationView;
