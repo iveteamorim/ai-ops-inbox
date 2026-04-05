@@ -30,15 +30,6 @@ function statusClass(status: string) {
   return "status-lost";
 }
 
-function decisionTypeLabel(type: DecisionType) {
-  if (type === "recover") return "Oportunidad en riesgo";
-  if (type === "complex") return "Requiere humano";
-  if (type === "new") return "Nuevo lead";
-  if (type === "won") return "Ganado";
-  if (type === "lost") return "Perdido";
-  return "En progreso";
-}
-
 function actionLabel(type: DecisionType) {
   if (type === "recover") return "Responder ahora";
   if (type === "complex") return "Revisar manualmente";
@@ -214,12 +205,6 @@ export default async function InboxPage({
             </thead>
             <tbody>
               {visibleRows.map((row) => {
-                const recoveredAmount =
-                  row.status === "won" ? (row.expectedValue || row.estimatedValue) : 0;
-                const recoverable =
-                  row.status === "won" || row.status === "lost"
-                    ? 0
-                    : Math.max(0, row.estimatedValue - row.expectedValue);
                 const valueLabel = `${format(row.estimatedValue)} ${t("inbox_value_potential")}`;
                 const primaryAction = actionLabel(row.decisionType);
                 const isPriorityRow = visibleRows[0]?.id === row.id;
@@ -242,9 +227,6 @@ export default async function InboxPage({
                     </td>
                     <td>
                       <span className={`badge ${statusClass(row.status)}`}>{formatStatus(row.status, t)}</span>
-                      <div className="label" style={{ marginTop: 6, marginBottom: 0, textTransform: "none" }}>
-                        {decisionTypeLabel(row.decisionType)}
-                      </div>
                     </td>
                     <td>
                       {valueLabel}
@@ -257,15 +239,6 @@ export default async function InboxPage({
                         <Link className={isPriorityRow ? "mini-button is-active" : "mini-button"} href={`/conversation/${row.id}`}>
                           {primaryAction}
                         </Link>
-                        {row.status === "won" ? (
-                          <span className="note">
-                            {t("conversation_recovered")}: {format(recoveredAmount)}
-                          </span>
-                        ) : row.status === "lost" || recoverable === 0 ? null : (
-                          <span className="note">
-                            {t("inbox_recover_prefix")} {format(recoverable)}
-                          </span>
-                        )}
                       </div>
                     </td>
                   </tr>
