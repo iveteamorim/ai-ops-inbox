@@ -126,24 +126,24 @@ export default async function InboxPage({
 
       <div className="grid cols-3" style={{ marginBottom: 12 }}>
         <article className="card decision-card decision-card-warn">
-          <p className="label">Qué hacer ahora</p>
+          <p className="label">En riesgo ahora</p>
           <p className="kpi" style={{ marginBottom: 6 }}>{format(riskAmount)}</p>
           <p className="subtitle" style={{ margin: 0 }}>
-            {leadsAtRisk} conversaciones por responder
+            {leadsAtRisk} conversaciones sin respuesta
           </p>
         </article>
         <article className="card decision-card decision-card-active">
-          <p className="label">Oportunidades activas</p>
+          <p className="label">En progreso</p>
           <p className="kpi" style={{ marginBottom: 6 }}>{format(activeAmount)}</p>
           <p className="subtitle" style={{ margin: 0 }}>
-            pipeline en curso
+            {rows.filter((row) => row.status === "active").length} conversaciones activas
           </p>
         </article>
         <article className="card decision-card decision-card-neutral">
           <p className="label">Requieren atención</p>
           <p className="kpi" style={{ marginBottom: 6 }}>{complexCount}</p>
           <p className="subtitle" style={{ margin: 0 }}>
-            casos complejos detectados
+            {complexCount === 0 ? "sin casos complejos" : "casos complejos detectados"}
           </p>
         </article>
       </div>
