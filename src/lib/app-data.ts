@@ -26,6 +26,7 @@ type ConversationRow = {
   assigned_to: string | null;
   unit: string | null;
   lead_type: string | null;
+  is_complex: boolean;
   channel: "whatsapp" | "instagram" | "email" | "form";
   status: "new" | "active" | "won" | "lost" | "no_response";
   last_message_at: string | null;
@@ -211,8 +212,10 @@ export type ConversationView = {
   contactPhone: string | null;
   unit: string | null;
   leadType: string | null;
+  isComplex: boolean;
   channel: "whatsapp" | "instagram" | "email" | "form";
   status: ConversationRow["status"];
+  decisionType: "new" | "recover" | "active" | "complex" | "won" | "lost";
   assignedToId: string | null;
   assignedTo: string | null;
   aiPriority: "high" | "medium" | "low";
@@ -395,6 +398,15 @@ export function formatPriority(priority: ConversationView["aiPriority"], t: (key
   return "Low";
 }
 
+export function getDecisionType(conversation: Pick<ConversationView, "status" | "isComplex">) {
+  if (conversation.status === "won") return "won";
+  if (conversation.status === "lost") return "lost";
+  if (conversation.isComplex) return "complex";
+  if (conversation.status === "new") return "new";
+  if (conversation.status === "no_response") return "recover";
+  return "active";
+}
+
 function deriveEffectiveConversationStatus(row: ConversationRow): ConversationRow["status"] {
   if (row.status === "won" || row.status === "lost") {
     return row.status;
@@ -455,7 +467,7 @@ export async function getConversationViews(
   companyId: string,
 ) {
   const baseSelect =
-    "id, company_id, contact_id, assigned_to, channel, status, last_message_at, last_inbound_at, last_outbound_at, created_at, updated_at, estimated_value, expected_value, ai_priority, lead_type";
+    "id, company_id, contact_id, assigned_to, channel, status, last_message_at, last_inbound_at, last_outbound_at, created_at, updated_at, estimated_value, expected_value, is_complex, ai_priority, lead_type";
   let { data: conversations, error } = await supabase
     .from("conversations")
     .select(`${baseSelect}, unit`)
@@ -469,7 +481,12 @@ export async function getConversationViews(
       .eq("company_id", companyId)
       .order("updated_at", { ascending: false });
 
-    conversations = fallback.data?.map((row) => ({ ...row, unit: null, lead_type: null })) ?? null;
+    conversations = fallback.data?.map((row) => ({
+      ...row,
+      unit: null,
+      lead_type: null,
+      is_complex: false,
+    })) ?? null;
     error = fallback.error;
   }
 
@@ -535,6 +552,11 @@ export async function getConversationViews(
     const persistedLeadType = row.lead_type?.trim() || null;
     const persistedEstimatedValue = Number(row.estimated_value ?? 0);
     const effectiveStatus = deriveEffectiveConversationStatus(row);
+    const isComplex = Boolean(row.is_complex);
+    const decisionType = getDecisionType({
+      status: effectiveStatus,
+      isComplex,
+    } satisfies Pick<ConversationView, "status" | "isComplex">);
 
     return {
       id: row.id,
@@ -542,8 +564,10 @@ export async function getConversationViews(
       contactPhone: contact?.phone ?? null,
       unit: row.unit?.trim() || null,
       leadType: persistedLeadType || classification.leadType,
+      isComplex,
       channel: row.channel,
       status: effectiveStatus,
+      decisionType,
       assignedToId: row.assigned_to,
       assignedTo: assigned?.full_name ?? null,
       aiPriority: normalizePriority(row.ai_priority),

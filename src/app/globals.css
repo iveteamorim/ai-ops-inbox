@@ -194,6 +194,25 @@ a {
   color: #fee2e2;
 }
 
+.decision-card {
+  min-height: 120px;
+}
+
+.decision-card-warn {
+  border-color: rgba(253, 186, 116, 0.35);
+  background: linear-gradient(180deg, rgba(67, 20, 7, 0.38) 0%, rgba(13, 27, 25, 0.72) 100%);
+}
+
+.decision-card-active {
+  border-color: rgba(134, 239, 172, 0.28);
+  background: linear-gradient(180deg, rgba(20, 83, 45, 0.34) 0%, rgba(13, 27, 25, 0.72) 100%);
+}
+
+.decision-card-neutral {
+  border-color: rgba(182, 215, 207, 0.24);
+  background: linear-gradient(180deg, rgba(17, 38, 35, 0.92) 0%, rgba(13, 27, 25, 0.72) 100%);
+}
+
 .score-high {
   background: rgba(22, 163, 74, 0.26);
   border-color: rgba(134, 239, 172, 0.5);
@@ -563,6 +582,14 @@ a {
   background: rgba(22, 163, 74, 0.12);
   border-radius: 12px;
   padding: 12px;
+}
+
+.decision-panel {
+  border: 1px solid rgba(182, 215, 207, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
 }
 
 .onboarding-card {

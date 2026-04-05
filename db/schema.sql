@@ -55,6 +55,7 @@ create table if not exists public.conversations (
   lead_type text,
   estimated_value numeric(12,2) not null default 0,
   expected_value numeric(12,2) not null default 0,
+  is_complex boolean not null default false,
   ai_priority text not null default 'medium' check (ai_priority in ('high', 'medium', 'low')),
   last_message_at timestamptz,
   last_inbound_at timestamptz,
@@ -68,6 +69,7 @@ alter table public.conversations
   add column if not exists lead_type text,
   add column if not exists estimated_value numeric(12,2) not null default 0,
   add column if not exists expected_value numeric(12,2) not null default 0,
+  add column if not exists is_complex boolean not null default false,
   add column if not exists ai_priority text not null default 'medium';
 
 do $$

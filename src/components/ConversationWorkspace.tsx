@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { InboxRowActions } from "@/components/InboxRowActions";
 import { useI18n } from "@/components/i18n/LanguageProvider";
-import type { ConversationView, MessageView } from "@/lib/app-data";
+import { getDecisionType, type ConversationView, type MessageView } from "@/lib/app-data";
 
 type Props = {
   conversation: ConversationView;
@@ -94,6 +94,44 @@ export function ConversationWorkspace({
     if (conversation.status === "won") return t("revenue_filter_won");
     return t("inbox_filter_lost");
   }, [conversation.status, t]);
+
+  const decisionType = useMemo(() => getDecisionType(conversation), [conversation]);
+  const decisionCopy = useMemo(() => {
+    if (decisionType === "recover") {
+      return {
+        title: "Oportunidad en riesgo",
+        body: "El cliente escribió y sigue esperando respuesta. Conviene responder primero.",
+      };
+    }
+    if (decisionType === "complex") {
+      return {
+        title: "Requiere revisión",
+        body: "Este caso está marcado como complejo y merece intervención humana directa.",
+      };
+    }
+    if (decisionType === "new") {
+      return {
+        title: "Nuevo lead",
+        body: "Primer contacto sin respuesta todavía. Revisa intención y siguiente paso.",
+      };
+    }
+    if (decisionType === "won") {
+      return {
+        title: "Ganado",
+        body: "La conversación ya se marcó como recuperada. Úsala como referencia de cierre.",
+      };
+    }
+    if (decisionType === "lost") {
+      return {
+        title: "Perdido",
+        body: "La oportunidad se marcó como perdida. Si el cliente vuelve, se reactivará.",
+      };
+    }
+    return {
+      title: "En progreso",
+      body: "La conversación sigue activa. Mantén el avance y reduce fricción en el siguiente paso.",
+    };
+  }, [decisionType]);
 
   async function sendReply(overrideText?: string) {
     const text = (overrideText ?? draft).trim();
@@ -269,6 +307,11 @@ export function ConversationWorkspace({
         <p style={{ marginTop: 0, marginBottom: 12 }}>
           <strong>{conversation.leadType ?? t("inbox_unclassified")}</strong>
         </p>
+        <div className="decision-panel">
+          <p className="label" style={{ marginBottom: 4 }}>Tipo de caso</p>
+          <p style={{ margin: 0, fontWeight: 700 }}>{decisionCopy.title}</p>
+          <p className="subtitle" style={{ marginTop: 6 }}>{decisionCopy.body}</p>
+        </div>
         <p>
           <strong>{t("inbox_status")}:</strong>{" "}
           <span className={`badge ${statusClass(conversation.status)}`}>{statusLabel}</span>

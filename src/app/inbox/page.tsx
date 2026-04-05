@@ -9,6 +9,7 @@ import {
   formatStatus,
   getAppContext,
   getConversationViews,
+  getDecisionType,
   getTeamMembers,
 } from "@/lib/app-data";
 import { isNovuaInternalUser } from "@/lib/internal-access";
@@ -27,6 +28,22 @@ function statusClass(status: string) {
   if (status === "won") return "status-won";
   if (status === "no_response") return "status-no-response";
   return "status-lost";
+}
+
+function decisionTypeLabel(type: ReturnType<typeof getDecisionType>) {
+  if (type === "recover") return "Oportunidad en riesgo";
+  if (type === "complex") return "Requiere humano";
+  if (type === "new") return "Nuevo lead";
+  if (type === "won") return "Ganado";
+  if (type === "lost") return "Perdido";
+  return "En progreso";
+}
+
+function actionLabel(type: ReturnType<typeof getDecisionType>) {
+  if (type === "recover") return "Responder ahora";
+  if (type === "complex") return "Revisar manualmente";
+  if (type === "new") return "Revisar lead";
+  return "Continuar";
 }
 
 function conversationPriorityScore(row: {
@@ -88,6 +105,10 @@ export default async function InboxPage({
   const riskAmount = rows
     .filter((row) => row.status === "new" || row.status === "no_response")
     .reduce((sum, row) => sum + row.estimatedValue, 0);
+  const activeAmount = rows
+    .filter((row) => row.status === "active")
+    .reduce((sum, row) => sum + row.estimatedValue, 0);
+  const complexCount = rows.filter((row) => row.decisionType === "complex").length;
   const lostAmount = rows
     .filter((row) => row.status === "lost")
     .reduce((sum, row) => sum + row.estimatedValue, 0);
@@ -102,6 +123,30 @@ export default async function InboxPage({
           <p className="subtitle">{t("inbox_subtitle")}</p>
         </div>
       </header>
+
+      <div className="grid cols-3" style={{ marginBottom: 12 }}>
+        <article className="card decision-card decision-card-warn">
+          <p className="label">Qué hacer ahora</p>
+          <p className="kpi" style={{ marginBottom: 6 }}>{format(riskAmount)}</p>
+          <p className="subtitle" style={{ margin: 0 }}>
+            {leadsAtRisk} conversaciones por responder
+          </p>
+        </article>
+        <article className="card decision-card decision-card-active">
+          <p className="label">Oportunidades activas</p>
+          <p className="kpi" style={{ marginBottom: 6 }}>{format(activeAmount)}</p>
+          <p className="subtitle" style={{ margin: 0 }}>
+            pipeline en curso
+          </p>
+        </article>
+        <article className="card decision-card decision-card-neutral">
+          <p className="label">Requieren atención</p>
+          <p className="kpi" style={{ marginBottom: 6 }}>{complexCount}</p>
+          <p className="subtitle" style={{ margin: 0 }}>
+            casos complejos detectados
+          </p>
+        </article>
+      </div>
 
       <article className="card" style={{ marginBottom: 12 }}>
         <p className="warn" style={{ marginBottom: 6 }}>
@@ -176,6 +221,7 @@ export default async function InboxPage({
                     ? 0
                     : Math.max(0, row.estimatedValue - row.expectedValue);
                 const valueLabel = `${format(row.estimatedValue)} ${t("inbox_value_potential")}`;
+                const primaryAction = actionLabel(row.decisionType);
                 const isPriorityRow = visibleRows[0]?.id === row.id;
                 const rowClassName = [
                   row.id === focusedConversationId ? "table-row-focus" : "",
@@ -196,6 +242,9 @@ export default async function InboxPage({
                     </td>
                     <td>
                       <span className={`badge ${statusClass(row.status)}`}>{formatStatus(row.status, t)}</span>
+                      <div className="label" style={{ marginTop: 6, marginBottom: 0, textTransform: "none" }}>
+                        {decisionTypeLabel(row.decisionType)}
+                      </div>
                     </td>
                     <td>
                       {valueLabel}
@@ -206,7 +255,7 @@ export default async function InboxPage({
                     <td>
                       <div className="stack-actions">
                         <Link className={isPriorityRow ? "mini-button is-active" : "mini-button"} href={`/conversation/${row.id}`}>
-                          Abrir conversación
+                          {primaryAction}
                         </Link>
                         {row.status === "won" ? (
                           <span className="note">
