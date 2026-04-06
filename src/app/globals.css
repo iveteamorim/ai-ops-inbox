@@ -261,6 +261,30 @@ a {
   background: rgba(13, 29, 26, 0.9);
 }
 
+.password-field {
+  position: relative;
+}
+
+.password-input {
+  padding-right: 88px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(calc(-50% - 5px));
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.password-toggle:hover {
+  color: var(--text);
+}
+
 .checkbox-row {
   display: inline-flex;
   align-items: center;

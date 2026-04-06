@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MarketingNav } from "@/components/MarketingNav";
+import { PasswordField } from "@/components/PasswordField";
 import { createClient } from "@/lib/supabase/client";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 
@@ -93,7 +94,7 @@ export default function LoginPage() {
         <input id="email" className="input" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
 
         <label className="label" htmlFor="password">{t("form_password")}</label>
-        <input id="password" className="input" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+        <PasswordField id="password" required value={password} onChange={setPassword} autoComplete="current-password" />
 
         {error && <p className="warn">{error}</p>}
         {message && <p className="note">{message}</p>}

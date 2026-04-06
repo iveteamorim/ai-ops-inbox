@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MarketingNav } from "@/components/MarketingNav";
+import { PasswordField } from "@/components/PasswordField";
 import { createClient } from "@/lib/supabase/client";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 
@@ -142,28 +143,12 @@ export default function AcceptInvitePage() {
             <label className="label" htmlFor="invite-password">
               {t("accept_invite_password")}
             </label>
-            <input
-              id="invite-password"
-              className="input"
-              type="password"
-              minLength={8}
-              required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-            />
+            <PasswordField id="invite-password" minLength={8} required value={password} onChange={setPassword} autoComplete="new-password" />
 
             <label className="label" htmlFor="invite-confirm-password">
               {t("accept_invite_confirm_password")}
             </label>
-            <input
-              id="invite-confirm-password"
-              className="input"
-              type="password"
-              minLength={8}
-              required
-              value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-            />
+            <PasswordField id="invite-confirm-password" minLength={8} required value={confirmPassword} onChange={setConfirmPassword} autoComplete="new-password" />
 
             <button className="button" type="submit" disabled={loading}>
               {loading ? "..." : t("accept_invite_submit")}
