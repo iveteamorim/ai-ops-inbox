@@ -163,26 +163,27 @@ export default async function DashboardPage() {
             ))}
           </div>
         </article>
-
-        <article className="card">
-          <p className="label">{canManageBusiness ? "Estado del workspace" : "Tu contexto"}</p>
-          <div className="preview-row">
-            <span>{t("inbox_filter_in_progress")}</span>
-            <strong>{canManageBusiness ? workspaceOpen.filter((item) => item.status === "active").length : myOpen.filter((item) => item.status === "active").length}</strong>
-          </div>
-          <div className="preview-row">
-            <span>{t("inbox_filter_new")}</span>
-            <strong>{canManageBusiness ? workspaceNew.length : conversations.filter((item) => !item.assignedToId && item.status === "new").length}</strong>
-          </div>
-          <div className="preview-row">
-            <span>{t("inbox_filter_no_reply")}</span>
-            <strong>{visibleRisk.length}</strong>
-          </div>
-          <div className="preview-row">
-            <span>{t("revenue_filter_won")}</span>
-            <strong>{canManageBusiness ? workspaceWon.length : conversations.filter((item) => item.assignedToId === context.user.id && item.status === "won").length}</strong>
-          </div>
-        </article>
+        {canManageBusiness ? (
+          <article className="card">
+            <p className="label">Estado del workspace</p>
+            <div className="preview-row">
+              <span>{t("inbox_filter_in_progress")}</span>
+              <strong>{workspaceOpen.filter((item) => item.status === "active").length}</strong>
+            </div>
+            <div className="preview-row">
+              <span>{t("inbox_filter_new")}</span>
+              <strong>{workspaceNew.length}</strong>
+            </div>
+            <div className="preview-row">
+              <span>{t("inbox_filter_no_reply")}</span>
+              <strong>{visibleRisk.length}</strong>
+            </div>
+            <div className="preview-row">
+              <span>{t("revenue_filter_won")}</span>
+              <strong>{workspaceWon.length}</strong>
+            </div>
+          </article>
+        ) : null}
       </div>
     </section>
   );
