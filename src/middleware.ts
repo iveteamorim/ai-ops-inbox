@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { hasTrialExpired } from "@/lib/trial";
 import { LANG_COOKIE, detectLangFromHeader, normalizeLang } from "@/lib/i18n/config";
-import { canManageInternalWorkspace, getWorkspaceMode } from "@/lib/internal-access";
+import { isNovuaInternalUser } from "@/lib/internal-access";
 
 const PUBLIC_PATHS = [
   "/",
@@ -83,26 +83,7 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  let isInternalWorkspace = false;
-  if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("company_id")
-      .eq("id", user.id)
-      .maybeSingle<{ company_id: string }>();
-
-    const { data: company } =
-      profile?.company_id
-        ? await supabase
-            .from("companies")
-            .select("config")
-            .eq("id", profile.company_id)
-            .maybeSingle<{ config?: Record<string, unknown> | null }>()
-        : { data: null };
-
-    const workspaceMode = getWorkspaceMode(company ?? null, user.email);
-    isInternalWorkspace = canManageInternalWorkspace(workspaceMode);
-  }
+  const isInternalWorkspace = isNovuaInternalUser(user?.email);
 
   const trialEndsAt = (user?.user_metadata?.trial_ends_at as string | undefined) ?? null;
   const trialExpired = !isInternalWorkspace && hasTrialExpired(trialEndsAt);
