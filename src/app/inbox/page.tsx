@@ -241,6 +241,9 @@ export default async function InboxPage({
                         <Link className={isPriorityRow ? "mini-button is-active" : "mini-button"} href={`/conversation/${row.id}`}>
                           {primaryAction}
                         </Link>
+                        <span className="note" style={{ marginTop: 0 }}>
+                          {row.assignedTo ? `Responsable: ${row.assignedTo}` : "Sin responsable"}
+                        </span>
                       </div>
                     </td>
                   </tr>
