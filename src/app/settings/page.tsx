@@ -10,7 +10,7 @@ import { cookies } from "next/headers";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
 import { formatChannel, getAppContext, getBusinessSetup, getSettingsData } from "@/lib/app-data";
-import { isNovuaInternalUser } from "@/lib/internal-access";
+import { canManageInternalWorkspace, canSeeCustomerFeedback, getWorkspaceMode } from "@/lib/internal-access";
 
 function getSetupCopy(lang: string) {
   if (lang === "es") {
@@ -287,7 +287,9 @@ export default async function SettingsPage() {
     context.profile.company_id,
     context.user.id,
   );
-  const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
+  const workspaceMode = getWorkspaceMode(context.company, context.user.email);
+  const canSeeInternalSetup = canManageInternalWorkspace(workspaceMode);
+  const showCustomerFeedback = canSeeCustomerFeedback(workspaceMode);
   const seatLimit =
     context.company?.plan === "growth" ? 6 : context.company?.plan === "pro" ? 15 : 3;
   const usedSeats = team.length + pendingInvites.length;
@@ -423,6 +425,7 @@ export default async function SettingsPage() {
 
         <BusinessSetupForm
           initialValue={businessSetup}
+          showInternalTools={canSeeInternalSetup}
           labels={{
             title: copy.businessSetupTitle,
             help: copy.businessSetupHelp,
@@ -448,34 +451,53 @@ export default async function SettingsPage() {
         />
       </div>
 
-      <PilotFeedbackForm
-        labels={{
-          title: copy.pilotFeedbackTitle,
-          help: copy.pilotFeedbackHelp,
-          category: copy.pilotFeedbackCategory,
-          message: copy.pilotFeedbackMessage,
-          submit: copy.pilotFeedbackSubmit,
-          submitting: copy.pilotFeedbackSubmitting,
-          success: copy.pilotFeedbackSuccess,
-          error: copy.pilotFeedbackError,
-          bug: copy.pilotFeedbackBug,
-          feedback: copy.pilotFeedbackGeneral,
-          featureRequest: copy.pilotFeedbackFeature,
-        }}
-      />
-      <PilotFeedbackHistory
-        items={feedbackHistory}
-        labels={{
-          title: copy.pilotFeedbackHistoryTitle,
-          empty: copy.pilotFeedbackHistoryEmpty,
-          status: copy.pilotFeedbackHistoryStatus,
-          page: copy.pilotFeedbackHistoryPage,
-          reply: copy.pilotFeedbackHistoryReply,
-          new: copy.pilotFeedbackStatusNew,
-          reviewed: copy.pilotFeedbackStatusReviewed,
-          closed: copy.pilotFeedbackStatusClosed,
-        }}
-      />
+      {showCustomerFeedback ? (
+        <>
+          <PilotFeedbackForm
+            labels={{
+              title: copy.pilotFeedbackTitle,
+              help: copy.pilotFeedbackHelp,
+              category: copy.pilotFeedbackCategory,
+              message: copy.pilotFeedbackMessage,
+              submit: copy.pilotFeedbackSubmit,
+              submitting: copy.pilotFeedbackSubmitting,
+              success: copy.pilotFeedbackSuccess,
+              error: copy.pilotFeedbackError,
+              bug: copy.pilotFeedbackBug,
+              feedback: copy.pilotFeedbackGeneral,
+              featureRequest: copy.pilotFeedbackFeature,
+            }}
+          />
+          <PilotFeedbackHistory
+            items={feedbackHistory}
+            labels={{
+              title: copy.pilotFeedbackHistoryTitle,
+              empty: copy.pilotFeedbackHistoryEmpty,
+              status: copy.pilotFeedbackHistoryStatus,
+              page: copy.pilotFeedbackHistoryPage,
+              reply: copy.pilotFeedbackHistoryReply,
+              new: copy.pilotFeedbackStatusNew,
+              reviewed: copy.pilotFeedbackStatusReviewed,
+              closed: copy.pilotFeedbackStatusClosed,
+            }}
+          />
+        </>
+      ) : null}
+
+      {canSeeInternalSetup ? (
+        <>
+          <article className="card" style={{ marginTop: 12 }}>
+            <p className="label">Workspace mode</p>
+            <p className="subtitle" style={{ marginBottom: 0 }}>
+              {workspaceMode === "internal_demo"
+                ? "Internal demo workspace. Internal tools are visible here."
+                : workspaceMode === "customer_demo"
+                  ? "Customer demo workspace. Customer-facing setup is visible without internal tools."
+                  : "Customer workspace. Customer-facing setup and feedback are enabled."}
+            </p>
+          </article>
+        </>
+      ) : null}
     </section>
   );
 }

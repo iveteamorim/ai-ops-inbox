@@ -6,6 +6,7 @@ import type { BusinessLeadType, BusinessSetupView } from "@/lib/app-data";
 
 type Props = {
   initialValue: BusinessSetupView;
+  showInternalTools?: boolean;
   labels: {
     title: string;
     help: string;
@@ -40,7 +41,7 @@ function createLeadType(): LeadTypeRow {
   };
 }
 
-export function BusinessSetupForm({ initialValue, labels }: Props) {
+export function BusinessSetupForm({ initialValue, labels, showInternalTools = false }: Props) {
   const router = useRouter();
   const [businessName, setBusinessName] = useState(initialValue.businessName);
   const [leadTypes, setLeadTypes] = useState<LeadTypeRow[]>(
@@ -245,12 +246,16 @@ export function BusinessSetupForm({ initialValue, labels }: Props) {
         <button className="button" type="button" disabled={isPending} onClick={save}>
           {isPending ? labels.saving : labels.save}
         </button>
-        <button className="mini-button" type="button" disabled={isBackfilling} onClick={backfill}>
-          {isBackfilling ? labels.backfilling : labels.backfill}
-        </button>
-        <button className="mini-button" type="button" disabled={isReseedingDemo} onClick={reseedDemo}>
-          {isReseedingDemo ? labels.reseedingDemo : labels.reseedDemo}
-        </button>
+        {showInternalTools ? (
+          <>
+            <button className="mini-button" type="button" disabled={isBackfilling} onClick={backfill}>
+              {isBackfilling ? labels.backfilling : labels.backfill}
+            </button>
+            <button className="mini-button" type="button" disabled={isReseedingDemo} onClick={reseedDemo}>
+              {isReseedingDemo ? labels.reseedingDemo : labels.reseedDemo}
+            </button>
+          </>
+        ) : null}
       </div>
     </article>
   );

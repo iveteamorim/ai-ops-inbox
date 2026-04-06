@@ -12,7 +12,7 @@ import {
   getTeamMembers,
 } from "@/lib/app-data";
 import { type DecisionType } from "@/lib/conversation-decision";
-import { isNovuaInternalUser } from "@/lib/internal-access";
+import { canManageInternalWorkspace, getWorkspaceMode } from "@/lib/internal-access";
 
 function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
   return new Intl.NumberFormat(lang, {
@@ -96,7 +96,8 @@ export default async function InboxPage({
     getConversationViews(context.supabase, context.profile.company_id),
     getTeamMembers(context.supabase, context.profile.company_id),
   ]);
-  const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
+  const workspaceMode = getWorkspaceMode(context.company, context.user.email);
+  const canSeeInternalSetup = canManageInternalWorkspace(workspaceMode);
   const unitOptions = Array.from(new Set(rows.map((row) => row.unit).filter((value): value is string => Boolean(value))));
   const selectedUnit = resolvedSearchParams?.unit?.trim() || "";
   const showDemoNotice = resolvedSearchParams?.demo?.trim() === "1";

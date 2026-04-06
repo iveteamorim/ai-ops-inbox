@@ -5,7 +5,7 @@ import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
 import { formatNoReplyDuration, getAppContext, getConversationViews } from "@/lib/app-data";
-import { isNovuaInternalUser } from "@/lib/internal-access";
+import { canManageInternalWorkspace, getWorkspaceMode } from "@/lib/internal-access";
 
 function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
   return new Intl.NumberFormat(lang, {
@@ -46,7 +46,8 @@ export default async function DashboardPage() {
       </section>
     );
   }
-  const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
+  const workspaceMode = getWorkspaceMode(context.company, context.user.email);
+  const canSeeInternalSetup = canManageInternalWorkspace(workspaceMode);
 
   const conversations = await getConversationViews(context.supabase, context.profile.company_id);
   const riskThresholdMs = 2 * 60 * 60 * 1000;

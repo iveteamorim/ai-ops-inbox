@@ -18,3 +18,33 @@ export function isNovuaInternalUser(email?: string | null) {
   const domain = normalizedEmail.split("@")[1] ?? "";
   return allowedDomains.includes(domain);
 }
+
+export type WorkspaceMode = "internal_demo" | "customer_demo" | "customer_live";
+
+function normalizeWorkspaceMode(value: unknown): WorkspaceMode | null {
+  if (typeof value !== "string") return null;
+  if (value === "internal_demo" || value === "customer_demo" || value === "customer_live") {
+    return value;
+  }
+  return null;
+}
+
+export function getWorkspaceMode(
+  company: { config?: Record<string, unknown> | null } | null | undefined,
+  email?: string | null,
+): WorkspaceMode {
+  const configuredMode = normalizeWorkspaceMode(company?.config?.workspace_mode);
+  if (configuredMode) {
+    return configuredMode;
+  }
+
+  return isNovuaInternalUser(email) ? "internal_demo" : "customer_live";
+}
+
+export function canManageInternalWorkspace(mode: WorkspaceMode) {
+  return mode === "internal_demo";
+}
+
+export function canSeeCustomerFeedback(mode: WorkspaceMode) {
+  return mode !== "internal_demo";
+}
