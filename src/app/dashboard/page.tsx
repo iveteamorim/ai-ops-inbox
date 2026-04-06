@@ -151,19 +151,19 @@ export default async function DashboardPage() {
         </article>
       </div>
 
-      <div className="grid cols-2">
-        <article className="card">
-          <p className="label">{canManageBusiness ? "Qué revisar hoy" : "Qué hacer ahora"}</p>
-          <div className="clean-list">
-            {shortcutLinks.map((item) => (
-              <Link key={item.href} href={item.href} className="dashboard-shortcut">
-                <strong>{item.label}</strong>
-                <span>{item.detail}</span>
-              </Link>
-            ))}
-          </div>
-        </article>
-        {canManageBusiness ? (
+      {canManageBusiness ? (
+        <div className="grid cols-2">
+          <article className="card">
+            <p className="label">Qué revisar hoy</p>
+            <div className="clean-list">
+              {shortcutLinks.map((item) => (
+                <Link key={item.href} href={item.href} className="dashboard-shortcut">
+                  <strong>{item.label}</strong>
+                  <span>{item.detail}</span>
+                </Link>
+              ))}
+            </div>
+          </article>
           <article className="card">
             <p className="label">Estado del workspace</p>
             <div className="preview-row">
@@ -183,8 +183,20 @@ export default async function DashboardPage() {
               <strong>{workspaceWon.length}</strong>
             </div>
           </article>
-        ) : null}
-      </div>
+        </div>
+      ) : (
+        <article className="card">
+          <p className="label">Qué hacer ahora</p>
+          <div className="clean-list">
+            {shortcutLinks.map((item) => (
+              <Link key={item.href} href={item.href} className="dashboard-shortcut">
+                <strong>{item.label}</strong>
+                <span>{item.detail}</span>
+              </Link>
+            ))}
+          </div>
+        </article>
+      )}
     </section>
   );
 }
