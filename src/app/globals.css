@@ -148,7 +148,7 @@ a {
 }
 
 .table-row-priority td {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 213, 106, 0.06);
 }
 
 .table-row-priority td:first-child {
@@ -162,6 +162,12 @@ a {
   font-size: 0.78rem;
   border: 1px solid var(--line);
   background: rgba(247, 252, 250, 0.08);
+}
+
+.badge-muted {
+  background: rgba(184, 203, 199, 0.12);
+  border-color: rgba(184, 203, 199, 0.2);
+  color: #d8e6e3;
 }
 
 .status-new {

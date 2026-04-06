@@ -33,7 +33,7 @@ function statusClass(status: string) {
 function actionLabel(type: DecisionType) {
   if (type === "recover") return "Responder ahora";
   if (type === "complex") return "Escalar caso";
-  if (type === "new") return "Revisar lead";
+  if (type === "new") return "Contactar lead";
   if (type === "won") return "Ver cierre";
   if (type === "lost") return null;
   return "Continuar conversación";
@@ -247,9 +247,13 @@ export default async function InboxPage({
                       </div>
                     </td>
                     <td>
-                      <span className="label" style={{ margin: 0, textTransform: "none" }}>
-                        {row.assignedTo ?? "Sin asignar"}
-                      </span>
+                      {row.assignedTo ? (
+                        <span className="label" style={{ margin: 0, textTransform: "none" }}>
+                          {row.assignedTo}
+                        </span>
+                      ) : (
+                        <span className="badge badge-muted">Sin asignar</span>
+                      )}
                     </td>
                     <td>
                       <div className="stack-actions">
@@ -258,9 +262,7 @@ export default async function InboxPage({
                             {primaryAction}
                           </Link>
                         ) : (
-                          <span className="note" style={{ marginTop: 0 }}>
-                            Sin acción pendiente
-                          </span>
+                          <span className="note" style={{ marginTop: 0 }}>—</span>
                         )}
                       </div>
                     </td>
