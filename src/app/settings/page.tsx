@@ -52,6 +52,11 @@ function getSetupCopy(lang: string) {
       removingUser: "Eliminando...",
       removeUserSuccess: "Acceso eliminado.",
       removeUserError: "No se pudo eliminar el acceso.",
+      reassignPlaceholder: "Reasignar a...",
+      reassignAction: "Reasignar",
+      reassigningAction: "Reasignando...",
+      reassignSuccess: "Conversaciones abiertas reasignadas.",
+      reassignError: "No se pudieron reasignar las conversaciones.",
       businessSetupTitle: "Tu negocio",
       businessSetupHelp:
         "Esto ayuda a Novua a priorizar mejor tus conversaciones y estimar el valor de cada cliente.",
@@ -143,6 +148,11 @@ function getSetupCopy(lang: string) {
       removingUser: "Removendo...",
       removeUserSuccess: "Acesso removido.",
       removeUserError: "Não foi possível remover o acesso.",
+      reassignPlaceholder: "Reatribuir para...",
+      reassignAction: "Reatribuir",
+      reassigningAction: "A reatribuir...",
+      reassignSuccess: "Conversas abertas reatribuídas.",
+      reassignError: "Não foi possível reatribuir as conversas.",
       businessSetupTitle: "Seu negócio",
       businessSetupHelp:
         "Isto ajuda a Novua a priorizar melhor as suas conversas e estimar o valor de cada cliente.",
@@ -233,6 +243,11 @@ function getSetupCopy(lang: string) {
     removingUser: "Removing...",
     removeUserSuccess: "Access removed.",
     removeUserError: "Could not remove access.",
+    reassignPlaceholder: "Reassign to...",
+    reassignAction: "Reassign",
+    reassigningAction: "Reassigning...",
+    reassignSuccess: "Open conversations reassigned.",
+    reassignError: "Could not reassign conversations.",
     businessSetupTitle: "Your business",
     businessSetupHelp:
       "This helps Novua prioritize your conversations better and estimate the value of each customer.",
@@ -441,6 +456,11 @@ export default async function SettingsPage() {
               currentUserId={context.user.id}
               currentUserRole={context.profile.role}
               activeLabel={t("settings_active")}
+              reassignPlaceholder={copy.reassignPlaceholder}
+              reassignLabel={copy.reassignAction}
+              reassigningLabel={copy.reassigningAction}
+              reassignSuccess={copy.reassignSuccess}
+              reassignError={copy.reassignError}
               removeLabel={copy.removeUser}
               removingLabel={copy.removingUser}
               removeSuccess={copy.removeUserSuccess}
