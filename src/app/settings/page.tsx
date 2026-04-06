@@ -93,6 +93,14 @@ function getSetupCopy(lang: string) {
       pilotFeedbackStatusNew: "Nuevo",
       pilotFeedbackStatusReviewed: "Revisado",
       pilotFeedbackStatusClosed: "Cerrado",
+      accountTitle: "Tu acceso",
+      accountHelp: "Información de la cuenta con la que estás trabajando ahora mismo.",
+      accountRole: "Rol",
+      accountWorkspace: "Workspace",
+      accountEmail: "Email",
+      accountPermissions: "Permisos",
+      accountPermissionsAgent: "Puedes gestionar conversaciones, responder mensajes y reportar incidencias.",
+      accountPermissionsAdmin: "Puedes configurar el workspace, gestionar equipo y operar conversaciones.",
     };
   }
 
@@ -176,6 +184,14 @@ function getSetupCopy(lang: string) {
       pilotFeedbackStatusNew: "Novo",
       pilotFeedbackStatusReviewed: "Revisado",
       pilotFeedbackStatusClosed: "Fechado",
+      accountTitle: "O seu acesso",
+      accountHelp: "Informação da conta com a qual está a trabalhar neste momento.",
+      accountRole: "Função",
+      accountWorkspace: "Workspace",
+      accountEmail: "Email",
+      accountPermissions: "Permissões",
+      accountPermissionsAgent: "Pode gerir conversas, responder mensagens e reportar incidências.",
+      accountPermissionsAdmin: "Pode configurar o workspace, gerir equipa e operar conversas.",
     };
   }
 
@@ -258,7 +274,33 @@ function getSetupCopy(lang: string) {
     pilotFeedbackStatusNew: "New",
     pilotFeedbackStatusReviewed: "Reviewed",
     pilotFeedbackStatusClosed: "Closed",
+    accountTitle: "Your access",
+    accountHelp: "Information about the account you are currently using.",
+    accountRole: "Role",
+    accountWorkspace: "Workspace",
+    accountEmail: "Email",
+    accountPermissions: "Permissions",
+    accountPermissionsAgent: "You can manage conversations, reply to messages, and report issues.",
+    accountPermissionsAdmin: "You can configure the workspace, manage the team, and operate conversations.",
   };
+}
+
+function formatRoleLabel(lang: string, role: string) {
+  if (lang === "pt") {
+    if (role === "owner") return "Owner";
+    if (role === "admin") return "Admin";
+    return "Agente";
+  }
+
+  if (lang === "en") {
+    if (role === "owner") return "Owner";
+    if (role === "admin") return "Admin";
+    return "Agent";
+  }
+
+  if (role === "owner") return "Owner";
+  if (role === "admin") return "Admin";
+  return "Agente";
 }
 
 export default async function SettingsPage() {
@@ -303,6 +345,9 @@ export default async function SettingsPage() {
   const hasWebhookSecrets = Boolean(process.env.WHATSAPP_VERIFY_TOKEN && process.env.WHATSAPP_APP_SECRET);
   const whatsappSetupRequest = setupRequests.find((request) => request.channel === "whatsapp" && (request.status === "requested" || request.status === "in_progress"));
   const businessSetup = getBusinessSetup(context.company);
+  const roleLabel = formatRoleLabel(lang, context.profile.role);
+  const workspaceLabel = context.company?.name ?? "Novua Inbox";
+
   return (
     <section className="page">
       <AppNav
@@ -329,24 +374,26 @@ export default async function SettingsPage() {
               </div>
               <p className="note">{copy.channelUsage}</p>
               <p className="note">{copy.channelsNote}</p>
-              <div className="actions" style={{ marginTop: 12 }}>
-                <SetupRequestButton
-                  idleLabel={copy.requestWhatsAppSetup}
-                  updateLabel={copy.updateWhatsAppSetup}
-                  requestedLabel={copy.setupRequested}
-                  requestedNote={copy.setupRequestedNote}
-                  numberLabel={copy.setupNumberLabel}
-                  numberPlaceholder={copy.setupNumberPlaceholder}
-                  metaVerifiedLabel={copy.setupMetaVerifiedLabel}
-                  metaVerifiedYes={copy.setupMetaVerifiedYes}
-                  metaVerifiedNo={copy.setupMetaVerifiedNo}
-                  notesLabel={copy.setupNotesLabel}
-                  notesPlaceholder={copy.setupNotesPlaceholder}
-                  phoneRequiredError={copy.setupPhoneRequired}
-                  existingStatus={whatsappSetupRequest?.status ?? null}
-                  existingNotes={whatsappSetupRequest?.notes ?? null}
-                />
-              </div>
+              {canManageTeam ? (
+                <div className="actions" style={{ marginTop: 12 }}>
+                  <SetupRequestButton
+                    idleLabel={copy.requestWhatsAppSetup}
+                    updateLabel={copy.updateWhatsAppSetup}
+                    requestedLabel={copy.setupRequested}
+                    requestedNote={copy.setupRequestedNote}
+                    numberLabel={copy.setupNumberLabel}
+                    numberPlaceholder={copy.setupNumberPlaceholder}
+                    metaVerifiedLabel={copy.setupMetaVerifiedLabel}
+                    metaVerifiedYes={copy.setupMetaVerifiedYes}
+                    metaVerifiedNo={copy.setupMetaVerifiedNo}
+                    notesLabel={copy.setupNotesLabel}
+                    notesPlaceholder={copy.setupNotesPlaceholder}
+                    phoneRequiredError={copy.setupPhoneRequired}
+                    existingStatus={whatsappSetupRequest?.status ?? null}
+                    existingNotes={whatsappSetupRequest?.notes ?? null}
+                  />
+                </div>
+              ) : null}
             </div>
           ) : (
             channels.map((channel) => (
@@ -458,7 +505,30 @@ export default async function SettingsPage() {
               error: copy.businessSetupError,
             }}
           />
-        ) : null}
+        ) : (
+          <article className="card">
+            <p className="label">{copy.accountTitle}</p>
+            <p className="subtitle" style={{ marginBottom: 12 }}>{copy.accountHelp}</p>
+            <div className="preview-row">
+              <span>{copy.accountRole}</span>
+              <span className="badge status-active">{roleLabel}</span>
+            </div>
+            <div className="preview-row">
+              <span>{copy.accountWorkspace}</span>
+              <span>{workspaceLabel}</span>
+            </div>
+            <div className="preview-row">
+              <span>{copy.accountEmail}</span>
+              <span>{context.user.email ?? "-"}</span>
+            </div>
+            <div className="agent-settings-note">
+              <p className="label" style={{ marginBottom: 6 }}>{copy.accountPermissions}</p>
+              <p className="subtitle" style={{ margin: 0 }}>
+                {context.profile.role === "agent" ? copy.accountPermissionsAgent : copy.accountPermissionsAdmin}
+              </p>
+            </div>
+          </article>
+        )}
       </div>
 
       {showCustomerFeedback ? (
