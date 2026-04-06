@@ -202,6 +202,7 @@ export default async function InboxPage({
                 <th>{t("inbox_last_msg")}</th>
                 <th>{t("inbox_status")}</th>
                 <th>{t("inbox_value")}</th>
+                <th>{t("inbox_assigned")}</th>
                 <th>Siguiente paso</th>
               </tr>
             </thead>
@@ -237,6 +238,11 @@ export default async function InboxPage({
                       </div>
                     </td>
                     <td>
+                      <span className="label" style={{ margin: 0, textTransform: "none" }}>
+                        {row.assignedTo ?? "Sin asignar"}
+                      </span>
+                    </td>
+                    <td>
                       <div className="stack-actions">
                         {primaryAction ? (
                           <Link className={isPriorityRow ? "mini-button is-active" : "mini-button"} href={`/conversation/${row.id}`}>
@@ -247,9 +253,6 @@ export default async function InboxPage({
                             Sin acción pendiente
                           </span>
                         )}
-                        <span className="note" style={{ marginTop: 0 }}>
-                          {row.assignedTo ? `Responsable: ${row.assignedTo}` : "Sin responsable"}
-                        </span>
                       </div>
                     </td>
                   </tr>
