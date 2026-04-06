@@ -68,7 +68,7 @@ function conversationPriorityScore(row: {
 export default async function InboxPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ unit?: string; demo?: string; focus?: string }>;
+  searchParams?: Promise<{ unit?: string; demo?: string; focus?: string; scope?: string }>;
 }) {
   const cookieStore = await cookies();
   const headerStore = await headers();
@@ -101,9 +101,18 @@ export default async function InboxPage({
   const canSeeInternalSetup = canManageInternalWorkspace(workspaceMode);
   const unitOptions = Array.from(new Set(rows.map((row) => row.unit).filter((value): value is string => Boolean(value))));
   const selectedUnit = resolvedSearchParams?.unit?.trim() || "";
+  const selectedScope = resolvedSearchParams?.scope?.trim() || "all";
   const showDemoNotice = resolvedSearchParams?.demo?.trim() === "1";
   const focusedConversationId = resolvedSearchParams?.focus?.trim() || "";
-  const visibleRows = (selectedUnit ? rows.filter((row) => row.unit === selectedUnit) : rows).sort((a, b) => {
+  const scopedRows = rows.filter((row) => {
+    if (selectedUnit && row.unit !== selectedUnit) return false;
+    if (selectedScope === "mine") return row.assignedToId === context.user.id;
+    if (selectedScope === "unassigned") return !row.assignedToId;
+    if (selectedScope === "no_response") return row.status === "no_response";
+    if (selectedScope === "new") return row.status === "new";
+    return true;
+  });
+  const visibleRows = scopedRows.sort((a, b) => {
     const scoreDiff = conversationPriorityScore(b) - conversationPriorityScore(a);
     if (scoreDiff !== 0) return scoreDiff;
     const recencyA = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
@@ -122,6 +131,16 @@ export default async function InboxPage({
     .filter((row) => row.status === "lost")
     .reduce((sum, row) => sum + row.estimatedValue, 0);
   void team;
+
+  function buildInboxHref(scope: string) {
+    const params = new URLSearchParams();
+    if (scope !== "all") params.set("scope", scope);
+    if (selectedUnit) params.set("unit", selectedUnit);
+    if (showDemoNotice) params.set("demo", "1");
+    if (focusedConversationId) params.set("focus", focusedConversationId);
+    const query = params.toString();
+    return query ? `/inbox?${query}` : "/inbox";
+  }
 
   return (
     <section className="page">
@@ -213,7 +232,27 @@ export default async function InboxPage({
                 </p>
               </div>
             ) : null}
+            <div className="inbox-quick-filters">
+              <Link className={selectedScope === "all" ? "mini-button is-active" : "mini-button"} href={buildInboxHref("all")}>
+                Todas
+              </Link>
+              <Link className={selectedScope === "mine" ? "mini-button is-active" : "mini-button"} href={buildInboxHref("mine")}>
+                Mías
+              </Link>
+              <Link className={selectedScope === "unassigned" ? "mini-button is-active" : "mini-button"} href={buildInboxHref("unassigned")}>
+                Sin asignar
+              </Link>
+              <Link className={selectedScope === "no_response" ? "mini-button is-active" : "mini-button"} href={buildInboxHref("no_response")}>
+                Sin respuesta
+              </Link>
+              <Link className={selectedScope === "new" ? "mini-button is-active" : "mini-button"} href={buildInboxHref("new")}>
+                Nuevas
+              </Link>
+            </div>
             <form method="GET" className="actions" style={{ marginBottom: 12 }}>
+              <input type="hidden" name="scope" value={selectedScope === "all" ? "" : selectedScope} />
+              {showDemoNotice ? <input type="hidden" name="demo" value="1" /> : null}
+              {focusedConversationId ? <input type="hidden" name="focus" value={focusedConversationId} /> : null}
               <select className="input row-select" name="unit" defaultValue={selectedUnit}>
                 <option value="">{t("inbox_all_units")}</option>
                 {unitOptions.map((option) => (
@@ -250,6 +289,7 @@ export default async function InboxPage({
                 const rowClassName = [
                   row.id === focusedConversationId ? "table-row-focus" : "",
                   isPriorityRow ? "table-row-priority" : "",
+                  row.assignedToId === context.user.id ? "table-row-mine" : "",
                 ]
                   .filter(Boolean)
                   .join(" ");
