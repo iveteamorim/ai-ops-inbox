@@ -35,8 +35,8 @@ function actionLabel(type: DecisionType) {
   if (type === "complex") return "Escalar caso";
   if (type === "new") return "Revisar lead";
   if (type === "won") return "Ver cierre";
-  if (type === "lost") return "Revisar caso";
-  return "Responder";
+  if (type === "lost") return null;
+  return "Continuar conversación";
 }
 
 function conversationPriorityScore(row: {
@@ -238,9 +238,15 @@ export default async function InboxPage({
                     </td>
                     <td>
                       <div className="stack-actions">
-                        <Link className={isPriorityRow ? "mini-button is-active" : "mini-button"} href={`/conversation/${row.id}`}>
-                          {primaryAction}
-                        </Link>
+                        {primaryAction ? (
+                          <Link className={isPriorityRow ? "mini-button is-active" : "mini-button"} href={`/conversation/${row.id}`}>
+                            {primaryAction}
+                          </Link>
+                        ) : (
+                          <span className="note" style={{ marginTop: 0 }}>
+                            Sin acción pendiente
+                          </span>
+                        )}
                         <span className="note" style={{ marginTop: 0 }}>
                           {row.assignedTo ? `Responsable: ${row.assignedTo}` : "Sin responsable"}
                         </span>
