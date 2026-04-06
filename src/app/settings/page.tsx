@@ -431,32 +431,34 @@ export default async function SettingsPage() {
           ) : null}
         </article>
 
-        <BusinessSetupForm
-          initialValue={businessSetup}
-          showInternalTools={canSeeInternalSetup}
-          labels={{
-            title: copy.businessSetupTitle,
-            help: copy.businessSetupHelp,
-            businessName: copy.businessSetupName,
-            leadTypesBlock: copy.businessSetupLeadTypesBlock,
-            leadTypes: copy.businessSetupLeadTypes,
-            addLeadType: copy.businessSetupAddLeadType,
-            leadTypeName: copy.businessSetupLeadTypeName,
-            estimatedValue: copy.businessSetupEstimatedValue,
-            removeLeadType: copy.businessSetupRemoveLeadType,
-            save: copy.businessSetupSave,
-            saving: copy.businessSetupSaving,
-            backfill: copy.businessSetupBackfill,
-            backfilling: copy.businessSetupBackfilling,
-            backfillSuccess: copy.businessSetupBackfillSuccess,
-            reseedDemo: copy.businessSetupReseedDemo,
-            reseedingDemo: copy.businessSetupReseedingDemo,
-            reseedDemoSuccess: copy.businessSetupReseedDemoSuccess,
-            reseedDemoConfirm: copy.businessSetupReseedDemoConfirm,
-            success: copy.businessSetupSuccess,
-            error: copy.businessSetupError,
-          }}
-        />
+        {canManageTeam ? (
+          <BusinessSetupForm
+            initialValue={businessSetup}
+            showInternalTools={canSeeInternalSetup}
+            labels={{
+              title: copy.businessSetupTitle,
+              help: copy.businessSetupHelp,
+              businessName: copy.businessSetupName,
+              leadTypesBlock: copy.businessSetupLeadTypesBlock,
+              leadTypes: copy.businessSetupLeadTypes,
+              addLeadType: copy.businessSetupAddLeadType,
+              leadTypeName: copy.businessSetupLeadTypeName,
+              estimatedValue: copy.businessSetupEstimatedValue,
+              removeLeadType: copy.businessSetupRemoveLeadType,
+              save: copy.businessSetupSave,
+              saving: copy.businessSetupSaving,
+              backfill: copy.businessSetupBackfill,
+              backfilling: copy.businessSetupBackfilling,
+              backfillSuccess: copy.businessSetupBackfillSuccess,
+              reseedDemo: copy.businessSetupReseedDemo,
+              reseedingDemo: copy.businessSetupReseedingDemo,
+              reseedDemoSuccess: copy.businessSetupReseedDemoSuccess,
+              reseedDemoConfirm: copy.businessSetupReseedDemoConfirm,
+              success: copy.businessSetupSuccess,
+              error: copy.businessSetupError,
+            }}
+          />
+        ) : null}
       </div>
 
       {showCustomerFeedback ? (
