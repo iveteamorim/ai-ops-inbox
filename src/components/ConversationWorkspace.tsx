@@ -295,16 +295,6 @@ export function ConversationWorkspace({
             >
               {generatingSuggestion ? "..." : t("conversation_reply_with_ai")}
             </button>
-            <button
-              className="mini-button"
-              type="button"
-              onClick={() => {
-                setDraft((current) => current || aiSuggestion);
-                textareaRef.current?.focus();
-              }}
-            >
-              {t("conversation_write_manually")}
-            </button>
             <button className="mini-button" type="button" onClick={() => sendReply()} disabled={sending || !draft.trim()}>
               {sending ? "..." : t("inbox_reply")}
             </button>
