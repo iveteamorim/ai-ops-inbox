@@ -123,10 +123,13 @@ export function TeamMembersList({
         const reassignOptions = members.filter((candidate) => candidate.id !== member.id);
 
         return (
-          <div key={member.id} className="preview-row">
-            <div>
-              <span>{member.full_name ?? "Unnamed user"} ({member.role})</span>
-              <p className="subtitle" style={{ margin: "4px 0 0" }}>
+          <div key={member.id} className="team-member-row">
+            <div className="team-member-main">
+              <div className="team-member-heading">
+                <strong>{member.full_name ?? "Unnamed user"}</strong>
+                <span className="badge team-role-badge">{member.role}</span>
+              </div>
+              <p className="subtitle team-member-load">
                 {member.openConversations} conversaciones abiertas
               </p>
               {canViewStats() ? (
@@ -145,10 +148,10 @@ export function TeamMembersList({
                 </details>
               ) : null}
             </div>
-            <div className="actions">
+            <div className="actions team-member-actions">
               <span className="badge status-active">{activeLabel}</span>
               {canReassign(member) ? (
-                <>
+                <div className="team-reassign">
                   <select
                     className="input row-select"
                     value={reassignTargetByMember[member.id] ?? ""}
@@ -172,7 +175,7 @@ export function TeamMembersList({
                   >
                     {reassigning ? reassigningLabel : reassignLabel}
                   </button>
-                </>
+                </div>
               ) : null}
               {canRemove(member) ? (
                 <button

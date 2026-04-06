@@ -689,6 +689,60 @@ a {
   text-align: right;
 }
 
+.team-member-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.team-member-row:last-child {
+  border-bottom: 0;
+}
+
+.team-member-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.team-member-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.team-member-heading strong {
+  font-size: 0.98rem;
+  color: var(--text);
+}
+
+.team-role-badge {
+  background: rgba(148, 163, 184, 0.14);
+  color: #cbd5e1;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.team-member-load {
+  margin: 6px 0 0;
+}
+
+.team-member-actions {
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 260px;
+}
+
+.team-reassign {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .setup-panel {
   margin-top: 12px;
   border: 1px solid var(--line);
