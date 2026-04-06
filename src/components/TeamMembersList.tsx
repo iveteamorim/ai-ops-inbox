@@ -129,9 +129,6 @@ export function TeamMembersList({
                 <strong>{member.full_name ?? "Unnamed user"}</strong>
                 <span className="badge team-role-badge">{member.role}</span>
               </div>
-              <p className="subtitle team-member-load">
-                {member.openConversations} conversaciones abiertas
-              </p>
               {canViewStats() ? (
                 <details className="team-member-stats">
                   <summary>Ver detalle</summary>
