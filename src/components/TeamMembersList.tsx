@@ -51,6 +51,10 @@ export function TeamMembersList({
     return (currentUserRole === "owner" || currentUserRole === "admin") && members.some((candidate) => candidate.id !== member.id);
   }
 
+  function canViewStats() {
+    return currentUserRole === "owner" || currentUserRole === "admin";
+  }
+
   function handleRemove(memberId: string) {
     setMessage(null);
     setError(null);
@@ -125,6 +129,21 @@ export function TeamMembersList({
               <p className="subtitle" style={{ margin: "4px 0 0" }}>
                 {member.openConversations} conversaciones abiertas
               </p>
+              {canViewStats() ? (
+                <details className="team-member-stats">
+                  <summary>Ver detalle</summary>
+                  <div className="team-member-stats-grid">
+                    <span>Abiertas</span>
+                    <strong>{member.openConversations}</strong>
+                    <span>Sin respuesta</span>
+                    <strong>{member.atRiskConversations}</strong>
+                    <span>Ganadas</span>
+                    <strong>{member.wonConversations}</strong>
+                    <span>Perdidas</span>
+                    <strong>{member.lostConversations}</strong>
+                  </div>
+                </details>
+              ) : null}
             </div>
             <div className="actions">
               <span className="badge status-active">{activeLabel}</span>

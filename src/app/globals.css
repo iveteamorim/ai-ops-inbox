@@ -667,6 +667,28 @@ a {
   background: rgba(20, 42, 38, 0.75);
 }
 
+.team-member-stats {
+  margin-top: 8px;
+}
+
+.team-member-stats summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.team-member-stats-grid {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 6px 12px;
+  margin-top: 8px;
+  font-size: 0.85rem;
+}
+
+.team-member-stats-grid strong {
+  text-align: right;
+}
+
 .setup-panel {
   margin-top: 12px;
   border: 1px solid var(--line);

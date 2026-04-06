@@ -104,6 +104,8 @@ export type TeamMemberView = {
   role: string;
   openConversations: number;
   atRiskConversations: number;
+  wonConversations: number;
+  lostConversations: number;
 };
 
 export type PendingInviteView = {
@@ -759,8 +761,7 @@ export async function getSettingsData(
       .from("conversations")
       .select("assigned_to, status")
       .eq("company_id", companyId)
-      .not("assigned_to", "is", null)
-      .in("status", ["new", "active", "no_response"]),
+      .not("assigned_to", "is", null),
   ]);
 
   let pendingInvites: PendingInviteView[] = [];
@@ -790,13 +791,19 @@ export async function getSettingsData(
   }
 
   const pendingInviteIds = new Set(pendingInvites.map((invite) => invite.id));
-  const openConversationCountByMember = new Map<string, { open: number; atRisk: number }>();
-  for (const row of ((assignedConversations as Array<{ assigned_to: string | null; status: "new" | "active" | "no_response" }> | null | undefined) ?? [])) {
+  const openConversationCountByMember = new Map<string, { open: number; atRisk: number; won: number; lost: number }>();
+  for (const row of ((assignedConversations as Array<{ assigned_to: string | null; status: "new" | "active" | "no_response" | "won" | "lost" }> | null | undefined) ?? [])) {
     if (!row.assigned_to) continue;
-    const current = openConversationCountByMember.get(row.assigned_to) ?? { open: 0, atRisk: 0 };
-    current.open += 1;
+    const current = openConversationCountByMember.get(row.assigned_to) ?? { open: 0, atRisk: 0, won: 0, lost: 0 };
+    if (row.status === "new" || row.status === "active" || row.status === "no_response") {
+      current.open += 1;
+    }
     if (row.status === "no_response") {
       current.atRisk += 1;
+    } else if (row.status === "won") {
+      current.won += 1;
+    } else if (row.status === "lost") {
+      current.lost += 1;
     }
     openConversationCountByMember.set(row.assigned_to, current);
   }
@@ -805,11 +812,13 @@ export async function getSettingsData(
   const team = allProfiles
     .filter((member) => !pendingInviteIds.has(member.id))
     .map((member) => {
-      const counts = openConversationCountByMember.get(member.id) ?? { open: 0, atRisk: 0 };
+      const counts = openConversationCountByMember.get(member.id) ?? { open: 0, atRisk: 0, won: 0, lost: 0 };
       return {
         ...member,
         openConversations: counts.open,
         atRiskConversations: counts.atRisk,
+        wonConversations: counts.won,
+        lostConversations: counts.lost,
       } satisfies TeamMemberView;
     });
 
