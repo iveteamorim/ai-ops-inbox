@@ -534,7 +534,8 @@ export async function getConversationViews(
 
   return conversationRows.map((row) => {
     const contact = contactsById.get(row.contact_id);
-    const assigned = row.assigned_to ? profilesById.get(row.assigned_to) : null;
+    const hasHumanReply = Boolean(row.last_outbound_at);
+    const assigned = hasHumanReply && row.assigned_to ? profilesById.get(row.assigned_to) : null;
     const latestMessage = lastMessageByConversation.get(row.id);
     const latestInboundMessage = lastInboundMessageByConversation.get(row.id);
     const classification = classifyLeadFromMessage(
@@ -560,7 +561,7 @@ export async function getConversationViews(
       channel: row.channel,
       status: effectiveStatus,
       decisionType,
-      assignedToId: row.assigned_to,
+      assignedToId: hasHumanReply ? row.assigned_to : null,
       assignedTo: assigned?.full_name ?? null,
       aiPriority: normalizePriority(row.ai_priority),
       estimatedValue:
