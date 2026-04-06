@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { InboxRowActions } from "@/components/InboxRowActions";
 import { useI18n } from "@/components/i18n/LanguageProvider";
@@ -133,6 +133,17 @@ export function ConversationWorkspace({
       body: "La conversación sigue activa. Mantén el avance y reduce fricción en el siguiente paso.",
     };
   }, [decisionType]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      if (document.visibilityState !== "visible" || sending) return;
+      router.refresh();
+    }, 8000);
+
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [router, sending]);
 
   async function sendReply(overrideText?: string) {
     const text = (overrideText ?? draft).trim();

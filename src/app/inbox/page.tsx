@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cookies, headers } from "next/headers";
 import { AppNav } from "@/components/AppNav";
+import { AutoRefresh } from "@/components/AutoRefresh";
 import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
@@ -124,6 +125,7 @@ export default async function InboxPage({
 
   return (
     <section className="page">
+      <AutoRefresh intervalMs={12000} />
       <AppNav showSetup={canSeeInternalSetup} showLocale={canSeeInternalSetup} />
       <header className="header">
         <div>
