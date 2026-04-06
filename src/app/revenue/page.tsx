@@ -38,6 +38,7 @@ export default async function RevenuePage() {
     );
   }
   const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
+  const canManageBusiness = context.profile.role === "owner" || context.profile.role === "admin";
 
   const opportunities = await getConversationViews(context.supabase, context.profile.company_id);
   const sortedOpportunities = [...opportunities].sort((a, b) => {
@@ -69,16 +70,21 @@ export default async function RevenuePage() {
     return openConversation && item.estimatedValue > 0 && customerWaiting && staleEnough;
   });
   const atRisk = atRiskQueue.reduce((sum, item) => sum + item.estimatedValue, 0);
-  const byLeadType = Array.from(
-    opportunities.reduce((map, item) => {
-      const key = item.leadType ?? t("inbox_unclassified");
-      const current = map.get(key) ?? { leadType: key, count: 0, estimatedValue: 0 };
-      current.count += 1;
-      current.estimatedValue += item.estimatedValue;
-      map.set(key, current);
-      return map;
-    }, new Map<string, { leadType: string; count: number; estimatedValue: number }>()).values(),
-  ).sort((a, b) => b.estimatedValue - a.estimatedValue);
+  const activeOpportunities = opportunities.filter(
+    (item) => item.status === "new" || item.status === "active" || item.status === "no_response",
+  );
+  const byLeadType = canManageBusiness
+    ? Array.from(
+        opportunities.reduce((map, item) => {
+          const key = item.leadType ?? t("inbox_unclassified");
+          const current = map.get(key) ?? { leadType: key, count: 0, estimatedValue: 0 };
+          current.count += 1;
+          current.estimatedValue += item.estimatedValue;
+          map.set(key, current);
+          return map;
+        }, new Map<string, { leadType: string; count: number; estimatedValue: number }>()).values(),
+      ).sort((a, b) => b.estimatedValue - a.estimatedValue)
+    : [];
   const topLeadTypes = byLeadType.slice(0, 6);
   const hiddenLeadTypesCount = Math.max(0, byLeadType.length - topLeadTypes.length);
 
@@ -97,24 +103,35 @@ export default async function RevenuePage() {
         </div>
       </header>
 
-      <div className="grid cols-3">
-        <article className="card"><p className="label">{t("revenue_open_pipeline")}</p><p className="kpi">{format(openPotential)}</p></article>
-        <article className="card"><p className="label">{t("revenue_at_risk")}</p><p className="kpi warn">{format(atRisk)}</p></article>
-        <article className="card"><p className="label">{t("revenue_recovered")}</p><p className="kpi">{format(recoveredRevenue)}</p></article>
-      </div>
+      {canManageBusiness ? (
+        <>
+          <div className="grid cols-3">
+            <article className="card"><p className="label">{t("revenue_open_pipeline")}</p><p className="kpi">{format(openPotential)}</p></article>
+            <article className="card"><p className="label">{t("revenue_at_risk")}</p><p className="kpi warn">{format(atRisk)}</p></article>
+            <article className="card"><p className="label">{t("revenue_recovered")}</p><p className="kpi">{format(recoveredRevenue)}</p></article>
+          </div>
 
-      <div className="grid cols-2" style={{ marginTop: 12 }}>
-        <article className="card"><p className="label">{t("revenue_lost_estimated")}</p><p className="kpi warn">{format(lostEstimated)}</p></article>
-        <article className="card">
-          <p className="label">{t("revenue_business_states")}</p>
-          <p className="subtitle" style={{ margin: 0 }}>
-            {opportunities.filter((item) => item.status === "new" || item.status === "active" || item.status === "no_response").length}{" "}
-            {t("revenue_active_opportunities").toLowerCase()} ·{" "}
-            {opportunities.filter((item) => item.status === "won").length} {t("revenue_filter_won").toLowerCase()} ·{" "}
-            {opportunities.filter((item) => item.status === "lost").length} {t("revenue_filter_lost").toLowerCase()}
-          </p>
-        </article>
-      </div>
+          <div className="grid cols-2" style={{ marginTop: 12 }}>
+            <article className="card"><p className="label">{t("revenue_lost_estimated")}</p><p className="kpi warn">{format(lostEstimated)}</p></article>
+            <article className="card">
+              <p className="label">{t("revenue_business_states")}</p>
+              <p className="subtitle" style={{ margin: 0 }}>
+                {activeOpportunities.length} {t("revenue_active_opportunities").toLowerCase()} ·{" "}
+                {opportunities.filter((item) => item.status === "won").length} {t("revenue_filter_won").toLowerCase()} ·{" "}
+                {opportunities.filter((item) => item.status === "lost").length} {t("revenue_filter_lost").toLowerCase()}
+              </p>
+            </article>
+          </div>
+        </>
+      ) : (
+        <div className="grid cols-2">
+          <article className="card"><p className="label">{t("revenue_at_risk")}</p><p className="kpi warn">{format(atRisk)}</p></article>
+          <article className="card">
+            <p className="label">{t("revenue_active_opportunities")}</p>
+            <p className="kpi">{activeOpportunities.length}</p>
+          </article>
+        </div>
+      )}
 
       <article className="card" style={{ marginTop: 12 }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 12 }}>
@@ -160,7 +177,7 @@ export default async function RevenuePage() {
         )}
       </article>
 
-      {byLeadType.length > 0 ? (
+      {canManageBusiness && byLeadType.length > 0 ? (
         <article className="card" style={{ marginTop: 12 }}>
           <p className="label" style={{ marginBottom: 12 }}>{t("dashboard_lead")}</p>
           <div className="grid cols-3">
@@ -205,7 +222,7 @@ export default async function RevenuePage() {
                 <th>{t("revenue_client")}</th>
                 <th>{t("dashboard_lead")}</th>
                 <th>{t("revenue_potential")}</th>
-                <th>{t("revenue_recovered")}</th>
+                {canManageBusiness ? <th>{t("revenue_recovered")}</th> : null}
                 <th>{t("inbox_status")}</th>
                 <th>{t("revenue_last_contact")}</th>
               </tr>
@@ -218,7 +235,9 @@ export default async function RevenuePage() {
                   </td>
                   <td>{item.leadType ?? t("inbox_unclassified")}</td>
                   <td>{format(item.estimatedValue)}</td>
-                  <td>{item.status === "won" ? format(item.expectedValue || item.estimatedValue) : "—"}</td>
+                  {canManageBusiness ? (
+                    <td>{item.status === "won" ? format(item.expectedValue || item.estimatedValue) : "—"}</td>
+                  ) : null}
                   <td>{formatStatus(item.status, t)}</td>
                   <td>{formatRelativeTime(item.lastMessageAt)}</td>
                 </tr>
