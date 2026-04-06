@@ -30,6 +30,11 @@ function statusClass(status: string) {
   return "status-lost";
 }
 
+function timeLabelClass(status: "new" | "active" | "won" | "lost" | "no_response") {
+  if (status === "no_response") return "time-critical";
+  return "";
+}
+
 function actionLabel(type: DecisionType) {
   if (type === "recover") return "Responder ahora";
   if (type === "complex") return "Escalar caso";
@@ -152,7 +157,7 @@ export default async function InboxPage({
             </>
           ) : (
             <>
-              <p className="label">Nuevos por revisar</p>
+              <p className="label">Leads nuevos</p>
               <p className="kpi" style={{ marginBottom: 6 }}>{format(newAmount)}</p>
               <p className="subtitle" style={{ margin: 0 }}>
                 {newRows.length} leads nuevos
@@ -245,7 +250,10 @@ export default async function InboxPage({
                     </td>
                     <td>
                       {row.lastMessageText}
-                      <div className="label" style={{ marginTop: 4, marginBottom: 0, textTransform: "none" }}>
+                      <div
+                        className={`label ${timeLabelClass(row.status)}`.trim()}
+                        style={{ marginTop: 4, marginBottom: 0, textTransform: "none" }}
+                      >
                         {formatRelativeTime(row.lastMessageAt)}
                       </div>
                     </td>

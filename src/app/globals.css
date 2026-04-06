@@ -165,9 +165,13 @@ a {
 }
 
 .badge-muted {
-  background: rgba(184, 203, 199, 0.12);
-  border-color: rgba(184, 203, 199, 0.2);
-  color: #d8e6e3;
+  background: rgba(184, 203, 199, 0.18);
+  border-color: rgba(184, 203, 199, 0.35);
+  color: #e4efec;
+}
+
+.time-critical {
+  color: #fed7aa;
 }
 
 .status-new {
