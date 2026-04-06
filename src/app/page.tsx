@@ -137,30 +137,23 @@ export default function LandingPage() {
       <section className="card pricing-card" id="pricing" style={{ marginBottom: 14 }}>
         <div className="pricing-head">
           <div>
-            <p className="eyebrow">Onboarding</p>
-            <h3 style={{ marginTop: 0 }}>Pilot setup for teams with inbound volume</h3>
-            <p className="subtitle">
-              Novua is currently offered as a guided pilot. We help teams set up the workspace,
-              define lead types, and turn the inbox into a clear work queue.
-            </p>
-            <p className="pricing-urgency">
-              The goal is not to add another inbox. The goal is to make the right conversation obvious at the right time.
-            </p>
+            <p className="eyebrow">{t("landing_onboarding_eyebrow")}</p>
+            <h3 style={{ marginTop: 0 }}>{t("landing_onboarding_title")}</h3>
+            <p className="subtitle">{t("landing_onboarding_subtitle")}</p>
+            <p className="pricing-urgency">{t("landing_onboarding_goal")}</p>
             <article className="pricing-pain card" style={{ marginTop: 12 }}>
-              <p className="warn" style={{ margin: 0 }}>Setup and monthly plans are available for pilot customers.</p>
-              <p className="subtitle" style={{ marginTop: 6 }}>
-                We currently price pilots based on team size, volume, and onboarding scope instead of fixed public plans.
-              </p>
+              <p className="warn" style={{ margin: 0 }}>{t("landing_onboarding_note_title")}</p>
+              <p className="subtitle" style={{ marginTop: 6 }}>{t("landing_onboarding_note_text")}</p>
             </article>
           </div>
         </div>
 
         <div className="actions" style={{ marginTop: 14 }}>
           <Link className="button" href="/signup">
-            Request pilot access
+            {t("landing_onboarding_cta")}
           </Link>
           <Link className="mini-button" href="/login">
-            View product
+            {t("landing_onboarding_view")}
           </Link>
         </div>
       </section>

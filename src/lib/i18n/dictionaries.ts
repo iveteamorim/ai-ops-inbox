@@ -73,6 +73,17 @@ export const dictionary = {
     landing_cta_title: "Empieza a responder mejor desde hoy",
     landing_cta_text:
       "Sin cambiar tu forma de trabajar. Solo con mejor información sobre cada conversación.",
+    landing_onboarding_eyebrow: "Onboarding",
+    landing_onboarding_title: "Onboarding guiado para equipos con volumen de conversaciones",
+    landing_onboarding_subtitle:
+      "Te ayudamos a configurar el workspace, definir tipos de lead y convertir el inbox en una cola de trabajo clara.",
+    landing_onboarding_goal:
+      "El objetivo no es añadir otro inbox. Es hacer obvia la conversación correcta en el momento correcto.",
+    landing_onboarding_note_title: "Disponible como piloto guiado para equipos con volumen de conversaciones.",
+    landing_onboarding_note_text:
+      "Hoy ajustamos onboarding y pricing según el tamaño del equipo, el volumen y el alcance de configuración.",
+    landing_onboarding_cta: "Solicitar demo",
+    landing_onboarding_view: "Ver inbox",
 
     cta_try_free: "Probar gratis",
     cta_primary_b2b: "Agendar diagnóstico",
@@ -365,6 +376,17 @@ export const dictionary = {
     landing_cta_title: "Comece a responder melhor hoje",
     landing_cta_text:
       "Sem mudar sua forma de trabalhar. Apenas com melhor informação sobre cada conversa.",
+    landing_onboarding_eyebrow: "Onboarding",
+    landing_onboarding_title: "Onboarding guiado para equipes com volume de conversas",
+    landing_onboarding_subtitle:
+      "Ajudamos a configurar o workspace, definir tipos de lead e transformar o inbox em uma fila de trabalho clara.",
+    landing_onboarding_goal:
+      "O objetivo não é adicionar mais um inbox. É tornar óbvia a conversa certa no momento certo.",
+    landing_onboarding_note_title: "Disponível como piloto guiado para equipes com volume de conversas.",
+    landing_onboarding_note_text:
+      "Hoje ajustamos onboarding e pricing conforme o tamanho da equipe, o volume e o escopo de configuração.",
+    landing_onboarding_cta: "Solicitar demo",
+    landing_onboarding_view: "Ver inbox",
 
     cta_try_free: "Teste grátis",
     cta_primary_b2b: "Agendar diagnóstico",
@@ -657,6 +679,17 @@ export const dictionary = {
     landing_cta_title: "Start with your team this week",
     landing_cta_text:
       "Activate Novua Inbox, prioritize higher-value leads and reduce losses from day one.",
+    landing_onboarding_eyebrow: "Onboarding",
+    landing_onboarding_title: "Guided onboarding for teams with inbound volume",
+    landing_onboarding_subtitle:
+      "We help teams set up the workspace, define lead types, and turn the inbox into a clear work queue.",
+    landing_onboarding_goal:
+      "The goal is not to add another inbox. It is to make the right conversation obvious at the right time.",
+    landing_onboarding_note_title: "Available as a guided pilot for teams with inbound volume.",
+    landing_onboarding_note_text:
+      "We currently scope onboarding and pricing based on team size, message volume, and setup needs.",
+    landing_onboarding_cta: "Request demo",
+    landing_onboarding_view: "View inbox",
 
     cta_try_free: "Start free",
     cta_primary_b2b: "Book diagnosis",
