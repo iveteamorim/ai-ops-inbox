@@ -1,10 +1,8 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
 import { MarketingNav } from "@/components/MarketingNav";
 import { useI18n } from "@/components/i18n/LanguageProvider";
-import { detectBrowserCurrency, type Currency } from "@/lib/i18n/currency";
 
 const trustBrands = [
   { name: "Cliniq+", src: "/logos/cliniq.svg" },
@@ -19,25 +17,6 @@ const marqueeBrands = [...trustBrands, ...trustBrands];
 
 export default function LandingPage() {
   const { t } = useI18n();
-  const [currency, setCurrency] = useState<Currency>("EUR");
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem("pricing_currency");
-    if (stored === "BRL" || stored === "EUR") {
-      setCurrency(stored);
-      return;
-    }
-
-    setCurrency(detectBrowserCurrency());
-  }, []);
-
-  const prices = useMemo(
-    () =>
-      currency === "BRL"
-        ? { starter: "R$249", growth: "R$699", pro: "R$1299" }
-        : { starter: "€49", growth: "€129", pro: "€249" },
-    [currency],
-  );
 
   const decisionSignal = "8";
 
@@ -158,71 +137,31 @@ export default function LandingPage() {
       <section className="card pricing-card" id="pricing" style={{ marginBottom: 14 }}>
         <div className="pricing-head">
           <div>
-            <p className="eyebrow">{t("pricing_eyebrow")}</p>
-<h3 style={{ marginTop: 0 }}>{t("pricing_title")}</h3>
-            <p className="subtitle">{t("pricing_subtitle")}</p>
-            <p className="pricing-urgency">{t("pricing_urgency")}</p>
+            <p className="eyebrow">Onboarding</p>
+            <h3 style={{ marginTop: 0 }}>Pilot setup for teams with inbound volume</h3>
+            <p className="subtitle">
+              Novua is currently offered as a guided pilot. We help teams set up the workspace,
+              define lead types, and turn the inbox into a clear work queue.
+            </p>
+            <p className="pricing-urgency">
+              The goal is not to add another inbox. The goal is to make the right conversation obvious at the right time.
+            </p>
             <article className="pricing-pain card" style={{ marginTop: 12 }}>
-              <p className="warn" style={{ margin: 0 }}>{t("pricing_pain_title")}</p>
-              <p className="subtitle" style={{ marginTop: 6 }}>{t("pricing_pain_text")}</p>
+              <p className="warn" style={{ margin: 0 }}>Setup and monthly plans are available for pilot customers.</p>
+              <p className="subtitle" style={{ marginTop: 6 }}>
+                We currently price pilots based on team size, volume, and onboarding scope instead of fixed public plans.
+              </p>
             </article>
           </div>
         </div>
 
-        <div className="grid cols-3">
-          <article className="card">
-            <p className="eyebrow">{t("pricing_starter")}</p>
-            <p className="kpi">
-              {prices.starter}
-              <span className="pricing-month">{t("pricing_month")}</span>
-            </p>
-            <p className="pricing-value-line">{t("pricing_starter_recovery")}</p>
-            <p>{t("pricing_no_miss")}</p>
-            <p>{t("pricing_users_3")}</p>
-            <p>{t("pricing_whatsapp")}</p>
-            <p>{t("pricing_ai_detect")}</p>
-            <Link className="button" href="/signup">
-              {t("pricing_cta_starter")}
-            </Link>
-          </article>
-
-          <article className="card pricing-highlight">
-            <div className="pricing-plan-head">
-              <p className="eyebrow">{t("pricing_growth")}</p>
-              <span className="badge score-high">{t("pricing_growth_badge")}</span>
-            </div>
-            <p className="kpi">
-              {prices.growth}
-              <span className="pricing-month">{t("pricing_month")}</span>
-            </p>
-            <p className="pricing-value-line">{t("pricing_growth_recovery")}</p>
-            <p>{t("pricing_no_miss")}</p>
-            <p>{t("pricing_users_6")}</p>
-            <p>{t("pricing_whatsapp")}</p>
-            <p>{t("pricing_ai_full")}</p>
-            <p>{t("pricing_money_loss")}</p>
-            <Link className="button" href="/signup">
-              {t("pricing_cta_growth")}
-            </Link>
-          </article>
-
-          <article className="card">
-            <p className="eyebrow">{t("pricing_pro")}</p>
-            <p className="kpi">
-              {prices.pro}
-              <span className="pricing-month">{t("pricing_month")}</span>
-            </p>
-            <p className="pricing-value-line">{t("pricing_pro_recovery")}</p>
-            <p>{t("pricing_no_miss")}</p>
-            <p>{t("pricing_users_15")}</p>
-            <p>{t("pricing_automations_adv")}</p>
-            <p>{t("pricing_lead_value_segment")}</p>
-            <p>{t("pricing_predictive_insights")}</p>
-            <p>{t("pricing_support_priority")}</p>
-            <Link className="button" href="/signup">
-              {t("pricing_cta_pro")}
-            </Link>
-          </article>
+        <div className="actions" style={{ marginTop: 14 }}>
+          <Link className="button" href="/signup">
+            Request pilot access
+          </Link>
+          <Link className="mini-button" href="/login">
+            View product
+          </Link>
         </div>
       </section>
 
