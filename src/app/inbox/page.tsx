@@ -103,13 +103,13 @@ export default async function InboxPage({
     const recencyB = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
     return recencyB - recencyA;
   });
-  const leadsAtRisk = rows.filter((row) => row.status === "new" || row.status === "no_response").length;
-  const riskAmount = rows
-    .filter((row) => row.status === "new" || row.status === "no_response")
-    .reduce((sum, row) => sum + row.estimatedValue, 0);
-  const activeAmount = rows
-    .filter((row) => row.status === "active")
-    .reduce((sum, row) => sum + row.estimatedValue, 0);
+  const unansweredRows = rows.filter((row) => row.status === "no_response");
+  const newRows = rows.filter((row) => row.status === "new");
+  const activeRows = rows.filter((row) => row.status === "active");
+  const leadsAtRisk = unansweredRows.length;
+  const riskAmount = unansweredRows.reduce((sum, row) => sum + row.estimatedValue, 0);
+  const activeAmount = activeRows.reduce((sum, row) => sum + row.estimatedValue, 0);
+  const newAmount = newRows.reduce((sum, row) => sum + row.estimatedValue, 0);
   const complexCount = rows.filter((row) => row.decisionType === "complex").length;
   const lostAmount = rows
     .filter((row) => row.status === "lost")
@@ -138,15 +138,27 @@ export default async function InboxPage({
           <p className="label">En progreso</p>
           <p className="kpi" style={{ marginBottom: 6 }}>{format(activeAmount)}</p>
           <p className="subtitle" style={{ margin: 0 }}>
-            {rows.filter((row) => row.status === "active").length} conversaciones activas
+            {activeRows.length} conversaciones activas
           </p>
         </article>
         <article className="card decision-card decision-card-neutral">
-          <p className="label">Requieren atención</p>
-          <p className="kpi" style={{ marginBottom: 6 }}>{complexCount}</p>
-          <p className="subtitle" style={{ margin: 0 }}>
-            {complexCount === 0 ? "sin casos complejos" : "casos complejos detectados"}
-          </p>
+          {complexCount > 0 ? (
+            <>
+              <p className="label">Requieren atención</p>
+              <p className="kpi" style={{ marginBottom: 6 }}>{complexCount}</p>
+              <p className="subtitle" style={{ margin: 0 }}>
+                casos complejos detectados
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="label">Nuevos por revisar</p>
+              <p className="kpi" style={{ marginBottom: 6 }}>{format(newAmount)}</p>
+              <p className="subtitle" style={{ margin: 0 }}>
+                {newRows.length} leads nuevos
+              </p>
+            </>
+          )}
         </article>
       </div>
 
@@ -155,7 +167,7 @@ export default async function InboxPage({
           {format(riskAmount)} {t("inbox_risk_money_now")}
         </p>
         <p className="subtitle" style={{ margin: 0 }}>
-          {leadsAtRisk} {t("inbox_risk_line")}
+          {leadsAtRisk > 0 ? `${leadsAtRisk} ${t("inbox_risk_line")}` : "No hay conversaciones en riesgo por demora."}
         </p>
         <p className="subtitle" style={{ marginTop: 6 }}>
           {t("inbox_lost_today_prefix")} {format(lostAmount)} {t("inbox_lost_today_suffix")}
