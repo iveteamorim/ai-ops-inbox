@@ -523,6 +523,27 @@ a {
   gap: 8px;
 }
 
+.dashboard-shortcut {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(15, 29, 27, 0.9);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.dashboard-shortcut strong {
+  font-size: 0.95rem;
+}
+
+.dashboard-shortcut span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
 .cta {
   background: linear-gradient(140deg, rgba(22, 163, 74, 0.2) 0%, rgba(9, 18, 17, 0.92) 55%);
 }

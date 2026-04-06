@@ -4,7 +4,7 @@ import { AppNav } from "@/components/AppNav";
 import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
-import { formatNoReplyDuration, getAppContext, getConversationViews } from "@/lib/app-data";
+import { getAppContext, getConversationViews } from "@/lib/app-data";
 import { canManageInternalWorkspace, getWorkspaceMode } from "@/lib/internal-access";
 
 function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
@@ -13,6 +13,10 @@ function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
     currency,
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+function countValue(items: Array<{ estimatedValue: number }>) {
+  return items.reduce((sum, item) => sum + item.estimatedValue, 0);
 }
 
 export default async function DashboardPage() {
@@ -46,29 +50,63 @@ export default async function DashboardPage() {
       </section>
     );
   }
+
   const workspaceMode = getWorkspaceMode(context.company, context.user.email);
   const canSeeInternalSetup = canManageInternalWorkspace(workspaceMode);
-
+  const canManageBusiness = context.profile.role === "owner" || context.profile.role === "admin";
   const conversations = await getConversationViews(context.supabase, context.profile.company_id);
-  const riskThresholdMs = 2 * 60 * 60 * 1000;
-  const now = Date.now();
-  const actionQueue = conversations
-    .filter((item) => {
-      const inboundTime = item.lastInboundAt ? new Date(item.lastInboundAt).getTime() : null;
-      const outboundTime = item.lastOutboundAt ? new Date(item.lastOutboundAt).getTime() : null;
-      const customerWaiting = Boolean(inboundTime && (!outboundTime || inboundTime > outboundTime));
-      const staleEnough = Boolean(inboundTime && now - inboundTime >= riskThresholdMs);
-      const openConversation = item.status === "new" || item.status === "active" || item.status === "no_response";
-      return openConversation && item.estimatedValue > 0 && customerWaiting && staleEnough;
-    })
-    .sort((a, b) => {
-      const waitA = a.lastInboundAt ? now - new Date(a.lastInboundAt).getTime() : 0;
-      const waitB = b.lastInboundAt ? now - new Date(b.lastInboundAt).getTime() : 0;
-      return b.estimatedValue - a.estimatedValue || waitB - waitA;
-    })
-    .slice(0, 5);
-  const actionQueueValue = actionQueue.reduce((sum, item) => sum + item.estimatedValue, 0);
-  const revenueAtRisk = actionQueueValue;
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const workspaceOpen = conversations.filter((item) => item.status === "new" || item.status === "active" || item.status === "no_response");
+  const workspaceRisk = conversations.filter((item) => item.status === "no_response");
+  const workspaceNew = conversations.filter((item) => item.status === "new");
+  const workspaceWon = conversations.filter((item) => item.status === "won");
+
+  const myOpen = conversations.filter(
+    (item) => item.assignedToId === context.user.id && (item.status === "new" || item.status === "active" || item.status === "no_response"),
+  );
+  const myRisk = conversations.filter((item) => item.assignedToId === context.user.id && item.status === "no_response");
+  const todayLeads = conversations.filter((item) => new Date(item.createdAt).getTime() >= todayStart.getTime());
+  const visibleOpen = canManageBusiness ? workspaceOpen : myOpen;
+  const visibleRisk = canManageBusiness ? workspaceRisk : myRisk;
+
+  const shortcutLinks = canManageBusiness
+    ? [
+        {
+          href: "/inbox?scope=no_response",
+          label: t("dashboard_pending_conversations"),
+          detail: `${workspaceRisk.length} ${t("inbox_filter_no_reply").toLowerCase()}`,
+        },
+        {
+          href: "/inbox?scope=unassigned",
+          label: t("inbox_assigned"),
+          detail: `${conversations.filter((item) => !item.assignedToId).length} sin asignar`,
+        },
+        {
+          href: "/inbox?scope=new",
+          label: t("inbox_filter_new"),
+          detail: `${workspaceNew.length} leads nuevos`,
+        },
+      ]
+    : [
+        {
+          href: "/inbox?scope=mine",
+          label: "Mis conversaciones",
+          detail: `${myOpen.length} abiertas a mi cargo`,
+        },
+        {
+          href: "/inbox?scope=no_response",
+          label: t("inbox_filter_no_reply"),
+          detail: `${myRisk.length} pendientes de respuesta`,
+        },
+        {
+          href: "/inbox?scope=unassigned",
+          label: "Sin asignar",
+          detail: `${conversations.filter((item) => !item.assignedToId).length} disponibles para coger`,
+        },
+      ];
 
   return (
     <section className="page">
@@ -82,69 +120,70 @@ export default async function DashboardPage() {
         <div>
           <h1 className="title">{t("dashboard_title")}</h1>
           <p className="subtitle">
-            {context.company?.name ?? "Novua Inbox"} operational view for leads, risk and revenue.
+            {canManageBusiness
+              ? `${context.company?.name ?? "Novua Inbox"} overview: situación del workspace y foco del día.`
+              : "Resumen rápido de tu carga actual y accesos directos para operar."}
           </p>
         </div>
       </header>
 
-      <div className="grid cols-2" style={{ marginBottom: 12 }}>
+      <div className="grid cols-3" style={{ marginBottom: 12 }}>
         <article className="card">
-          <p className="label">{t("dashboard_revenue_risk")}</p>
-          <p className="kpi warn">{format(revenueAtRisk)}</p>
+          <p className="label">{canManageBusiness ? t("dashboard_leads_today") : "Mis abiertas"}</p>
+          <p className="kpi">{canManageBusiness ? todayLeads.length : myOpen.length}</p>
+          <p className="subtitle" style={{ margin: 0 }}>
+            {canManageBusiness ? "conversaciones creadas hoy" : "conversaciones activas a tu cargo"}
+          </p>
         </article>
         <article className="card">
-          <p className="label">{t("dashboard_pending_conversations")}</p>
-          <p className="kpi">{actionQueue.length}</p>
+          <p className="label">{t("dashboard_no_reply")}</p>
+          <p className="kpi warn">{format(countValue(visibleRisk))}</p>
+          <p className="subtitle" style={{ margin: 0 }}>
+            {visibleRisk.length} conversaciones esperando respuesta
+          </p>
+        </article>
+        <article className="card">
+          <p className="label">{canManageBusiness ? t("dashboard_revenue_risk") : "Valor en curso"}</p>
+          <p className="kpi">{format(countValue(visibleOpen))}</p>
+          <p className="subtitle" style={{ margin: 0 }}>
+            {canManageBusiness ? `${workspaceWon.length} ${t("revenue_filter_won").toLowerCase()} en el workspace` : "valor estimado de tus conversaciones abiertas"}
+          </p>
         </article>
       </div>
 
-      <article className="card" style={{ marginBottom: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 12, flexWrap: "wrap" }}>
-          <div>
-            <p className="label">{t("revenue_risk_queue_title")}</p>
-            <p className="subtitle" style={{ margin: 0 }}>{t("revenue_risk_queue_subtitle")}</p>
+      <div className="grid cols-2">
+        <article className="card">
+          <p className="label">{canManageBusiness ? "Qué revisar hoy" : "Qué hacer ahora"}</p>
+          <div className="clean-list">
+            {shortcutLinks.map((item) => (
+              <Link key={item.href} href={item.href} className="dashboard-shortcut">
+                <strong>{item.label}</strong>
+                <span>{item.detail}</span>
+              </Link>
+            ))}
           </div>
-          <p className="kpi warn" style={{ margin: 0 }}>
-            {format(actionQueueValue)} · {actionQueue.length} {t("dashboard_pending_conversations").toLowerCase()}
-          </p>
-        </div>
+        </article>
 
-        {actionQueue.length === 0 ? (
-          <div className="empty-state">
-            <h3>{t("revenue_risk_queue_empty_title")}</h3>
-            <p>{t("revenue_risk_queue_empty_text")}</p>
+        <article className="card">
+          <p className="label">{canManageBusiness ? "Estado del workspace" : "Tu contexto"}</p>
+          <div className="preview-row">
+            <span>{t("inbox_filter_in_progress")}</span>
+            <strong>{canManageBusiness ? workspaceOpen.filter((item) => item.status === "active").length : myOpen.filter((item) => item.status === "active").length}</strong>
           </div>
-        ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>{t("revenue_client")}</th>
-                <th>{t("dashboard_lead")}</th>
-                <th>{t("revenue_estimated")}</th>
-                <th>{t("revenue_last_contact")}</th>
-                <th>{t("dashboard_action")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {actionQueue.map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    <span>{item.contactName}</span>
-                  </td>
-                  <td>{item.leadType ?? t("inbox_unclassified")}</td>
-                  <td><strong>{format(item.estimatedValue)}</strong></td>
-                  <td><span className="subtitle" style={{ margin: 0 }}>{formatNoReplyDuration(item.lastInboundAt ?? item.lastMessageAt)}</span></td>
-                  <td>
-                    <Link className="button" href={`/conversation/${item.id}`}>
-                      {t("dashboard_action_reply_now")}
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </article>
+          <div className="preview-row">
+            <span>{t("inbox_filter_new")}</span>
+            <strong>{canManageBusiness ? workspaceNew.length : conversations.filter((item) => !item.assignedToId && item.status === "new").length}</strong>
+          </div>
+          <div className="preview-row">
+            <span>{t("inbox_filter_no_reply")}</span>
+            <strong>{visibleRisk.length}</strong>
+          </div>
+          <div className="preview-row">
+            <span>{t("revenue_filter_won")}</span>
+            <strong>{canManageBusiness ? workspaceWon.length : conversations.filter((item) => item.assignedToId === context.user.id && item.status === "won").length}</strong>
+          </div>
+        </article>
+      </div>
     </section>
   );
 }
