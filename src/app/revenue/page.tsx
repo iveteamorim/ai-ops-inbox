@@ -84,7 +84,12 @@ export default async function RevenuePage() {
 
   return (
     <section className="page">
-      <AppNav showSetup={canSeeInternalSetup} showLocale={canSeeInternalSetup} />
+      <AppNav
+        showSetup={canSeeInternalSetup}
+        showLocale={canSeeInternalSetup}
+        userName={context.profile.full_name ?? context.user.email ?? null}
+        userRole={context.profile.role}
+      />
       <header className="header">
         <div>
           <h1 className="title">{t("revenue_title")}</h1>

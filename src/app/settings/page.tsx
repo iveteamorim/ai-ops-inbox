@@ -305,7 +305,12 @@ export default async function SettingsPage() {
   const businessSetup = getBusinessSetup(context.company);
   return (
     <section className="page">
-      <AppNav showSetup={canSeeInternalSetup} showLocale={canSeeInternalSetup} />
+      <AppNav
+        showSetup={canSeeInternalSetup}
+        showLocale={canSeeInternalSetup}
+        userName={context.profile.full_name ?? context.user.email ?? null}
+        userRole={context.profile.role}
+      />
       <header className="header">
         <div>
           <h1 className="title">{t("settings_title")}</h1>

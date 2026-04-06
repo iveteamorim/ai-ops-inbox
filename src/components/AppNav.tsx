@@ -7,9 +7,18 @@ import { LocaleMenu } from "@/components/i18n/LocaleMenu";
 type AppNavProps = {
   showSetup?: boolean;
   showLocale?: boolean;
+  userName?: string | null;
+  userRole?: string | null;
 };
 
-export function AppNav({ showSetup = false, showLocale = false }: AppNavProps) {
+function formatRole(role?: string | null) {
+  if (role === "owner") return "Owner";
+  if (role === "admin") return "Admin";
+  if (role === "agent") return "Agent";
+  return null;
+}
+
+export function AppNav({ showSetup = false, showLocale = false, userName, userRole }: AppNavProps) {
   const { t } = useI18n();
 
   const links = [
@@ -28,6 +37,12 @@ export function AppNav({ showSetup = false, showLocale = false }: AppNavProps) {
         </Link>
       ))}
       <span className="nav-spacer" />
+      {userName ? (
+        <div className="nav-user">
+          <strong>{userName}</strong>
+          {formatRole(userRole) ? <span>{formatRole(userRole)}</span> : null}
+        </div>
+      ) : null}
       {showLocale ? <LocaleMenu /> : null}
       <form action="/auth/signout" method="post">
         <button type="submit" className="mini-button">{t("nav_logout")}</button>

@@ -19,7 +19,12 @@ export default async function TriagePreviewPage() {
 
   return (
     <section className="page">
-      <AppNav showSetup showLocale />
+      <AppNav
+        showSetup
+        showLocale
+        userName={context.profile.full_name ?? context.user.email ?? null}
+        userRole={context.profile.role}
+      />
       <header className="header">
         <div>
           <h1 className="title">Triage preview</h1>

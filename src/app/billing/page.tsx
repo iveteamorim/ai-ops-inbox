@@ -17,7 +17,7 @@ export default async function BillingPage() {
     data: { user },
   } = await supabase.auth.getUser();
   const { data: profile } = user
-    ? await supabase.from("profiles").select("company_id").eq("id", user.id).maybeSingle<{ company_id: string }>()
+    ? await supabase.from("profiles").select("company_id, full_name, role").eq("id", user.id).maybeSingle<{ company_id: string; full_name: string | null; role: string | null }>()
     : { data: null };
   const { data: company } =
     profile?.company_id
@@ -30,7 +30,12 @@ export default async function BillingPage() {
 
   return (
     <section className="page">
-      <AppNav showSetup={canSeeInternalSetup} showLocale={canSeeInternalSetup} />
+      <AppNav
+        showSetup={canSeeInternalSetup}
+        showLocale={canSeeInternalSetup}
+        userName={profile?.full_name ?? user?.email ?? null}
+        userRole={profile?.role ?? null}
+      />
       <header className="header">
         <div>
           <h1 className="title">{t("billing_title")}</h1>
