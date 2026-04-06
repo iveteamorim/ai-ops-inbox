@@ -182,9 +182,11 @@ export default async function InboxPage({
         <p className="subtitle" style={{ margin: 0 }}>
           {leadsAtRisk > 0 ? `${leadsAtRisk} ${t("inbox_risk_line")}` : "No hay conversaciones en riesgo por demora."}
         </p>
-        <p className="subtitle" style={{ marginTop: 6 }}>
-          {t("inbox_lost_today_prefix")} {format(lostAmount)} {t("inbox_lost_today_suffix")}
-        </p>
+        {lostAmount > 0 ? (
+          <p className="subtitle" style={{ marginTop: 6 }}>
+            {t("inbox_lost_today_prefix")} {format(lostAmount)} {t("inbox_lost_today_suffix")}
+          </p>
+        ) : null}
       </article>
 
       <article className="card">
