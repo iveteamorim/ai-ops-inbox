@@ -168,6 +168,7 @@ export function ConversationWorkspace({
         },
       ]);
       setDraft(overrideText ? draft : "");
+      router.refresh();
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Failed to send message");
     } finally {

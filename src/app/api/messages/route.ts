@@ -5,6 +5,7 @@ type ConversationRow = {
   id: string;
   company_id: string;
   channel: "whatsapp" | "instagram" | "email" | "form";
+  assigned_to: string | null;
 };
 
 type PostBody = {
@@ -24,7 +25,7 @@ async function getAuthenticatedClient() {
 async function getAuthorizedConversation(supabase: Awaited<ReturnType<typeof createClient>>, conversationId: string) {
   const { data: conversation, error: conversationError } = await supabase
     .from("conversations")
-    .select("id, company_id, channel")
+    .select("id, company_id, channel, assigned_to")
     .eq("id", conversationId)
     .maybeSingle<ConversationRow>();
 
@@ -129,6 +130,21 @@ export async function POST(request: Request) {
 
   if (updateError) {
     return NextResponse.json({ ok: false, error: updateError.message }, { status: 500 });
+  }
+
+  if (!access.conversation.assigned_to) {
+    const { error: assignmentError } = await authContext.supabase
+      .from("conversations")
+      .update({
+        assigned_to: authContext.user.id,
+        updated_at: now,
+      })
+      .eq("id", access.conversation.id)
+      .is("assigned_to", null);
+
+    if (assignmentError) {
+      return NextResponse.json({ ok: false, error: assignmentError.message }, { status: 500 });
+    }
   }
 
   return NextResponse.json({ ok: true, queued: true });
