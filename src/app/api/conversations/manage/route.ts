@@ -83,26 +83,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
 
-  const canManageAssignment = profile.role === "owner" || profile.role === "admin";
-
-  if (assignedTo !== undefined && !canManageAssignment) {
-    return NextResponse.json({ ok: false, error: "assignment_forbidden" }, { status: 403 });
-  }
-
-  if (assignedTo) {
-    const { data: assignee, error: assigneeError } = await supabase
-      .from("profiles")
-      .select("id, company_id, role")
-      .eq("id", assignedTo)
-      .maybeSingle<ProfileRow>();
-
-    if (assigneeError) {
-      return NextResponse.json({ ok: false, error: assigneeError.message }, { status: 500 });
-    }
-
-    if (!assignee || assignee.company_id !== conversation.company_id) {
-      return NextResponse.json({ ok: false, error: "invalid_assignee" }, { status: 400 });
-    }
+  if (assignedTo !== undefined) {
+    return NextResponse.json(
+      { ok: false, error: "assignment_managed_on_first_reply" },
+      { status: 400 },
+    );
   }
 
   const patch: {
@@ -122,10 +107,6 @@ export async function POST(request: Request) {
     } else if (conversation.status === "won" || status === "lost") {
       patch.expected_value = 0;
     }
-  }
-
-  if (assignedTo !== undefined) {
-    patch.assigned_to = assignedTo;
   }
 
   if (unit !== undefined) {

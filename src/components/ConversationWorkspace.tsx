@@ -11,9 +11,7 @@ type Props = {
   conversation: ConversationView;
   initialMessages: MessageView[];
   currency: "EUR" | "BRL";
-  team: Array<{ id: string; full_name: string | null; role: string }>;
   unitOptions: string[];
-  canAssign: boolean;
 };
 
 function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
@@ -49,9 +47,7 @@ export function ConversationWorkspace({
   conversation,
   initialMessages,
   currency,
-  team,
   unitOptions,
-  canAssign,
 }: Props) {
   const router = useRouter();
   const { t, lang } = useI18n();
@@ -359,19 +355,14 @@ export function ConversationWorkspace({
               <InboxRowActions
                 conversationId={conversation.id}
                 currentStatus={conversation.status}
-                currentAssignedToId={conversation.assignedToId}
                 currentUnit={conversation.unit}
                 unitOptions={unitOptions}
-                team={team}
-                canAssign={canAssign}
                 labels={{
                   status: t("inbox_status"),
-                  assignee: t("inbox_assigned"),
                   unit: t("inbox_unit"),
                   noUnit: t("inbox_no_unit"),
                   save: t("inbox_change_status"),
                   saving: "...",
-                  unassigned: "Unassigned",
                   new: t("inbox_filter_new"),
                   active: t("inbox_filter_in_progress"),
                   noResponse: t("inbox_filter_no_reply"),

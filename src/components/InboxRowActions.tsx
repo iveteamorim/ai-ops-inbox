@@ -3,28 +3,17 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
-type TeamOption = {
-  id: string;
-  full_name: string | null;
-  role: string;
-};
-
 type Props = {
   conversationId: string;
   currentStatus: "new" | "active" | "no_response" | "won" | "lost";
-  currentAssignedToId: string | null;
   currentUnit: string | null;
   unitOptions: string[];
-  team: TeamOption[];
-  canAssign: boolean;
   labels: {
     status: string;
-    assignee: string;
     unit: string;
     noUnit: string;
     save: string;
     saving: string;
-    unassigned: string;
     new: string;
     active: string;
     noResponse: string;
@@ -36,16 +25,12 @@ type Props = {
 export function InboxRowActions({
   conversationId,
   currentStatus,
-  currentAssignedToId,
   currentUnit,
   unitOptions,
-  team,
-  canAssign,
   labels,
 }: Props) {
   const router = useRouter();
   const [status, setStatus] = useState(currentStatus);
-  const [assignedTo, setAssignedTo] = useState(currentAssignedToId ?? "");
   const [unit, setUnit] = useState(currentUnit ?? "");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -60,7 +45,6 @@ export function InboxRowActions({
           conversationId,
           status,
           unit: unit || null,
-          assignedTo: canAssign ? assignedTo || null : undefined,
         }),
       });
 
@@ -108,27 +92,6 @@ export function InboxRowActions({
           </option>
         ))}
       </select>
-
-      {canAssign ? (
-        <>
-          <label className="sr-only" htmlFor={`assignee-${conversationId}`}>
-            {labels.assignee}
-          </label>
-          <select
-            id={`assignee-${conversationId}`}
-            className="input row-select"
-            value={assignedTo}
-            onChange={(event) => setAssignedTo(event.target.value)}
-          >
-            <option value="">{labels.unassigned}</option>
-            {team.map((member) => (
-              <option key={member.id} value={member.id}>
-                {member.full_name ?? "Unnamed user"} ({member.role})
-              </option>
-            ))}
-          </select>
-        </>
-      ) : null}
 
       <button className="mini-button" type="button" disabled={isPending} onClick={save}>
         {isPending ? labels.saving : labels.save}
