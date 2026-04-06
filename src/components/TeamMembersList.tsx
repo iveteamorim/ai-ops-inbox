@@ -124,7 +124,6 @@ export function TeamMembersList({
               <span>{member.full_name ?? "Unnamed user"} ({member.role})</span>
               <p className="subtitle" style={{ margin: "4px 0 0" }}>
                 {member.openConversations} conversaciones abiertas
-                {member.atRiskConversations > 0 ? ` · ${member.atRiskConversations} en riesgo` : ""}
               </p>
             </div>
             <div className="actions">
