@@ -157,19 +157,6 @@ export default function LandingPage() {
           </Link>
         </div>
       </section>
-
-      <section className="cta card">
-        <h3 style={{ marginTop: 0 }}>{t("landing_cta_title")}</h3>
-        <p>{t("landing_cta_text")}</p>
-        <div className="hero-actions">
-          <Link className="button" href="/signup">
-            {t("cta_create_account")}
-          </Link>
-          <Link className="mini-button" href="/login">
-            {t("cta_signin")}
-          </Link>
-        </div>
-      </section>
     </section>
   );
 }
