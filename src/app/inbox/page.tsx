@@ -40,12 +40,21 @@ function actionLabel(type: DecisionType) {
 }
 
 function conversationPriorityScore(row: {
+  decisionType: DecisionType;
   status: "new" | "active" | "won" | "lost" | "no_response";
   aiPriority: "high" | "medium" | "low";
   estimatedValue: number;
 }) {
   const statusBonus =
-    row.status === "no_response" ? 20 : row.status === "new" ? 12 : row.status === "active" ? 6 : 0;
+    row.decisionType === "recover"
+      ? 200
+      : row.decisionType === "complex"
+        ? 140
+        : row.decisionType === "new"
+          ? 80
+          : row.status === "active"
+            ? 24
+            : 0;
   const aiBonus = row.aiPriority === "high" ? 18 : row.aiPriority === "medium" ? 8 : 0;
   return row.estimatedValue + statusBonus + aiBonus;
 }
