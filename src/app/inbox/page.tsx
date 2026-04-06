@@ -32,9 +32,11 @@ function statusClass(status: string) {
 
 function actionLabel(type: DecisionType) {
   if (type === "recover") return "Responder ahora";
-  if (type === "complex") return "Revisar manualmente";
+  if (type === "complex") return "Escalar caso";
   if (type === "new") return "Revisar lead";
-  return "Continuar";
+  if (type === "won") return "Ver cierre";
+  if (type === "lost") return "Revisar caso";
+  return "Responder";
 }
 
 function conversationPriorityScore(row: {
@@ -200,7 +202,7 @@ export default async function InboxPage({
                 <th>{t("inbox_last_msg")}</th>
                 <th>{t("inbox_status")}</th>
                 <th>{t("inbox_value")}</th>
-                <th>{t("inbox_actions")}</th>
+                <th>Siguiente paso</th>
               </tr>
             </thead>
             <tbody>
