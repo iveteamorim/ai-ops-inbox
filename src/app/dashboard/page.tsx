@@ -127,31 +127,31 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <div className="grid cols-3" style={{ marginBottom: 12 }}>
-        <article className="card">
-          <p className="label">{canManageBusiness ? t("dashboard_leads_today") : "Mis abiertas"}</p>
-          <p className="kpi">{canManageBusiness ? todayLeads.length : myOpen.length}</p>
-          <p className="subtitle" style={{ margin: 0 }}>
-            {canManageBusiness ? "conversaciones creadas hoy" : "conversaciones activas a tu cargo"}
-          </p>
-        </article>
-        <article className="card">
-          <p className="label">{t("dashboard_no_reply")}</p>
-          <p className="kpi warn">{format(countValue(visibleRisk))}</p>
-          <p className="subtitle" style={{ margin: 0 }}>
-            {visibleRisk.length} conversaciones esperando respuesta
-          </p>
-        </article>
-        <article className="card">
-          <p className="label">{canManageBusiness ? t("dashboard_revenue_risk") : "Valor en curso"}</p>
-          <p className="kpi">{format(countValue(visibleOpen))}</p>
-          <p className="subtitle" style={{ margin: 0 }}>
-            {canManageBusiness ? `${workspaceWon.length} ${t("revenue_filter_won").toLowerCase()} en el workspace` : "valor estimado de tus conversaciones abiertas"}
-          </p>
-        </article>
-      </div>
-
       {canManageBusiness ? (
+        <>
+          <div className="grid cols-3" style={{ marginBottom: 12 }}>
+            <article className="card">
+              <p className="label">{t("dashboard_leads_today")}</p>
+              <p className="kpi">{todayLeads.length}</p>
+              <p className="subtitle" style={{ margin: 0 }}>
+                conversaciones creadas hoy
+              </p>
+            </article>
+            <article className="card">
+              <p className="label">{t("dashboard_no_reply")}</p>
+              <p className="kpi warn">{format(countValue(visibleRisk))}</p>
+              <p className="subtitle" style={{ margin: 0 }}>
+                {visibleRisk.length} conversaciones esperando respuesta
+              </p>
+            </article>
+            <article className="card">
+              <p className="label">{t("dashboard_revenue_risk")}</p>
+              <p className="kpi">{format(countValue(visibleOpen))}</p>
+              <p className="subtitle" style={{ margin: 0 }}>
+                {workspaceWon.length} {t("revenue_filter_won").toLowerCase()} en el workspace
+              </p>
+            </article>
+          </div>
         <div className="grid cols-2">
           <article className="card">
             <p className="label">Qué revisar hoy</p>
@@ -184,18 +184,44 @@ export default async function DashboardPage() {
             </div>
           </article>
         </div>
+        </>
       ) : (
-        <article className="card">
-          <p className="label">Qué hacer ahora</p>
-          <div className="clean-list">
-            {shortcutLinks.map((item) => (
-              <Link key={item.href} href={item.href} className="dashboard-shortcut">
-                <strong>{item.label}</strong>
-                <span>{item.detail}</span>
-              </Link>
-            ))}
+        <div className="grid cols-2">
+          <div className="dashboard-agent-metrics">
+            <article className="card">
+              <p className="label">Mis abiertas</p>
+              <p className="kpi">{myOpen.length}</p>
+              <p className="subtitle" style={{ margin: 0 }}>
+                conversaciones activas a tu cargo
+              </p>
+            </article>
+            <article className="card">
+              <p className="label">{t("dashboard_no_reply")}</p>
+              <p className="kpi warn">{format(countValue(visibleRisk))}</p>
+              <p className="subtitle" style={{ margin: 0 }}>
+                {visibleRisk.length} conversaciones esperando respuesta
+              </p>
+            </article>
+            <article className="card">
+              <p className="label">Valor en curso</p>
+              <p className="kpi">{format(countValue(visibleOpen))}</p>
+              <p className="subtitle" style={{ margin: 0 }}>
+                valor estimado de tus conversaciones abiertas
+              </p>
+            </article>
           </div>
-        </article>
+          <article className="card">
+            <p className="label">Qué hacer ahora</p>
+            <div className="clean-list">
+              {shortcutLinks.map((item) => (
+                <Link key={item.href} href={item.href} className="dashboard-shortcut">
+                  <strong>{item.label}</strong>
+                  <span>{item.detail}</span>
+                </Link>
+              ))}
+            </div>
+          </article>
+        </div>
       )}
     </section>
   );

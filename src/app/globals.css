@@ -544,6 +544,11 @@ a {
   font-size: 0.84rem;
 }
 
+.dashboard-agent-metrics {
+  display: grid;
+  gap: 12px;
+}
+
 .cta {
   background: linear-gradient(140deg, rgba(22, 163, 74, 0.2) 0%, rgba(9, 18, 17, 0.92) 55%);
 }
