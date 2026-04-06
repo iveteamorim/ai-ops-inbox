@@ -102,6 +102,8 @@ export type TeamMemberView = {
   id: string;
   full_name: string | null;
   role: string;
+  openConversations: number;
+  atRiskConversations: number;
 };
 
 export type PendingInviteView = {
@@ -722,7 +724,13 @@ export async function getSettingsData(
   userId: string,
 ) {
   const admin = createAdminClient();
-  const [{ data: channels }, { data: setupRequests }, { data: adminProfiles }, { data: feedbackHistory }] =
+  const [
+    { data: channels },
+    { data: setupRequests },
+    { data: adminProfiles },
+    { data: feedbackHistory },
+    { data: assignedConversations },
+  ] =
     await Promise.all([
     supabase
       .from("channels")
@@ -747,6 +755,12 @@ export async function getSettingsData(
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(20),
+    supabase
+      .from("conversations")
+      .select("assigned_to, status")
+      .eq("company_id", companyId)
+      .not("assigned_to", "is", null)
+      .in("status", ["new", "active", "no_response"]),
   ]);
 
   let pendingInvites: PendingInviteView[] = [];
@@ -776,8 +790,28 @@ export async function getSettingsData(
   }
 
   const pendingInviteIds = new Set(pendingInvites.map((invite) => invite.id));
-  const allProfiles = ((adminProfiles as TeamMemberView[] | null | undefined) ?? []);
-  const team = allProfiles.filter((member) => !pendingInviteIds.has(member.id));
+  const openConversationCountByMember = new Map<string, { open: number; atRisk: number }>();
+  for (const row of ((assignedConversations as Array<{ assigned_to: string | null; status: "new" | "active" | "no_response" }> | null | undefined) ?? [])) {
+    if (!row.assigned_to) continue;
+    const current = openConversationCountByMember.get(row.assigned_to) ?? { open: 0, atRisk: 0 };
+    current.open += 1;
+    if (row.status === "no_response") {
+      current.atRisk += 1;
+    }
+    openConversationCountByMember.set(row.assigned_to, current);
+  }
+
+  const allProfiles = ((adminProfiles as Array<{ id: string; full_name: string | null; role: string }> | null | undefined) ?? []);
+  const team = allProfiles
+    .filter((member) => !pendingInviteIds.has(member.id))
+    .map((member) => {
+      const counts = openConversationCountByMember.get(member.id) ?? { open: 0, atRisk: 0 };
+      return {
+        ...member,
+        openConversations: counts.open,
+        atRiskConversations: counts.atRisk,
+      } satisfies TeamMemberView;
+    });
 
   return {
     channels: ((channels as ChannelRow[] | null | undefined) ?? []),

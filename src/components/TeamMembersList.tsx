@@ -120,7 +120,13 @@ export function TeamMembersList({
 
         return (
           <div key={member.id} className="preview-row">
-            <span>{member.full_name ?? "Unnamed user"} ({member.role})</span>
+            <div>
+              <span>{member.full_name ?? "Unnamed user"} ({member.role})</span>
+              <p className="subtitle" style={{ margin: "4px 0 0" }}>
+                {member.openConversations} conversaciones abiertas
+                {member.atRiskConversations > 0 ? ` · ${member.atRiskConversations} en riesgo` : ""}
+              </p>
+            </div>
             <div className="actions">
               <span className="badge status-active">{activeLabel}</span>
               {canReassign(member) ? (
