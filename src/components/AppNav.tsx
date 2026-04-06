@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useI18n } from "@/components/i18n/LanguageProvider";
+import { LocaleMenu } from "@/components/i18n/LocaleMenu";
 
 type AppNavProps = {
   showSetup?: boolean;
+  showLocale?: boolean;
 };
 
-export function AppNav({ showSetup = false }: AppNavProps) {
+export function AppNav({ showSetup = false, showLocale = false }: AppNavProps) {
   const { t } = useI18n();
 
   const links = [
@@ -26,6 +28,7 @@ export function AppNav({ showSetup = false }: AppNavProps) {
         </Link>
       ))}
       <span className="nav-spacer" />
+      {showLocale ? <LocaleMenu /> : null}
       <form action="/auth/signout" method="post">
         <button type="submit" className="mini-button">{t("nav_logout")}</button>
       </form>

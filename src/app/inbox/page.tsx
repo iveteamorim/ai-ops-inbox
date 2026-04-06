@@ -124,7 +124,7 @@ export default async function InboxPage({
 
   return (
     <section className="page">
-      <AppNav showSetup={canSeeInternalSetup} />
+      <AppNav showSetup={canSeeInternalSetup} showLocale={canSeeInternalSetup} />
       <header className="header">
         <div>
           <h1 className="title">{t("inbox_title")}</h1>

@@ -304,7 +304,7 @@ export default async function SettingsPage() {
   const businessSetup = getBusinessSetup(context.company);
   return (
     <section className="page">
-      <AppNav showSetup={canSeeInternalSetup} />
+      <AppNav showSetup={canSeeInternalSetup} showLocale={canSeeInternalSetup} />
       <header className="header">
         <div>
           <h1 className="title">{t("settings_title")}</h1>

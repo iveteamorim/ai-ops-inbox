@@ -84,7 +84,7 @@ export default async function RevenuePage() {
 
   return (
     <section className="page">
-      <AppNav showSetup={canSeeInternalSetup} />
+      <AppNav showSetup={canSeeInternalSetup} showLocale={canSeeInternalSetup} />
       <header className="header">
         <div>
           <h1 className="title">{t("revenue_title")}</h1>

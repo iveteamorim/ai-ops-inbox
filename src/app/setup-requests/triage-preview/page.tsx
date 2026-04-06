@@ -19,7 +19,7 @@ export default async function TriagePreviewPage() {
 
   return (
     <section className="page">
-      <AppNav showSetup />
+      <AppNav showSetup showLocale />
       <header className="header">
         <div>
           <h1 className="title">Triage preview</h1>

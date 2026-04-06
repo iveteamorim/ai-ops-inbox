@@ -34,7 +34,7 @@ export default async function SetupRequestsPage() {
 
   return (
     <section className="page">
-      <AppNav />
+      <AppNav showLocale />
       <header className="header">
         <div>
           <h1 className="title">Setup requests</h1>
