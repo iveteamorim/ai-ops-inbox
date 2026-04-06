@@ -290,6 +290,7 @@ export default async function SettingsPage() {
   const workspaceMode = getWorkspaceMode(context.company, context.user.email);
   const canSeeInternalSetup = canManageInternalWorkspace(workspaceMode);
   const showCustomerFeedback = canSeeCustomerFeedback(workspaceMode);
+  const canManageTeam = context.profile.role === "owner" || context.profile.role === "admin";
   const seatLimit =
     context.company?.plan === "growth" ? 6 : context.company?.plan === "pro" ? 15 : 3;
   const usedSeats = team.length + pendingInvites.length;
@@ -394,22 +395,24 @@ export default async function SettingsPage() {
               removeError={copy.removeUserError}
             />
           )}
-          <div style={{ marginTop: 12 }}>
-            <InviteUserForm
-              title={copy.inviteTitle}
-              seatsNote={seatsNote}
-              emailLabel={copy.inviteEmail}
-              roleLabel={copy.inviteRole}
-              submitLabel={copy.inviteUser}
-              pendingLabel={copy.invitePending}
-              successLabel={copy.inviteSuccess}
-              adminLabel={copy.inviteAdmin}
-              agentLabel={copy.inviteAgent}
-              errorGeneric={copy.inviteError}
-              seatLimitError={copy.seatLimitError}
-            />
-          </div>
-          {pendingInvites.length > 0 ? (
+          {canManageTeam ? (
+            <div style={{ marginTop: 12 }}>
+              <InviteUserForm
+                title={copy.inviteTitle}
+                seatsNote={seatsNote}
+                emailLabel={copy.inviteEmail}
+                roleLabel={copy.inviteRole}
+                submitLabel={copy.inviteUser}
+                pendingLabel={copy.invitePending}
+                successLabel={copy.inviteSuccess}
+                adminLabel={copy.inviteAdmin}
+                agentLabel={copy.inviteAgent}
+                errorGeneric={copy.inviteError}
+                seatLimitError={copy.seatLimitError}
+              />
+            </div>
+          ) : null}
+          {canManageTeam && pendingInvites.length > 0 ? (
             <PendingInvitesList
               invites={pendingInvites}
               title={copy.pendingInvites}
