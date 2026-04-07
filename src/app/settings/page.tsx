@@ -374,6 +374,7 @@ export default async function SettingsPage() {
   const businessSetup = getBusinessSetup(context.company);
   const roleLabel = formatRoleLabel(lang, context.profile.role);
   const workspaceLabel = context.company?.name ?? "Novua Inbox";
+  const whatsappConnected = channels.length > 0;
 
   return (
     <section className="page">
@@ -390,76 +391,66 @@ export default async function SettingsPage() {
         </div>
       </header>
 
-      <div className="grid cols-2">
-        <article className="card">
-          <p className="label">WhatsApp</p>
-          {channels.length === 0 ? (
-            <div className="setup-state">
-              <div className="preview-row">
-                <span>WhatsApp</span>
-                <span className="badge status-no-response">{t("settings_disconnected")}</span>
-              </div>
-              <p className="note">{copy.channelUsage}</p>
-              <p className="note">{copy.channelsNote}</p>
-              {canManageTeam ? (
-                <div className="actions" style={{ marginTop: 12 }}>
-                  <SetupRequestButton
-                    idleLabel={copy.requestWhatsAppSetup}
-                    updateLabel={copy.updateWhatsAppSetup}
-                    requestedLabel={copy.setupRequested}
-                    requestedNote={copy.setupRequestedNote}
-                    numberLabel={copy.setupNumberLabel}
-                    numberPlaceholder={copy.setupNumberPlaceholder}
-                    metaVerifiedLabel={copy.setupMetaVerifiedLabel}
-                    metaVerifiedYes={copy.setupMetaVerifiedYes}
-                    metaVerifiedNo={copy.setupMetaVerifiedNo}
-                    notesLabel={copy.setupNotesLabel}
-                    notesPlaceholder={copy.setupNotesPlaceholder}
-                    phoneRequiredError={copy.setupPhoneRequired}
-                    existingStatus={whatsappSetupRequest?.status ?? null}
-                    existingNotes={whatsappSetupRequest?.notes ?? null}
-                  />
-                </div>
-              ) : null}
+      <article className={`card settings-hero ${whatsappConnected ? "settings-hero-connected" : "settings-hero-disconnected"}`.trim()}>
+        <div className="settings-hero-content">
+          <div>
+            <p className="settings-hero-title">
+              {whatsappConnected ? "WhatsApp conectado" : "WhatsApp desconectado"}
+            </p>
+            <p className="settings-hero-copy">
+              {whatsappConnected
+                ? "Ya puedes recibir y responder conversaciones reales desde Novua."
+                : "Ahora mismo no estás recibiendo conversaciones en Novua."}
+            </p>
+          </div>
+          {canManageTeam ? (
+            <div className="settings-hero-action">
+              <SetupRequestButton
+                idleLabel={whatsappConnected ? copy.updateWhatsAppSetup : copy.requestWhatsAppSetup}
+                updateLabel={copy.updateWhatsAppSetup}
+                requestedLabel={copy.setupRequested}
+                requestedNote={copy.setupRequestedNote}
+                numberLabel={copy.setupNumberLabel}
+                numberPlaceholder={copy.setupNumberPlaceholder}
+                metaVerifiedLabel={copy.setupMetaVerifiedLabel}
+                metaVerifiedYes={copy.setupMetaVerifiedYes}
+                metaVerifiedNo={copy.setupMetaVerifiedNo}
+                notesLabel={copy.setupNotesLabel}
+                notesPlaceholder={copy.setupNotesPlaceholder}
+                phoneRequiredError={copy.setupPhoneRequired}
+                existingStatus={whatsappSetupRequest?.status ?? null}
+                existingNotes={whatsappSetupRequest?.notes ?? null}
+              />
             </div>
-          ) : (
-            channels.map((channel) => (
-              <div key={channel.id} className="preview-row">
-                <span>{formatChannel(channel.type)}</span>
-                <span className={`badge ${channel.is_active ? "status-active" : "status-no-response"}`}>
-                  {channel.is_active ? t("settings_active") : t("settings_disconnected")}
-                </span>
-              </div>
-            ))
-          )}
-        </article>
-
-        <article className="card">
-          <p className="label">{canManageTeam ? t("settings_ai_revenue") : "Sistema"}</p>
-          <div className="preview-row">
-            <span>{copy.systemAiAssistance}</span>
-            <span className="badge status-active">{t("settings_active")}</span>
-          </div>
-          <div className="preview-row">
-            <span>{t("settings_lead_score")}</span>
-            <span className="badge status-active">{t("settings_active")}</span>
-          </div>
-          <div className="preview-row">
-            <span>{copy.systemFollowUpAutomation}</span>
-            <span className="badge status-active">{t("settings_active")}</span>
-          </div>
-          <div className="preview-row">
-            <span>{copy.systemWhatsappWebhook}</span>
-            <span className={`badge ${hasWebhookSecrets ? "status-active" : "status-no-response"}`}>
-              {hasWebhookSecrets ? t("settings_active") : t("settings_disconnected")}
-            </span>
-          </div>
-        </article>
-      </div>
+          ) : null}
+        </div>
+      </article>
 
       <div className="grid cols-2" style={{ marginTop: 12 }}>
         <article className="card">
-          <p className="label">{t("settings_users")}</p>
+          <p className="label">{canManageTeam ? "Cómo Novua decide" : "Sistema"}</p>
+          <div className="settings-capability-list">
+            <div className="settings-capability-card">
+              <strong>✓ {copy.systemAiAssistance}</strong>
+              <span>Ayuda al equipo a responder más rápido y con contexto.</span>
+            </div>
+            <div className="settings-capability-card">
+              <strong>✓ {t("settings_lead_score")}</strong>
+              <span>Prioriza conversaciones según valor, intención y urgencia.</span>
+            </div>
+            <div className="settings-capability-card">
+              <strong>✓ {copy.systemFollowUpAutomation}</strong>
+              <span>Empuja conversaciones activas para no perder oportunidades.</span>
+            </div>
+            <div className="settings-capability-card">
+              <strong>✓ {copy.systemWhatsappWebhook}</strong>
+              <span>{hasWebhookSecrets ? "Canal listo para recibir mensajes." : "Pendiente de conexión técnica."}</span>
+            </div>
+          </div>
+        </article>
+
+        <article className="card">
+          <p className="label">{canManageTeam ? "Quién responde a los clientes" : t("settings_users")}</p>
           {team.length === 0 ? (
             <p className="subtitle">{copy.noTeamMembers}</p>
           ) : (
@@ -509,7 +500,9 @@ export default async function SettingsPage() {
             />
           ) : null}
         </article>
+      </div>
 
+      <div className="grid cols-2" style={{ marginTop: 12 }}>
         {canManageTeam ? (
           <BusinessSetupForm
             initialValue={businessSetup}
@@ -561,6 +554,32 @@ export default async function SettingsPage() {
             </div>
           </article>
         )}
+
+        <article className="card">
+          <p className="label">Conecta WhatsApp</p>
+          <p className="subtitle" style={{ marginBottom: 12 }}>
+            Usa este canal para empezar a recibir y responder conversaciones reales desde Novua.
+          </p>
+          {channels.length === 0 ? (
+            <div className="setup-state">
+              <div className="preview-row">
+                <span>WhatsApp</span>
+                <span className="badge status-no-response">{t("settings_disconnected")}</span>
+              </div>
+              <p className="note">{copy.channelUsage}</p>
+              <p className="note">{copy.channelsNote}</p>
+            </div>
+          ) : (
+            channels.map((channel) => (
+              <div key={channel.id} className="preview-row">
+                <span>{formatChannel(channel.type)}</span>
+                <span className={`badge ${channel.is_active ? "status-active" : "status-no-response"}`}>
+                  {channel.is_active ? t("settings_active") : t("settings_disconnected")}
+                </span>
+              </div>
+            ))
+          )}
+        </article>
       </div>
 
       {showCustomerFeedback ? (
