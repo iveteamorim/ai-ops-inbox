@@ -16,7 +16,7 @@ It is an operating layer for inbound conversations, focused on risk, ownership, 
 
 ## Screenshot
 
-![Novua Inbox](./public/screenshots/inbox-demo.png)
+![Novua Inbox](./public/screenshots/inbox-demo-current.png)
 
 ## Why this product exists
 
