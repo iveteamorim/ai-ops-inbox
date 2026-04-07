@@ -41,6 +41,8 @@ export default async function RevenuePage() {
   const canManageBusiness = context.profile.role === "owner" || context.profile.role === "admin";
   const riskQueueReplyLabel =
     lang === "pt" ? "Responder agora" : lang === "en" ? "Reply now" : "Responder ahora";
+  const unassignedLabel =
+    lang === "pt" ? "Sem atribuição" : lang === "en" ? "Unassigned" : "Sin asignar";
 
   const opportunities = await getConversationViews(context.supabase, context.profile.company_id);
   const sortedOpportunities = [...opportunities].sort((a, b) => {
@@ -164,6 +166,7 @@ export default async function RevenuePage() {
                 <th>{t("revenue_client")}</th>
                 <th>{t("dashboard_lead")}</th>
                 <th>{t("revenue_estimated")}</th>
+                {canManageBusiness ? <th>{t("inbox_assigned")}</th> : null}
                 <th>{t("revenue_last_contact")}</th>
                 <th>{t("dashboard_action")}</th>
               </tr>
@@ -174,6 +177,7 @@ export default async function RevenuePage() {
                   <td>{item.contactName}</td>
                   <td>{item.leadType ?? t("inbox_unclassified")}</td>
                   <td>{format(item.estimatedValue)}</td>
+                  {canManageBusiness ? <td>{item.assignedTo ?? unassignedLabel}</td> : null}
                   <td>{formatNoReplyDuration(item.lastInboundAt ?? item.lastMessageAt)}</td>
                   <td>
                     <Link className="mini-button" href={`/conversation/${item.id}`}>
@@ -233,6 +237,7 @@ export default async function RevenuePage() {
                 <th>{t("dashboard_lead")}</th>
                 <th>{t("revenue_potential")}</th>
                 {canManageBusiness ? <th>{t("revenue_recovered")}</th> : null}
+                {canManageBusiness ? <th>{t("inbox_assigned")}</th> : null}
                 <th>{t("inbox_status")}</th>
                 <th>{t("revenue_last_contact")}</th>
               </tr>
@@ -248,6 +253,7 @@ export default async function RevenuePage() {
                   {canManageBusiness ? (
                     <td>{item.status === "won" ? format(item.expectedValue || item.estimatedValue) : "—"}</td>
                   ) : null}
+                  {canManageBusiness ? <td>{item.assignedTo ?? unassignedLabel}</td> : null}
                   <td>{formatStatus(item.status, t)}</td>
                   <td>{formatRelativeTime(item.lastMessageAt)}</td>
                 </tr>
