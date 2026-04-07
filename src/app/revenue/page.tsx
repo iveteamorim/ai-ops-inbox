@@ -99,7 +99,15 @@ export default async function RevenuePage() {
       <header className="header">
         <div>
           <h1 className="title">{t("revenue_title")}</h1>
-          <p className="subtitle">{t("revenue_subtitle")}</p>
+          <p className="subtitle">
+            {canManageBusiness
+              ? t("revenue_subtitle")
+              : lang === "pt"
+                ? "Priorize oportunidades em risco e faça seguimento sem perder contexto."
+                : lang === "en"
+                  ? "Prioritize at-risk opportunities and follow up without losing context."
+                  : "Prioriza oportunidades en riesgo y haz seguimiento sin perder contexto."}
+          </p>
         </div>
       </header>
 
