@@ -4,8 +4,8 @@ import { AppNav } from "@/components/AppNav";
 import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
-import { formatNoReplyDuration, formatStatus, formatRelativeTime, getAppContext, getConversationViews } from "@/lib/app-data";
-import { isNovuaInternalUser } from "@/lib/internal-access";
+import { formatNoReplyDuration, getAppContext, getConversationViews } from "@/lib/app-data";
+import { canManageInternalWorkspace, getWorkspaceMode } from "@/lib/internal-access";
 
 function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
   return new Intl.NumberFormat(lang, {
@@ -13,6 +13,13 @@ function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
     currency,
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+function occurredToday(isoDate: string | null, todayStart: Date) {
+  if (!isoDate) return false;
+  const timestamp = new Date(isoDate).getTime();
+  if (Number.isNaN(timestamp)) return false;
+  return timestamp >= todayStart.getTime();
 }
 
 export default async function RevenuePage() {
@@ -37,60 +44,52 @@ export default async function RevenuePage() {
       </section>
     );
   }
-  const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
-  const canManageBusiness = context.profile.role === "owner" || context.profile.role === "admin";
-  const riskQueueReplyLabel =
-    lang === "pt" ? "Responder agora" : lang === "en" ? "Reply now" : "Responder ahora";
-  const unassignedLabel =
-    lang === "pt" ? "Sem atribuição" : lang === "en" ? "Unassigned" : "Sin asignar";
 
+  const workspaceMode = getWorkspaceMode(context.company, context.user.email);
+  const canSeeInternalSetup = canManageInternalWorkspace(workspaceMode);
+  const canManageBusiness = context.profile.role === "owner" || context.profile.role === "admin";
   const opportunities = await getConversationViews(context.supabase, context.profile.company_id);
-  const sortedOpportunities = [...opportunities].sort((a, b) => {
-    return (
-      b.estimatedValue - a.estimatedValue ||
-      new Date(b.lastMessageAt ?? 0).getTime() - new Date(a.lastMessageAt ?? 0).getTime()
-    );
-  });
-  const openPotential = opportunities
-    .filter((item) => item.status === "new" || item.status === "active" || item.status === "no_response")
-    .reduce((sum, item) => sum + item.estimatedValue, 0);
-  const recoveredRevenue = opportunities
-    .filter((item) => item.status === "won")
-    .reduce((sum, item) => sum + (item.expectedValue || item.estimatedValue), 0);
-  const lostEstimated = opportunities
-    .filter((item) => item.status === "lost")
-    .reduce((sum, item) => sum + item.estimatedValue, 0);
+  const visibleOpportunities = canManageBusiness
+    ? opportunities
+    : opportunities.filter((item) => item.assignedToId === context.user.id || !item.assignedToId);
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const openStatuses = new Set(["new", "active", "no_response"]);
+  const openOpportunities = visibleOpportunities.filter((item) => openStatuses.has(item.status));
+  const activeOpportunities = visibleOpportunities.filter((item) => item.status === "active");
+  const newOpportunities = visibleOpportunities.filter((item) => item.status === "new");
+  const wonOpportunities = visibleOpportunities.filter((item) => item.status === "won");
+  const lostOpportunities = visibleOpportunities.filter((item) => item.status === "lost");
+  const wonToday = wonOpportunities.filter((item) => occurredToday(item.lastMessageAt ?? item.createdAt, todayStart));
+
   const riskThresholdMs = 2 * 60 * 60 * 1000;
   const now = Date.now();
-  const atRiskQueue = sortedOpportunities.filter((item) => {
-    const inboundTime = item.lastInboundAt ? new Date(item.lastInboundAt).getTime() : null;
-    const outboundTime = item.lastOutboundAt ? new Date(item.lastOutboundAt).getTime() : null;
-    const customerWaiting = Boolean(
-      inboundTime &&
-      (!outboundTime || inboundTime > outboundTime),
-    );
-    const staleEnough = Boolean(inboundTime && now - inboundTime >= riskThresholdMs);
-    const openConversation = item.status === "new" || item.status === "active" || item.status === "no_response";
-    return openConversation && item.estimatedValue > 0 && customerWaiting && staleEnough;
-  });
-  const atRisk = atRiskQueue.reduce((sum, item) => sum + item.estimatedValue, 0);
-  const activeOpportunities = opportunities.filter(
-    (item) => item.status === "new" || item.status === "active" || item.status === "no_response",
-  );
-  const byLeadType = canManageBusiness
-    ? Array.from(
-        opportunities.reduce((map, item) => {
-          const key = item.leadType ?? t("inbox_unclassified");
-          const current = map.get(key) ?? { leadType: key, count: 0, estimatedValue: 0 };
-          current.count += 1;
-          current.estimatedValue += item.estimatedValue;
-          map.set(key, current);
-          return map;
-        }, new Map<string, { leadType: string; count: number; estimatedValue: number }>()).values(),
-      ).sort((a, b) => b.estimatedValue - a.estimatedValue)
-    : [];
-  const topLeadTypes = byLeadType.slice(0, 6);
-  const hiddenLeadTypesCount = Math.max(0, byLeadType.length - topLeadTypes.length);
+  const atRiskQueue = [...openOpportunities]
+    .filter((item) => {
+      const inboundTime = item.lastInboundAt ? new Date(item.lastInboundAt).getTime() : null;
+      const outboundTime = item.lastOutboundAt ? new Date(item.lastOutboundAt).getTime() : null;
+      const customerWaiting = Boolean(inboundTime && (!outboundTime || inboundTime > outboundTime));
+      const staleEnough = Boolean(inboundTime && now - inboundTime >= riskThresholdMs);
+      return item.estimatedValue > 0 && customerWaiting && staleEnough;
+    })
+    .sort((a, b) => b.estimatedValue - a.estimatedValue);
+
+  const atRiskAmount = atRiskQueue.reduce((sum, item) => sum + item.estimatedValue, 0);
+  const openPotential = openOpportunities.reduce((sum, item) => sum + item.estimatedValue, 0);
+  const recoveredRevenue = wonToday.reduce((sum, item) => sum + (item.expectedValue || item.estimatedValue), 0);
+  const lostEstimated = lostOpportunities.reduce((sum, item) => sum + item.estimatedValue, 0);
+
+  const actionButtonLabel =
+    lang === "pt" ? "Responder agora" : lang === "en" ? "Reply now" : "Responder ahora";
+  const pipelineItems = [
+    { id: "risk", label: "En riesgo", count: atRiskQueue.length, icon: "🔴" },
+    { id: "progress", label: "En conversación", count: activeOpportunities.length, icon: "🟢" },
+    { id: "new", label: "Nuevo", count: newOpportunities.length, icon: "🔵" },
+    { id: "won", label: "Ganado", count: wonOpportunities.length, icon: "🟢" },
+    { id: "lost", label: "Perdido", count: lostOpportunities.length, icon: "⚪" },
+  ];
 
   return (
     <section className="page">
@@ -105,162 +104,74 @@ export default async function RevenuePage() {
           <h1 className="title">{t("revenue_title")}</h1>
           <p className="subtitle">
             {canManageBusiness
-              ? t("revenue_subtitle")
-              : lang === "pt"
-                ? "Priorize oportunidades em risco e faça seguimento sem perder contexto."
-                : lang === "en"
-                  ? "Prioritize at-risk opportunities and follow up without losing context."
-                  : "Prioriza oportunidades en riesgo y haz seguimiento sin perder contexto."}
+              ? "Dinero, riesgo y acciones prioritarias del workspace."
+              : "Dinero en riesgo y conversaciones que requieren seguimiento."}
           </p>
         </div>
       </header>
 
-      {canManageBusiness ? (
-        <>
-          <div className="grid cols-3">
-            <article className="card"><p className="label">{t("revenue_open_pipeline")}</p><p className="kpi">{format(openPotential)}</p></article>
-            <article className="card"><p className="label">{t("revenue_at_risk")}</p><p className="kpi warn">{format(atRisk)}</p></article>
-            <article className="card"><p className="label">{t("revenue_recovered")}</p><p className="kpi">{format(recoveredRevenue)}</p></article>
-          </div>
+      <article className="card revenue-hero revenue-hero-risk">
+        <p className="revenue-hero-value">💰 {format(atRiskAmount)} en riesgo ahora mismo</p>
+        <p className="revenue-hero-detail">
+          {atRiskQueue.length === 0
+            ? "No hay conversaciones abiertas con dinero en riesgo ahora mismo."
+            : "dinero que puedes perder si no respondes"}
+        </p>
+      </article>
 
-          <div className="grid cols-2" style={{ marginTop: 12 }}>
-            <article className="card"><p className="label">{t("revenue_lost_estimated")}</p><p className="kpi warn">{format(lostEstimated)}</p></article>
-            <article className="card">
-              <p className="label">{t("revenue_business_states")}</p>
-              <p className="subtitle" style={{ margin: 0 }}>
-                {activeOpportunities.length} {t("revenue_active_opportunities").toLowerCase()} ·{" "}
-                {opportunities.filter((item) => item.status === "won").length} {t("revenue_filter_won").toLowerCase()} ·{" "}
-                {opportunities.filter((item) => item.status === "lost").length} {t("revenue_filter_lost").toLowerCase()}
-              </p>
-            </article>
-          </div>
-        </>
-      ) : (
-        <div className="grid cols-2">
-          <article className="card"><p className="label">{t("revenue_at_risk")}</p><p className="kpi warn">{format(atRisk)}</p></article>
-          <article className="card">
-            <p className="label">{t("revenue_active_opportunities")}</p>
-            <p className="kpi">{activeOpportunities.length}</p>
-          </article>
-        </div>
-      )}
+      <div className="grid cols-3" style={{ marginTop: 12, marginBottom: 12 }}>
+        <article className="card revenue-kpi revenue-kpi-active">
+          <p className="revenue-kpi-value">💰 {format(openPotential)}</p>
+          <p className="revenue-kpi-label">en juego (pipeline activo)</p>
+        </article>
+        <article className="card revenue-kpi revenue-kpi-won">
+          <p className="revenue-kpi-value">💰 {format(recoveredRevenue)}</p>
+          <p className="revenue-kpi-label">recuperados hoy</p>
+        </article>
+        <article className="card revenue-kpi revenue-kpi-lost">
+          <p className="revenue-kpi-value">💰 {format(lostEstimated)}</p>
+          <p className="revenue-kpi-label">perdidos</p>
+        </article>
+      </div>
 
-      <article className="card" style={{ marginTop: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 12 }}>
-          <div>
-            <p className="label">{t("revenue_risk_queue_title")}</p>
-            <p className="subtitle" style={{ margin: 0 }}>{t("revenue_risk_queue_subtitle")}</p>
-          </div>
-          <p className="kpi warn" style={{ margin: 0 }}>{format(atRiskQueue.reduce((sum, item) => sum + item.estimatedValue, 0))}</p>
-        </div>
-
+      <article className="card revenue-actions-shell">
+        <p className="label">Qué hacer ahora</p>
         {atRiskQueue.length === 0 ? (
           <div className="empty-state">
             <h3>{t("revenue_risk_queue_empty_title")}</h3>
             <p>{t("revenue_risk_queue_empty_text")}</p>
           </div>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>{t("revenue_client")}</th>
-                <th>{t("dashboard_lead")}</th>
-                <th>{t("revenue_estimated")}</th>
-                {canManageBusiness ? <th>{t("inbox_assigned")}</th> : null}
-                <th>{t("revenue_last_contact")}</th>
-                <th>{t("dashboard_action")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {atRiskQueue.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.contactName}</td>
-                  <td>{item.leadType ?? t("inbox_unclassified")}</td>
-                  <td>{format(item.estimatedValue)}</td>
-                  {canManageBusiness ? <td>{item.assignedTo ?? unassignedLabel}</td> : null}
-                  <td>{formatNoReplyDuration(item.lastInboundAt ?? item.lastMessageAt)}</td>
-                  <td>
-                    <Link className="mini-button" href={`/conversation/${item.id}`}>
-                      {riskQueueReplyLabel}
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="revenue-action-list">
+            {atRiskQueue.map((item) => (
+              <div key={item.id} className="revenue-action-row">
+                <div>
+                  <div className="revenue-action-value">🔴 {format(item.estimatedValue)} en riesgo</div>
+                  <div className="revenue-action-detail">
+                    {item.contactName} · {formatNoReplyDuration(item.lastInboundAt ?? item.lastMessageAt)}
+                  </div>
+                </div>
+                <Link className="button" href={`/conversation/${item.id}`}>
+                  {actionButtonLabel}
+                </Link>
+              </div>
+            ))}
+          </div>
         )}
       </article>
 
-      {canManageBusiness && byLeadType.length > 0 ? (
-        <article className="card" style={{ marginTop: 12 }}>
-          <p className="label" style={{ marginBottom: 12 }}>{t("dashboard_lead")}</p>
-          <div className="grid cols-3">
-            {topLeadTypes.map((item) => (
-              <div key={item.leadType} className="card" style={{ padding: 16 }}>
-                <p className="label" style={{ marginBottom: 6 }}>{item.leadType}</p>
-                <p className="kpi" style={{ marginBottom: 6 }}>{format(item.estimatedValue)}</p>
-                <p className="subtitle" style={{ margin: 0 }}>
-                  {item.count} {item.count === 1 ? t("revenue_conversation_singular") : t("revenue_conversation_plural")}
-                </p>
-              </div>
-            ))}
-            {hiddenLeadTypesCount > 0 ? (
-              <div className="card" style={{ padding: 16 }}>
-                <p className="label" style={{ marginBottom: 6 }}>{t("revenue_more_types_label")}</p>
-                <p className="kpi" style={{ marginBottom: 6 }}>+{hiddenLeadTypesCount}</p>
-                <p className="subtitle" style={{ margin: 0 }}>{t("revenue_more_types_subtitle")}</p>
-              </div>
-            ) : null}
-          </div>
-        </article>
-      ) : null}
-
-      <article className="card" style={{ marginTop: 12 }}>
-        {sortedOpportunities.length === 0 ? (
-          <div className="empty-state">
-            <h3>{t("revenue_empty_title")}</h3>
-            <p>{t("revenue_empty_text")}</p>
-            <div className="actions" style={{ marginTop: 12 }}>
-              <Link className="button" href="/inbox">
-                Go to inbox
-              </Link>
-              <Link className="mini-button" href="/settings#channels-setup">
-                Review setup
-              </Link>
+      <article className="card revenue-pipeline-shell" style={{ marginTop: 12 }}>
+        <p className="label">Pipeline</p>
+        <div className="revenue-pipeline-list">
+          {pipelineItems.map((item) => (
+            <div key={item.id} className="revenue-pipeline-row">
+              <span>
+                {item.icon} {item.label}
+              </span>
+              <strong>{item.count}</strong>
             </div>
-          </div>
-        ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>{t("revenue_client")}</th>
-                <th>{t("dashboard_lead")}</th>
-                <th>{t("revenue_potential")}</th>
-                {canManageBusiness ? <th>{t("revenue_recovered")}</th> : null}
-                {canManageBusiness ? <th>{t("inbox_assigned")}</th> : null}
-                <th>{t("inbox_status")}</th>
-                <th>{t("revenue_last_contact")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedOpportunities.map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    <Link href={`/conversation/${item.id}`}>{item.contactName}</Link>
-                  </td>
-                  <td>{item.leadType ?? t("inbox_unclassified")}</td>
-                  <td>{format(item.estimatedValue)}</td>
-                  {canManageBusiness ? (
-                    <td>{item.status === "won" ? format(item.expectedValue || item.estimatedValue) : "—"}</td>
-                  ) : null}
-                  {canManageBusiness ? <td>{item.assignedTo ?? unassignedLabel}</td> : null}
-                  <td>{formatStatus(item.status, t)}</td>
-                  <td>{formatRelativeTime(item.lastMessageAt)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+          ))}
+        </div>
       </article>
     </section>
   );

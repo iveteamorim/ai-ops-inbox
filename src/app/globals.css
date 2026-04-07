@@ -931,6 +931,123 @@ a {
   text-align: center;
 }
 
+.revenue-hero {
+  border-radius: 18px;
+}
+
+.revenue-hero-risk {
+  border-color: rgba(239, 68, 68, 0.28);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.revenue-hero-value {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fca5a5;
+  letter-spacing: -0.03em;
+}
+
+.revenue-hero-detail {
+  margin: 8px 0 0;
+  color: rgba(236, 247, 245, 0.74);
+  font-size: 1rem;
+}
+
+.revenue-kpi {
+  border-radius: 18px;
+}
+
+.revenue-kpi-active {
+  border-color: rgba(16, 185, 129, 0.2);
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.revenue-kpi-won {
+  border-color: rgba(132, 204, 22, 0.2);
+  background: rgba(132, 204, 22, 0.07);
+}
+
+.revenue-kpi-lost {
+  border-color: rgba(161, 161, 170, 0.2);
+  background: rgba(161, 161, 170, 0.05);
+}
+
+.revenue-kpi-value {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.revenue-kpi-active .revenue-kpi-value {
+  color: #86efac;
+}
+
+.revenue-kpi-won .revenue-kpi-value {
+  color: #bef264;
+}
+
+.revenue-kpi-lost .revenue-kpi-value {
+  color: #d4d4d8;
+}
+
+.revenue-kpi-label {
+  margin: 8px 0 0;
+  color: rgba(236, 247, 245, 0.7);
+  font-size: 0.95rem;
+}
+
+.revenue-actions-shell,
+.revenue-pipeline-shell {
+  border-radius: 18px;
+}
+
+.revenue-action-list {
+  display: grid;
+  gap: 12px;
+}
+
+.revenue-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.revenue-action-value {
+  color: #fca5a5;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.revenue-action-detail {
+  margin-top: 4px;
+  color: rgba(236, 247, 245, 0.72);
+  font-size: 0.92rem;
+}
+
+.revenue-pipeline-list {
+  display: grid;
+  gap: 10px;
+}
+
+.revenue-pipeline-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: rgba(236, 247, 245, 0.76);
+  font-size: 0.94rem;
+}
+
+.revenue-pipeline-row strong {
+  color: var(--text);
+}
+
 .cta {
   background: linear-gradient(140deg, rgba(22, 163, 74, 0.2) 0%, rgba(9, 18, 17, 0.92) 55%);
 }
@@ -956,6 +1073,11 @@ a {
   }
 
   .dashboard-action-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .revenue-action-row {
     flex-direction: column;
     align-items: stretch;
   }
