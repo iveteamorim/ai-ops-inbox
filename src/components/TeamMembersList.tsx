@@ -43,6 +43,12 @@ export function TeamMembersList({
   const [reassignTargetByMember, setReassignTargetByMember] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useTransition();
 
+  function formatRoleLabel(role: string) {
+    if (role === "owner") return "Owner";
+    if (role === "admin") return "Admin";
+    return "Agent";
+  }
+
   function canRemove(member: TeamMemberView) {
     return currentUserRole === "owner" && member.id !== currentUserId && member.role !== "owner";
   }
@@ -127,7 +133,7 @@ export function TeamMembersList({
             <div className="team-member-main">
               <div className="team-member-heading">
                 <strong>{member.full_name ?? "Unnamed user"}</strong>
-                <span className="badge team-role-badge">{member.role}</span>
+                <span className="badge team-role-badge">{formatRoleLabel(member.role)}</span>
               </div>
               {canViewStats() ? (
                 <details className="team-member-stats">

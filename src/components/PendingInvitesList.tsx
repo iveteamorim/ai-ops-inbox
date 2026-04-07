@@ -31,6 +31,12 @@ export function PendingInvitesList({
   const [pendingKey, setPendingKey] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  function formatRoleLabel(role: string) {
+    if (role === "owner") return "Owner";
+    if (role === "admin") return "Admin";
+    return "Agent";
+  }
+
   function handleAction(inviteId: string, action: "resend" | "cancel") {
     setError(null);
     setMessage(null);
@@ -68,7 +74,7 @@ export function PendingInvitesList({
         return (
           <div key={invite.id} className="preview-row">
             <span>
-              {invite.email} ({invite.role})
+              {invite.email} ({formatRoleLabel(invite.role)})
             </span>
             <div className="actions">
               <button
