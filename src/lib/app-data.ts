@@ -521,6 +521,7 @@ export async function getConversationViews(
   const profilesById = new Map((profiles as ProfileNameRow[] | null | undefined)?.map((row) => [row.id, row]) ?? []);
   const lastMessageByConversation = new Map<string, MessageRow>();
   const lastInboundMessageByConversation = new Map<string, MessageRow>();
+  const hasAgentReplyByConversation = new Set<string>();
   const leadTypes = parseBusinessSetup((company as CompanyRow | null | undefined) ?? null).leadTypes;
 
   for (const message of (messages as MessageRow[] | null | undefined) ?? []) {
@@ -534,11 +535,14 @@ export async function getConversationViews(
     ) {
       lastInboundMessageByConversation.set(message.conversation_id, message);
     }
+    if (message.direction === "outbound" && message.sender_type === "agent") {
+      hasAgentReplyByConversation.add(message.conversation_id);
+    }
   }
 
   return conversationRows.map((row) => {
     const contact = contactsById.get(row.contact_id);
-    const hasHumanReply = Boolean(row.last_outbound_at);
+    const hasHumanReply = Boolean(row.last_outbound_at) || hasAgentReplyByConversation.has(row.id);
     const assigned = hasHumanReply && row.assigned_to ? profilesById.get(row.assigned_to) : null;
     const latestMessage = lastMessageByConversation.get(row.id);
     const latestInboundMessage = lastInboundMessageByConversation.get(row.id);
