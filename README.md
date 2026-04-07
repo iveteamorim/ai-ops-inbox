@@ -1,34 +1,47 @@
 # Novua Inbox
 
-Novua Inbox is a conversation operations workspace focused on three things:
+**Conversation operations workspace for teams that lose money when replies arrive too late.**
 
-- commercial risk
-- response ownership
-- next action
+Novua Inbox is an inbox-first product built around one practical question:
 
-It is not a CRM. It is an inbox-first operating layer for teams that manage inbound conversations, especially WhatsApp-style leads.
+> What conversation needs attention now, who owns it, and how much money is at risk if nobody acts?
 
-## What the product does
+It is not a CRM.
+It is an operating layer for inbound conversations, focused on risk, ownership, and next action.
 
-Novua Inbox helps a team answer a practical question:
+## Live
 
-> Which conversation needs attention now, who owns it, and how much money is at risk if we do nothing?
+- Live demo: `https://ai-ops-inbox-one.vercel.app`
+- Repository: `https://github.com/iveteamorim/ai-ops-inbox`
 
-The current product is built around:
+## Screenshot
 
-- an action-oriented inbox
-- conversation ownership on first human reply
-- lightweight multi-agent protection
-- revenue visibility per conversation
-- a settings area that defines how the workspace interprets the business
+![Novua Inbox](./public/screenshots/inbox-demo.png)
+
+## Why this product exists
+
+Teams do not usually lose inbound revenue because leads stop existing.
+They lose it because:
+
+- nobody replies fast enough
+- valuable conversations look the same as low-value ones
+- follow-up ownership is unclear
+- the team sees messages, but not commercial risk
+
+Novua Inbox turns that into a clearer operating model:
+
+- identify what is at risk
+- show who owns each conversation
+- guide the next action
+- make value visible at conversation level
 
 ## Product model
 
 ### Inbox
 
-The inbox is the main operating view.
+The inbox is the main operating surface.
 
-It shows conversations as decision cards instead of table rows, with emphasis on:
+It renders conversations as decision cards instead of administrative rows, with emphasis on:
 
 - `En riesgo`
 - `Nuevo`
@@ -46,12 +59,12 @@ Each card highlights:
 
 ### Conversation ownership
 
-New conversations are not manually distributed one by one.
+Conversations are not meant to be manually distributed one by one.
 
 The current rule is:
 
-- a conversation is claimed by the first agent who replies
-- once claimed, ownership remains on that conversation
+- the first agent who sends a real reply claims the conversation
+- ownership remains on that conversation after the claim
 - owner/admin can bulk reassign open conversations from one agent to another
 
 To reduce duplicate replies:
@@ -61,36 +74,38 @@ To reduce duplicate replies:
 
 ### Dashboard
 
-The dashboard is not a reporting screen.
+The dashboard is not a generic reporting page.
 
-It is meant to answer:
+It answers:
 
 - what money is at risk now
-- what is currently active
-- what should the team do next
+- what is active now
+- what should be handled next
 
 ### Revenue
 
-The revenue view is oriented around:
+The revenue view is built around:
 
 - money at risk now
 - open pipeline value
 - recently recovered value
 - immediate actions required
 
-For agents, the view is more tactical.
+For agents, it is tactical.
 For owner/admin, it is broader across the workspace.
 
 ### Settings
 
-The settings area is organized around:
+Settings define how the workspace works.
+
+It is organized around:
 
 - channel status
 - how Novua prioritizes work
 - who answers customers
 - business setup and lead values
 
-This is where the workspace defines the lead types and estimated values used throughout the app.
+This is where the workspace defines the lead types and estimated values used across inbox, revenue, and conversation views.
 
 ## Roles
 
@@ -99,8 +114,8 @@ This is where the workspace defines the lead types and estimated values used thr
 Can:
 
 - manage the workspace
-- invite/remove users
-- reassign conversations in bulk
+- invite and remove users
+- bulk reassign open conversations
 - edit business setup
 - operate conversations
 
@@ -110,7 +125,7 @@ Can:
 
 - manage team and business setup
 - operate conversations
-- reassign conversations in bulk
+- bulk reassign open conversations
 
 ### Agent
 
@@ -122,6 +137,23 @@ Can:
 - report issues
 
 Agent settings are intentionally reduced compared to owner/admin.
+
+## What is already strong
+
+- inbox-first workflow
+- risk + money + action framing
+- multi-role separation
+- conversation ownership model
+- action-oriented conversation and revenue views
+- lightweight multi-agent protection on reply
+
+## What is still early
+
+- full production hardening
+- webhook retry and idempotency maturity
+- deeper observability
+- business setup UX is improving but still less polished than inbox
+- some remaining edge-case copy and i18n cleanup
 
 ## Current stack
 
@@ -136,7 +168,7 @@ Agent settings are intentionally reduced compared to owner/admin.
 ### Requirements
 
 - Node.js `>= 20`
-- Supabase project with auth + database configured
+- Supabase project with auth and database configured
 
 ### Install
 
@@ -189,13 +221,13 @@ npm run lint
 
 - `OPENAI_API_KEY`
 
-If `OPENAI_API_KEY` is missing, the app falls back to deterministic suggestion behavior in the UI and the API route returns the expected "not configured" response path.
+If `OPENAI_API_KEY` is missing, the app falls back to deterministic suggestion behavior in the UI and the API route returns the expected not-configured path.
 
 ## Project structure
 
 - `src/app` – routes, pages, API endpoints
 - `src/components` – UI and workflow components
-- `src/lib` – app data, auth, i18n, internal-access, scoring logic
+- `src/lib` – app data, auth, i18n, internal access, scoring logic
 - `public` – static assets
 - `docs` – supporting documentation
 
@@ -205,7 +237,7 @@ If `OPENAI_API_KEY` is missing, the app falls back to deterministic suggestion b
 
 A conversation is only treated as truly assigned in the UI once there is a human reply signal.
 
-This avoids showing ownership too early on untouched conversations.
+This prevents untouched conversations from looking owned too early.
 
 ### Multi-agent safety
 
@@ -214,28 +246,12 @@ The app uses two layers:
 - periodic refresh in inbox and conversation views
 - backend claim check before sending a reply
 
-That means visual updates are near-real-time, while the real protection is enforced server-side.
+That means visual updates are near-real-time, while the actual protection is enforced server-side.
 
 ### Demo seeding
 
 The repo includes demo-oriented flows for business setup and reseeding.
-Those are useful for walkthroughs, but they should be treated as demo tooling, not final production onboarding architecture.
-
-## What is already strong
-
-- inbox-first workflow
-- risk + money + action framing
-- multi-role separation
-- conversation ownership model
-- action-oriented conversation and revenue views
-
-## What is still early
-
-- full production hardening
-- webhook retry/idempotency maturity
-- observability depth
-- polished business setup UX compared to inbox quality
-- full i18n cleanup in every corner of the app
+These are useful for walkthroughs, but should be treated as demo tooling, not final production onboarding architecture.
 
 ## What this repo is best for right now
 
@@ -243,21 +259,16 @@ This repo is best understood as:
 
 - a serious product demo
 - a pilot-ready inbox workflow
-- a foundation for paid onboarding/pilot projects
+- a foundation for paid onboarding and pilot projects
 
 It is not yet a fully hardened production platform.
 
-## Links
+## Bottom line
 
-- Live demo: `https://ai-ops-inbox-one.vercel.app`
-- GitHub: `https://github.com/iveteamorim/ai-ops-inbox`
-
-## Notes
-
-If you are evaluating the product, the right question is not:
+If you evaluate Novua Inbox, the key question is not:
 
 - “does it have every CRM feature?”
 
-The right question is:
+The key question is:
 
 - “does it help a team decide what to answer now, before money is lost?”
