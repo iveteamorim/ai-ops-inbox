@@ -185,9 +185,6 @@ export default async function InboxPage({
   const activeAmount = activeRows.reduce((sum, row) => sum + row.estimatedValue, 0);
   const newAmount = newRows.reduce((sum, row) => sum + row.estimatedValue, 0);
   const complexCount = rows.filter((row) => row.decisionType === "complex").length;
-  const lostAmount = rows
-    .filter((row) => row.status === "lost")
-    .reduce((sum, row) => sum + row.estimatedValue, 0);
   void team;
 
   function buildInboxHref(scope: string) {
@@ -259,11 +256,6 @@ export default async function InboxPage({
         <p className="subtitle" style={{ margin: 0 }}>
           {leadsAtRisk > 0 ? `${leadsAtRisk} ${t("inbox_risk_line")}` : "No hay conversaciones en riesgo por demora."}
         </p>
-        {lostAmount > 0 ? (
-          <p className="subtitle" style={{ marginTop: 6 }}>
-            {t("inbox_lost_today_prefix")} {format(lostAmount)} {t("inbox_lost_today_suffix")}
-          </p>
-        ) : null}
       </article>
 
       <article className="card">
