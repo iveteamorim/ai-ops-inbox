@@ -347,10 +347,11 @@ a {
 }
 
 .inbox-row-card {
-  border: 1px solid rgba(182, 215, 207, 0.14);
-  border-radius: 14px;
-  background: rgba(14, 25, 23, 0.94);
-  padding: 15px 16px;
+  border: 1px solid rgba(182, 215, 207, 0.12);
+  border-left-width: 4px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 16px;
 }
 
 .inbox-row-card-focus {
@@ -362,15 +363,17 @@ a {
 }
 
 .inbox-row-card-risk {
-  background: rgba(43, 18, 18, 0.52);
-  border-color: rgba(248, 113, 113, 0.28);
-  box-shadow: inset 4px 0 0 rgba(248, 113, 113, 0.92);
+  background: rgba(239, 68, 68, 0.05);
+  border-color: rgba(248, 113, 113, 0.18);
+  border-left-color: rgb(239, 68, 68);
+  box-shadow: none;
 }
 
 .inbox-row-card-active {
-  background: rgba(16, 35, 28, 0.88);
-  border-color: rgba(74, 222, 128, 0.2);
-  box-shadow: inset 4px 0 0 rgba(74, 222, 128, 0.9);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(74, 222, 128, 0.18);
+  border-left-color: rgb(34, 197, 94);
+  box-shadow: none;
 }
 
 .inbox-row-card-top {
@@ -386,9 +389,21 @@ a {
   font-size: 1rem;
 }
 
+.inbox-row-status-risk {
+  color: #f87171;
+}
+
+.inbox-row-status-active {
+  color: #4ade80;
+}
+
+.inbox-row-status-new {
+  color: #93c5fd;
+}
+
 .inbox-row-time {
-  color: var(--muted);
-  font-size: 0.9rem;
+  color: #d1d5db;
+  font-size: 0.88rem;
 }
 
 .inbox-row-value {
@@ -397,33 +412,37 @@ a {
 }
 
 .inbox-row-value-amount {
-  font-size: 1.05rem;
+  font-size: 1.125rem;
   font-weight: 700;
 }
 
 .inbox-row-value-type {
-  color: var(--muted);
-  font-size: 0.8rem;
+  color: #9ca3af;
+  font-size: 0.76rem;
   margin-top: 2px;
 }
 
 .inbox-row-body {
-  margin-top: 14px;
+  margin-top: 10px;
 }
 
 .inbox-row-contact {
   display: inline-block;
   color: var(--text);
   text-decoration: none;
-  font-size: 0.98rem;
-  font-weight: 700;
-  margin-bottom: 3px;
+  font-size: 1.02rem;
+  font-weight: 600;
+  margin-bottom: 4px;
 }
 
 .inbox-row-message {
-  color: var(--muted);
-  max-width: 760px;
+  color: #9ca3af;
+  max-width: 32rem;
   line-height: 1.35;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .inbox-row-footer {
@@ -435,14 +454,16 @@ a {
 }
 
 .inbox-row-assigned {
-  color: var(--muted);
-  font-size: 0.82rem;
+  color: #9ca3af;
+  font-size: 0.76rem;
 }
 
 .inbox-row-secondary-action {
-  background: rgba(71, 85, 105, 0.58);
-  border-color: rgba(148, 163, 184, 0.36);
+  background: rgba(75, 85, 99, 0.92);
+  border-color: rgba(107, 114, 128, 0.5);
   color: #f8fafc;
+  padding: 8px 16px;
+  border-radius: 10px;
 }
 
 .mini-button.filter-pill {

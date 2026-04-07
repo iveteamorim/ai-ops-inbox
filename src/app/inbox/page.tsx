@@ -23,14 +23,6 @@ function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
   }).format(value);
 }
 
-function statusClass(status: string) {
-  if (status === "new") return "status-new";
-  if (status === "active") return "status-active";
-  if (status === "won") return "status-won";
-  if (status === "no_response") return "status-no-response";
-  return "status-lost";
-}
-
 function getNoReplyMeta(status: "new" | "active" | "won" | "lost" | "no_response", isoDate: string | null) {
   if (status !== "no_response" || !isoDate) {
     return { className: "", badgeLabel: null as string | null, timeLabel: formatRelativeTime(isoDate) };
@@ -81,16 +73,6 @@ function getVisibleStatusLabel(
     return "En riesgo";
   }
   return formatStatus(row.status, t);
-}
-
-function getVisibleStatusClass(
-  row: { status: "new" | "active" | "won" | "lost" | "no_response" },
-  noReplyBadgeLabel: string | null,
-) {
-  if (row.status === "no_response" && noReplyBadgeLabel === "En riesgo") {
-    return "status-lost";
-  }
-  return statusClass(row.status);
 }
 
 function conversationPriorityScore(row: {
@@ -347,7 +329,14 @@ export default async function InboxPage({
                 const noReplyMeta = getNoReplyMeta(row.status, row.lastInboundAt ?? row.lastMessageAt);
                 const isCriticalRisk = row.status === "no_response" && noReplyMeta.badgeLabel === "En riesgo";
                 const visibleStatusLabel = getVisibleStatusLabel(row, noReplyMeta.badgeLabel, t);
-                const visibleStatusClass = getVisibleStatusClass(row, noReplyMeta.badgeLabel);
+                const statusToneClass =
+                  row.status === "no_response" && visibleStatusLabel === "En riesgo"
+                    ? "inbox-row-status-risk"
+                    : row.status === "active"
+                      ? "inbox-row-status-active"
+                      : row.status === "new"
+                        ? "inbox-row-status-new"
+                        : "";
                 const rowClassName = [
                   row.id === focusedConversationId ? "inbox-row-card-focus" : "",
                   isCriticalRisk ? "inbox-row-card-risk" : row.status === "active" ? "inbox-row-card-active" : "",
@@ -364,8 +353,8 @@ export default async function InboxPage({
                   <article key={row.id} className={`inbox-row-card ${rowClassName}`.trim()}>
                     <div className="inbox-row-card-top">
                       <div>
-                        <div className={`inbox-row-status ${visibleStatusClass}`}>
-                          {row.status === "no_response" && visibleStatusLabel === "En riesgo" ? "● " : row.status === "active" ? "● " : ""}
+                        <div className={`inbox-row-status ${statusToneClass}`.trim()}>
+                          {row.status === "no_response" && visibleStatusLabel === "En riesgo" ? "🔴 " : row.status === "active" ? "🟢 " : ""}
                           {visibleStatusLabel}
                         </div>
                         <div className={`inbox-row-time ${noReplyMeta.className}`.trim()}>{noReplyMeta.timeLabel}</div>
