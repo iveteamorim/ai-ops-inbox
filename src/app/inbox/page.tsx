@@ -337,9 +337,11 @@ export default async function InboxPage({
                 const primaryAction = actionLabel(row.decisionType, Boolean(row.assignedToId));
                 const isPriorityRow = visibleRows[0]?.id === row.id;
                 const noReplyMeta = getNoReplyMeta(row.status, row.lastInboundAt ?? row.lastMessageAt);
+                const isCriticalRisk = row.status === "no_response" && noReplyMeta.badgeLabel === "En riesgo";
                 const rowClassName = [
                   row.id === focusedConversationId ? "table-row-focus" : "",
                   isPriorityRow ? "table-row-priority" : "",
+                  isCriticalRisk ? "table-row-risk" : "",
                   row.assignedToId === context.user.id ? "table-row-mine" : "",
                 ]
                   .filter(Boolean)
@@ -370,10 +372,23 @@ export default async function InboxPage({
                       <span className={`badge ${statusClass(row.status)}`}>{formatStatus(row.status, t)}</span>
                     </td>
                     <td>
-                      {valueLabel}
-                      <div className="label" style={{ marginTop: 4, marginBottom: 0, textTransform: "none" }}>
-                        {row.leadType ?? t("inbox_unclassified")}
-                      </div>
+                      {isCriticalRisk ? (
+                        <>
+                          <div className="label risk-label" style={{ marginTop: 0, marginBottom: 4, textTransform: "none" }}>
+                            {format(row.estimatedValue)} en riesgo
+                          </div>
+                          <div className="label" style={{ marginTop: 0, marginBottom: 0, textTransform: "none" }}>
+                            {row.leadType ?? t("inbox_unclassified")}
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          {valueLabel}
+                          <div className="label" style={{ marginTop: 4, marginBottom: 0, textTransform: "none" }}>
+                            {row.leadType ?? t("inbox_unclassified")}
+                          </div>
+                        </>
+                      )}
                     </td>
                     <td>
                       {row.assignedTo ? (
