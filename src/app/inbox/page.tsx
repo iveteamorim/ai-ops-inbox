@@ -66,10 +66,10 @@ function actionLabel(type: DecisionType, isAssigned: boolean) {
 
 function getVisibleStatusLabel(
   row: { status: "new" | "active" | "won" | "lost" | "no_response" },
-  noReplyBadgeLabel: string | null,
+  noReplyClassName: string,
   t: (key: Parameters<typeof translate>[1]) => string,
 ) {
-  if (row.status === "no_response" && noReplyBadgeLabel === "En riesgo") {
+  if (row.status === "no_response" && noReplyClassName === "time-critical") {
     return "En riesgo";
   }
   return formatStatus(row.status, t);
@@ -328,7 +328,7 @@ export default async function InboxPage({
                 const primaryAction = actionLabel(row.decisionType, Boolean(row.assignedToId));
                 const noReplyMeta = getNoReplyMeta(row.status, row.lastInboundAt ?? row.lastMessageAt);
                 const isCriticalRisk = row.status === "no_response" && noReplyMeta.badgeLabel === "En riesgo";
-                const visibleStatusLabel = getVisibleStatusLabel(row, noReplyMeta.badgeLabel, t);
+                const visibleStatusLabel = getVisibleStatusLabel(row, noReplyMeta.className, t);
                 const statusToneClass =
                   row.status === "no_response" && visibleStatusLabel === "En riesgo"
                     ? "inbox-row-status-risk"
