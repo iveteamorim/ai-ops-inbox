@@ -160,6 +160,11 @@ export function ConversationWorkspace({
 
       const payload = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
       if (!response.ok || !payload?.ok) {
+        if (payload?.error === "conversation_already_assigned") {
+          setError("Otro agente ya ha cogido esta conversación.");
+          router.refresh();
+          return;
+        }
         setError(payload?.error ?? "Failed to send message");
         return;
       }

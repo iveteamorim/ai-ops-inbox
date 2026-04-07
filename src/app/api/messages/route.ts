@@ -105,6 +105,39 @@ export async function POST(request: Request) {
   }
 
   const now = new Date().toISOString();
+  const { data: claimedConversation, error: claimError } = await authContext.supabase
+    .from("conversations")
+    .update({
+      assigned_to: authContext.user.id,
+      updated_at: now,
+    })
+    .eq("id", access.conversation.id)
+    .or(`assigned_to.is.null,assigned_to.eq.${authContext.user.id}`)
+    .select("id, assigned_to")
+    .maybeSingle<{ id: string; assigned_to: string | null }>();
+
+  if (claimError) {
+    return NextResponse.json({ ok: false, error: claimError.message }, { status: 500 });
+  }
+
+  if (!claimedConversation) {
+    const latestAccess = await getAuthorizedConversation(authContext.supabase, conversationId);
+    const assignedToOther =
+      latestAccess.conversation?.assigned_to && latestAccess.conversation.assigned_to !== authContext.user.id;
+
+    if (assignedToOther) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "conversation_already_assigned",
+        },
+        { status: 409 },
+      );
+    }
+
+    return NextResponse.json({ ok: false, error: "conversation_claim_failed" }, { status: 409 });
+  }
+
   const { error: insertError } = await authContext.supabase.from("messages").insert({
     company_id: access.conversation.company_id,
     conversation_id: access.conversation.id,
@@ -130,21 +163,6 @@ export async function POST(request: Request) {
 
   if (updateError) {
     return NextResponse.json({ ok: false, error: updateError.message }, { status: 500 });
-  }
-
-  if (!access.conversation.assigned_to) {
-    const { error: assignmentError } = await authContext.supabase
-      .from("conversations")
-      .update({
-        assigned_to: authContext.user.id,
-        updated_at: now,
-      })
-      .eq("id", access.conversation.id)
-      .is("assigned_to", null);
-
-    if (assignmentError) {
-      return NextResponse.json({ ok: false, error: assignmentError.message }, { status: 500 });
-    }
   }
 
   return NextResponse.json({ ok: true, queued: true });
