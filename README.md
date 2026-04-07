@@ -2,22 +2,26 @@
 
 Conversation operations workspace for teams that lose money when replies arrive too late.
 
+Most teams don't know they are losing money in their inbox.
+
+Novua makes that visible - and actionable.
+
 ---
 
 ## 💰 What is at risk right now?
 
-Most teams do not lose inbound revenue because leads disappear.
+Most teams don't lose inbound revenue because leads disappear.
 
-They lose it because:
+They lose it because nobody acts in time.
 
-- nobody replies in time
-- high-value conversations look identical to low-value ones
+- replies arrive too late
+- high-value conversations are hidden in the noise
 - ownership is unclear
-- follow-ups simply do not happen
+- follow-ups never happen
 
 The result is simple:
 
-**money is lost silently inside the inbox**
+-> **money is lost silently inside the inbox**
 
 ---
 
@@ -48,6 +52,24 @@ Repo: https://github.com/iveteamorim/ai-ops-inbox
 ## Screenshot
 
 ![Novua Inbox](./public/screenshots/inbox-demo-current.png)
+
+## Example
+
+A clinic receives multiple WhatsApp inquiries per day.
+
+Before:
+
+- all conversations look the same
+- replies depend on whoever is available
+- valuable leads are missed
+
+With Novua:
+
+- high-value conversations are surfaced as `En riesgo`
+- ownership is assigned automatically on first reply
+- the team sees exactly what to answer next
+
+-> response improves before revenue is lost
 
 ## Product model
 
@@ -152,21 +174,19 @@ Can:
 
 Agent settings are intentionally reduced compared to owner/admin.
 
-## What is already strong
+## What this enables
 
-- inbox-first workflow
-- risk + money + action framing
-- multi-role separation
-- conversation ownership model
-- action-oriented conversation and revenue views
-- lightweight multi-agent protection on reply
+- teams respond before losing revenue
+- ownership is clear across agents
+- high-value conversations are never ignored
+- follow-ups become systematic instead of manual
 
 ## What is still early
 
 - full production hardening
 - webhook retry and idempotency maturity
 - deeper observability
-- business setup UX is improving but still less polished than inbox
+- business setup UX still lags behind inbox
 - some remaining edge-case copy and i18n cleanup
 
 ## Current stack
