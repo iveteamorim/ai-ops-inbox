@@ -500,10 +500,11 @@ export async function getConversationViews(
     new Set(conversationRows.map((row) => row.assigned_to).filter((value): value is string => Boolean(value))),
   );
 
+  const admin = createAdminClient();
   const [{ data: contacts }, { data: profiles }, { data: messages }, { data: company }] = await Promise.all([
     supabase.from("contacts").select("id, name, phone, email").in("id", contactIds),
     assignedIds.length > 0
-      ? supabase.from("profiles").select("id, full_name").in("id", assignedIds)
+      ? admin.from("profiles").select("id, full_name").in("id", assignedIds)
       : Promise.resolve({ data: [] as ProfileNameRow[] }),
     supabase
       .from("messages")
