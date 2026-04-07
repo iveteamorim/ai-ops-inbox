@@ -1818,3 +1818,145 @@ a {
     flex-direction: column;
   }
 }
+
+.conversation-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.95fr);
+  gap: 16px;
+}
+
+.conversation-main-card,
+.conversation-side-card {
+  min-height: 100%;
+}
+
+.conversation-side {
+  display: flex;
+}
+
+.conversation-composer-input {
+  min-height: 120px;
+}
+
+.conversation-ai-suggestion {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(245, 158, 11, 0.18);
+  background: rgba(245, 158, 11, 0.06);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.conversation-ai-title {
+  margin: 0 0 6px;
+  color: #fcd34d;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.conversation-ai-text {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.5;
+}
+
+.conversation-composer-actions {
+  margin-top: 12px;
+}
+
+.conversation-side-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.conversation-money-card {
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  background: rgba(245, 158, 11, 0.06);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.conversation-money-value {
+  margin: 0 0 8px;
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  line-height: 1.1;
+  font-weight: 800;
+  color: #fcd34d;
+  letter-spacing: -0.03em;
+}
+
+.conversation-money-type {
+  margin: 0 0 10px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.92rem;
+}
+
+.conversation-money-meta,
+.conversation-money-risk {
+  margin: 0;
+  color: var(--muted);
+}
+
+.conversation-money-risk {
+  margin-top: 8px;
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+.conversation-state-card,
+.conversation-details-card {
+  border: 1px solid rgba(182, 215, 207, 0.12);
+  background: rgba(255, 255, 255, 0.025);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.conversation-state-title {
+  margin: 0;
+  font-size: 1.35rem;
+  line-height: 1.15;
+  font-weight: 800;
+  color: #fbbf24;
+}
+
+.conversation-state-risk {
+  color: #fb923c;
+}
+
+.conversation-state-body {
+  margin-top: 8px;
+}
+
+.conversation-side-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.conversation-side-actions-row {
+  gap: 10px;
+}
+
+.conversation-success-button {
+  background: rgba(132, 204, 22, 0.9);
+  border-color: rgba(190, 242, 100, 0.32);
+  color: #0c150f;
+}
+
+.conversation-success-button:hover {
+  background: rgba(132, 204, 22, 1);
+}
+
+.conversation-manage-details summary {
+  cursor: pointer;
+  color: var(--muted);
+}
+
+@media (max-width: 980px) {
+  .conversation-layout {
+    grid-template-columns: 1fr;
+  }
+}

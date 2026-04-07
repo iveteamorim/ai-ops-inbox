@@ -28,6 +28,33 @@ function formatTime(isoDate: string) {
   return parsed.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
+function formatRelativeAge(isoDate: string | null, lang: string) {
+  if (!isoDate) return "";
+  const timestamp = new Date(isoDate).getTime();
+  if (Number.isNaN(timestamp)) return "";
+
+  const diffMs = Date.now() - timestamp;
+  const diffMinutes = Math.max(0, Math.floor(diffMs / 60000));
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMinutes < 60) {
+    if (lang === "pt") return `há ${diffMinutes} min`;
+    if (lang === "en") return `${diffMinutes} min ago`;
+    return `hace ${diffMinutes} min`;
+  }
+
+  if (diffHours < 24) {
+    if (lang === "pt") return `há ${diffHours} h`;
+    if (lang === "en") return `${diffHours}h ago`;
+    return `hace ${diffHours} h`;
+  }
+
+  if (lang === "pt") return `há ${diffDays} dias`;
+  if (lang === "en") return `${diffDays} days ago`;
+  return `hace ${diffDays} días`;
+}
+
 function statusClass(status: string) {
   if (status === "new") return "status-new";
   if (status === "active") return "status-active";
@@ -94,41 +121,120 @@ export function ConversationWorkspace({
 
   const decisionType = useMemo(() => getDecisionType(conversation), [conversation]);
   const decisionCopy = useMemo(() => {
+    if (lang === "pt") {
+      if (decisionType === "recover") {
+        return { title: "Em risco", body: "O cliente escreveu e continua à espera. Convém responder primeiro." };
+      }
+      if (decisionType === "complex") {
+        return { title: "Requer revisão", body: "Este caso está marcado como complexo e merece intervenção humana direta." };
+      }
+      if (decisionType === "new") {
+        return { title: "Novo lead", body: "Primeiro contacto sem resposta. Revê intenção e próximo passo." };
+      }
+      if (decisionType === "won") {
+        return { title: "Ganho", body: "A conversa já foi marcada como recuperada. Usa-a como referência de fecho." };
+      }
+      if (decisionType === "lost") {
+        return { title: "Perdido", body: "A oportunidade foi marcada como perdida. Se o cliente voltar, será reativada." };
+      }
+      return { title: "Em conversa", body: "Há interesse, mas falta avançar para o próximo passo antes de perder momentum." };
+    }
+
+    if (lang === "en") {
+      if (decisionType === "recover") {
+        return { title: "At risk", body: "The lead is waiting for a reply. This should be handled first." };
+      }
+      if (decisionType === "complex") {
+        return { title: "Needs review", body: "This case is marked as complex and needs direct human intervention." };
+      }
+      if (decisionType === "new") {
+        return { title: "New lead", body: "First contact with no reply yet. Review intent and next step." };
+      }
+      if (decisionType === "won") {
+        return { title: "Won", body: "This conversation is already marked as recovered. Use it as a closing reference." };
+      }
+      if (decisionType === "lost") {
+        return { title: "Lost", body: "This opportunity was marked as lost. If the lead comes back, it can be reactivated." };
+      }
+      return { title: "In conversation", body: "There is interest, but the next step still needs to happen before momentum is lost." };
+    }
+
     if (decisionType === "recover") {
-      return {
-        title: "Oportunidad en riesgo",
-        body: "El cliente escribió y sigue esperando respuesta. Conviene responder primero.",
-      };
+      return { title: "En riesgo", body: "El cliente escribió y sigue esperando respuesta. Conviene responder primero." };
     }
     if (decisionType === "complex") {
-      return {
-        title: "Requiere revisión",
-        body: "Este caso está marcado como complejo y merece intervención humana directa.",
-      };
+      return { title: "Requiere revisión", body: "Este caso está marcado como complejo y merece intervención humana directa." };
     }
     if (decisionType === "new") {
-      return {
-        title: "Nuevo lead",
-        body: "Primer contacto sin respuesta todavía. Revisa intención y siguiente paso.",
-      };
+      return { title: "Nuevo lead", body: "Primer contacto sin respuesta todavía. Revisa intención y siguiente paso." };
     }
     if (decisionType === "won") {
-      return {
-        title: "Ganado",
-        body: "La conversación ya se marcó como recuperada. Úsala como referencia de cierre.",
-      };
+      return { title: "Ganado", body: "La conversación ya se marcó como recuperada. Úsala como referencia de cierre." };
     }
     if (decisionType === "lost") {
+      return { title: "Perdido", body: "La oportunidad se marcó como perdida. Si el cliente vuelve, se reactivará." };
+    }
+    return { title: "En conversación", body: "Hay interés, pero falta avanzar al siguiente paso antes de perder momentum." };
+  }, [decisionType, lang]);
+
+  const panelCopy = useMemo(() => {
+    if (lang === "pt") {
       return {
-        title: "Perdido",
-        body: "La oportunidad se marcó como perdida. Si el cliente vuelve, se reactivará.",
+        currentState: "Estado atual",
+        whatNow: "O que fazer agora",
+        sendReply: "Responder agora",
+        useAi: "Responder com IA",
+        moneyInPlayNow: "em jogo agora",
+        lastReply: "Última resposta",
+        noReplyYet: "Sem resposta ainda",
+        riskLow: "Risco baixo de perda",
+        riskMedium: "Risco médio de perda",
+        riskHigh: "Risco alto de perda",
+        unassigned: "Sem responsável",
+        phone: "Telefone",
       };
     }
+
+    if (lang === "en") {
+      return {
+        currentState: "Current state",
+        whatNow: "What to do now",
+        sendReply: "Reply now",
+        useAi: "Reply with AI",
+        moneyInPlayNow: "in play right now",
+        lastReply: "Last reply",
+        noReplyYet: "No reply yet",
+        riskLow: "Low churn risk",
+        riskMedium: "Medium churn risk",
+        riskHigh: "High churn risk",
+        unassigned: "Unassigned",
+        phone: "Phone",
+      };
+    }
+
     return {
-      title: "En progreso",
-      body: "La conversación sigue activa. Mantén el avance y reduce fricción en el siguiente paso.",
+      currentState: "Estado actual",
+      whatNow: "Qué hacer ahora",
+      sendReply: "Responder ahora",
+      useAi: "Responder con IA",
+      moneyInPlayNow: "en juego ahora mismo",
+      lastReply: "Última respuesta",
+      noReplyYet: "Sin respuesta todavía",
+      riskLow: "Riesgo bajo de pérdida",
+      riskMedium: "Riesgo medio de pérdida",
+      riskHigh: "Riesgo alto de pérdida",
+      unassigned: "Sin asignar",
+      phone: "Teléfono",
     };
-  }, [decisionType]);
+  }, [lang]);
+
+  const lastReplyAge = formatRelativeAge(conversation.lastOutboundAt ?? conversation.lastMessageAt, lang);
+  const riskLabel =
+    decisionType === "recover"
+      ? panelCopy.riskHigh
+      : conversation.status === "new"
+        ? panelCopy.riskLow
+        : panelCopy.riskMedium;
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -161,11 +267,11 @@ export function ConversationWorkspace({
       const payload = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
       if (!response.ok || !payload?.ok) {
         if (payload?.error === "conversation_already_assigned") {
-          setError("Otro agente ya ha cogido esta conversación.");
+          setError(lang === "en" ? "Another agent already claimed this conversation." : lang === "pt" ? "Outro agente já ficou com esta conversa." : "Otro agente ya ha cogido esta conversación.");
           router.refresh();
           return;
         }
-        setError(payload?.error ?? "Failed to send message");
+        setError(payload?.error ?? (lang === "en" ? "Failed to send message" : lang === "pt" ? "Não foi possível enviar a mensagem" : "No se pudo enviar el mensaje"));
         return;
       }
 
@@ -182,7 +288,7 @@ export function ConversationWorkspace({
       setDraft(overrideText ? draft : "");
       router.refresh();
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Failed to send message");
+      setError(requestError instanceof Error ? requestError.message : (lang === "en" ? "Failed to send message" : lang === "pt" ? "Não foi possível enviar a mensagem" : "No se pudo enviar el mensaje"));
     } finally {
       setSending(false);
     }
@@ -204,13 +310,13 @@ export function ConversationWorkspace({
 
       const payload = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
       if (!response.ok || !payload?.ok) {
-        setError(payload?.error ?? "Could not update conversation.");
+        setError(payload?.error ?? (lang === "en" ? "Could not update conversation." : lang === "pt" ? "Não foi possível atualizar a conversa." : "No se pudo actualizar la conversación."));
         return;
       }
 
       router.refresh();
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Could not update conversation.");
+      setError(requestError instanceof Error ? requestError.message : (lang === "en" ? "Could not update conversation." : lang === "pt" ? "Não foi possível atualizar a conversa." : "No se pudo actualizar la conversación."));
     } finally {
       setUpdatingStatus(null);
     }
@@ -250,8 +356,8 @@ export function ConversationWorkspace({
   }
 
   return (
-    <div className="grid cols-2">
-      <article className="card">
+    <div className="conversation-layout">
+      <article className="card conversation-main-card">
         <p className="label">{t("conversation_messages")}</p>
         {messages.length === 0 ? (
           <div className="empty-state">
@@ -277,24 +383,25 @@ export function ConversationWorkspace({
         <div className="composer">
           <textarea
             ref={textareaRef}
-            className="input"
+            className="input conversation-composer-input"
             rows={3}
             placeholder={t("conversation_placeholder")}
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
           />
-          <p className="subtitle" style={{ marginTop: 0 }}>
-            {t("conversation_ai_label")}: “{aiSuggestion}”
-          </p>
+          <div className="conversation-ai-suggestion">
+            <p className="conversation-ai-title">{t("conversation_ai_label")}</p>
+            <p className="conversation-ai-text">“{aiSuggestion}”</p>
+          </div>
           {error ? <p className="warn">{error}</p> : null}
-          <div className="actions">
+          <div className="actions conversation-composer-actions">
             <button
               className="button"
               type="button"
               onClick={fillDraftWithSuggestion}
               disabled={sending || generatingSuggestion}
             >
-              {generatingSuggestion ? "..." : t("conversation_reply_with_ai")}
+              {generatingSuggestion ? "..." : panelCopy.useAi}
             </button>
             <button className="mini-button" type="button" onClick={() => sendReply()} disabled={sending || !draft.trim()}>
               {sending ? "..." : t("inbox_reply")}
@@ -303,59 +410,86 @@ export function ConversationWorkspace({
         </div>
       </article>
 
-      <aside className="card">
-        <p className="label">{t("conversation_lead_panel")}</p>
-        <p className="kpi warn" style={{ marginBottom: 6 }}>
-          {formatMoney(lang, currency, conversation.estimatedValue)} en juego
-        </p>
-        <p style={{ marginTop: 0, marginBottom: 12 }}>
-          <strong>{conversation.leadType ?? t("inbox_unclassified")}</strong>
-        </p>
-        <div className="decision-panel">
-          <p className="label" style={{ marginBottom: 4 }}>Tipo de caso</p>
-          <p style={{ margin: 0, fontWeight: 700 }}>{decisionCopy.title}</p>
-          <p className="subtitle" style={{ marginTop: 6 }}>{decisionCopy.body}</p>
-        </div>
-        <p>
-          <strong>{t("inbox_status")}:</strong>{" "}
-          <span className={`badge ${statusClass(conversation.status)}`}>{statusLabel}</span>
-        </p>
-        {conversation.status === "won" ? (
-          <p><strong>{t("conversation_recovered")}:</strong> {formatMoney(lang, currency, conversation.expectedValue || conversation.estimatedValue)}</p>
-        ) : null}
-        <div className="actions" style={{ marginTop: 12 }}>
-          <button
-            className="mini-button"
-            type="button"
-            disabled={updatingStatus !== null || conversation.status === "active"}
-            onClick={() => updateBusinessStatus("active")}
-          >
-            {updatingStatus === "active" ? "..." : t("conversation_mark_active")}
-          </button>
-          <button
-            className="button"
-            type="button"
-            disabled={updatingStatus !== null || conversation.status === "won"}
-            onClick={() => updateBusinessStatus("won")}
-          >
-            {updatingStatus === "won" ? "..." : t("conversation_mark_won")}
-          </button>
-          <button
-            className="mini-button mini-warn"
-            type="button"
-            disabled={updatingStatus !== null || conversation.status === "lost"}
-            onClick={() => updateBusinessStatus("lost")}
-          >
-            {updatingStatus === "lost" ? "..." : t("conversation_mark_lost")}
-          </button>
-        </div>
-        <details style={{ marginTop: 16 }}>
-          <summary style={{ cursor: "pointer", color: "var(--muted)" }}>{t("conversation_details")}</summary>
-          <div style={{ marginTop: 12 }}>
-            <p><strong>{t("inbox_unit")}:</strong> {conversation.unit ?? t("inbox_no_unit")}</p>
-            <p><strong>{t("inbox_assigned")}:</strong> {conversation.assignedTo ?? "Unassigned"}</p>
-            <p><strong>{t("inbox_channel")}:</strong> {formatChannel(conversation.channel)}</p>
-            {conversation.contactPhone ? <p><strong>Phone:</strong> {conversation.contactPhone}</p> : null}
+      <aside className="conversation-side">
+        <article className="card conversation-side-card">
+          <p className="label">{t("conversation_lead_panel")}</p>
+
+          <div className="conversation-money-card">
+            <p className="conversation-money-value">
+              💰 {formatMoney(lang, currency, conversation.estimatedValue)} {panelCopy.moneyInPlayNow}
+            </p>
+            <p className="conversation-money-type">{conversation.leadType ?? t("inbox_unclassified")}</p>
+            <p className="conversation-money-meta">⏱ {panelCopy.lastReply} {lastReplyAge || panelCopy.noReplyYet}</p>
+            <p className="conversation-money-risk">🔥 {riskLabel}</p>
+          </div>
+
+          <div className="conversation-state-card">
+            <p className="label">{panelCopy.currentState}</p>
+            <p className={`conversation-state-title ${decisionType === "recover" ? "conversation-state-risk" : ""}`.trim()}>
+              {decisionCopy.title}
+            </p>
+            <p className="subtitle conversation-state-body">{decisionCopy.body}</p>
+          </div>
+
+          <div className="conversation-side-actions">
+            <p className="label">{panelCopy.whatNow}</p>
+            <div className="actions conversation-side-actions-row">
+              <button className="button" type="button" onClick={() => sendReply()} disabled={sending || !draft.trim()}>
+                {sending ? "..." : panelCopy.sendReply}
+              </button>
+              <button
+                className="button conversation-success-button"
+                type="button"
+                disabled={updatingStatus !== null || conversation.status === "won"}
+                onClick={() => updateBusinessStatus("won")}
+              >
+                {updatingStatus === "won" ? "..." : t("conversation_mark_won")}
+              </button>
+              <button
+                className="mini-button mini-warn"
+                type="button"
+                disabled={updatingStatus !== null || conversation.status === "lost"}
+                onClick={() => updateBusinessStatus("lost")}
+              >
+                {updatingStatus === "lost" ? "..." : t("conversation_mark_lost")}
+              </button>
+            </div>
+          </div>
+
+          <div className="conversation-details-card">
+            <p className="label">{t("conversation_details")}</p>
+            <div className="preview-row">
+              <span>{t("inbox_assigned")}</span>
+              <span>{conversation.assignedTo ?? panelCopy.unassigned}</span>
+            </div>
+            <div className="preview-row">
+              <span>{t("inbox_channel")}</span>
+              <span>{formatChannel(conversation.channel)}</span>
+            </div>
+            <div className="preview-row">
+              <span>{t("inbox_status")}</span>
+              <span className={`badge ${statusClass(conversation.status)}`}>{statusLabel}</span>
+            </div>
+            <div className="preview-row">
+              <span>{t("inbox_unit")}</span>
+              <span>{conversation.unit ?? t("inbox_no_unit")}</span>
+            </div>
+            {conversation.contactPhone ? (
+              <div className="preview-row">
+                <span>{panelCopy.phone}</span>
+                <span>{conversation.contactPhone}</span>
+              </div>
+            ) : null}
+            {conversation.status === "won" ? (
+              <div className="preview-row">
+                <span>{t("conversation_recovered")}</span>
+                <span>{formatMoney(lang, currency, conversation.expectedValue || conversation.estimatedValue)}</span>
+              </div>
+            ) : null}
+          </div>
+
+          <details className="conversation-manage-details">
+            <summary>{t("conversation_details")}</summary>
             <div style={{ marginTop: 16 }}>
               <InboxRowActions
                 conversationId={conversation.id}
@@ -376,8 +510,8 @@ export function ConversationWorkspace({
                 }}
               />
             </div>
-          </div>
-        </details>
+          </details>
+        </article>
       </aside>
     </div>
   );
