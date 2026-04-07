@@ -19,6 +19,13 @@ function countValue(items: Array<{ estimatedValue: number }>) {
   return items.reduce((sum, item) => sum + item.estimatedValue, 0);
 }
 
+function occurredToday(isoDate: string | null, todayStart: Date) {
+  if (!isoDate) return false;
+  const timestamp = new Date(isoDate).getTime();
+  if (Number.isNaN(timestamp)) return false;
+  return timestamp >= todayStart.getTime();
+}
+
 export default async function DashboardPage() {
   const cookieStore = await cookies();
   const headerStore = await headers();
@@ -63,50 +70,48 @@ export default async function DashboardPage() {
   const workspaceRisk = conversations.filter((item) => item.status === "no_response");
   const workspaceNew = conversations.filter((item) => item.status === "new");
   const workspaceWon = conversations.filter((item) => item.status === "won");
+  const workspaceWonToday = workspaceWon.filter((item) => occurredToday(item.lastMessageAt ?? item.createdAt, todayStart));
 
   const myOpen = conversations.filter(
     (item) => item.assignedToId === context.user.id && (item.status === "new" || item.status === "active" || item.status === "no_response"),
   );
   const myRisk = conversations.filter((item) => item.assignedToId === context.user.id && item.status === "no_response");
-  const todayLeads = conversations.filter((item) => new Date(item.createdAt).getTime() >= todayStart.getTime());
+  const myWonToday = conversations.filter(
+    (item) => item.assignedToId === context.user.id && item.status === "won" && occurredToday(item.lastMessageAt ?? item.createdAt, todayStart),
+  );
   const visibleOpen = canManageBusiness ? workspaceOpen : myOpen;
   const visibleRisk = canManageBusiness ? workspaceRisk : myRisk;
+  const visibleWonToday = canManageBusiness ? workspaceWonToday : myWonToday;
+  const visibleActive = visibleOpen.filter((item) => item.status === "active");
+  const visibleNew = canManageBusiness ? workspaceNew : conversations.filter((item) => item.status === "new");
+  const visibleRecoveredToday = countValue(visibleWonToday);
 
-  const shortcutLinks = canManageBusiness
-    ? [
-        {
-          href: "/inbox?scope=no_response",
-          label: t("dashboard_pending_conversations"),
-          detail: `${workspaceRisk.length} ${t("inbox_filter_no_reply").toLowerCase()}`,
-        },
-        {
-          href: "/inbox?scope=unassigned",
-          label: t("inbox_assigned"),
-          detail: `${conversations.filter((item) => !item.assignedToId).length} sin asignar`,
-        },
-        {
-          href: "/inbox?scope=new",
-          label: t("inbox_filter_new"),
-          detail: `${workspaceNew.length} leads nuevos`,
-        },
-      ]
-    : [
-        {
-          href: "/inbox?scope=mine",
-          label: "Mis conversaciones",
-          detail: `${myOpen.length} abiertas a mi cargo`,
-        },
-        {
-          href: "/inbox?scope=no_response",
-          label: t("inbox_filter_no_reply"),
-          detail: `${myRisk.length} pendientes de respuesta`,
-        },
-        {
-          href: "/inbox?scope=unassigned",
-          label: "Sin asignar",
-          detail: `${conversations.filter((item) => !item.assignedToId).length} disponibles para coger`,
-        },
-      ];
+  const actionCards = [
+    {
+      href: "/inbox?scope=no_response",
+      title: "Revisar ahora",
+      detail: `${visibleRisk.length} ${visibleRisk.length === 1 ? "conversación en riesgo" : "conversaciones en riesgo"}`,
+      tone: "dashboard-action-risk",
+      cta: "Ir al inbox",
+      emoji: "🔴",
+    },
+    {
+      href: canManageBusiness ? "/inbox" : "/inbox?scope=mine",
+      title: "Seguimiento",
+      detail: `${visibleActive.length} ${visibleActive.length === 1 ? "conversación activa" : "conversaciones activas"}`,
+      tone: "dashboard-action-followup",
+      cta: "Ver",
+      emoji: "🟠",
+    },
+    {
+      href: "/inbox?scope=new",
+      title: "Nuevas conversaciones",
+      detail: `${visibleNew.length} ${visibleNew.length === 1 ? "conversación sin abrir" : "conversaciones sin abrir"}`,
+      tone: "dashboard-action-new",
+      cta: "Abrir",
+      emoji: "🔵",
+    },
+  ];
 
   return (
     <section className="page">
@@ -131,102 +136,44 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      {canManageBusiness ? (
-        <>
-          <div className="grid cols-3" style={{ marginBottom: 12 }}>
-            <article className="card">
-              <p className="label">{t("dashboard_leads_today")}</p>
-              <p className="kpi">{todayLeads.length}</p>
-              <p className="subtitle" style={{ margin: 0 }}>
-                conversaciones creadas hoy
-              </p>
-            </article>
-            <article className="card">
-              <p className="label">{t("dashboard_no_reply")}</p>
-              <p className="kpi warn">{format(countValue(visibleRisk))}</p>
-              <p className="subtitle" style={{ margin: 0 }}>
-                {visibleRisk.length} conversaciones esperando respuesta
-              </p>
-            </article>
-            <article className="card">
-              <p className="label">{t("dashboard_revenue_risk")}</p>
-              <p className="kpi">{format(countValue(visibleOpen))}</p>
-              <p className="subtitle" style={{ margin: 0 }}>
-                {workspaceWon.length} {t("revenue_filter_won").toLowerCase()} en el workspace
-              </p>
-            </article>
-          </div>
-        <div className="grid cols-2">
-          <article className="card">
-            <p className="label">Qué revisar hoy</p>
-            <div className="clean-list">
-              {shortcutLinks.map((item) => (
-                <Link key={item.href} href={item.href} className="dashboard-shortcut">
-                  <strong>{item.label}</strong>
-                  <span>{item.detail}</span>
-                </Link>
-              ))}
+      <article className="card dashboard-hero dashboard-hero-risk">
+        <p className="dashboard-hero-value">💰 {format(countValue(visibleRisk))} en riesgo ahora mismo</p>
+        <p className="dashboard-hero-detail">
+          {visibleRisk.length} {visibleRisk.length === 1 ? "conversación crítica sin respuesta" : "conversaciones críticas sin respuesta"}
+        </p>
+      </article>
+
+      <div className="grid cols-2" style={{ marginTop: 12, marginBottom: 12 }}>
+        <article className="card dashboard-hero dashboard-hero-active">
+          <p className="dashboard-secondary-value">💰 {format(countValue(visibleOpen))} en conversación</p>
+          <p className="dashboard-hero-detail">
+            {canManageBusiness ? "oportunidades activas en proceso" : "valor activo bajo tu seguimiento"}
+          </p>
+        </article>
+        <article className="card dashboard-hero dashboard-hero-won">
+          <p className="dashboard-secondary-value">💰 {format(visibleRecoveredToday)} recuperados hoy</p>
+          <p className="dashboard-hero-detail">
+            {canManageBusiness ? "ingresos cerrados en el día" : "conversaciones cerradas hoy"}
+          </p>
+        </article>
+      </div>
+
+      <article className="card dashboard-actions-shell">
+        <p className="label">Qué hacer ahora</p>
+        <div className="dashboard-actions-list">
+          {actionCards.map((item) => (
+            <div key={item.href} className={`dashboard-action-row ${item.tone}`.trim()}>
+              <div>
+                <div className="dashboard-action-title">{item.emoji} {item.title}</div>
+                <div className="dashboard-action-detail">{item.detail}</div>
+              </div>
+              <Link className={item.tone === "dashboard-action-risk" ? "button" : "mini-button dashboard-action-button"} href={item.href}>
+                {item.cta}
+              </Link>
             </div>
-          </article>
-          <article className="card">
-            <p className="label">Estado del workspace</p>
-            <div className="preview-row">
-              <span>{t("inbox_filter_in_progress")}</span>
-              <strong>{workspaceOpen.filter((item) => item.status === "active").length}</strong>
-            </div>
-            <div className="preview-row">
-              <span>{t("inbox_filter_new")}</span>
-              <strong>{workspaceNew.length}</strong>
-            </div>
-            <div className="preview-row">
-              <span>{t("inbox_filter_no_reply")}</span>
-              <strong>{visibleRisk.length}</strong>
-            </div>
-            <div className="preview-row">
-              <span>{t("revenue_filter_won")}</span>
-              <strong>{workspaceWon.length}</strong>
-            </div>
-          </article>
+          ))}
         </div>
-        </>
-      ) : (
-        <div className="grid cols-2">
-          <div className="dashboard-agent-metrics">
-            <article className="card">
-              <p className="label">Mis abiertas</p>
-              <p className="kpi">{myOpen.length}</p>
-              <p className="subtitle" style={{ margin: 0 }}>
-                conversaciones activas a tu cargo
-              </p>
-            </article>
-            <article className="card">
-              <p className="label">{t("dashboard_no_reply")}</p>
-              <p className="kpi warn">{format(countValue(visibleRisk))}</p>
-              <p className="subtitle" style={{ margin: 0 }}>
-                {visibleRisk.length} conversaciones esperando respuesta
-              </p>
-            </article>
-            <article className="card">
-              <p className="label">Valor en curso</p>
-              <p className="kpi">{format(countValue(visibleOpen))}</p>
-              <p className="subtitle" style={{ margin: 0 }}>
-                valor estimado de tus conversaciones abiertas
-              </p>
-            </article>
-          </div>
-          <article className="card">
-            <p className="label">Qué hacer ahora</p>
-            <div className="clean-list">
-              {shortcutLinks.map((item) => (
-                <Link key={item.href} href={item.href} className="dashboard-shortcut">
-                  <strong>{item.label}</strong>
-                  <span>{item.detail}</span>
-                </Link>
-              ))}
-            </div>
-          </article>
-        </div>
-      )}
+      </article>
     </section>
   );
 }
