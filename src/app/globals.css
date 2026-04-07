@@ -526,8 +526,8 @@ a {
 .dashboard-shortcut {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 12px;
+  gap: 3px;
+  padding: 10px 12px;
   border-radius: 12px;
   border: 1px solid var(--line);
   background: rgba(15, 29, 27, 0.9);
@@ -536,12 +536,12 @@ a {
 }
 
 .dashboard-shortcut strong {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
 }
 
 .dashboard-shortcut span {
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.8rem;
 }
 
 .dashboard-agent-metrics {
