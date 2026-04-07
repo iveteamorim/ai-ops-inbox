@@ -72,6 +72,27 @@ function actionLabel(type: DecisionType, isAssigned: boolean) {
   return "Continuar conversación";
 }
 
+function getVisibleStatusLabel(
+  row: { status: "new" | "active" | "won" | "lost" | "no_response" },
+  noReplyBadgeLabel: string | null,
+  t: (key: Parameters<typeof translate>[1]) => string,
+) {
+  if (row.status === "no_response" && noReplyBadgeLabel === "En riesgo") {
+    return "En riesgo";
+  }
+  return formatStatus(row.status, t);
+}
+
+function getVisibleStatusClass(
+  row: { status: "new" | "active" | "won" | "lost" | "no_response" },
+  noReplyBadgeLabel: string | null,
+) {
+  if (row.status === "no_response" && noReplyBadgeLabel === "En riesgo") {
+    return "status-lost";
+  }
+  return statusClass(row.status);
+}
+
 function conversationPriorityScore(row: {
   decisionType: DecisionType;
   status: "new" | "active" | "won" | "lost" | "no_response";
@@ -338,6 +359,8 @@ export default async function InboxPage({
                 const isPriorityRow = visibleRows[0]?.id === row.id;
                 const noReplyMeta = getNoReplyMeta(row.status, row.lastInboundAt ?? row.lastMessageAt);
                 const isCriticalRisk = row.status === "no_response" && noReplyMeta.badgeLabel === "En riesgo";
+                const visibleStatusLabel = getVisibleStatusLabel(row, noReplyMeta.badgeLabel, t);
+                const visibleStatusClass = getVisibleStatusClass(row, noReplyMeta.badgeLabel);
                 const rowClassName = [
                   row.id === focusedConversationId ? "table-row-focus" : "",
                   isPriorityRow ? "table-row-priority" : "",
@@ -369,7 +392,7 @@ export default async function InboxPage({
                       </div>
                     </td>
                     <td>
-                      <span className={`badge ${statusClass(row.status)}`}>{formatStatus(row.status, t)}</span>
+                      <span className={`badge ${visibleStatusClass}`}>{visibleStatusLabel}</span>
                     </td>
                     <td>
                       {isCriticalRisk ? (
