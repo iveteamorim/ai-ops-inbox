@@ -341,20 +341,8 @@ export default async function InboxPage({
                 </Link>
               ) : null}
             </form>
-            <table className="table">
-            <thead>
-              <tr>
-                <th>{t("inbox_client")}</th>
-                <th>{t("inbox_last_msg")}</th>
-                <th>{t("inbox_status")}</th>
-                <th>{t("inbox_value")}</th>
-                <th>{t("inbox_assigned")}</th>
-                <th>Siguiente paso</th>
-              </tr>
-            </thead>
-            <tbody>
+            <div className="inbox-card-list">
               {visibleRows.map((row) => {
-                const valueLabel = `${format(row.estimatedValue)} ${t("inbox_value_potential")}`;
                 const primaryAction = actionLabel(row.decisionType, Boolean(row.assignedToId));
                 const isPriorityRow = visibleRows[0]?.id === row.id;
                 const noReplyMeta = getNoReplyMeta(row.status, row.lastInboundAt ?? row.lastMessageAt);
@@ -369,75 +357,48 @@ export default async function InboxPage({
                 ]
                   .filter(Boolean)
                   .join(" ");
+                const assignedLabel = row.assignedTo
+                  ? row.assignedToId === context.user.id
+                    ? "Asignado a ti"
+                    : row.assignedTo
+                  : "Sin asignar";
                 return (
-                  <tr key={row.id} className={rowClassName || undefined}>
-                    <td>
-                      <Link href={`/conversation/${row.id}`}>{row.contactName}</Link>
-                    </td>
-                    <td>
-                      {row.lastMessageText}
-                      <div
-                        className={`label ${noReplyMeta.className}`.trim()}
-                        style={{ marginTop: 4, marginBottom: 0, textTransform: "none" }}
-                      >
-                        {noReplyMeta.timeLabel}
-                        {noReplyMeta.badgeLabel ? (
-                          <span
-                            className={`badge ${row.status === "no_response" && noReplyMeta.badgeLabel === "En riesgo" ? "status-lost" : "status-no-response"}`}
-                            style={{ marginLeft: 8, textTransform: "none" }}
-                          >
-                            {noReplyMeta.badgeLabel}
-                          </span>
-                        ) : null}
+                  <article key={row.id} className={`inbox-row-card ${rowClassName}`.trim()}>
+                    <div className="inbox-row-card-top">
+                      <div>
+                        <div className={`inbox-row-status ${visibleStatusClass}`}>
+                          {row.status === "no_response" && visibleStatusLabel === "En riesgo" ? "🔴 " : row.status === "active" ? "🟢 " : ""}
+                          {visibleStatusLabel}
+                        </div>
+                        <div className={`inbox-row-time ${noReplyMeta.className}`.trim()}>{noReplyMeta.timeLabel}</div>
                       </div>
-                    </td>
-                    <td>
-                      <span className={`badge ${visibleStatusClass}`}>{visibleStatusLabel}</span>
-                    </td>
-                    <td>
-                      {isCriticalRisk ? (
-                        <>
-                          <div className="label risk-label" style={{ marginTop: 0, marginBottom: 4, textTransform: "none" }}>
-                            {format(row.estimatedValue)}
-                          </div>
-                          <div className="label" style={{ marginTop: 0, marginBottom: 0, textTransform: "none" }}>
-                            {row.leadType ?? t("inbox_unclassified")}
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          {valueLabel}
-                          <div className="label" style={{ marginTop: 4, marginBottom: 0, textTransform: "none" }}>
-                            {row.leadType ?? t("inbox_unclassified")}
-                          </div>
-                        </>
-                      )}
-                    </td>
-                    <td>
-                      {row.assignedTo ? (
-                        <span className="label" style={{ margin: 0, textTransform: "none" }}>
-                          {row.assignedTo}
-                        </span>
-                      ) : (
-                        <span className="badge badge-muted">Sin asignar</span>
-                      )}
-                    </td>
-                    <td>
-                      <div className="stack-actions">
-                        {primaryAction ? (
-                          <Link className={isPriorityRow ? "mini-button is-active" : "mini-button"} href={`/conversation/${row.id}`}>
-                            {primaryAction}
-                          </Link>
-                        ) : (
-                          <span className="note" style={{ marginTop: 0 }}>—</span>
-                        )}
+                      <div className="inbox-row-value">
+                        <div className={`inbox-row-value-amount ${isCriticalRisk ? "risk-label" : ""}`}>💰 {format(row.estimatedValue)}</div>
+                        <div className="inbox-row-value-type">{row.leadType ?? t("inbox_unclassified")}</div>
                       </div>
-                    </td>
-                  </tr>
+                    </div>
+
+                    <div className="inbox-row-body">
+                      <Link className="inbox-row-contact" href={`/conversation/${row.id}`}>
+                        {row.contactName}
+                      </Link>
+                      <div className="inbox-row-message">{row.lastMessageText}</div>
+                    </div>
+
+                    <div className="inbox-row-footer">
+                      <div className="inbox-row-assigned">{assignedLabel}</div>
+                      {primaryAction ? (
+                        <Link className={isPriorityRow ? "button" : "mini-button"} href={`/conversation/${row.id}`}>
+                          {primaryAction}
+                        </Link>
+                      ) : (
+                        <span className="note" style={{ marginTop: 0 }}>—</span>
+                      )}
+                    </div>
+                  </article>
                 );
               })}
-            </tbody>
-            </table>
+            </div>
           </>
         )}
       </article>
