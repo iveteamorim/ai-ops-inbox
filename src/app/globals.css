@@ -391,6 +391,33 @@ a {
   background: rgb(34, 197, 94);
 }
 
+.inbox-row-card-new {
+  background: rgba(37, 99, 235, 0.05);
+  border-color: rgba(96, 165, 250, 0.22);
+}
+
+.inbox-row-card-won {
+  background: rgba(101, 163, 13, 0.08);
+  border-color: rgba(163, 230, 53, 0.22);
+}
+
+.inbox-row-card-lost {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(229, 231, 235, 0.18);
+}
+
+.inbox-row-card-new::before {
+  background: rgb(59, 130, 246);
+}
+
+.inbox-row-card-won::before {
+  background: rgb(163, 230, 53);
+}
+
+.inbox-row-card-lost::before {
+  background: rgb(229, 231, 235);
+}
+
 .inbox-row-card-top {
   display: flex;
   justify-content: space-between;
@@ -414,6 +441,14 @@ a {
 
 .inbox-row-status-new {
   color: #93c5fd;
+}
+
+.inbox-row-status-won {
+  color: #bef264;
+}
+
+.inbox-row-status-lost {
+  color: #e5e7eb;
 }
 
 .inbox-row-time {
@@ -479,6 +514,24 @@ a {
   color: #f8fafc;
   padding: 8px 16px;
   border-radius: 10px;
+}
+
+.inbox-row-secondary-action-new {
+  background: rgba(37, 99, 235, 0.92);
+  border-color: rgba(96, 165, 250, 0.58);
+  color: #eff6ff;
+}
+
+.inbox-row-secondary-action-won {
+  background: rgba(54, 83, 20, 0.92);
+  border-color: rgba(163, 230, 53, 0.4);
+  color: #ecfccb;
+}
+
+.inbox-row-secondary-action-lost {
+  background: rgba(55, 65, 81, 0.58);
+  border-color: rgba(156, 163, 175, 0.32);
+  color: #e5e7eb;
 }
 
 .mini-button.filter-pill {

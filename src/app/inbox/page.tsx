@@ -57,11 +57,39 @@ function getNoReplyMeta(status: "new" | "active" | "won" | "lost" | "no_response
 function actionLabel(type: DecisionType, isAssigned: boolean) {
   if (type === "recover") return "Responder ahora";
   if (type === "complex") return "Escalar caso";
-  if (type === "new") return "Contactar lead";
-  if (type === "won") return "Ver cierre";
-  if (type === "lost") return null;
+  if (type === "new") return "Abrir conversación";
+  if (type === "won") return "Ver detalle";
+  if (type === "lost") return "Ver motivo";
   if (!isAssigned) return "Responder";
   return "Continuar conversación";
+}
+
+function getStatusTimeLabel(
+  row: { status: "new" | "active" | "won" | "lost" | "no_response"; lastMessageAt: string | null },
+  noReplyTimeLabel: string,
+) {
+  if (row.status === "no_response") return noReplyTimeLabel;
+  if (!row.lastMessageAt) return "";
+
+  const timestamp = new Date(row.lastMessageAt).getTime();
+  if (Number.isNaN(timestamp)) return formatRelativeTime(row.lastMessageAt);
+
+  const diffHours = (Date.now() - timestamp) / (1000 * 60 * 60);
+  const relative = formatRelativeTime(row.lastMessageAt);
+
+  if (row.status === "won") {
+    if (diffHours < 24) return "Ganado hoy";
+    if (diffHours < 48) return "Ganado ayer";
+    return `Ganado ${relative}`;
+  }
+
+  if (row.status === "lost") {
+    if (diffHours < 24) return "Perdido hoy";
+    if (diffHours < 48) return "Perdido ayer";
+    return `Perdido ${relative}`;
+  }
+
+  return relative;
 }
 
 function getVisibleStatusLabel(
@@ -329,6 +357,7 @@ export default async function InboxPage({
                 const noReplyMeta = getNoReplyMeta(row.status, row.lastInboundAt ?? row.lastMessageAt);
                 const visibleStatusLabel = getVisibleStatusLabel(row, noReplyMeta.className, t);
                 const isCriticalRisk = visibleStatusLabel === "En riesgo";
+                const timeLabel = getStatusTimeLabel(row, noReplyMeta.timeLabel);
                 const statusToneClass =
                   row.status === "no_response" && visibleStatusLabel === "En riesgo"
                     ? "inbox-row-status-risk"
@@ -336,10 +365,24 @@ export default async function InboxPage({
                       ? "inbox-row-status-active"
                       : row.status === "new"
                         ? "inbox-row-status-new"
+                        : row.status === "won"
+                          ? "inbox-row-status-won"
+                          : row.status === "lost"
+                            ? "inbox-row-status-lost"
                         : "";
                 const rowClassName = [
                   row.id === focusedConversationId ? "inbox-row-card-focus" : "",
-                  isCriticalRisk ? "inbox-row-card-risk" : row.status === "active" ? "inbox-row-card-active" : "",
+                  isCriticalRisk
+                    ? "inbox-row-card-risk"
+                    : row.status === "active"
+                      ? "inbox-row-card-active"
+                      : row.status === "new"
+                        ? "inbox-row-card-new"
+                        : row.status === "won"
+                          ? "inbox-row-card-won"
+                          : row.status === "lost"
+                            ? "inbox-row-card-lost"
+                            : "",
                   row.assignedToId === context.user.id ? "inbox-row-card-mine" : "",
                 ]
                   .filter(Boolean)
@@ -354,10 +397,20 @@ export default async function InboxPage({
                     <div className="inbox-row-card-top">
                       <div>
                         <div className={`inbox-row-status ${statusToneClass}`.trim()}>
-                          {row.status === "no_response" && visibleStatusLabel === "En riesgo" ? "🔴 " : row.status === "active" ? "🟢 " : ""}
+                          {row.status === "no_response" && visibleStatusLabel === "En riesgo"
+                            ? "🔴 "
+                            : row.status === "active"
+                              ? "🟢 "
+                              : row.status === "new"
+                                ? "🔵 "
+                                : row.status === "won"
+                                  ? "🟢 "
+                                  : row.status === "lost"
+                                    ? "⚪ "
+                                    : ""}
                           {visibleStatusLabel}
                         </div>
-                        <div className={`inbox-row-time ${noReplyMeta.className}`.trim()}>{noReplyMeta.timeLabel}</div>
+                        <div className={`inbox-row-time ${noReplyMeta.className}`.trim()}>{timeLabel}</div>
                       </div>
                       <div className="inbox-row-value">
                         <div className={`inbox-row-value-amount ${isCriticalRisk ? "risk-label" : ""}`}>💰 {format(row.estimatedValue)}</div>
@@ -375,7 +428,20 @@ export default async function InboxPage({
                     <div className="inbox-row-footer">
                       <div className="inbox-row-assigned">{assignedLabel}</div>
                       {primaryAction ? (
-                        <Link className={isCriticalRisk ? "button" : "mini-button inbox-row-secondary-action"} href={`/conversation/${row.id}`}>
+                        <Link
+                          className={
+                            isCriticalRisk
+                              ? "button"
+                              : row.status === "new"
+                                ? "mini-button inbox-row-secondary-action inbox-row-secondary-action-new"
+                                : row.status === "won"
+                                  ? "mini-button inbox-row-secondary-action inbox-row-secondary-action-won"
+                                  : row.status === "lost"
+                                    ? "mini-button inbox-row-secondary-action inbox-row-secondary-action-lost"
+                                    : "mini-button inbox-row-secondary-action"
+                          }
+                          href={`/conversation/${row.id}`}
+                        >
                           {primaryAction}
                         </Link>
                       ) : (
