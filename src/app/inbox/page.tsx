@@ -36,12 +36,13 @@ function timeLabelClass(status: "new" | "active" | "won" | "lost" | "no_response
   return "";
 }
 
-function actionLabel(type: DecisionType) {
+function actionLabel(type: DecisionType, isAssigned: boolean) {
   if (type === "recover") return "Responder ahora";
   if (type === "complex") return "Escalar caso";
   if (type === "new") return "Contactar lead";
   if (type === "won") return "Ver cierre";
   if (type === "lost") return null;
+  if (!isAssigned) return "Responder";
   return "Continuar conversación";
 }
 
@@ -284,7 +285,7 @@ export default async function InboxPage({
             <tbody>
               {visibleRows.map((row) => {
                 const valueLabel = `${format(row.estimatedValue)} ${t("inbox_value_potential")}`;
-                const primaryAction = actionLabel(row.decisionType);
+                const primaryAction = actionLabel(row.decisionType, Boolean(row.assignedToId));
                 const isPriorityRow = visibleRows[0]?.id === row.id;
                 const rowClassName = [
                   row.id === focusedConversationId ? "table-row-focus" : "",
