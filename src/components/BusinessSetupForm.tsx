@@ -167,37 +167,35 @@ export function BusinessSetupForm({ initialValue, labels, showInternalTools = fa
   return (
     <article className="card settings-business-card">
       <p className="label">{labels.title}</p>
-      <p className="subtitle" style={{ marginBottom: 12 }}>
+      <p className="subtitle settings-business-help">
         {labels.help}
       </p>
 
-      <section className="setup-panel">
+      <section className="setup-panel settings-business-section">
         <label className="label" htmlFor="business-name">
           {labels.businessName}
         </label>
         <input
           id="business-name"
-          className="input"
+          className="input settings-business-name-input"
           value={businessName}
           onChange={(event) => setBusinessName(event.target.value)}
         />
       </section>
 
-      <section className="setup-panel">
-        <p className="label" style={{ marginBottom: 10 }}>
+      <section className="setup-panel settings-business-section">
+        <p className="label settings-business-section-title">
           {labels.leadTypesBlock}
         </p>
-        <p className="subtitle" style={{ marginBottom: 12 }}>
+        <p className="subtitle settings-business-section-copy">
           {labels.leadTypes}
         </p>
         <div className="lead-types-list">
           {leadTypes.map((row) => (
-            <div key={row.id} className="lead-type-row">
-              <div className="lead-type-main">
-                <div>
-                  <label className="label" htmlFor={`lead-name-${row.id}`}>
-                    {labels.leadTypeName}
-                  </label>
+            <div key={row.id} className="lead-type-row settings-lead-card">
+              <div className="lead-type-main settings-lead-card-main">
+                <div className="settings-lead-card-field">
+                  <span className="label">{labels.leadTypeName}</span>
                   <input
                     id={`lead-name-${row.id}`}
                     className="input"
@@ -206,10 +204,8 @@ export function BusinessSetupForm({ initialValue, labels, showInternalTools = fa
                     onChange={(event) => updateLeadType(row.id, { name: event.target.value })}
                   />
                 </div>
-                <div>
-                  <label className="label" htmlFor={`lead-value-${row.id}`}>
-                    {labels.estimatedValue}
-                  </label>
+                <div className="settings-lead-card-field">
+                  <span className="label">{labels.estimatedValue}</span>
                   <input
                     id={`lead-value-${row.id}`}
                     className="input"
@@ -224,7 +220,7 @@ export function BusinessSetupForm({ initialValue, labels, showInternalTools = fa
                   />
                 </div>
               </div>
-              <div className="lead-type-meta">
+              <div className="lead-type-meta settings-lead-card-actions">
                 {leadTypes.length > 1 ? (
                   <button className="action-link" type="button" onClick={() => removeLeadType(row.id)}>
                     {labels.removeLeadType}
@@ -234,15 +230,17 @@ export function BusinessSetupForm({ initialValue, labels, showInternalTools = fa
             </div>
           ))}
         </div>
-        <button className="mini-button" type="button" onClick={addLeadType}>
-          {labels.addLeadType}
-        </button>
+        <div className="settings-business-add">
+          <button className="mini-button" type="button" onClick={addLeadType}>
+            {labels.addLeadType}
+          </button>
+        </div>
       </section>
 
-      {message ? <p className="note" style={{ marginTop: 12 }}>{message}</p> : null}
-      {error ? <p className="warn" style={{ marginTop: 12 }}>{error}</p> : null}
+      {message ? <p className="note settings-business-feedback">{message}</p> : null}
+      {error ? <p className="warn settings-business-feedback">{error}</p> : null}
 
-      <div className="actions" style={{ marginTop: 12 }}>
+      <div className="actions settings-business-actions">
         <button className="button" type="button" disabled={isPending} onClick={save}>
           {isPending ? labels.saving : labels.save}
         </button>

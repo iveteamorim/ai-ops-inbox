@@ -1435,6 +1435,27 @@ a {
   background: rgba(255, 255, 255, 0.02);
 }
 
+.settings-business-help {
+  margin-bottom: 12px;
+}
+
+.settings-business-section {
+  background: rgba(11, 22, 21, 0.92);
+  border-color: rgba(182, 215, 207, 0.12);
+}
+
+.settings-business-name-input {
+  margin-bottom: 0;
+}
+
+.settings-business-section-title {
+  margin-bottom: 10px;
+}
+
+.settings-business-section-copy {
+  margin-bottom: 12px;
+}
+
 .settings-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1462,10 +1483,24 @@ a {
   background: rgba(9, 19, 18, 0.9);
 }
 
+.settings-lead-card {
+  border-color: rgba(182, 215, 207, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+}
+
 .lead-type-main {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(140px, 0.8fr);
   gap: 10px;
+}
+
+.settings-lead-card-main {
+  align-items: end;
+}
+
+.settings-lead-card-field {
+  display: grid;
+  gap: 6px;
 }
 
 .lead-type-main .input {
@@ -1478,6 +1513,22 @@ a {
   justify-content: space-between;
   align-items: center;
   gap: 8px;
+}
+
+.settings-lead-card-actions {
+  justify-content: flex-end;
+}
+
+.settings-business-add {
+  margin-top: 2px;
+}
+
+.settings-business-feedback {
+  margin-top: 12px;
+}
+
+.settings-business-actions {
+  margin-top: 12px;
 }
 
 .compact-checkbox {
