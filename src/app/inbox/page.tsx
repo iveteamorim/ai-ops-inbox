@@ -327,8 +327,8 @@ export default async function InboxPage({
               {visibleRows.map((row) => {
                 const primaryAction = actionLabel(row.decisionType, Boolean(row.assignedToId));
                 const noReplyMeta = getNoReplyMeta(row.status, row.lastInboundAt ?? row.lastMessageAt);
-                const isCriticalRisk = row.status === "no_response" && noReplyMeta.badgeLabel === "En riesgo";
                 const visibleStatusLabel = getVisibleStatusLabel(row, noReplyMeta.className, t);
+                const isCriticalRisk = visibleStatusLabel === "En riesgo";
                 const statusToneClass =
                   row.status === "no_response" && visibleStatusLabel === "En riesgo"
                     ? "inbox-row-status-risk"
