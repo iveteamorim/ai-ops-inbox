@@ -349,15 +349,15 @@ a {
 }
 
 .mini-button.filter-pill-unassigned {
-  border-color: rgba(184, 203, 199, 0.32);
-  background: rgba(148, 163, 184, 0.1);
-  color: #e2e8f0;
+  border-color: rgba(203, 213, 225, 0.42);
+  background: rgba(100, 116, 139, 0.16);
+  color: #e8f0f5;
 }
 
 .mini-button.filter-pill-unassigned.is-active {
-  border-color: rgba(203, 213, 225, 0.7);
-  background: rgba(100, 116, 139, 0.28);
-  box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.12);
+  border-color: rgba(226, 232, 240, 0.78);
+  background: rgba(100, 116, 139, 0.34);
+  box-shadow: inset 0 0 0 1px rgba(248, 250, 252, 0.12);
 }
 
 .mini-button.filter-pill-no-response {
