@@ -375,6 +375,84 @@ export default async function SettingsPage() {
   const roleLabel = formatRoleLabel(lang, context.profile.role);
   const workspaceLabel = context.company?.name ?? "Novua Inbox";
   const whatsappConnected = channels.length > 0;
+  const settingsText =
+    lang === "pt"
+      ? {
+          heroConnected: "WhatsApp conectado",
+          heroDisconnected: "WhatsApp desconectado",
+          heroConnectedCopy: "Já podes receber e responder conversas reais desde a Novua.",
+          heroDisconnectedCopy: "Neste momento não estás a receber conversas na Novua.",
+          heroConnectedAction: "Atualizar canal",
+          heroDisconnectedAction: "Conectar agora",
+          systemTitleManage: "Como a Novua decide",
+          systemTitleAgent: "Sistema",
+          capabilities: [
+            { title: copy.systemAiAssistance, description: "Ajuda a equipa a responder mais rápido e com contexto." },
+            { title: t("settings_lead_score"), description: "Prioriza conversas segundo valor, intenção e urgência." },
+            { title: copy.systemFollowUpAutomation, description: "Empurra conversas ativas para não perder oportunidades." },
+            { title: copy.systemWhatsappWebhook, description: hasWebhookSecrets ? "Canal pronto para receber mensagens." : "Ligação técnica pendente." },
+          ],
+          teamTitle: canManageTeam ? "Quem responde aos clientes" : t("settings_users"),
+          channelTitle: "Conecta WhatsApp",
+          channelHelp: "Usa este canal para começar a receber e responder conversas reais desde a Novua.",
+          unnamedUser: "Utilizador sem nome",
+          detail: "Ver detalhe",
+          open: "Abertas",
+          noReply: "Sem resposta",
+          won: "Ganhas",
+          lost: "Perdidas",
+        }
+      : lang === "en"
+        ? {
+            heroConnected: "WhatsApp connected",
+            heroDisconnected: "WhatsApp disconnected",
+            heroConnectedCopy: "You can now receive and reply to real conversations in Novua.",
+            heroDisconnectedCopy: "You are not receiving conversations in Novua right now.",
+            heroConnectedAction: "Update channel",
+            heroDisconnectedAction: "Connect now",
+            systemTitleManage: "How Novua decides",
+            systemTitleAgent: "System",
+            capabilities: [
+              { title: copy.systemAiAssistance, description: "Helps the team reply faster and with context." },
+              { title: t("settings_lead_score"), description: "Prioritizes conversations by value, intent, and urgency." },
+              { title: copy.systemFollowUpAutomation, description: "Pushes active conversations so opportunities are not lost." },
+              { title: copy.systemWhatsappWebhook, description: hasWebhookSecrets ? "Channel ready to receive messages." : "Technical connection still pending." },
+            ],
+            teamTitle: canManageTeam ? "Who replies to customers" : t("settings_users"),
+            channelTitle: "Connect WhatsApp",
+            channelHelp: "Use this channel to start receiving and replying to real conversations through Novua.",
+            unnamedUser: "Unnamed user",
+            detail: "View details",
+            open: "Open",
+            noReply: "No reply",
+            won: "Won",
+            lost: "Lost",
+          }
+        : {
+            heroConnected: "WhatsApp conectado",
+            heroDisconnected: "WhatsApp desconectado",
+            heroConnectedCopy: "Ya puedes recibir y responder conversaciones reales desde Novua.",
+            heroDisconnectedCopy: "Ahora mismo no estás recibiendo conversaciones en Novua.",
+            heroConnectedAction: "Actualizar canal",
+            heroDisconnectedAction: "Conectar ahora",
+            systemTitleManage: "Cómo Novua decide",
+            systemTitleAgent: "Sistema",
+            capabilities: [
+              { title: copy.systemAiAssistance, description: "Ayuda al equipo a responder más rápido y con contexto." },
+              { title: t("settings_lead_score"), description: "Prioriza conversaciones según valor, intención y urgencia." },
+              { title: copy.systemFollowUpAutomation, description: "Empuja conversaciones activas para no perder oportunidades." },
+              { title: copy.systemWhatsappWebhook, description: hasWebhookSecrets ? "Canal listo para recibir mensajes." : "Pendiente de conexión técnica." },
+            ],
+            teamTitle: canManageTeam ? "Quién responde a los clientes" : t("settings_users"),
+            channelTitle: "Conecta WhatsApp",
+            channelHelp: "Usa este canal para empezar a recibir y responder conversaciones reales desde Novua.",
+            unnamedUser: "Usuario sin nombre",
+            detail: "Ver detalle",
+            open: "Abiertas",
+            noReply: "Sin respuesta",
+            won: "Ganadas",
+            lost: "Perdidas",
+          };
 
   return (
     <section className="page">
@@ -395,18 +473,18 @@ export default async function SettingsPage() {
         <div className="settings-hero-content">
           <div>
             <p className="settings-hero-title">
-              {whatsappConnected ? "WhatsApp conectado" : "WhatsApp desconectado"}
+              {whatsappConnected ? settingsText.heroConnected : settingsText.heroDisconnected}
             </p>
             <p className="settings-hero-copy">
               {whatsappConnected
-                ? "Ya puedes recibir y responder conversaciones reales desde Novua."
-                : "Ahora mismo no estás recibiendo conversaciones en Novua."}
+                ? settingsText.heroConnectedCopy
+                : settingsText.heroDisconnectedCopy}
             </p>
           </div>
           {canManageTeam ? (
             <div className="settings-hero-action">
               <a className="button" href="#whatsapp-setup">
-                {whatsappConnected ? "Actualizar canal" : "Conectar ahora"}
+                {whatsappConnected ? settingsText.heroConnectedAction : settingsText.heroDisconnectedAction}
               </a>
             </div>
           ) : null}
@@ -415,29 +493,19 @@ export default async function SettingsPage() {
 
       <div className="grid cols-2" style={{ marginTop: 12 }}>
         <article className="card">
-          <p className="label">{canManageTeam ? "Cómo Novua decide" : "Sistema"}</p>
+          <p className="label">{canManageTeam ? settingsText.systemTitleManage : settingsText.systemTitleAgent}</p>
           <div className="settings-capability-list">
-            <div className="settings-capability-card">
-              <strong>✓ {copy.systemAiAssistance}</strong>
-              <span>Ayuda al equipo a responder más rápido y con contexto.</span>
-            </div>
-            <div className="settings-capability-card">
-              <strong>✓ {t("settings_lead_score")}</strong>
-              <span>Prioriza conversaciones según valor, intención y urgencia.</span>
-            </div>
-            <div className="settings-capability-card">
-              <strong>✓ {copy.systemFollowUpAutomation}</strong>
-              <span>Empuja conversaciones activas para no perder oportunidades.</span>
-            </div>
-            <div className="settings-capability-card">
-              <strong>✓ {copy.systemWhatsappWebhook}</strong>
-              <span>{hasWebhookSecrets ? "Canal listo para recibir mensajes." : "Pendiente de conexión técnica."}</span>
-            </div>
+            {settingsText.capabilities.map((item) => (
+              <div key={item.title} className="settings-capability-card">
+                <strong>✓ {item.title}</strong>
+                <span>{item.description}</span>
+              </div>
+            ))}
           </div>
         </article>
 
         <article className="card">
-          <p className="label">{canManageTeam ? "Quién responde a los clientes" : t("settings_users")}</p>
+          <p className="label">{settingsText.teamTitle}</p>
           {team.length === 0 ? (
             <p className="subtitle">{copy.noTeamMembers}</p>
           ) : (
@@ -446,6 +514,12 @@ export default async function SettingsPage() {
               currentUserId={context.user.id}
               currentUserRole={context.profile.role}
               activeLabel={t("settings_active")}
+              unnamedLabel={settingsText.unnamedUser}
+              detailLabel={settingsText.detail}
+              openLabel={settingsText.open}
+              noReplyLabel={settingsText.noReply}
+              wonLabel={settingsText.won}
+              lostLabel={settingsText.lost}
               reassignPlaceholder={copy.reassignPlaceholder}
               reassignLabel={copy.reassignAction}
               reassigningLabel={copy.reassigningAction}
@@ -542,9 +616,9 @@ export default async function SettingsPage() {
         )}
 
         <article className="card" id="whatsapp-setup">
-          <p className="label">Conecta WhatsApp</p>
+          <p className="label">{settingsText.channelTitle}</p>
           <p className="subtitle" style={{ marginBottom: 12 }}>
-            Usa este canal para empezar a recibir y responder conversaciones reales desde Novua.
+            {settingsText.channelHelp}
           </p>
           {channels.length > 0 ? (
             <div className="preview-row" style={{ marginBottom: 12 }}>

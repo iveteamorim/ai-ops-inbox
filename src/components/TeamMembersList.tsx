@@ -9,6 +9,12 @@ type Props = {
   currentUserId: string;
   currentUserRole: string;
   activeLabel: string;
+  unnamedLabel: string;
+  detailLabel: string;
+  openLabel: string;
+  noReplyLabel: string;
+  wonLabel: string;
+  lostLabel: string;
   reassignPlaceholder: string;
   reassignLabel: string;
   reassigningLabel: string;
@@ -25,6 +31,12 @@ export function TeamMembersList({
   currentUserId,
   currentUserRole,
   activeLabel,
+  unnamedLabel,
+  detailLabel,
+  openLabel,
+  noReplyLabel,
+  wonLabel,
+  lostLabel,
   reassignPlaceholder,
   reassignLabel,
   reassigningLabel,
@@ -132,7 +144,7 @@ export function TeamMembersList({
           <div key={member.id} className="team-member-row team-member-card">
             <div className="team-member-main">
               <div className="team-member-heading">
-                <strong>{member.full_name ?? "Unnamed user"}</strong>
+                <strong>{member.full_name ?? unnamedLabel}</strong>
               </div>
               <div className="team-member-summary">
                 <span>{formatRoleLabel(member.role)}</span>
@@ -141,15 +153,15 @@ export function TeamMembersList({
               </div>
               {canViewStats() ? (
                 <details className="team-member-stats">
-                  <summary>Ver detalle</summary>
+                  <summary>{detailLabel}</summary>
                   <div className="team-member-stats-grid">
-                    <span>Abiertas</span>
+                    <span>{openLabel}</span>
                     <strong>{member.openConversations}</strong>
-                    <span>Sin respuesta</span>
+                    <span>{noReplyLabel}</span>
                     <strong>{member.atRiskConversations}</strong>
-                    <span>Ganadas</span>
+                    <span>{wonLabel}</span>
                     <strong>{member.wonConversations}</strong>
-                    <span>Perdidas</span>
+                    <span>{lostLabel}</span>
                     <strong>{member.lostConversations}</strong>
                   </div>
                 </details>
@@ -169,7 +181,7 @@ export function TeamMembersList({
                     <option value="">{reassignPlaceholder}</option>
                     {reassignOptions.map((candidate) => (
                       <option key={candidate.id} value={candidate.id}>
-                        {candidate.full_name ?? "Unnamed user"}
+                        {candidate.full_name ?? unnamedLabel}
                       </option>
                     ))}
                   </select>

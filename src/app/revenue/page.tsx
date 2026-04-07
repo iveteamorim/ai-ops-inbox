@@ -29,6 +29,69 @@ export default async function RevenuePage() {
   const t = (key: Parameters<typeof translate>[1]) => translate(lang, key);
   const currency = detectCurrencyFromLocale(headerStore.get("accept-language"));
   const format = (value: number) => formatMoney(lang, currency, value);
+  const copy =
+    lang === "pt"
+      ? {
+          emptySubtitle: "As vistas de revenue precisam de um tenant configurado e de conversas reais.",
+          manageSubtitle: "Dinheiro, risco e ações prioritárias do workspace.",
+          agentSubtitle: "Dinheiro em risco e conversas que precisam de seguimento.",
+          replyNow: "Responder agora",
+          risk: "Em risco",
+          inConversation: "Em conversa",
+          new: "Novo",
+          won: "Ganho",
+          lost: "Perdido",
+          heroRisk: "em risco agora mesmo",
+          nothingAtRisk: "Não há conversas abertas com dinheiro em risco agora.",
+          riskHelp: "dinheiro que podes perder se não responderes",
+          inPlay: "em jogo (pipeline ativo)",
+          recovered: "recuperados hoje",
+          lostLabel: "perdidos",
+          whatNow: "O que fazer agora",
+          pipeline: "Pipeline",
+          amountAtRisk: "em risco",
+        }
+      : lang === "en"
+        ? {
+            emptySubtitle: "Revenue views require a configured tenant and real conversation data.",
+            manageSubtitle: "Money, risk, and priority actions across the workspace.",
+            agentSubtitle: "Money at risk and conversations that need follow-up.",
+            replyNow: "Reply now",
+            risk: "At risk",
+            inConversation: "In conversation",
+            new: "New",
+            won: "Won",
+            lost: "Lost",
+            heroRisk: "at risk right now",
+            nothingAtRisk: "There are no open conversations with money at risk right now.",
+            riskHelp: "money you can lose if you do not reply",
+            inPlay: "in play (active pipeline)",
+            recovered: "recovered today",
+            lostLabel: "lost",
+            whatNow: "What to do now",
+            pipeline: "Pipeline",
+            amountAtRisk: "at risk",
+          }
+        : {
+            emptySubtitle: "Revenue views require a configured tenant and real conversation data.",
+            manageSubtitle: "Dinero, riesgo y acciones prioritarias del workspace.",
+            agentSubtitle: "Dinero en riesgo y conversaciones que requieren seguimiento.",
+            replyNow: "Responder ahora",
+            risk: "En riesgo",
+            inConversation: "En conversación",
+            new: "Nuevo",
+            won: "Ganado",
+            lost: "Perdido",
+            heroRisk: "en riesgo ahora mismo",
+            nothingAtRisk: "No hay conversaciones abiertas con dinero en riesgo ahora mismo.",
+            riskHelp: "dinero que puedes perder si no respondes",
+            inPlay: "en juego (pipeline activo)",
+            recovered: "recuperados hoy",
+            lostLabel: "perdidos",
+            whatNow: "Qué hacer ahora",
+            pipeline: "Pipeline",
+            amountAtRisk: "en riesgo",
+          };
 
   const context = await getAppContext();
   if (context.kind !== "ready") {
@@ -38,7 +101,7 @@ export default async function RevenuePage() {
         <header className="header">
           <div>
             <h1 className="title">{t("revenue_title")}</h1>
-            <p className="subtitle">Revenue views require a configured tenant and real conversation data.</p>
+            <p className="subtitle">{copy.emptySubtitle}</p>
           </div>
         </header>
       </section>
@@ -81,14 +144,12 @@ export default async function RevenuePage() {
   const recoveredRevenue = wonToday.reduce((sum, item) => sum + (item.expectedValue || item.estimatedValue), 0);
   const lostEstimated = lostOpportunities.reduce((sum, item) => sum + item.estimatedValue, 0);
 
-  const actionButtonLabel =
-    lang === "pt" ? "Responder agora" : lang === "en" ? "Reply now" : "Responder ahora";
   const pipelineItems = [
-    { id: "risk", label: "En riesgo", count: atRiskQueue.length, icon: "🔴" },
-    { id: "progress", label: "En conversación", count: activeOpportunities.length, icon: "🟢" },
-    { id: "new", label: "Nuevo", count: newOpportunities.length, icon: "🔵" },
-    { id: "won", label: "Ganado", count: wonOpportunities.length, icon: "🟢" },
-    { id: "lost", label: "Perdido", count: lostOpportunities.length, icon: "⚪" },
+    { id: "risk", label: copy.risk, count: atRiskQueue.length, icon: "🔴" },
+    { id: "progress", label: copy.inConversation, count: activeOpportunities.length, icon: "🟢" },
+    { id: "new", label: copy.new, count: newOpportunities.length, icon: "🔵" },
+    { id: "won", label: copy.won, count: wonOpportunities.length, icon: "🟢" },
+    { id: "lost", label: copy.lost, count: lostOpportunities.length, icon: "⚪" },
   ];
 
   return (
@@ -104,38 +165,38 @@ export default async function RevenuePage() {
           <h1 className="title">{t("revenue_title")}</h1>
           <p className="subtitle">
             {canManageBusiness
-              ? "Dinero, riesgo y acciones prioritarias del workspace."
-              : "Dinero en riesgo y conversaciones que requieren seguimiento."}
+              ? copy.manageSubtitle
+              : copy.agentSubtitle}
           </p>
         </div>
       </header>
 
       <article className="card revenue-hero revenue-hero-risk">
-        <p className="revenue-hero-value">💰 {format(atRiskAmount)} en riesgo ahora mismo</p>
+        <p className="revenue-hero-value">💰 {format(atRiskAmount)} {copy.heroRisk}</p>
         <p className="revenue-hero-detail">
           {atRiskQueue.length === 0
-            ? "No hay conversaciones abiertas con dinero en riesgo ahora mismo."
-            : "dinero que puedes perder si no respondes"}
+            ? copy.nothingAtRisk
+            : copy.riskHelp}
         </p>
       </article>
 
       <div className="grid cols-3" style={{ marginTop: 12, marginBottom: 12 }}>
         <article className="card revenue-kpi revenue-kpi-active">
           <p className="revenue-kpi-value">💰 {format(openPotential)}</p>
-          <p className="revenue-kpi-label">en juego (pipeline activo)</p>
+          <p className="revenue-kpi-label">{copy.inPlay}</p>
         </article>
         <article className="card revenue-kpi revenue-kpi-won">
           <p className="revenue-kpi-value">💰 {format(recoveredRevenue)}</p>
-          <p className="revenue-kpi-label">recuperados hoy</p>
+          <p className="revenue-kpi-label">{copy.recovered}</p>
         </article>
         <article className="card revenue-kpi revenue-kpi-lost">
           <p className="revenue-kpi-value">💰 {format(lostEstimated)}</p>
-          <p className="revenue-kpi-label">perdidos</p>
+          <p className="revenue-kpi-label">{copy.lostLabel}</p>
         </article>
       </div>
 
       <article className="card revenue-actions-shell">
-        <p className="label">Qué hacer ahora</p>
+        <p className="label">{copy.whatNow}</p>
         {atRiskQueue.length === 0 ? (
           <div className="empty-state">
             <h3>{t("revenue_risk_queue_empty_title")}</h3>
@@ -146,13 +207,13 @@ export default async function RevenuePage() {
             {atRiskQueue.map((item) => (
               <div key={item.id} className="revenue-action-row">
                 <div>
-                  <div className="revenue-action-value">🔴 {format(item.estimatedValue)} en riesgo</div>
+                  <div className="revenue-action-value">🔴 {format(item.estimatedValue)} {copy.amountAtRisk}</div>
                   <div className="revenue-action-detail">
                     {item.contactName} · {formatNoReplyDuration(item.lastInboundAt ?? item.lastMessageAt)}
                   </div>
                 </div>
                 <Link className="button" href={`/conversation/${item.id}`}>
-                  {actionButtonLabel}
+                  {copy.replyNow}
                 </Link>
               </div>
             ))}
@@ -161,7 +222,7 @@ export default async function RevenuePage() {
       </article>
 
       <article className="card revenue-pipeline-shell" style={{ marginTop: 12 }}>
-        <p className="label">Pipeline</p>
+        <p className="label">{copy.pipeline}</p>
         <div className="revenue-pipeline-list">
           {pipelineItems.map((item) => (
             <div key={item.id} className="revenue-pipeline-row">
