@@ -96,6 +96,7 @@ export async function POST() {
       companyId: company.id,
       serviceCatalog,
       admin,
+      assignedToUserId: user.id,
     });
 
     return NextResponse.json({ ok: true, seeded: result.seeded, focusConversationId: result.focusConversationId });

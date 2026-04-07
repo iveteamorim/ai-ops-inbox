@@ -146,6 +146,7 @@ export async function POST(request: Request) {
           companyId: company.id,
           serviceCatalog,
           admin,
+          assignedToUserId: user.id,
         });
         seeded = seedResult.seeded;
         focusConversationId = seedResult.focusConversationId;

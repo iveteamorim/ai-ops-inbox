@@ -80,8 +80,9 @@ export async function seedDemoConversations(params: {
   companyId: string;
   serviceCatalog: ServiceType[];
   admin: SupabaseClient;
+  assignedToUserId?: string | null;
 }) {
-  const { companyId, serviceCatalog, admin } = params;
+  const { companyId, serviceCatalog, admin, assignedToUserId } = params;
   const seeds = buildDemoConversationSeeds(serviceCatalog);
   let focusConversationId: string | null = null;
   let focusRank = -1;
@@ -89,7 +90,7 @@ export async function seedDemoConversations(params: {
   for (const seed of seeds) {
     const inboundAt = new Date(Date.now() - seed.hoursAgo * 60 * 60 * 1000).toISOString();
     const outboundAt =
-      seed.status === "no_response" && typeof seed.replyOffsetHours === "number"
+      typeof seed.replyOffsetHours === "number"
         ? new Date(Date.now() - seed.replyOffsetHours * 60 * 60 * 1000).toISOString()
         : null;
     const lastTouchAt = outboundAt ?? inboundAt;
@@ -134,6 +135,7 @@ export async function seedDemoConversations(params: {
       .insert({
         company_id: companyId,
         contact_id: contact.id,
+        assigned_to: outboundAt && assignedToUserId ? assignedToUserId : null,
         channel: "whatsapp",
         status: seed.status,
         lead_type: triage.leadType,
@@ -209,8 +211,9 @@ export async function resetAndSeedDemoConversations(params: {
   companyId: string;
   serviceCatalog: ServiceType[];
   admin: SupabaseClient;
+  assignedToUserId?: string | null;
 }) {
-  const { companyId, serviceCatalog, admin } = params;
+  const { companyId, serviceCatalog, admin, assignedToUserId } = params;
 
   const { data: contacts, error: contactsError } = await admin
     .from("contacts")
@@ -263,5 +266,5 @@ export async function resetAndSeedDemoConversations(params: {
     }
   }
 
-  return seedDemoConversations({ companyId, serviceCatalog, admin });
+  return seedDemoConversations({ companyId, serviceCatalog, admin, assignedToUserId });
 }
