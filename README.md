@@ -1,39 +1,53 @@
 # Novua Inbox
 
-**Conversation operations workspace for teams that lose money when replies arrive too late.**
+Conversation operations workspace for teams that lose money when replies arrive too late.
 
-Novua Inbox is an inbox-first product built around one practical question:
+---
 
-> What conversation needs attention now, who owns it, and how much money is at risk if nobody acts?
+## 💰 What is at risk right now?
 
-It is not a CRM.
-It is an operating layer for inbound conversations, focused on risk, ownership, and next action.
+Most teams do not lose inbound revenue because leads disappear.
 
-## Live
+They lose it because:
 
-- Live demo: `https://ai-ops-inbox-one.vercel.app`
-- Repository: `https://github.com/iveteamorim/ai-ops-inbox`
+- nobody replies in time
+- high-value conversations look identical to low-value ones
+- ownership is unclear
+- follow-ups simply do not happen
+
+The result is simple:
+
+**money is lost silently inside the inbox**
+
+---
+
+## 🧠 What Novua does differently
+
+Novua Inbox is not a CRM.
+
+It is an operating layer that answers one question:
+
+> **What conversation needs attention now, who owns it, and how much money is at risk if nobody acts?**
+
+---
+
+## ⚡ What you see immediately
+
+- 💰 how much money is at risk right now
+- 🔴 which conversations are critical
+- 👤 who is responsible for each one
+- 👉 what action should happen next
+
+---
+
+## 🚀 Live
+
+Demo: https://ai-ops-inbox-one.vercel.app  
+Repo: https://github.com/iveteamorim/ai-ops-inbox
 
 ## Screenshot
 
 ![Novua Inbox](./public/screenshots/inbox-demo-current.png)
-
-## Why this product exists
-
-Teams do not usually lose inbound revenue because leads stop existing.
-They lose it because:
-
-- nobody replies fast enough
-- valuable conversations look the same as low-value ones
-- follow-up ownership is unclear
-- the team sees messages, but not commercial risk
-
-Novua Inbox turns that into a clearer operating model:
-
-- identify what is at risk
-- show who owns each conversation
-- guide the next action
-- make value visible at conversation level
 
 ## Product model
 
@@ -91,7 +105,7 @@ The revenue view is built around:
 - recently recovered value
 - immediate actions required
 
-For agents, it is tactical.
+For agents, it is tactical.  
 For owner/admin, it is broader across the workspace.
 
 ### Settings
@@ -225,11 +239,11 @@ If `OPENAI_API_KEY` is missing, the app falls back to deterministic suggestion b
 
 ## Project structure
 
-- `src/app` – routes, pages, API endpoints
-- `src/components` – UI and workflow components
-- `src/lib` – app data, auth, i18n, internal access, scoring logic
-- `public` – static assets
-- `docs` – supporting documentation
+- `src/app` - routes, pages, API endpoints
+- `src/components` - UI and workflow components
+- `src/lib` - app data, auth, i18n, internal access, scoring logic
+- `public` - static assets
+- `docs` - supporting documentation
 
 ## Operational behavior worth knowing
 
@@ -267,8 +281,8 @@ It is not yet a fully hardened production platform.
 
 If you evaluate Novua Inbox, the key question is not:
 
-- “does it have every CRM feature?”
+- "does it have every CRM feature?"
 
 The key question is:
 
-- “does it help a team decide what to answer now, before money is lost?”
+- "does it help a team decide what to answer now, before money is lost?"
