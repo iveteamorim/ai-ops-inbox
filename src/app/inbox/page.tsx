@@ -234,19 +234,42 @@ export default async function InboxPage({
               </div>
             ) : null}
             <div className="inbox-quick-filters">
-              <Link className={selectedScope === "all" ? "mini-button is-active" : "mini-button"} href={buildInboxHref("all")}>
+              <Link
+                className={selectedScope === "all" ? "mini-button filter-pill filter-pill-all is-active" : "mini-button filter-pill filter-pill-all"}
+                href={buildInboxHref("all")}
+              >
                 Todas
               </Link>
-              <Link className={selectedScope === "mine" ? "mini-button is-active" : "mini-button"} href={buildInboxHref("mine")}>
+              <Link
+                className={selectedScope === "mine" ? "mini-button filter-pill filter-pill-mine is-active" : "mini-button filter-pill filter-pill-mine"}
+                href={buildInboxHref("mine")}
+              >
                 Mías
               </Link>
-              <Link className={selectedScope === "unassigned" ? "mini-button is-active" : "mini-button"} href={buildInboxHref("unassigned")}>
+              <Link
+                className={
+                  selectedScope === "unassigned"
+                    ? "mini-button filter-pill filter-pill-unassigned is-active"
+                    : "mini-button filter-pill filter-pill-unassigned"
+                }
+                href={buildInboxHref("unassigned")}
+              >
                 Sin asignar
               </Link>
-              <Link className={selectedScope === "no_response" ? "mini-button is-active" : "mini-button"} href={buildInboxHref("no_response")}>
+              <Link
+                className={
+                  selectedScope === "no_response"
+                    ? "mini-button filter-pill filter-pill-no-response is-active"
+                    : "mini-button filter-pill filter-pill-no-response"
+                }
+                href={buildInboxHref("no_response")}
+              >
                 Sin respuesta
               </Link>
-              <Link className={selectedScope === "new" ? "mini-button is-active" : "mini-button"} href={buildInboxHref("new")}>
+              <Link
+                className={selectedScope === "new" ? "mini-button filter-pill filter-pill-new is-active" : "mini-button filter-pill filter-pill-new"}
+                href={buildInboxHref("new")}
+              >
                 Nuevas
               </Link>
             </div>

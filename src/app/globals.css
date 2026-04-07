@@ -323,6 +323,67 @@ a {
   margin-bottom: 12px;
 }
 
+.filter-pill {
+  transition: border-color 120ms ease, background 120ms ease, color 120ms ease, box-shadow 120ms ease;
+}
+
+.filter-pill-all {
+  background: rgba(17, 38, 35, 0.92);
+}
+
+.filter-pill-all.is-active {
+  border-color: rgba(182, 215, 207, 0.45);
+  background: rgba(40, 62, 58, 0.88);
+}
+
+.filter-pill-mine {
+  border-color: rgba(96, 165, 250, 0.32);
+  background: rgba(30, 64, 175, 0.12);
+  color: #dbeafe;
+}
+
+.filter-pill-mine.is-active {
+  border-color: rgba(147, 197, 253, 0.78);
+  background: rgba(37, 99, 235, 0.32);
+  box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.18);
+}
+
+.filter-pill-unassigned {
+  border-color: rgba(184, 203, 199, 0.32);
+  background: rgba(148, 163, 184, 0.1);
+  color: #e2e8f0;
+}
+
+.filter-pill-unassigned.is-active {
+  border-color: rgba(203, 213, 225, 0.7);
+  background: rgba(100, 116, 139, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.12);
+}
+
+.filter-pill-no-response {
+  border-color: rgba(253, 186, 116, 0.4);
+  background: rgba(154, 52, 18, 0.16);
+  color: #ffedd5;
+}
+
+.filter-pill-no-response.is-active {
+  border-color: rgba(253, 186, 116, 0.78);
+  background: rgba(180, 83, 9, 0.34);
+  box-shadow: inset 0 0 0 1px rgba(255, 237, 213, 0.1);
+}
+
+.filter-pill-new {
+  border-color: rgba(147, 197, 253, 0.42);
+  background: rgba(30, 64, 175, 0.16);
+  color: #dbeafe;
+}
+
+.filter-pill-new.is-active {
+  border-color: rgba(147, 197, 253, 0.82);
+  background: rgba(37, 99, 235, 0.36);
+  box-shadow: inset 0 0 0 1px rgba(219, 234, 254, 0.12);
+}
+
 .row-select {
   margin-bottom: 0;
   padding: 8px 10px;
@@ -641,7 +702,7 @@ a {
   gap: 8px;
 }
 
-.mini-button.is-active {
+.mini-button.is-active:not(.filter-pill) {
   border-color: rgba(134, 239, 172, 0.75);
   background: rgba(22, 101, 52, 0.5);
 }
