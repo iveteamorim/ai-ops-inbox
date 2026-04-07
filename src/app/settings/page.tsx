@@ -106,6 +106,10 @@ function getSetupCopy(lang: string) {
       accountPermissions: "Permisos",
       accountPermissionsAgent: "Puedes gestionar conversaciones, responder mensajes y reportar incidencias.",
       accountPermissionsAdmin: "Puedes configurar el workspace, gestionar equipo y operar conversaciones.",
+      systemAiAssistance: "Asistencia IA",
+      systemFollowUpAutomation: "Automatización de seguimiento",
+      systemWhatsappWebhook: "Webhook de WhatsApp",
+      noTeamMembers: "No hay miembros del equipo todavía.",
     };
   }
 
@@ -202,6 +206,10 @@ function getSetupCopy(lang: string) {
       accountPermissions: "Permissões",
       accountPermissionsAgent: "Pode gerir conversas, responder mensagens e reportar incidências.",
       accountPermissionsAdmin: "Pode configurar o workspace, gerir equipa e operar conversas.",
+      systemAiAssistance: "Assistência IA",
+      systemFollowUpAutomation: "Automação de follow-up",
+      systemWhatsappWebhook: "Webhook do WhatsApp",
+      noTeamMembers: "Ainda não há membros na equipa.",
     };
   }
 
@@ -297,6 +305,10 @@ function getSetupCopy(lang: string) {
     accountPermissions: "Permissions",
     accountPermissionsAgent: "You can manage conversations, reply to messages, and report issues.",
     accountPermissionsAdmin: "You can configure the workspace, manage the team, and operate conversations.",
+    systemAiAssistance: "AI assistance",
+    systemFollowUpAutomation: "Follow-up automation",
+    systemWhatsappWebhook: "WhatsApp webhook",
+    noTeamMembers: "No team members yet.",
   };
 }
 
@@ -423,9 +435,9 @@ export default async function SettingsPage() {
         </article>
 
         <article className="card">
-          <p className="label">{t("settings_ai_revenue")}</p>
+          <p className="label">{canManageTeam ? t("settings_ai_revenue") : "Sistema"}</p>
           <div className="preview-row">
-            <span>AI Assistance</span>
+            <span>{copy.systemAiAssistance}</span>
             <span className="badge status-active">{t("settings_active")}</span>
           </div>
           <div className="preview-row">
@@ -433,11 +445,11 @@ export default async function SettingsPage() {
             <span className="badge status-active">{t("settings_active")}</span>
           </div>
           <div className="preview-row">
-            <span>Follow-up automation</span>
+            <span>{copy.systemFollowUpAutomation}</span>
             <span className="badge status-active">{t("settings_active")}</span>
           </div>
           <div className="preview-row">
-            <span>WhatsApp webhook</span>
+            <span>{copy.systemWhatsappWebhook}</span>
             <span className={`badge ${hasWebhookSecrets ? "status-active" : "status-no-response"}`}>
               {hasWebhookSecrets ? t("settings_active") : t("settings_disconnected")}
             </span>
@@ -449,7 +461,7 @@ export default async function SettingsPage() {
         <article className="card">
           <p className="label">{t("settings_users")}</p>
           {team.length === 0 ? (
-            <p className="subtitle">No team members found.</p>
+            <p className="subtitle">{copy.noTeamMembers}</p>
           ) : (
             <TeamMembersList
               members={team}

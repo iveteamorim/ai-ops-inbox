@@ -121,7 +121,11 @@ export default async function DashboardPage() {
           <h1 className="title">{t("dashboard_title")}</h1>
           <p className="subtitle">
             {canManageBusiness
-              ? `${context.company?.name ?? "Novua Inbox"} overview: situación del workspace y foco del día.`
+              ? lang === "pt"
+                ? "Resumo do workspace e foco operacional do dia."
+                : lang === "en"
+                  ? "Workspace snapshot and operational focus for today."
+                  : "Resumen del workspace y foco operativo del día."
               : "Resumen rápido de tu carga actual y accesos directos para operar."}
           </p>
         </div>

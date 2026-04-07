@@ -39,6 +39,8 @@ export default async function RevenuePage() {
   }
   const canSeeInternalSetup = isNovuaInternalUser(context.user.email);
   const canManageBusiness = context.profile.role === "owner" || context.profile.role === "admin";
+  const riskQueueReplyLabel =
+    lang === "pt" ? "Responder agora" : lang === "en" ? "Reply now" : "Responder ahora";
 
   const opportunities = await getConversationViews(context.supabase, context.profile.company_id);
   const sortedOpportunities = [...opportunities].sort((a, b) => {
@@ -175,7 +177,7 @@ export default async function RevenuePage() {
                   <td>{formatNoReplyDuration(item.lastInboundAt ?? item.lastMessageAt)}</td>
                   <td>
                     <Link className="mini-button" href={`/conversation/${item.id}`}>
-                      {t("dashboard_action_reply_now")}
+                      {riskQueueReplyLabel}
                     </Link>
                   </td>
                 </tr>
