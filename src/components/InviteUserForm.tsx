@@ -7,7 +7,6 @@ type Props = {
   title: string;
   seatsNote?: string;
   emailLabel: string;
-  roleLabel: string;
   submitLabel: string;
   pendingLabel: string;
   successLabel: string;
@@ -21,7 +20,6 @@ export function InviteUserForm({
   title,
   seatsNote,
   emailLabel,
-  roleLabel,
   submitLabel,
   pendingLabel,
   successLabel,
@@ -67,33 +65,28 @@ export function InviteUserForm({
   }
 
   return (
-    <form className="form compact-form" onSubmit={handleSubmit}>
-      <p className="note">{title}</p>
-      {seatsNote ? <p className="note">{seatsNote}</p> : null}
-      <label className="label" htmlFor="invite-email">
-        {emailLabel}
-      </label>
+    <form className="settings-inline-form" onSubmit={handleSubmit}>
+      <p className="note settings-inline-form-title">{title}</p>
+      {seatsNote ? <p className="note settings-inline-form-note">{seatsNote}</p> : null}
       <input
         id="invite-email"
-        className="input"
+        className="input settings-inline-input"
         type="email"
         required
         value={email}
         onChange={(event) => setEmail(event.target.value)}
+        placeholder={emailLabel}
       />
-      <label className="label" htmlFor="invite-role">
-        {roleLabel}
-      </label>
       <select
         id="invite-role"
-        className="input"
+        className="input settings-inline-select"
         value={role}
         onChange={(event) => setRole(event.target.value === "admin" ? "admin" : "agent")}
       >
         <option value="agent">{agentLabel}</option>
         <option value="admin">{adminLabel}</option>
       </select>
-      <div className="actions">
+      <div className="settings-inline-actions">
         <button className="button" type="submit" disabled={isPending}>
           {isPending ? pendingLabel : submitLabel}
         </button>

@@ -165,7 +165,7 @@ export function BusinessSetupForm({ initialValue, labels, showInternalTools = fa
   }
 
   return (
-    <article className="card">
+    <article className="card settings-business-card">
       <p className="label">{labels.title}</p>
       <p className="subtitle" style={{ marginBottom: 12 }}>
         {labels.help}

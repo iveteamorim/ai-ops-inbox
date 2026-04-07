@@ -1091,6 +1091,10 @@ a {
     width: 100%;
   }
 
+  .settings-inline-form {
+    grid-template-columns: 1fr;
+  }
+
   .lead-type-main {
     grid-template-columns: 1fr;
   }
@@ -1288,6 +1292,28 @@ a {
   line-height: 1.4;
 }
 
+.settings-inline-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.settings-inline-form-title,
+.settings-inline-form-note {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.settings-inline-input,
+.settings-inline-select {
+  margin-bottom: 0;
+}
+
+.settings-inline-actions {
+  display: flex;
+}
+
 .agent-settings-note {
   margin-top: 14px;
   padding: 12px;
@@ -1327,6 +1353,13 @@ a {
   border-bottom: 1px solid var(--line);
 }
 
+.team-member-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 14px 16px;
+}
+
 .team-member-row:last-child {
   border-bottom: 0;
 }
@@ -1346,6 +1379,14 @@ a {
 .team-member-heading strong {
   font-size: 0.98rem;
   color: var(--text);
+}
+
+.team-member-summary {
+  margin-top: 6px;
+  display: flex;
+  gap: 6px;
+  color: rgba(236, 247, 245, 0.62);
+  font-size: 0.9rem;
 }
 
 .team-role-badge {
@@ -1388,6 +1429,10 @@ a {
 
 .setup-panel[open] summary {
   margin-bottom: 10px;
+}
+
+.settings-business-card {
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .settings-grid {
