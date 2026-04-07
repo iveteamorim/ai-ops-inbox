@@ -52,7 +52,7 @@ function getNoReplyMeta(status: "new" | "active" | "won" | "lost" | "no_response
         : `${Math.round(diffHours / 24)} días sin respuesta`;
 
   if (diffHours >= 72) {
-    return { className: "time-critical", badgeLabel: "En riesgo", timeLabel };
+    return { className: "time-critical", badgeLabel: null as string | null, timeLabel };
   }
 
   if (diffHours >= 24) {
