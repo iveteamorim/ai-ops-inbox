@@ -398,7 +398,7 @@ export default async function InboxPage({
                       {isCriticalRisk ? (
                         <>
                           <div className="label risk-label" style={{ marginTop: 0, marginBottom: 4, textTransform: "none" }}>
-                            {format(row.estimatedValue)} en riesgo
+                            {format(row.estimatedValue)}
                           </div>
                           <div className="label" style={{ marginTop: 0, marginBottom: 0, textTransform: "none" }}>
                             {row.leadType ?? t("inbox_unclassified")}
