@@ -344,16 +344,14 @@ export default async function InboxPage({
             <div className="inbox-card-list">
               {visibleRows.map((row) => {
                 const primaryAction = actionLabel(row.decisionType, Boolean(row.assignedToId));
-                const isPriorityRow = visibleRows[0]?.id === row.id;
                 const noReplyMeta = getNoReplyMeta(row.status, row.lastInboundAt ?? row.lastMessageAt);
                 const isCriticalRisk = row.status === "no_response" && noReplyMeta.badgeLabel === "En riesgo";
                 const visibleStatusLabel = getVisibleStatusLabel(row, noReplyMeta.badgeLabel, t);
                 const visibleStatusClass = getVisibleStatusClass(row, noReplyMeta.badgeLabel);
                 const rowClassName = [
-                  row.id === focusedConversationId ? "table-row-focus" : "",
-                  isPriorityRow ? "table-row-priority" : "",
-                  isCriticalRisk ? "table-row-risk" : "",
-                  row.assignedToId === context.user.id ? "table-row-mine" : "",
+                  row.id === focusedConversationId ? "inbox-row-card-focus" : "",
+                  isCriticalRisk ? "inbox-row-card-risk" : row.status === "active" ? "inbox-row-card-active" : "",
+                  row.assignedToId === context.user.id ? "inbox-row-card-mine" : "",
                 ]
                   .filter(Boolean)
                   .join(" ");
@@ -367,7 +365,7 @@ export default async function InboxPage({
                     <div className="inbox-row-card-top">
                       <div>
                         <div className={`inbox-row-status ${visibleStatusClass}`}>
-                          {row.status === "no_response" && visibleStatusLabel === "En riesgo" ? "🔴 " : row.status === "active" ? "🟢 " : ""}
+                          {row.status === "no_response" && visibleStatusLabel === "En riesgo" ? "● " : row.status === "active" ? "● " : ""}
                           {visibleStatusLabel}
                         </div>
                         <div className={`inbox-row-time ${noReplyMeta.className}`.trim()}>{noReplyMeta.timeLabel}</div>
@@ -388,7 +386,7 @@ export default async function InboxPage({
                     <div className="inbox-row-footer">
                       <div className="inbox-row-assigned">{assignedLabel}</div>
                       {primaryAction ? (
-                        <Link className={isPriorityRow ? "button" : "mini-button"} href={`/conversation/${row.id}`}>
+                        <Link className={isCriticalRisk ? "button" : "mini-button inbox-row-secondary-action"} href={`/conversation/${row.id}`}>
                           {primaryAction}
                         </Link>
                       ) : (
