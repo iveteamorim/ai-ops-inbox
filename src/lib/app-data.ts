@@ -403,13 +403,23 @@ export function formatPriority(priority: ConversationView["aiPriority"], t: (key
   return "Low";
 }
 
-function deriveEffectiveConversationStatus(row: ConversationRow): ConversationRow["status"] {
+function deriveEffectiveConversationStatus(
+  row: ConversationRow,
+  hasHumanReply: boolean,
+): ConversationRow["status"] {
   if (row.status === "won" || row.status === "lost") {
     return row.status;
   }
 
   const inboundTimestamp = row.last_inbound_at ? new Date(row.last_inbound_at).getTime() : null;
   const outboundTimestamp = row.last_outbound_at ? new Date(row.last_outbound_at).getTime() : null;
+
+  if (!hasHumanReply) {
+    if (row.status === "active" || row.status === "no_response") {
+      return inboundTimestamp ? "no_response" : "new";
+    }
+    return row.status;
+  }
 
   if (
     inboundTimestamp &&
@@ -419,6 +429,16 @@ function deriveEffectiveConversationStatus(row: ConversationRow): ConversationRo
     outboundTimestamp >= inboundTimestamp
   ) {
     return "active";
+  }
+
+  if (
+    inboundTimestamp &&
+    outboundTimestamp &&
+    !Number.isNaN(inboundTimestamp) &&
+    !Number.isNaN(outboundTimestamp) &&
+    inboundTimestamp > outboundTimestamp
+  ) {
+    return "no_response";
   }
 
   return row.status;
@@ -553,7 +573,7 @@ export async function getConversationViews(
     );
     const persistedLeadType = row.lead_type?.trim() || null;
     const persistedEstimatedValue = Number(row.estimated_value ?? 0);
-    const effectiveStatus = deriveEffectiveConversationStatus(row);
+    const effectiveStatus = deriveEffectiveConversationStatus(row, hasHumanReply);
     const isComplex = Boolean(row.is_complex);
     const decisionType = getDecisionType({
       status: effectiveStatus,
