@@ -7,23 +7,31 @@ import type { PendingInviteView } from "@/lib/app-data";
 type Props = {
   invites: PendingInviteView[];
   title: string;
+  ownerLabel: string;
+  adminLabel: string;
+  agentLabel: string;
   resendLabel: string;
   cancelLabel: string;
   sendingLabel: string;
   cancellingLabel: string;
   successResent: string;
   successCancelled: string;
+  errorGeneric: string;
 };
 
 export function PendingInvitesList({
   invites,
   title,
+  ownerLabel,
+  adminLabel,
+  agentLabel,
   resendLabel,
   cancelLabel,
   sendingLabel,
   cancellingLabel,
   successResent,
   successCancelled,
+  errorGeneric,
 }: Props) {
   const router = useRouter();
   const [message, setMessage] = useState<string | null>(null);
@@ -32,9 +40,9 @@ export function PendingInvitesList({
   const [isPending, startTransition] = useTransition();
 
   function formatRoleLabel(role: string) {
-    if (role === "owner") return "Owner";
-    if (role === "admin") return "Admin";
-    return "Agent";
+    if (role === "owner") return ownerLabel;
+    if (role === "admin") return adminLabel;
+    return agentLabel;
   }
 
   function handleAction(inviteId: string, action: "resend" | "cancel") {
@@ -51,7 +59,7 @@ export function PendingInvitesList({
       const payload = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
 
       if (!response.ok || !payload?.ok) {
-        setError(payload?.error ?? "Request failed");
+        setError(payload?.error ?? errorGeneric);
         setPendingKey(null);
         return;
       }

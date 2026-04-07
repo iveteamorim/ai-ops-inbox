@@ -23,6 +23,7 @@ type Props = {
   idleLabel: string;
   updateLabel: string;
   requestedLabel: string;
+  inProgressLabel: string;
   requestedNote: string;
   numberLabel: string;
   numberPlaceholder: string;
@@ -32,6 +33,7 @@ type Props = {
   notesLabel: string;
   notesPlaceholder: string;
   phoneRequiredError: string;
+  requestErrorLabel: string;
   existingStatus?: "requested" | "in_progress" | "completed" | "cancelled" | null;
   existingNotes?: string | null;
 };
@@ -41,6 +43,7 @@ export function SetupRequestButton({
   idleLabel,
   updateLabel,
   requestedLabel,
+  inProgressLabel,
   requestedNote,
   numberLabel,
   numberPlaceholder,
@@ -50,6 +53,7 @@ export function SetupRequestButton({
   notesLabel,
   notesPlaceholder,
   phoneRequiredError,
+  requestErrorLabel,
   existingStatus = null,
   existingNotes = null,
 }: Props) {
@@ -97,7 +101,7 @@ export function SetupRequestButton({
     };
 
     if (!res.ok || !data.ok) {
-      setError("Could not request setup right now.");
+      setError(requestErrorLabel);
       return;
     }
 
@@ -112,7 +116,7 @@ export function SetupRequestButton({
       {status !== "idle" ? (
         <>
           <span className={`badge ${status === "in_progress" ? "status-new" : "status-active"}`}>
-            {status === "in_progress" ? "Setup in progress" : requestedLabel}
+            {status === "in_progress" ? inProgressLabel : requestedLabel}
           </span>
           <p className="note">{requestedNote}</p>
         </>

@@ -97,10 +97,10 @@ export default async function DashboardPage() {
             whatNow: "What to do now",
           }
         : {
-            loadingSubtitle: "Complete Supabase auth and tenant bootstrap to unlock the app.",
-            missingEnv: "Missing Supabase environment variables.",
-            profileMissing: "Authenticated user has no company/profile yet.",
-            signInNeeded: "Sign in to access the dashboard.",
+            loadingSubtitle: "Completa la autenticación de Supabase y el bootstrap del tenant para desbloquear la app.",
+            missingEnv: "Faltan variables de entorno de Supabase.",
+            profileMissing: "El usuario autenticado todavía no tiene empresa o perfil.",
+            signInNeeded: "Inicia sesión para acceder al dashboard.",
             manageSubtitle: "Resumen del workspace y foco operativo del día.",
             agentSubtitle: "Resumen rápido de tu carga actual y accesos directos para operar.",
             reviewNow: "Revisar ahora",

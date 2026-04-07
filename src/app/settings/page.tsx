@@ -22,6 +22,7 @@ function getSetupCopy(lang: string) {
       requestWhatsAppSetup: "Solicitar setup de WhatsApp",
       updateWhatsAppSetup: "Actualizar solicitud",
       setupRequested: "Setup solicitado",
+      setupInProgress: "Setup en curso",
       setupRequestedNote: "Estamos preparando la configuración de WhatsApp.",
       setupPhoneRequired: "Es obligatorio indicar el número de WhatsApp.",
       setupNumberLabel: "Número de WhatsApp",
@@ -39,6 +40,7 @@ function getSetupCopy(lang: string) {
       inviteSuccess: "Invitación enviada.",
       inviteAdmin: "Admin",
       inviteAgent: "Agente",
+      inviteOwner: "Propietario",
       inviteError: "No se pudo enviar la invitación.",
       seatLimitError: "Límite de usuarios alcanzado para este plan.",
       pendingInvites: "Invitaciones pendientes",
@@ -110,6 +112,13 @@ function getSetupCopy(lang: string) {
       systemFollowUpAutomation: "Automatización de seguimiento",
       systemWhatsappWebhook: "Webhook de WhatsApp",
       noTeamMembers: "No hay miembros del equipo todavía.",
+      settingsUnavailable: "Settings requiere un workspace autenticado y configurado.",
+      workspaceModeTitle: "Modo del workspace",
+      workspaceModeInternal: "Workspace interno de demo. Aquí se muestran herramientas internas.",
+      workspaceModeCustomerDemo:
+        "Workspace demo de cliente. Aquí se muestra setup orientado a cliente sin herramientas internas.",
+      workspaceModeCustomer: "Workspace cliente. Aquí están activos setup y feedback orientados a cliente.",
+      requestError: "No se pudo solicitar el setup ahora mismo.",
     };
   }
 
@@ -122,6 +131,7 @@ function getSetupCopy(lang: string) {
       requestWhatsAppSetup: "Solicitar setup de WhatsApp",
       updateWhatsAppSetup: "Atualizar solicitação",
       setupRequested: "Setup solicitado",
+      setupInProgress: "Setup em curso",
       setupRequestedNote: "Estamos a preparar a configuração do WhatsApp.",
       setupPhoneRequired: "O número de WhatsApp é obrigatório.",
       setupNumberLabel: "Número de WhatsApp",
@@ -139,6 +149,7 @@ function getSetupCopy(lang: string) {
       inviteSuccess: "Convite enviado.",
       inviteAdmin: "Admin",
       inviteAgent: "Agente",
+      inviteOwner: "Proprietário",
       inviteError: "Não foi possível enviar o convite.",
       seatLimitError: "O limite de usuários deste plano foi atingido.",
       pendingInvites: "Convites pendentes",
@@ -210,6 +221,13 @@ function getSetupCopy(lang: string) {
       systemFollowUpAutomation: "Automação de follow-up",
       systemWhatsappWebhook: "Webhook do WhatsApp",
       noTeamMembers: "Ainda não há membros na equipa.",
+      settingsUnavailable: "Settings requer um workspace autenticado e configurado.",
+      workspaceModeTitle: "Modo do workspace",
+      workspaceModeInternal: "Workspace interno de demo. As ferramentas internas ficam visíveis aqui.",
+      workspaceModeCustomerDemo:
+        "Workspace demo de cliente. O setup orientado ao cliente aparece aqui sem ferramentas internas.",
+      workspaceModeCustomer: "Workspace cliente. Setup e feedback orientados ao cliente estão ativos aqui.",
+      requestError: "Não foi possível solicitar o setup neste momento.",
     };
   }
 
@@ -221,6 +239,7 @@ function getSetupCopy(lang: string) {
     requestWhatsAppSetup: "Request WhatsApp setup",
     updateWhatsAppSetup: "Update request",
     setupRequested: "Setup requested",
+    setupInProgress: "Setup in progress",
     setupRequestedNote: "We are preparing the WhatsApp configuration.",
     setupPhoneRequired: "WhatsApp number is required.",
     setupNumberLabel: "WhatsApp number",
@@ -238,6 +257,7 @@ function getSetupCopy(lang: string) {
     inviteSuccess: "Invitation sent.",
     inviteAdmin: "Admin",
     inviteAgent: "Agent",
+    inviteOwner: "Owner",
     inviteError: "Could not send the invitation.",
     seatLimitError: "This plan has reached its user limit.",
     pendingInvites: "Pending invites",
@@ -309,12 +329,19 @@ function getSetupCopy(lang: string) {
     systemFollowUpAutomation: "Follow-up automation",
     systemWhatsappWebhook: "WhatsApp webhook",
     noTeamMembers: "No team members yet.",
+    settingsUnavailable: "Settings requires an authenticated and configured workspace.",
+    workspaceModeTitle: "Workspace mode",
+    workspaceModeInternal: "Internal demo workspace. Internal tools are visible here.",
+    workspaceModeCustomerDemo:
+      "Customer demo workspace. Customer-facing setup appears here without internal tools.",
+    workspaceModeCustomer: "Customer workspace. Customer-facing setup and feedback are enabled here.",
+    requestError: "Could not request setup right now.",
   };
 }
 
 function formatRoleLabel(lang: string, role: string) {
   if (lang === "pt") {
-    if (role === "owner") return "Owner";
+    if (role === "owner") return "Proprietário";
     if (role === "admin") return "Admin";
     return "Agente";
   }
@@ -325,7 +352,7 @@ function formatRoleLabel(lang: string, role: string) {
     return "Agent";
   }
 
-  if (role === "owner") return "Owner";
+  if (role === "owner") return "Propietario";
   if (role === "admin") return "Admin";
   return "Agente";
 }
@@ -344,7 +371,7 @@ export default async function SettingsPage() {
         <header className="header">
           <div>
             <h1 className="title">{t("settings_title")}</h1>
-            <p className="subtitle">Settings require a configured authenticated workspace.</p>
+            <p className="subtitle">{copy.settingsUnavailable}</p>
           </div>
         </header>
       </section>
@@ -514,6 +541,9 @@ export default async function SettingsPage() {
               currentUserId={context.user.id}
               currentUserRole={context.profile.role}
               activeLabel={t("settings_active")}
+              ownerLabel={copy.inviteOwner}
+              adminLabel={copy.inviteAdmin}
+              agentLabel={copy.inviteAgent}
               unnamedLabel={settingsText.unnamedUser}
               detailLabel={settingsText.detail}
               openLabel={settingsText.open}
@@ -551,12 +581,16 @@ export default async function SettingsPage() {
             <PendingInvitesList
               invites={pendingInvites}
               title={copy.pendingInvites}
+              ownerLabel={copy.inviteOwner}
+              adminLabel={copy.inviteAdmin}
+              agentLabel={copy.inviteAgent}
               resendLabel={copy.resendInvite}
               cancelLabel={copy.cancelInvite}
               sendingLabel={copy.resendPending}
               cancellingLabel={copy.cancelPending}
               successResent={copy.inviteResent}
               successCancelled={copy.inviteCancelled}
+              errorGeneric={copy.inviteError}
             />
           ) : null}
         </article>
@@ -642,6 +676,8 @@ export default async function SettingsPage() {
               notesLabel={copy.setupNotesLabel}
               notesPlaceholder={copy.setupNotesPlaceholder}
               phoneRequiredError={copy.setupPhoneRequired}
+              requestErrorLabel={copy.requestError}
+              inProgressLabel={copy.setupInProgress}
               existingStatus={whatsappSetupRequest?.status ?? null}
               existingNotes={whatsappSetupRequest?.notes ?? null}
             />
@@ -690,13 +726,13 @@ export default async function SettingsPage() {
       {canSeeInternalSetup ? (
         <>
           <article className="card" style={{ marginTop: 12 }}>
-            <p className="label">Workspace mode</p>
+            <p className="label">{copy.workspaceModeTitle}</p>
             <p className="subtitle" style={{ marginBottom: 0 }}>
               {workspaceMode === "internal_demo"
-                ? "Internal demo workspace. Internal tools are visible here."
+                ? copy.workspaceModeInternal
                 : workspaceMode === "customer_demo"
-                  ? "Customer demo workspace. Customer-facing setup is visible without internal tools."
-                  : "Customer workspace. Customer-facing setup and feedback are enabled."}
+                  ? copy.workspaceModeCustomerDemo
+                  : copy.workspaceModeCustomer}
             </p>
           </article>
         </>

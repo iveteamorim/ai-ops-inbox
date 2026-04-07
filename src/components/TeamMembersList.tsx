@@ -9,6 +9,9 @@ type Props = {
   currentUserId: string;
   currentUserRole: string;
   activeLabel: string;
+  ownerLabel: string;
+  adminLabel: string;
+  agentLabel: string;
   unnamedLabel: string;
   detailLabel: string;
   openLabel: string;
@@ -31,6 +34,9 @@ export function TeamMembersList({
   currentUserId,
   currentUserRole,
   activeLabel,
+  ownerLabel,
+  adminLabel,
+  agentLabel,
   unnamedLabel,
   detailLabel,
   openLabel,
@@ -56,9 +62,9 @@ export function TeamMembersList({
   const [isPending, startTransition] = useTransition();
 
   function formatRoleLabel(role: string) {
-    if (role === "owner") return "Owner";
-    if (role === "admin") return "Admin";
-    return "Agent";
+    if (role === "owner") return ownerLabel;
+    if (role === "admin") return adminLabel;
+    return agentLabel;
   }
 
   function canRemove(member: TeamMemberView) {

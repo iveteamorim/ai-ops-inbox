@@ -73,7 +73,7 @@ export default async function RevenuePage() {
             amountAtRisk: "at risk",
           }
         : {
-            emptySubtitle: "Revenue views require a configured tenant and real conversation data.",
+            emptySubtitle: "Revenue necesita un tenant configurado y conversaciones reales.",
             manageSubtitle: "Dinero, riesgo y acciones prioritarias del workspace.",
             agentSubtitle: "Dinero en riesgo y conversaciones que requieren seguimiento.",
             replyNow: "Responder ahora",

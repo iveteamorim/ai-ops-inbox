@@ -11,15 +11,29 @@ type AppNavProps = {
   userRole?: string | null;
 };
 
-function formatRole(role?: string | null) {
-  if (role === "owner") return "Owner";
+function formatRole(role: string | null | undefined, lang: string) {
+  if (lang === "pt") {
+    if (role === "owner") return "Proprietário";
+    if (role === "admin") return "Admin";
+    if (role === "agent") return "Agente";
+    return null;
+  }
+
+  if (lang === "en") {
+    if (role === "owner") return "Owner";
+    if (role === "admin") return "Admin";
+    if (role === "agent") return "Agent";
+    return null;
+  }
+
+  if (role === "owner") return "Propietario";
   if (role === "admin") return "Admin";
-  if (role === "agent") return "Agent";
+  if (role === "agent") return "Agente";
   return null;
 }
 
 export function AppNav({ showSetup = false, showLocale = false, userName, userRole }: AppNavProps) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
 
   const links = [
     { href: "/dashboard", label: t("nav_dashboard") },
@@ -40,7 +54,7 @@ export function AppNav({ showSetup = false, showLocale = false, userName, userRo
       {userName ? (
         <div className="nav-user">
           <strong>{userName}</strong>
-          {formatRole(userRole) ? <span>{formatRole(userRole)}</span> : null}
+          {formatRole(userRole, lang) ? <span>{formatRole(userRole, lang)}</span> : null}
         </div>
       ) : null}
       {showLocale ? <LocaleMenu /> : null}
