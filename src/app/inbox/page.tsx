@@ -31,9 +31,35 @@ function statusClass(status: string) {
   return "status-lost";
 }
 
-function timeLabelClass(status: "new" | "active" | "won" | "lost" | "no_response") {
-  if (status === "no_response") return "time-critical";
-  return "";
+function getNoReplyMeta(status: "new" | "active" | "won" | "lost" | "no_response", isoDate: string | null) {
+  if (status !== "no_response" || !isoDate) {
+    return { className: "", badgeLabel: null as string | null, timeLabel: formatRelativeTime(isoDate) };
+  }
+
+  const timestamp = new Date(isoDate).getTime();
+  if (Number.isNaN(timestamp)) {
+    return { className: "", badgeLabel: null as string | null, timeLabel: formatRelativeTime(isoDate) };
+  }
+
+  const diffMs = Date.now() - timestamp;
+  const diffMinutes = Math.max(0, Math.round(diffMs / (1000 * 60)));
+  const diffHours = diffMinutes / 60;
+  const timeLabel =
+    diffMinutes < 60
+      ? `${diffMinutes} min sin respuesta`
+      : diffHours < 24
+        ? `${Math.round(diffHours)}h sin respuesta`
+        : `${Math.round(diffHours / 24)} días sin respuesta`;
+
+  if (diffHours >= 72) {
+    return { className: "time-critical", badgeLabel: "En riesgo", timeLabel };
+  }
+
+  if (diffHours >= 24) {
+    return { className: "time-warning", badgeLabel: "Pendiente", timeLabel };
+  }
+
+  return { className: "", badgeLabel: null as string | null, timeLabel };
 }
 
 function actionLabel(type: DecisionType, isAssigned: boolean) {
@@ -310,6 +336,7 @@ export default async function InboxPage({
                 const valueLabel = `${format(row.estimatedValue)} ${t("inbox_value_potential")}`;
                 const primaryAction = actionLabel(row.decisionType, Boolean(row.assignedToId));
                 const isPriorityRow = visibleRows[0]?.id === row.id;
+                const noReplyMeta = getNoReplyMeta(row.status, row.lastInboundAt ?? row.lastMessageAt);
                 const rowClassName = [
                   row.id === focusedConversationId ? "table-row-focus" : "",
                   isPriorityRow ? "table-row-priority" : "",
@@ -325,10 +352,18 @@ export default async function InboxPage({
                     <td>
                       {row.lastMessageText}
                       <div
-                        className={`label ${timeLabelClass(row.status)}`.trim()}
+                        className={`label ${noReplyMeta.className}`.trim()}
                         style={{ marginTop: 4, marginBottom: 0, textTransform: "none" }}
                       >
-                        {formatRelativeTime(row.lastMessageAt)}
+                        {noReplyMeta.timeLabel}
+                        {noReplyMeta.badgeLabel ? (
+                          <span
+                            className={`badge ${row.status === "no_response" && noReplyMeta.badgeLabel === "En riesgo" ? "status-lost" : "status-no-response"}`}
+                            style={{ marginLeft: 8, textTransform: "none" }}
+                          >
+                            {noReplyMeta.badgeLabel}
+                          </span>
+                        ) : null}
                       </div>
                     </td>
                     <td>
