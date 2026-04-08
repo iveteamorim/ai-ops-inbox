@@ -141,7 +141,13 @@ export default function AcceptInvitePage() {
 
   return (
     <section className="page">
-      <MarketingNav />
+      <MarketingNav
+        showSections={false}
+        showLocale={false}
+        showSignIn={false}
+        showStartFree={false}
+        showBackToLanding
+      />
       <header className="header">
         <div>
           <h1 className="title">{t("accept_invite_title")}</h1>

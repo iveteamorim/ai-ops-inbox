@@ -117,7 +117,13 @@ export default function ResetPasswordPage() {
 
   return (
     <section className="page">
-      <MarketingNav />
+      <MarketingNav
+        showSections={false}
+        showLocale={false}
+        showSignIn={false}
+        showStartFree={false}
+        showBackToLanding
+      />
       <header className="header">
         <div>
           <h1 className="title">{t("reset_password_title")}</h1>
