@@ -6,6 +6,7 @@ import { LocaleMenu } from "@/components/i18n/LocaleMenu";
 
 type Props = {
   showHome?: boolean;
+  showBackToLanding?: boolean;
   showSections?: boolean;
   showLocale?: boolean;
   showSignIn?: boolean;
@@ -14,6 +15,7 @@ type Props = {
 
 export function MarketingNav({
   showHome = true,
+  showBackToLanding = false,
   showSections = true,
   showLocale = true,
   showSignIn = true,
@@ -23,7 +25,9 @@ export function MarketingNav({
 
   return (
     <nav className="nav marketing-nav">
-      {showHome ? <Link href="/">{t("nav_home")}</Link> : null}
+      {showHome ? (
+        <Link href="/">{showBackToLanding ? `← ${t("nav_landing")}` : t("nav_home")}</Link>
+      ) : null}
       {showSections ? <a href="#revenue">{t("nav_revenue_ai")}</a> : null}
       {showSections ? <a href="#features">{t("nav_features")}</a> : null}
       <span className="nav-spacer" />

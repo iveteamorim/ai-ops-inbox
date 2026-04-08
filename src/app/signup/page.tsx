@@ -71,7 +71,12 @@ export default function SignupPage() {
 
   return (
     <section className="page">
-      <MarketingNav showSections={false} showLocale={false} showStartFree={false} />
+      <MarketingNav
+        showSections={false}
+        showLocale={false}
+        showStartFree={false}
+        showBackToLanding
+      />
       <header className="header">
         <div>
           <h1 className="title">{t("signup_title")}</h1>
