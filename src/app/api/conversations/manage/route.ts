@@ -83,11 +83,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
 
+  const canManageBusinessStates = profile.role === "owner" || profile.role === "admin";
+
   if (assignedTo !== undefined) {
     return NextResponse.json(
       { ok: false, error: "assignment_managed_on_first_reply" },
       { status: 400 },
     );
+  }
+
+  if (status !== undefined && (status === "won" || status === "lost") && !canManageBusinessStates) {
+    return NextResponse.json({ ok: false, error: "forbidden_status_transition" }, { status: 403 });
   }
 
   const patch: {
