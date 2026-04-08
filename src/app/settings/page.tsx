@@ -239,7 +239,7 @@ function getSetupCopy(lang: string) {
     requestWhatsAppSetup: "Request WhatsApp setup",
     updateWhatsAppSetup: "Update request",
     setupRequested: "Setup requested",
-    setupInProgress: "Setup in progress",
+    setupInProgress: "Setup en curso",
     setupRequestedNote: "We are preparing the WhatsApp configuration.",
     setupPhoneRequired: "WhatsApp number is required.",
     setupNumberLabel: "WhatsApp number",
@@ -326,16 +326,16 @@ function getSetupCopy(lang: string) {
     accountPermissionsAgent: "You can manage conversations, reply to messages, and report issues.",
     accountPermissionsAdmin: "You can configure the workspace, manage the team, and operate conversations.",
     systemAiAssistance: "AI assistance",
-    systemFollowUpAutomation: "Follow-up automation",
+    systemFollowUpAutomation: "Automatización de seguimiento",
     systemWhatsappWebhook: "WhatsApp webhook",
     noTeamMembers: "No team members yet.",
     settingsUnavailable: "Settings requires an authenticated and configured workspace.",
-    workspaceModeTitle: "Workspace mode",
+    workspaceModeTitle: "Modo del workspace",
     workspaceModeInternal: "Internal demo workspace. Internal tools are visible here.",
     workspaceModeCustomerDemo:
       "Customer demo workspace. Customer-facing setup appears here without internal tools.",
     workspaceModeCustomer: "Customer workspace. Customer-facing setup and feedback are enabled here.",
-    requestError: "Could not request setup right now.",
+    requestError: "No se pudo solicitar el setup en este momento.",
   };
 }
 
@@ -448,7 +448,7 @@ export default async function SettingsPage() {
             teamTitle: canManageTeam ? "Who replies to customers" : t("settings_users"),
             channelTitle: "Connect WhatsApp",
             channelHelp: "Use this channel to start receiving and replying to real conversations through Novua.",
-            unnamedUser: "Unnamed user",
+            unnamedUser: "Usuario sin nombre",
             detail: "View details",
             open: "Open",
             noReply: "No reply",

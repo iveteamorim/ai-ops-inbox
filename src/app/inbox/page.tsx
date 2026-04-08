@@ -239,10 +239,10 @@ export default async function InboxPage({
             </>
           ) : (
             <>
-              <p className="label">Leads nuevos</p>
+              <p className="label">Nuevas conversaciones</p>
               <p className="kpi" style={{ marginBottom: 6 }}>{format(newAmount)}</p>
               <p className="subtitle" style={{ margin: 0 }}>
-                {newRows.length} leads nuevos
+                {newRows.length} conversaciones nuevas
               </p>
             </>
           )}
