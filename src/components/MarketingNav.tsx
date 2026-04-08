@@ -17,7 +17,7 @@ export function MarketingNav({
   showHome = true,
   showBackToLanding = false,
   showSections = true,
-  showLocale = true,
+  showLocale = false,
   showSignIn = true,
   showStartFree = true,
 }: Props) {
