@@ -1157,16 +1157,31 @@ a {
 
   .nav-links {
     width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .nav-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-links a {
+    flex: 0 0 auto;
   }
 
   .nav-meta {
     width: 100%;
-    justify-content: space-between;
-    align-items: flex-start;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
   }
 
   .nav-user {
-    align-items: flex-start;
+    align-items: flex-end;
+    text-align: right;
   }
 }
 
