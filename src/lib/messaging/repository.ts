@@ -200,12 +200,15 @@ async function persistInboundMessage(
   }
 
   const now = new Date().toISOString();
+  const hasExistingHumanReply = Boolean(conversationForTriage.last_outbound_at);
   const nextStatus =
     conversationForTriage.status === "won"
       ? "won"
       : conversationForTriage.status === "lost"
         ? "active"
-        : "active";
+        : hasExistingHumanReply || conversationForTriage.status === "active" || conversationForTriage.status === "no_response"
+          ? "active"
+          : "new";
   const { error: conversationUpdateError } = await supabase
     .from("conversations")
     .update({
