@@ -26,7 +26,13 @@ export function MarketingNav({
   return (
     <nav className="nav marketing-nav">
       {showHome ? (
-        <Link href="/">{showBackToLanding ? `← ${t("nav_landing")}` : t("nav_home")}</Link>
+        <Link
+          href="/"
+          aria-label={showBackToLanding ? t("nav_landing") : t("nav_home")}
+          title={showBackToLanding ? t("nav_landing") : t("nav_home")}
+        >
+          {showBackToLanding ? "←" : t("nav_home")}
+        </Link>
       ) : null}
       {showSections ? <a href="#revenue">{t("nav_revenue_ai")}</a> : null}
       {showSections ? <a href="#features">{t("nav_features")}</a> : null}
