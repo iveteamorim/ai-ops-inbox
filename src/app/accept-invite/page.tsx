@@ -5,14 +5,14 @@ import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MarketingNav } from "@/components/MarketingNav";
 import { PasswordField } from "@/components/PasswordField";
-import { createClient } from "@/lib/supabase/client";
+import { createPublicAuthClient } from "@/lib/supabase/public-auth-client";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 
 export default function AcceptInvitePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t } = useI18n();
-  const supabase = useMemo(() => createClient(), []);
+  const supabase = useMemo(() => createPublicAuthClient(), []);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [status, setStatus] = useState<"booting" | "ready" | "done">("booting");
