@@ -61,9 +61,27 @@ a {
 
 .nav {
   display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.nav-links,
+.nav-meta {
+  display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  align-items: center;
+}
+
+.nav-links {
+  min-width: 0;
+}
+
+.nav-meta {
+  justify-content: flex-end;
+  margin-left: auto;
 }
 
 .nav a {
@@ -1107,10 +1125,6 @@ a {
   padding: 12px;
 }
 
-.nav-spacer {
-  flex: 1;
-}
-
 .nav-user {
   display: flex;
   flex-direction: column;
@@ -1133,6 +1147,27 @@ a {
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+@media (max-width: 720px) {
+  .nav {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nav-links {
+    width: 100%;
+  }
+
+  .nav-meta {
+    width: 100%;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .nav-user {
+    align-items: flex-start;
+  }
 }
 
 .marketing-nav {

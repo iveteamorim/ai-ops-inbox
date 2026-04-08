@@ -45,22 +45,25 @@ export function AppNav({ showSetup = false, showLocale = false, userName, userRo
 
   return (
     <nav className="nav">
-      {links.map((link) => (
-        <Link key={link.href} href={link.href}>
-          {link.label}
-        </Link>
-      ))}
-      <span className="nav-spacer" />
-      {userName ? (
-        <div className="nav-user">
-          <strong>{userName}</strong>
-          {formatRole(userRole, lang) ? <span>{formatRole(userRole, lang)}</span> : null}
-        </div>
-      ) : null}
-      {showLocale ? <LocaleMenu /> : null}
-      <form action="/auth/signout" method="post">
-        <button type="submit" className="mini-button">{t("nav_logout")}</button>
-      </form>
+      <div className="nav-links">
+        {links.map((link) => (
+          <Link key={link.href} href={link.href}>
+            {link.label}
+          </Link>
+        ))}
+      </div>
+      <div className="nav-meta">
+        {userName ? (
+          <div className="nav-user">
+            <strong>{userName}</strong>
+            {formatRole(userRole, lang) ? <span>{formatRole(userRole, lang)}</span> : null}
+          </div>
+        ) : null}
+        {showLocale ? <LocaleMenu /> : null}
+        <form action="/auth/signout" method="post">
+          <button type="submit" className="mini-button">{t("nav_logout")}</button>
+        </form>
+      </div>
     </nav>
   );
 }
