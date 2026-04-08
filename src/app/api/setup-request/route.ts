@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 type ProfileRow = {
   company_id: string;
@@ -23,6 +24,18 @@ export async function POST(request: Request) {
 
   if (!user) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+  }
+
+  const rateLimit = checkRateLimit({
+    key: `setup-request:${user.id}`,
+    windowMs: 10 * 60_000,
+    limit: 5,
+  });
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { ok: false, error: "rate_limited" },
+      { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+    );
   }
 
   const { data: profile, error: profileError } = await supabase
