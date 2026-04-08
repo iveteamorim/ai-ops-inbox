@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { enforceSameOrigin } from "@/lib/security/request-origin";
 
 type ProfileRow = {
   company_id: string;
@@ -30,6 +31,9 @@ function deriveNameFromEmail(email: string) {
 }
 
 export async function POST(request: Request) {
+  const originError = enforceSameOrigin(request);
+  if (originError) return originError;
+
   const body = (await request.json().catch(() => ({}))) as { email?: string; role?: string };
   const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
   const role = body.role === "admin" ? "admin" : "agent";

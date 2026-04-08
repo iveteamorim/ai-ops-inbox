@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isNovuaInternalUser } from "@/lib/internal-access";
+import { enforceSameOrigin } from "@/lib/security/request-origin";
 
 type Payload = {
   feedbackId?: string;
@@ -12,6 +13,9 @@ type Payload = {
 const ALLOWED_STATUSES = new Set(["new", "reviewed", "closed"]);
 
 export async function POST(request: Request) {
+  const originError = enforceSameOrigin(request);
+  if (originError) return originError;
+
   const body = (await request.json().catch(() => ({}))) as Payload;
   const feedbackId = typeof body.feedbackId === "string" ? body.feedbackId.trim() : "";
   const status =

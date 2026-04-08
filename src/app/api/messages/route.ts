@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { enforceSameOrigin } from "@/lib/security/request-origin";
 
 type ConversationRow = {
   id: string;
@@ -81,6 +82,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const originError = enforceSameOrigin(request);
+  if (originError) return originError;
+
   const body = (await request.json().catch(() => ({}))) as PostBody;
   const conversationId = body.conversation_id?.trim();
   const text = body.text?.trim();

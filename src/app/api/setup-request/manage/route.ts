@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isNovuaInternalUser } from "@/lib/internal-access";
+import { enforceSameOrigin } from "@/lib/security/request-origin";
 
 type ProfileRow = {
   role: string;
@@ -15,6 +16,9 @@ type Payload = {
 const ALLOWED_STATUSES = new Set(["requested", "in_progress", "completed", "cancelled"]);
 
 export async function POST(request: Request) {
+  const originError = enforceSameOrigin(request);
+  if (originError) return originError;
+
   const body = (await request.json().catch(() => ({}))) as Payload;
   const requestId = typeof body.requestId === "string" ? body.requestId : "";
   const status =

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getLeadTypesFromBusinessConfig } from "@/lib/revenue/classify";
 import { triageConversation, type ServiceType } from "@/lib/triage/triage-conversation";
+import { enforceSameOrigin } from "@/lib/security/request-origin";
 
 type ProfileRow = {
   id: string;
@@ -34,7 +35,10 @@ type MessageRow = {
   created_at: string;
 };
 
-export async function POST() {
+export async function POST(request: Request) {
+  const originError = enforceSameOrigin(request);
+  if (originError) return originError;
+
   let supabase: Awaited<ReturnType<typeof createClient>>;
   try {
     supabase = await createClient();

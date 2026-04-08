@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { enforceSameOrigin } from "@/lib/security/request-origin";
 
 type ProfileRow = {
   id: string;
@@ -20,6 +21,9 @@ function normalizeRole(value: unknown) {
 }
 
 export async function POST(request: Request) {
+  const originError = enforceSameOrigin(request);
+  if (originError) return originError;
+
   const body = (await request.json().catch(() => ({}))) as ActionPayload;
   const inviteId = typeof body.inviteId === "string" ? body.inviteId : "";
   const action = body.action;

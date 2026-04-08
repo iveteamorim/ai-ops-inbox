@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { ServiceType } from "@/lib/triage/triage-conversation";
 import { seedDemoConversations } from "@/lib/demo-seed";
+import { enforceSameOrigin } from "@/lib/security/request-origin";
 
 type LeadTypeInput = {
   id?: string;
@@ -26,6 +27,9 @@ type CompanyRow = {
 };
 
 export async function POST(request: Request) {
+  const originError = enforceSameOrigin(request);
+  if (originError) return originError;
+
   const body = (await request.json().catch(() => ({}))) as Payload;
 
   let supabase: Awaited<ReturnType<typeof createClient>>;

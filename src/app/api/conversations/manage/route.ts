@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { enforceSameOrigin } from "@/lib/security/request-origin";
 
 type ConversationRow = {
   id: string;
@@ -25,6 +26,9 @@ type Payload = {
 const ALLOWED_STATUSES = new Set(["new", "active", "no_response", "won", "lost"]);
 
 export async function POST(request: Request) {
+  const originError = enforceSameOrigin(request);
+  if (originError) return originError;
+
   const body = (await request.json().catch(() => ({}))) as Payload;
   const conversationId = typeof body.conversationId === "string" ? body.conversationId : "";
   const status = typeof body.status === "string" && ALLOWED_STATUSES.has(body.status) ? body.status : undefined;

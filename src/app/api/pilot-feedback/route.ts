@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { enforceSameOrigin } from "@/lib/security/request-origin";
 
 type ProfileRow = {
   id: string;
@@ -16,6 +17,9 @@ type Payload = {
 const ALLOWED_CATEGORIES = new Set(["bug", "feedback", "feature_request"]);
 
 export async function POST(request: Request) {
+  const originError = enforceSameOrigin(request);
+  if (originError) return originError;
+
   const body = (await request.json().catch(() => ({}))) as Payload;
   const category =
     typeof body.category === "string" && ALLOWED_CATEGORIES.has(body.category)

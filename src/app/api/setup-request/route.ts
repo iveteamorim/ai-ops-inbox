@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { enforceSameOrigin } from "@/lib/security/request-origin";
 
 type ProfileRow = {
   company_id: string;
 };
 
 export async function POST(request: Request) {
+  const originError = enforceSameOrigin(request);
+  if (originError) return originError;
+
   const body = (await request.json().catch(() => ({}))) as { channel?: string; notes?: string };
   const channel = body.channel === "email" || body.channel === "form" ? body.channel : "whatsapp";
   const notes = typeof body.notes === "string" ? body.notes.trim() : null;

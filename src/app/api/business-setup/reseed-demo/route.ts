@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { resetAndSeedDemoConversations } from "@/lib/demo-seed";
 import type { ServiceType } from "@/lib/triage/triage-conversation";
+import { enforceSameOrigin } from "@/lib/security/request-origin";
 
 type ProfileRow = {
   id: string;
@@ -14,7 +15,10 @@ type CompanyRow = {
   config: Record<string, unknown> | null;
 };
 
-export async function POST() {
+export async function POST(request: Request) {
+  const originError = enforceSameOrigin(request);
+  if (originError) return originError;
+
   let supabase: Awaited<ReturnType<typeof createClient>>;
   try {
     supabase = await createClient();
