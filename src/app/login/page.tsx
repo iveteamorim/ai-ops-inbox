@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { MarketingNav } from "@/components/MarketingNav";
 import { PasswordField } from "@/components/PasswordField";
 import { createClient } from "@/lib/supabase/client";
+import { createPublicAuthClient } from "@/lib/supabase/public-auth-client";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 
 export default function LoginPage() {
@@ -59,7 +60,7 @@ export default function LoginPage() {
 
     setResetLoading(true);
     try {
-      const supabase = createClient();
+      const supabase = createPublicAuthClient();
       const redirectTo =
         typeof window !== "undefined" ? `${window.location.origin}/reset-password` : undefined;
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
