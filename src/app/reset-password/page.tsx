@@ -19,6 +19,14 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false);
 
   const ensureRecoverySession = useCallback(async () => {
+    const {
+      data: { session: existingSession },
+      error: existingSessionError,
+    } = await supabase.auth.getSession();
+
+    if (existingSessionError) throw existingSessionError;
+    if (existingSession) return existingSession;
+
     const code = searchParams.get("code");
     const tokenHash = searchParams.get("token_hash");
     const recoveryType = searchParams.get("type");

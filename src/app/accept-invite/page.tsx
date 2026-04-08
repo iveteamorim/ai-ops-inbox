@@ -20,6 +20,19 @@ export default function AcceptInvitePage() {
   const [loading, setLoading] = useState(false);
 
   const ensureInviteSession = useCallback(async () => {
+    const {
+      data: { session: existingSession },
+      error: existingSessionError,
+    } = await supabase.auth.getSession();
+
+    if (existingSessionError) {
+      throw existingSessionError;
+    }
+
+    if (existingSession) {
+      return existingSession;
+    }
+
     const code = searchParams.get("code");
     const tokenHash = searchParams.get("token_hash");
     const inviteType = searchParams.get("type");
