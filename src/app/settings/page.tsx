@@ -6,6 +6,7 @@ import { PilotFeedbackForm } from "@/components/PilotFeedbackForm";
 import { PilotFeedbackHistory } from "@/components/PilotFeedbackHistory";
 import { SetupRequestButton } from "@/components/SetupRequestButton";
 import { TeamMembersList } from "@/components/TeamMembersList";
+import { WorkspaceDangerZone } from "@/components/WorkspaceDangerZone";
 import { cookies } from "next/headers";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
@@ -119,6 +120,15 @@ function getSetupCopy(lang: string) {
         "Workspace demo de cliente. Aquí se muestra setup orientado a cliente sin herramientas internas.",
       workspaceModeCustomer: "Workspace cliente. Aquí están activos setup y feedback orientados a cliente.",
       requestError: "No se pudo solicitar el setup ahora mismo.",
+      dangerTitle: "Zona peligrosa",
+      dangerHelp: "Elimina el workspace, el canal configurado y todos los datos asociados.",
+      dangerWarning:
+        "Esta acción es irreversible. Se eliminarán contactos, conversaciones, mensajes y accesos del equipo.",
+      dangerConfirmationLabel: "Escribe el nombre del workspace para confirmar",
+      dangerDeleteLabel: "Eliminar workspace y datos",
+      dangerDeletingLabel: "Eliminando...",
+      dangerDeletedLabel: "Eliminando workspace. Redirigiendo...",
+      dangerError: "No se pudo eliminar el workspace.",
     };
   }
 
@@ -228,6 +238,15 @@ function getSetupCopy(lang: string) {
         "Workspace demo de cliente. O setup orientado ao cliente aparece aqui sem ferramentas internas.",
       workspaceModeCustomer: "Workspace cliente. Setup e feedback orientados ao cliente estão ativos aqui.",
       requestError: "Não foi possível solicitar o setup neste momento.",
+      dangerTitle: "Zona de perigo",
+      dangerHelp: "Elimina o workspace, o canal configurado e todos os dados associados.",
+      dangerWarning:
+        "Esta ação é irreversível. Contatos, conversas, mensagens e acessos da equipa serão eliminados.",
+      dangerConfirmationLabel: "Escreva o nome do workspace para confirmar",
+      dangerDeleteLabel: "Eliminar workspace e dados",
+      dangerDeletingLabel: "Eliminando...",
+      dangerDeletedLabel: "Eliminando workspace. A redirecionar...",
+      dangerError: "Não foi possível eliminar o workspace.",
     };
   }
 
@@ -336,6 +355,15 @@ function getSetupCopy(lang: string) {
       "Customer demo workspace. Customer-facing setup appears here without internal tools.",
     workspaceModeCustomer: "Customer workspace. Customer-facing setup and feedback are enabled here.",
     requestError: "No se pudo solicitar el setup en este momento.",
+    dangerTitle: "Danger zone",
+    dangerHelp: "Delete the workspace, the configured channel, and all associated data.",
+    dangerWarning:
+      "This action is irreversible. Contacts, conversations, messages, and team access will be deleted.",
+    dangerConfirmationLabel: "Type the workspace name to confirm",
+    dangerDeleteLabel: "Delete workspace and data",
+    dangerDeletingLabel: "Deleting...",
+    dangerDeletedLabel: "Deleting workspace. Redirecting...",
+    dangerError: "Could not delete the workspace.",
   };
 }
 
@@ -721,6 +749,21 @@ export default async function SettingsPage() {
             }}
           />
         </>
+      ) : null}
+
+      {context.profile.role === "owner" ? (
+        <WorkspaceDangerZone
+          title={copy.dangerTitle}
+          help={copy.dangerHelp}
+          warning={copy.dangerWarning}
+          confirmationLabel={copy.dangerConfirmationLabel}
+          confirmationPlaceholder={workspaceLabel}
+          deleteLabel={copy.dangerDeleteLabel}
+          deletingLabel={copy.dangerDeletingLabel}
+          successRedirectingLabel={copy.dangerDeletedLabel}
+          errorLabel={copy.dangerError}
+          workspaceName={workspaceLabel}
+        />
       ) : null}
 
       {canSeeInternalSetup ? (
