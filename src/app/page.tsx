@@ -49,15 +49,12 @@ export default function LandingPage() {
             <h1 className="landing-title">{t("landing_title")}</h1>
             <p className="landing-subtitle">{t("landing_subtitle")}</p>
             <p className="landing-highlight">{t("landing_hero_highlight")}</p>
-            <div className="landing-actions">
-              <Link className="landing-button" href="#pricing">
-                {t("landing_onboarding_cta")}
-              </Link>
-              <Link className="landing-button ghost" href="/login">
-                {t("cta_signin")}
-              </Link>
-              <span className="landing-tagline">{t("landing_hero_tagline")}</span>
-            </div>
+          <div className="landing-actions">
+            <Link className="landing-button" href="#pricing">
+              {t("landing_onboarding_cta")}
+            </Link>
+            <span className="landing-tagline">{t("landing_hero_tagline")}</span>
+          </div>
           </div>
 
           <div className="landing-mockup" aria-hidden="true">
