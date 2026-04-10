@@ -260,6 +260,11 @@ export const dictionary = {
     billing_body:
       "Para continuar con Novua Inbox, activa un plan. Puedes mantener acceso de solo lectura mientras definimos pagos con Stripe.",
     billing_activate_plan: "Activar plan",
+    billing_activation_requested: "Solicitud enviada",
+    billing_activation_in_progress: "En revisión",
+    billing_activation_requested_note: "Te contactaremos para activar el piloto de pago.",
+    billing_activation_in_progress_note: "Estamos revisando tu solicitud de activación.",
+    billing_activation_error: "No pudimos registrar la solicitud ahora mismo.",
     billing_signout: "Cerrar sesión",
 
     pricing_title: "Precios",
@@ -563,6 +568,11 @@ export const dictionary = {
     billing_body:
       "Para continuar com o Novua Inbox, ative um plano. Você pode manter acesso somente leitura enquanto definimos pagamentos com Stripe.",
     billing_activate_plan: "Ativar plano",
+    billing_activation_requested: "Solicitação enviada",
+    billing_activation_in_progress: "Em análise",
+    billing_activation_requested_note: "Entraremos em contato para ativar o piloto pago.",
+    billing_activation_in_progress_note: "Estamos analisando sua solicitação de ativação.",
+    billing_activation_error: "Não foi possível registrar a solicitação agora.",
     billing_signout: "Sair",
 
     pricing_title: "Preços",
@@ -864,6 +874,11 @@ export const dictionary = {
     billing_body:
       "To continue with Novua Inbox, activate a plan. You can keep read-only access while we define Stripe payments.",
     billing_activate_plan: "Activate plan",
+    billing_activation_requested: "Request sent",
+    billing_activation_in_progress: "In review",
+    billing_activation_requested_note: "We will contact you to activate the paid pilot.",
+    billing_activation_in_progress_note: "We are reviewing your activation request.",
+    billing_activation_error: "We could not register the request right now.",
     billing_signout: "Sign out",
 
     pricing_title: "Pricing",
