@@ -74,14 +74,14 @@ export const dictionary = {
     landing_cta_text:
       "Sin cambiar tu forma de trabajar. Solo con mejor información sobre cada conversación.",
     landing_onboarding_eyebrow: "Onboarding",
-    landing_onboarding_title: "Onboarding guiado para organizar tus conversaciones con clientes",
+    landing_onboarding_title: "Onboarding guiado para activar tu canal real",
     landing_onboarding_subtitle:
-      "Te ayudamos a configurar el workspace, definir tipos de lead y convertir el inbox en una cola de trabajo clara.",
+      "Crea tu cuenta, configura tu negocio y activa el plan en autoservicio. La conexión real de WhatsApp se hace contigo en onboarding guiado.",
     landing_onboarding_goal:
       "El objetivo no es añadir otro inbox. Es hacer obvia la conversación correcta en el momento correcto.",
-    landing_onboarding_note_title: "Disponible como piloto guiado.",
+    landing_onboarding_note_title: "Producto base en autoservicio. Canal real con onboarding guiado.",
     landing_onboarding_note_text:
-      "Configuramos el sistema contigo según tu negocio y volumen de mensajes.",
+      "El producto base es autoservicio. La activación del canal real y las pruebas finales se hacen contigo.",
     landing_onboarding_cta: "Solicitar demo",
     landing_onboarding_view: "Ver ejemplo",
 
@@ -103,7 +103,7 @@ export const dictionary = {
     login_forgot_sent: "Te hemos enviado un enlace para restablecer la contraseña.",
     login_forgot_error: "No se pudo enviar el enlace de recuperación.",
     signup_title: "Prueba Gratis (7 días)",
-    signup_subtitle: "Crea tu cuenta y activa el trial de Novua Inbox.",
+    signup_subtitle: "Crea tu cuenta y empieza el trial. La conexión real de WhatsApp se activa contigo durante onboarding.",
     signup_have_account: "¿Ya tienes cuenta?",
     accept_invite_title: "Aceptar invitación",
     accept_invite_subtitle: "Define tu contraseña para entrar al workspace.",
@@ -224,7 +224,7 @@ export const dictionary = {
     revenue_more_types_subtitle: "agrupados fuera del top 6",
 
     settings_title: "Configuración",
-    settings_subtitle: "Revisa conexión de WhatsApp y estado operativo.",
+    settings_subtitle: "Gestiona tu workspace en autoservicio y revisa el estado de la conexión asistida de WhatsApp.",
     settings_channels: "Canales",
     settings_users: "Usuarios",
     settings_ai_revenue: "IA y Revenue",
@@ -382,14 +382,14 @@ export const dictionary = {
     landing_cta_text:
       "Sem mudar sua forma de trabalhar. Apenas com melhor informação sobre cada conversa.",
     landing_onboarding_eyebrow: "Onboarding",
-    landing_onboarding_title: "Onboarding guiado para organizar suas conversas com clientes",
+    landing_onboarding_title: "Onboarding guiado para ativar seu canal real",
     landing_onboarding_subtitle:
-      "Ajudamos a configurar o workspace, definir tipos de lead e transformar o inbox em uma fila de trabalho clara.",
+      "Crie sua conta, configure o negócio e ative o plano em autosserviço. A conexão real do WhatsApp é feita com você em onboarding guiado.",
     landing_onboarding_goal:
       "O objetivo não é adicionar mais um inbox. É tornar óbvia a conversa certa no momento certo.",
-    landing_onboarding_note_title: "Disponível como piloto guiado.",
+    landing_onboarding_note_title: "Produto base em autosserviço. Canal real com onboarding guiado.",
     landing_onboarding_note_text:
-      "Configuramos o sistema com você de acordo com o seu negócio e volume de mensagens.",
+      "O produto base é autosserviço. A ativação do canal real e os testes finais são feitos com você.",
     landing_onboarding_cta: "Solicitar demo",
     landing_onboarding_view: "Ver exemplo",
 
@@ -411,7 +411,7 @@ export const dictionary = {
     login_forgot_sent: "Enviamos um link para redefinir a senha.",
     login_forgot_error: "Não foi possível enviar o link de recuperação.",
     signup_title: "Teste grátis (7 dias)",
-    signup_subtitle: "Crie sua conta e ative o trial do Novua Inbox.",
+    signup_subtitle: "Crie sua conta e inicie o trial. A conexão real do WhatsApp é ativada com você durante o onboarding.",
     signup_have_account: "Já tem conta?",
     accept_invite_title: "Aceitar convite",
     accept_invite_subtitle: "Defina a sua senha para entrar no workspace.",
@@ -532,7 +532,7 @@ export const dictionary = {
     revenue_more_types_subtitle: "agrupados fora do top 6",
 
     settings_title: "Configurações",
-    settings_subtitle: "Revise a conexão do WhatsApp e o estado operacional.",
+    settings_subtitle: "Gerencie o workspace em autosserviço e revise o estado da conexão assistida do WhatsApp.",
     settings_channels: "Canais",
     settings_users: "Usuários",
     settings_ai_revenue: "IA e Receita",
@@ -690,14 +690,14 @@ export const dictionary = {
     landing_cta_text:
       "Activate Novua Inbox, prioritize higher-value leads and reduce losses from day one.",
     landing_onboarding_eyebrow: "Onboarding",
-    landing_onboarding_title: "Guided onboarding to organize your customer conversations",
+    landing_onboarding_title: "Guided onboarding to activate your real channel",
     landing_onboarding_subtitle:
-      "We help teams set up the workspace, define lead types, and turn the inbox into a clear work queue.",
+      "Create your account, configure your business, and activate the plan in self-serve. The real WhatsApp connection is enabled with you during guided onboarding.",
     landing_onboarding_goal:
       "The goal is not to add another inbox. It is to make the right conversation obvious at the right time.",
-    landing_onboarding_note_title: "Available as a guided pilot.",
+    landing_onboarding_note_title: "Base product in self-serve. Real channel with guided onboarding.",
     landing_onboarding_note_text:
-      "We configure the system with you based on your business and message volume.",
+      "The base product is self-serve. Real channel activation and final testing are done with you.",
     landing_onboarding_cta: "Request demo",
     landing_onboarding_view: "View example",
 
@@ -719,7 +719,7 @@ export const dictionary = {
     login_forgot_sent: "We sent you a password reset link.",
     login_forgot_error: "Could not send the recovery link.",
     signup_title: "Free Trial (7 days)",
-    signup_subtitle: "Create your account and start your Novua Inbox trial.",
+    signup_subtitle: "Create your account and start the trial. The real WhatsApp connection is enabled with you during onboarding.",
     signup_have_account: "Already have an account?",
     accept_invite_title: "Accept invitation",
     accept_invite_subtitle: "Set your password to enter the workspace.",
@@ -838,7 +838,7 @@ export const dictionary = {
     revenue_more_types_subtitle: "grouped outside the top 6",
 
     settings_title: "Settings",
-    settings_subtitle: "Review WhatsApp connection and operating status.",
+    settings_subtitle: "Manage your workspace in self-serve and review the status of the assisted WhatsApp connection.",
     settings_channels: "Channels",
     settings_users: "Users",
     settings_ai_revenue: "AI and Revenue",
