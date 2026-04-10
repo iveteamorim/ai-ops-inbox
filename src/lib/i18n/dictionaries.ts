@@ -22,9 +22,9 @@ export const dictionary = {
     tour_finish: "Finalizar",
 
     landing_badge: "Sistema de decisión comercial",
-    landing_title: "Convierte conversaciones en decisiones comerciales",
+    landing_title: "Sistema de decisión para conversaciones inbound",
     landing_subtitle:
-      "Detecta qué conversaciones tienen mayor impacto, cuáles están en riesgo y qué hacer en cada una.",
+      "Prioriza conversaciones según valor estimado y tiempo sin respuesta. Detecta ingresos en riesgo y define la siguiente acción.",
     landing_overview: "Vista general (demo conceptual)",
     landing_messages: "Mensajes centralizados",
     landing_multi: "WhatsApp-first",
@@ -56,8 +56,8 @@ export const dictionary = {
     landing_mockup_status_risk: "Riesgo",
     landing_mockup_status_active: "Activo",
     landing_mockup_unanswered_label: "Acción sugerida",
-    landing_trust_label: "Equipos que ya prueban Novua Inbox",
-    landing_trust_aria: "Equipos que confían en Novua Inbox",
+    landing_trust_label: "Usado en pruebas reales con equipos de servicios e inbound",
+    landing_trust_aria: "Usado en pruebas reales con equipos de servicios e inbound",
     landing_revenue_subtitle:
       "Prioridad, valor potencial y siguiente acción visibles para todo el equipo.",
     landing_month_potential: "Ingresos potenciales del mes",
@@ -85,7 +85,7 @@ export const dictionary = {
     landing_onboarding_cta: "Solicitar demo",
     landing_onboarding_view: "Ver ejemplo",
 
-    cta_try_free: "Probar gratis",
+    cta_try_free: "Solicitar demo",
     cta_primary_b2b: "Agendar diagnóstico",
     cta_signin: "Entrar",
     cta_create_account: "Crear cuenta",
@@ -331,9 +331,9 @@ export const dictionary = {
     tour_finish: "Finalizar",
 
     landing_badge: "Sistema de decisão comercial",
-    landing_title: "Transforme conversas em decisões comerciais",
+    landing_title: "Sistema de decisão para conversas inbound",
     landing_subtitle:
-      "Identifique quais conversas têm maior impacto, quais estão em risco e o que fazer em cada uma.",
+      "Prioriza conversas por valor estimado e tempo sem resposta. Detecta receita em risco e define a próxima ação.",
     landing_overview: "Visão geral (demo conceitual)",
     landing_messages: "Mensagens centralizadas",
     landing_multi: "WhatsApp-first",
@@ -365,8 +365,8 @@ export const dictionary = {
     landing_mockup_status_risk: "Risco",
     landing_mockup_status_active: "Ativo",
     landing_mockup_unanswered_label: "Ação sugerida",
-    landing_trust_label: "Times que já testam o Novua Inbox",
-    landing_trust_aria: "Times que confiam no Novua Inbox",
+    landing_trust_label: "Usado em testes reais com equipes de serviços e inbound",
+    landing_trust_aria: "Usado em testes reais com equipes de serviços e inbound",
     landing_revenue_subtitle:
       "Prioridade, valor potencial e próxima ação visíveis para toda a equipe.",
     landing_month_potential: "Receita potencial do mês",
@@ -393,7 +393,7 @@ export const dictionary = {
     landing_onboarding_cta: "Solicitar demo",
     landing_onboarding_view: "Ver exemplo",
 
-    cta_try_free: "Teste grátis",
+    cta_try_free: "Solicitar demo",
     cta_primary_b2b: "Agendar diagnóstico",
     cta_signin: "Entrar",
     cta_create_account: "Criar conta",
@@ -639,9 +639,9 @@ export const dictionary = {
     tour_finish: "Finish",
 
     landing_badge: "Commercial decision system",
-    landing_title: "Turn conversations into commercial decisions",
+    landing_title: "Decision system for inbound conversations",
     landing_subtitle:
-      "Identify which conversations have the highest impact, which are at risk, and what to do in each one.",
+      "Prioritize conversations by estimated value and time without response. Detect revenue at risk and define the next action.",
     landing_overview: "Overview (concept demo)",
     landing_messages: "Centralized messages",
     landing_multi: "WhatsApp-first",
@@ -673,8 +673,8 @@ export const dictionary = {
     landing_mockup_status_risk: "Risk",
     landing_mockup_status_active: "Active",
     landing_mockup_unanswered_label: "Suggested action",
-    landing_trust_label: "Teams already testing Novua Inbox",
-    landing_trust_aria: "Teams trusting Novua Inbox",
+    landing_trust_label: "Used in real tests with service and inbound teams",
+    landing_trust_aria: "Used in real tests with service and inbound teams",
     landing_revenue_subtitle:
       "Priority, potential value, and next action visible for the whole team.",
     landing_month_potential: "Monthly potential revenue",
@@ -701,7 +701,7 @@ export const dictionary = {
     landing_onboarding_cta: "Request demo",
     landing_onboarding_view: "View example",
 
-    cta_try_free: "Start free",
+    cta_try_free: "Request demo",
     cta_primary_b2b: "Book diagnosis",
     cta_signin: "Sign in",
     cta_create_account: "Create account",

@@ -1,19 +1,7 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
 import { MarketingNav } from "@/components/MarketingNav";
 import { useI18n } from "@/components/i18n/LanguageProvider";
-
-const trustBrands = [
-  { name: "Cliniq+", src: "/logos/cliniq.svg" },
-  { name: "InmoFlow", src: "/logos/inmoflow.svg" },
-  { name: "EduPrime", src: "/logos/eduprime.svg" },
-  { name: "FoodSuite", src: "/logos/foodsuite.svg" },
-  { name: "StudioCare", src: "/logos/studiocare.svg" },
-  { name: "BlueDesk", src: "/logos/bluedesk.svg" },
-];
-
-const marqueeBrands = [...trustBrands, ...trustBrands];
 
 export default function LandingPage() {
   const { t } = useI18n();
@@ -32,13 +20,11 @@ export default function LandingPage() {
           </p>
           <h1 className="hero-title">{t("landing_title")}</h1>
           <p className="hero-subtitle">{t("landing_subtitle")}</p>
+          <p className="pricing-urgency">{t("landing_onboarding_goal")}</p>
 
           <div className="hero-actions">
-            <Link className="button" href="/signup">
-              {t("cta_try_free")}
-            </Link>
-            <Link className="mini-button" href="/login">
-              {t("cta_signin")}
+            <Link className="button" href="#pricing">
+              {t("landing_onboarding_cta")}
             </Link>
           </div>
         </div>
@@ -89,19 +75,6 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <section className="trust-row card">
-        <p className="label trust-label">{t("landing_trust_label")}</p>
-        <div className="trust-marquee" aria-label="Trusted teams">
-          <div className="trust-track">
-            {marqueeBrands.map((brand, index) => (
-              <div key={`${brand.name}-${index}`} className="trust-logo-wrap">
-                <Image src={brand.src} alt={brand.name} width={120} height={32} />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="grid cols-3" style={{ marginBottom: 14 }}>
         <article className="card">
           <p className="eyebrow">{t("landing_problem")}</p>
@@ -140,7 +113,6 @@ export default function LandingPage() {
             <p className="eyebrow">{t("landing_onboarding_eyebrow")}</p>
             <h3 style={{ marginTop: 0 }}>{t("landing_onboarding_title")}</h3>
             <p className="subtitle">{t("landing_onboarding_subtitle")}</p>
-            <p className="pricing-urgency">{t("landing_onboarding_goal")}</p>
             <article className="pricing-pain card" style={{ marginTop: 12 }}>
               <p className="warn" style={{ margin: 0 }}>{t("landing_onboarding_note_title")}</p>
               <p className="subtitle" style={{ marginTop: 6 }}>{t("landing_onboarding_note_text")}</p>
@@ -151,9 +123,6 @@ export default function LandingPage() {
         <div className="actions" style={{ marginTop: 14 }}>
           <Link className="button" href="/signup">
             {t("landing_onboarding_cta")}
-          </Link>
-          <Link className="mini-button" href="/login">
-            {t("landing_onboarding_view")}
           </Link>
         </div>
       </section>
