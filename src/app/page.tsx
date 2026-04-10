@@ -10,7 +10,7 @@ export default function LandingPage() {
     <section className="landing page">
       <MarketingNav showHome={false} showSections={false} showLocale={false} />
 
-      <header className="hero hero-stripe card">
+      <header className="hero hero-stripe card landing-hero">
         <div className="hero-copy">
           <p className="eyebrow">NÓVUA</p>
           <p className="label" style={{ marginBottom: 10 }}>
@@ -76,7 +76,7 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <section className="card" style={{ marginBottom: 14, textAlign: "center" }}>
+      <section className="card landing-statement" style={{ marginBottom: 14, textAlign: "center" }}>
         <p className="hero-title" style={{ marginBottom: 8 }}>
           {t("landing_statement_line_1")}
         </p>
@@ -85,7 +85,7 @@ export default function LandingPage() {
         </p>
       </section>
 
-      <section className="grid cols-3" style={{ marginBottom: 14 }}>
+      <section className="grid cols-3 landing-problem" style={{ marginBottom: 14 }}>
         <article className="card">
           <p className="eyebrow">{t("landing_problem")}</p>
           <h3 style={{ marginTop: 0 }}>{t("landing_problem_1_title")}</h3>
@@ -105,7 +105,7 @@ export default function LandingPage() {
         </article>
       </section>
 
-      <section className="card" style={{ marginBottom: 14 }}>
+      <section className="card landing-how" style={{ marginBottom: 14 }}>
         <p className="eyebrow">{t("landing_how_eyebrow")}</p>
         <h3 style={{ marginTop: 0 }}>{t("landing_how_title")}</h3>
         <div className="grid cols-2" style={{ gap: 12 }}>
@@ -136,7 +136,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="card panel-preview" style={{ marginBottom: 14 }}>
+      <section className="card panel-preview landing-result" style={{ marginBottom: 14 }}>
         <p className="eyebrow">{t("landing_result")}</p>
         <h3 style={{ marginTop: 0 }}>{t("landing_result_title")}</h3>
         <div className="preview-row">
@@ -153,7 +153,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="card" style={{ marginBottom: 14, textAlign: "center" }}>
+      <section className="card landing-positioning" style={{ marginBottom: 14, textAlign: "center" }}>
         <p className="hero-subtitle" style={{ marginBottom: 8 }}>
           {t("landing_positioning_line_1")}
         </p>
@@ -162,7 +162,7 @@ export default function LandingPage() {
         </p>
       </section>
 
-      <section className="card pricing-card" id="pricing" style={{ marginBottom: 14 }}>
+      <section className="card pricing-card landing-onboarding" id="pricing" style={{ marginBottom: 14 }}>
         <div className="pricing-head">
           <div>
             <p className="eyebrow">{t("landing_onboarding_eyebrow")}</p>
@@ -182,7 +182,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section style={{ marginBottom: 14, textAlign: "center" }}>
+      <section className="landing-built-by" style={{ marginBottom: 14, textAlign: "center" }}>
         <p className="subtitle" style={{ marginBottom: 0 }}>
           {t("landing_built_by")}
         </p>
