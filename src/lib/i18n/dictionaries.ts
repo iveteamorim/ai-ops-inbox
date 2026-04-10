@@ -258,7 +258,7 @@ export const dictionary = {
     billing_title: "Trial finalizado",
     billing_subtitle_prefix: "Tu periodo gratis de 7 días terminó el",
     billing_body:
-      "Para continuar con Novua Inbox, activa un plan. Puedes mantener acceso de solo lectura mientras definimos pagos con Stripe.",
+      "Para continuar con Novua Inbox, solicita la activación del plan. Mantendrás acceso de solo lectura mientras revisamos tu activación.",
     billing_activate_plan: "Activar plan",
     billing_activation_requested: "Solicitud enviada",
     billing_activation_in_progress: "En revisión",
@@ -566,7 +566,7 @@ export const dictionary = {
     billing_title: "Trial finalizado",
     billing_subtitle_prefix: "Seu período grátis de 7 dias terminou em",
     billing_body:
-      "Para continuar com o Novua Inbox, ative um plano. Você pode manter acesso somente leitura enquanto definimos pagamentos com Stripe.",
+      "Para continuar com o Novua Inbox, solicite a ativação do plano. Você manterá acesso somente leitura enquanto analisamos sua ativação.",
     billing_activate_plan: "Ativar plano",
     billing_activation_requested: "Solicitação enviada",
     billing_activation_in_progress: "Em análise",
@@ -872,7 +872,7 @@ export const dictionary = {
     billing_title: "Trial ended",
     billing_subtitle_prefix: "Your 7-day free period ended on",
     billing_body:
-      "To continue with Novua Inbox, activate a plan. You can keep read-only access while we define Stripe payments.",
+      "To continue with Novua Inbox, request plan activation. You will keep read-only access while we review your activation.",
     billing_activate_plan: "Activate plan",
     billing_activation_requested: "Request sent",
     billing_activation_in_progress: "In review",
