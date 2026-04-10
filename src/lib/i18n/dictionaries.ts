@@ -22,6 +22,7 @@ export const dictionary = {
     tour_finish: "Finalizar",
 
     landing_badge: "Sistema de decisión comercial",
+    landing_brand_kicker: "NÓVUA · SISTEMA DE DECISIÓN",
     landing_title: "Sistema de decisión para conversaciones inbound",
     landing_subtitle:
       "Prioriza conversaciones según valor estimado y tiempo sin respuesta. Detecta ingresos en riesgo y define la siguiente acción.",
@@ -61,6 +62,7 @@ export const dictionary = {
     landing_mockup_status_risk: "Riesgo",
     landing_mockup_status_active: "Activo",
     landing_mockup_unanswered_label: "Acción sugerida",
+    landing_mockup_footer: "El sistema deja visible qué atender primero y por qué.",
     landing_trust_label: "Usado en pruebas reales con equipos de servicios e inbound",
     landing_trust_aria: "Usado en pruebas reales con equipos de servicios e inbound",
     landing_revenue_subtitle:
@@ -87,6 +89,7 @@ export const dictionary = {
     landing_onboarding_note_title: "Canal real con onboarding guiado.",
     landing_onboarding_note_text:
       "Conectamos tu canal (WhatsApp primero) y configuramos el sistema contigo. Definimos cómo se toman decisiones en tu equipo.",
+    landing_onboarding_tagline: "Onboarding guiado · WhatsApp primero",
     landing_onboarding_cta: "Solicitar demo",
     landing_onboarding_view: "Ver ejemplo",
     landing_how_eyebrow: "Cómo funciona",
@@ -98,8 +101,9 @@ export const dictionary = {
     landing_how_output_title: "Output estructurado, no solo clasificación",
     landing_how_output_fields: "intent · estimated_value · priority · at_risk · next_best_action",
     landing_positioning_line_1: "No es un CRM.",
-    landing_positioning_line_2: "No es un chatbot. Es una capa de decisión sobre tus conversaciones.",
+    landing_positioning_line_2: "Es una capa de decisión sobre tus conversaciones.",
     landing_built_by: "Built by an AI product engineer focused on real operational systems.",
+    landing_final_title: "Prioriza mejor. Responde antes. Deja visible qué conversación importa ahora.",
 
     cta_try_free: "Solicitar demo",
     cta_primary_b2b: "Agendar diagnóstico",
@@ -347,6 +351,7 @@ export const dictionary = {
     tour_finish: "Finalizar",
 
     landing_badge: "Sistema de decisão comercial",
+    landing_brand_kicker: "NÓVUA · SISTEMA DE DECISÃO",
     landing_title: "Sistema de decisão para conversas inbound",
     landing_subtitle:
       "Prioriza conversas por valor estimado e tempo sem resposta. Detecta receita em risco e define a próxima ação.",
@@ -386,6 +391,7 @@ export const dictionary = {
     landing_mockup_status_risk: "Risco",
     landing_mockup_status_active: "Ativo",
     landing_mockup_unanswered_label: "Ação sugerida",
+    landing_mockup_footer: "O sistema deixa visível o que atender primeiro e por quê.",
     landing_trust_label: "Usado em testes reais com equipes de serviços e inbound",
     landing_trust_aria: "Usado em testes reais com equipes de serviços e inbound",
     landing_revenue_subtitle:
@@ -411,6 +417,7 @@ export const dictionary = {
     landing_onboarding_note_title: "Canal real com onboarding guiado.",
     landing_onboarding_note_text:
       "Conectamos seu canal (WhatsApp primeiro) e configuramos o sistema com você. Definimos como as decisões são tomadas pela sua equipe.",
+    landing_onboarding_tagline: "Onboarding guiado · WhatsApp primeiro",
     landing_onboarding_cta: "Solicitar demo",
     landing_onboarding_view: "Ver exemplo",
     landing_how_eyebrow: "Como funciona",
@@ -421,9 +428,10 @@ export const dictionary = {
     landing_how_step_4: "Sugere a próxima ação",
     landing_how_output_title: "Output estruturado, não só classificação",
     landing_how_output_fields: "intent · estimated_value · priority · at_risk · next_best_action",
-    landing_positioning_line_1: "Não é um CRM.",
-    landing_positioning_line_2: "Não é um chatbot. É uma camada de decisão sobre suas conversas.",
+    landing_positioning_line_1: "Não é um inbox.",
+    landing_positioning_line_2: "É uma camada de decisão sobre suas conversas.",
     landing_built_by: "Built by an AI product engineer focused on real operational systems.",
+    landing_final_title: "Priorize melhor. Responda antes. Deixe visível o que importa agora.",
 
     cta_try_free: "Solicitar demo",
     cta_primary_b2b: "Agendar diagnóstico",
@@ -671,6 +679,7 @@ export const dictionary = {
     tour_finish: "Finish",
 
     landing_badge: "Commercial decision system",
+    landing_brand_kicker: "NÓVUA · DECISION SYSTEM",
     landing_title: "Decision system for inbound conversations",
     landing_subtitle:
       "Prioritize conversations by estimated value and time without response. Detect revenue at risk and define the next action.",
@@ -710,6 +719,7 @@ export const dictionary = {
     landing_mockup_status_risk: "Risk",
     landing_mockup_status_active: "Active",
     landing_mockup_unanswered_label: "Suggested action",
+    landing_mockup_footer: "The system makes visible what to handle first and why.",
     landing_trust_label: "Used in real tests with service and inbound teams",
     landing_trust_aria: "Used in real tests with service and inbound teams",
     landing_revenue_subtitle:
@@ -735,6 +745,7 @@ export const dictionary = {
     landing_onboarding_note_title: "Real channel with guided onboarding.",
     landing_onboarding_note_text:
       "We connect your channel (WhatsApp first) and configure the system with you. We define how decisions are made in your team.",
+    landing_onboarding_tagline: "Guided onboarding · WhatsApp first",
     landing_onboarding_cta: "Request demo",
     landing_onboarding_view: "View example",
     landing_how_eyebrow: "How it works",
@@ -745,9 +756,10 @@ export const dictionary = {
     landing_how_step_4: "Suggest the next action",
     landing_how_output_title: "Structured output, not just classification",
     landing_how_output_fields: "intent · estimated_value · priority · at_risk · next_best_action",
-    landing_positioning_line_1: "It is not a CRM.",
-    landing_positioning_line_2: "It is not a chatbot. It is a decision layer over your conversations.",
+    landing_positioning_line_1: "It is not an inbox.",
+    landing_positioning_line_2: "It is a decision layer over your conversations.",
     landing_built_by: "Built by an AI product engineer focused on real operational systems.",
+    landing_final_title: "Prioritize better. Respond sooner. Make the right conversation visible now.",
 
     cta_try_free: "Request demo",
     cta_primary_b2b: "Book diagnosis",
