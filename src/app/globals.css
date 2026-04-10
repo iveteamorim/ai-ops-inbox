@@ -873,6 +873,16 @@ a {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+  transition: transform 0.4s ease, opacity 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+  opacity: 0.6;
+  transform: translateY(0);
+}
+
+.landing-mockup-card.is-active {
+  opacity: 1;
+  border-color: rgba(74, 222, 128, 0.35);
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.35);
+  transform: translateY(-2px);
 }
 
 .landing-mockup-name {
@@ -926,6 +936,18 @@ a {
   color: var(--landing-warn);
 }
 
+.landing-mockup-value.status-high {
+  color: #4ade80;
+}
+
+.landing-mockup-value.status-risk {
+  color: #facc15;
+}
+
+.landing-mockup-value.status-active {
+  color: #60a5fa;
+}
+
 .landing-mockup-bar {
   height: 8px;
   background: rgba(255, 255, 255, 0.08);
@@ -936,8 +958,8 @@ a {
 .landing-mockup-bar span {
   display: block;
   height: 100%;
-  width: 75%;
   background: linear-gradient(90deg, #4ade80, #facc15);
+  transition: width 0.6s ease;
 }
 
 .landing-mockup-strong {

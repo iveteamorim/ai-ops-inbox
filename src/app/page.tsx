@@ -1,10 +1,42 @@
 "use client";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { MarketingNav } from "@/components/MarketingNav";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 
 export default function LandingPage() {
   const { t } = useI18n();
+  const mockupCards = useMemo(
+    () => [
+      {
+        name: "Maria",
+        text: t("landing_mockup_msg_1"),
+        badge: t("landing_mockup_status_high"),
+        tone: "high",
+      },
+      {
+        name: "Ana",
+        text: t("landing_mockup_msg_2"),
+        badge: t("landing_mockup_status_risk"),
+        tone: "risk",
+      },
+      {
+        name: "Joao",
+        text: t("landing_mockup_msg_3"),
+        badge: t("landing_mockup_status_active"),
+        tone: "active",
+      },
+    ],
+    [t]
+  );
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % mockupCards.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [mockupCards.length]);
 
   return (
     <main className="landing page landing-premium">
@@ -34,39 +66,28 @@ export default function LandingPage() {
             </div>
             <div className="landing-mockup-grid">
               <div className="landing-mockup-list">
-                <div className="landing-mockup-card">
-                  <div>
-                    <p className="landing-mockup-name">Maria</p>
-                    <p className="landing-mockup-msg">{t("landing_mockup_msg_1")}</p>
+                {mockupCards.map((card, index) => (
+                  <div
+                    key={card.name}
+                    className={`landing-mockup-card ${index === activeIndex ? "is-active" : ""}`.trim()}
+                  >
+                    <div>
+                      <p className="landing-mockup-name">{card.name}</p>
+                      <p className="landing-mockup-msg">{card.text}</p>
+                    </div>
+                    <span className={`landing-mockup-badge badge-${card.tone}`}>
+                      {card.badge}
+                    </span>
                   </div>
-                  <span className="landing-mockup-badge badge-high">
-                    {t("landing_mockup_status_high")}
-                  </span>
-                </div>
-                <div className="landing-mockup-card">
-                  <div>
-                    <p className="landing-mockup-name">Ana</p>
-                    <p className="landing-mockup-msg">{t("landing_mockup_msg_2")}</p>
-                  </div>
-                  <span className="landing-mockup-badge badge-risk">
-                    {t("landing_mockup_status_risk")}
-                  </span>
-                </div>
-                <div className="landing-mockup-card">
-                  <div>
-                    <p className="landing-mockup-name">Joao</p>
-                    <p className="landing-mockup-msg">{t("landing_mockup_msg_3")}</p>
-                  </div>
-                  <span className="landing-mockup-badge badge-active">
-                    {t("landing_mockup_status_active")}
-                  </span>
-                </div>
+                ))}
               </div>
               <div className="landing-mockup-side">
                 <p className="landing-mockup-label">{t("landing_mockup_revenue_at_risk")}</p>
-                <p className="landing-mockup-value">{t("landing_mockup_status_high")}</p>
+                <p className={`landing-mockup-value status-${mockupCards[activeIndex].tone}`}>
+                  {mockupCards[activeIndex].badge}
+                </p>
                 <div className="landing-mockup-bar">
-                  <span />
+                  <span style={{ width: `${(activeIndex + 1) * 25}%` }} />
                 </div>
                 <p className="landing-mockup-label">{t("landing_mockup_unanswered_label")}</p>
                 <p className="landing-mockup-strong">{t("landing_mockup_unanswered_high_value")}</p>
