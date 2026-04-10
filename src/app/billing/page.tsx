@@ -7,6 +7,25 @@ import { normalizeLang, LANG_COOKIE } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
 import { canManageInternalWorkspace, getWorkspaceMode } from "@/lib/internal-access";
 
+function withPaymentContext(paymentLink: string, companyId?: string | null, email?: string | null) {
+  if (!paymentLink.startsWith("http://") && !paymentLink.startsWith("https://")) {
+    return paymentLink;
+  }
+
+  try {
+    const url = new URL(paymentLink);
+    if (companyId) {
+      url.searchParams.set("client_reference_id", companyId);
+    }
+    if (email) {
+      url.searchParams.set("prefilled_email", email);
+    }
+    return url.toString();
+  } catch {
+    return paymentLink;
+  }
+}
+
 export default async function BillingPage() {
   const cookieStore = await cookies();
   const lang = normalizeLang(cookieStore.get(LANG_COOKIE)?.value);
@@ -27,7 +46,11 @@ export default async function BillingPage() {
   const trialEndsAt = (user?.user_metadata?.trial_ends_at as string | undefined) ?? null;
   const workspaceMode = getWorkspaceMode(company ?? null, user?.email);
   const canSeeInternalSetup = canManageInternalWorkspace(workspaceMode);
-  const paymentLink = process.env.STRIPE_PAYMENT_LINK_URL || "/#pricing";
+  const paymentLink = withPaymentContext(
+    process.env.STRIPE_PAYMENT_LINK_URL || "/#pricing",
+    profile?.company_id ?? null,
+    user?.email ?? null,
+  );
   const isExternalPaymentLink = paymentLink.startsWith("http://") || paymentLink.startsWith("https://");
 
   return (

@@ -12,6 +12,7 @@ const PUBLIC_PATHS = [
   "/reset-password",
   "/api/webhooks/whatsapp",
   "/api/webhooks/instagram",
+  "/api/webhooks/stripe",
 ];
 const INTERNAL_BYPASS = ["/_next", "/favicon.ico"];
 
@@ -84,9 +85,27 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const isInternalWorkspace = isNovuaInternalUser(user?.email);
+  let companyPlan: string | null = null;
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("company_id")
+      .eq("id", user.id)
+      .maybeSingle<{ company_id: string }>();
+
+    if (profile?.company_id) {
+      const { data: company } = await supabase
+        .from("companies")
+        .select("plan")
+        .eq("id", profile.company_id)
+        .maybeSingle<{ plan: string }>();
+      companyPlan = company?.plan ?? null;
+    }
+  }
 
   const trialEndsAt = (user?.user_metadata?.trial_ends_at as string | undefined) ?? null;
-  const trialExpired = !isInternalWorkspace && hasTrialExpired(trialEndsAt);
+  const trialExpired = !isInternalWorkspace && (companyPlan === null || companyPlan === "trial") && hasTrialExpired(trialEndsAt);
 
   if (!user && !isPublicPath(pathname)) {
     const redirectResponse = NextResponse.redirect(new URL("/login", request.url));
