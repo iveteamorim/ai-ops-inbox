@@ -6,8 +6,6 @@ import { useI18n } from "@/components/i18n/LanguageProvider";
 export default function LandingPage() {
   const { t } = useI18n();
 
-  const decisionSignal = "8";
-
   return (
     <section className="landing page">
       <MarketingNav showHome={false} showSections={false} showLocale={false} />
@@ -30,6 +28,9 @@ export default function LandingPage() {
         </div>
 
         <div className="hero-visual" aria-hidden="true">
+          <p className="label" style={{ marginBottom: 10 }}>
+            {t("landing_demo_label")}
+          </p>
           <div className="product-mockup">
             <div className="mockup-topbar">
               <span className="mock-dot" />
@@ -75,36 +76,90 @@ export default function LandingPage() {
         </div>
       </header>
 
+      <section className="card" style={{ marginBottom: 14, textAlign: "center" }}>
+        <p className="hero-title" style={{ marginBottom: 8 }}>
+          {t("landing_statement_line_1")}
+        </p>
+        <p className="hero-subtitle" style={{ marginBottom: 0 }}>
+          {t("landing_statement_line_2")}
+        </p>
+      </section>
+
       <section className="grid cols-3" style={{ marginBottom: 14 }}>
         <article className="card">
           <p className="eyebrow">{t("landing_problem")}</p>
-          <h3 style={{ marginTop: 0 }}>{t("landing_problem_title")}</h3>
-          <p>{t("landing_problem_2")}</p>
-        </article>
-
-        <article className="card panel-preview">
-          <p className="eyebrow">{t("landing_result")}</p>
-          <h3 style={{ marginTop: 0 }}>{t("landing_result_title")}</h3>
-          <div className="preview-row">
-            <span>{t("landing_response_time")}</span>
-            <strong>↓</strong>
-          </div>
-          <div className="preview-row">
-            <span>{t("landing_unfollowed")}</span>
-            <strong>↓</strong>
-          </div>
-          <div className="preview-row">
-            <span>{t("landing_converted")}</span>
-            <strong>↑</strong>
-          </div>
+          <h3 style={{ marginTop: 0 }}>{t("landing_problem_1_title")}</h3>
+          <p>{t("landing_problem_1")}</p>
         </article>
 
         <article className="card">
-          <p className="eyebrow">{t("landing_revenue_label")}</p>
-          <h3 style={{ marginTop: 0 }}>{t("landing_revenue_title")}</h3>
-          <p className="metric metric-warn">{decisionSignal}</p>
-          <p className="subtitle">{t("landing_money_risk")}</p>
+          <p className="eyebrow">{t("landing_problem")}</p>
+          <h3 style={{ marginTop: 0 }}>{t("landing_problem_2_title")}</h3>
+          <p>{t("landing_problem_2")}</p>
         </article>
+
+        <article className="card">
+          <p className="eyebrow">{t("landing_problem")}</p>
+          <h3 style={{ marginTop: 0 }}>{t("landing_problem_3_title")}</h3>
+          <p>{t("landing_problem_3")}</p>
+        </article>
+      </section>
+
+      <section className="card" style={{ marginBottom: 14 }}>
+        <p className="eyebrow">{t("landing_how_eyebrow")}</p>
+        <h3 style={{ marginTop: 0 }}>{t("landing_how_title")}</h3>
+        <div className="grid cols-2" style={{ gap: 12 }}>
+          <div className="card">
+            <div className="preview-row">
+              <span>1.</span>
+              <strong>{t("landing_how_step_1")}</strong>
+            </div>
+            <div className="preview-row">
+              <span>2.</span>
+              <strong>{t("landing_how_step_2")}</strong>
+            </div>
+            <div className="preview-row">
+              <span>3.</span>
+              <strong>{t("landing_how_step_3")}</strong>
+            </div>
+            <div className="preview-row">
+              <span>4.</span>
+              <strong>{t("landing_how_step_4")}</strong>
+            </div>
+          </div>
+          <div className="card">
+            <p className="eyebrow">{t("landing_how_output_title")}</p>
+            <p className="subtitle" style={{ marginBottom: 0 }}>
+              {t("landing_how_output_fields")}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="card panel-preview" style={{ marginBottom: 14 }}>
+        <p className="eyebrow">{t("landing_result")}</p>
+        <h3 style={{ marginTop: 0 }}>{t("landing_result_title")}</h3>
+        <div className="preview-row">
+          <span>{t("landing_response_time")}</span>
+          <strong>↓</strong>
+        </div>
+        <div className="preview-row">
+          <span>{t("landing_unfollowed")}</span>
+          <strong>↓</strong>
+        </div>
+        <div className="preview-row">
+          <span>{t("landing_converted")}</span>
+          <strong>↑</strong>
+        </div>
+      </section>
+
+      <section className="card" style={{ marginBottom: 14, textAlign: "center" }}>
+        <p className="hero-subtitle" style={{ marginBottom: 8 }}>
+          {t("landing_positioning_line_1")}
+        </p>
+        <p className="hero-title" style={{ marginBottom: 0 }}>
+          {t("landing_positioning_line_2")}
+        </p>
       </section>
 
       <section className="card pricing-card" id="pricing" style={{ marginBottom: 14 }}>
@@ -125,6 +180,12 @@ export default function LandingPage() {
             {t("landing_onboarding_cta")}
           </Link>
         </div>
+      </section>
+
+      <section style={{ marginBottom: 14, textAlign: "center" }}>
+        <p className="subtitle" style={{ marginBottom: 0 }}>
+          {t("landing_built_by")}
+        </p>
       </section>
     </section>
   );
