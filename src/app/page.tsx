@@ -53,6 +53,9 @@ export default function LandingPage() {
               <Link className="landing-button" href="#pricing">
                 {t("landing_onboarding_cta")}
               </Link>
+              <Link className="landing-button ghost" href="/login">
+                {t("cta_signin")}
+              </Link>
               <span className="landing-tagline">{t("landing_hero_tagline")}</span>
             </div>
           </div>
@@ -146,9 +149,6 @@ export default function LandingPage() {
           <div className="landing-actions">
             <Link className="landing-button" href="/signup">
               {t("landing_onboarding_cta")}
-            </Link>
-            <Link className="landing-button ghost" href="/login">
-              {t("landing_onboarding_view")}
             </Link>
           </div>
         </section>
