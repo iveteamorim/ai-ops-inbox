@@ -1090,8 +1090,6 @@ a {
     display: none;
   }
 }
-}
-
 .hero::after {
   content: "";
   position: absolute;
