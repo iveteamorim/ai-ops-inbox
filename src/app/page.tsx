@@ -48,21 +48,18 @@ export default function LandingPage() {
             <p className="landing-kicker">{t("landing_brand_kicker")}</p>
             <h1 className="landing-title">{t("landing_title")}</h1>
             <p className="landing-subtitle">{t("landing_subtitle")}</p>
-            <p className="landing-highlight">
-              {t("landing_statement_line_1")} {t("landing_statement_line_2")}
-            </p>
+            <p className="landing-highlight">{t("landing_hero_highlight")}</p>
             <div className="landing-actions">
               <Link className="landing-button" href="#pricing">
                 {t("landing_onboarding_cta")}
               </Link>
-              <span className="landing-tagline">{t("landing_onboarding_tagline")}</span>
+              <span className="landing-tagline">{t("landing_hero_tagline")}</span>
             </div>
           </div>
 
           <div className="landing-mockup" aria-hidden="true">
             <div className="landing-mockup-head">
               <p>{t("landing_demo_label")}</p>
-              <span>{t("landing_mockup_url")}</span>
             </div>
             <div className="landing-mockup-grid">
               <div className="landing-mockup-list">
