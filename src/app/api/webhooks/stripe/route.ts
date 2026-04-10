@@ -129,6 +129,17 @@ export async function POST(request: Request) {
   if (event.type === "invoice.paid" || event.type === "invoice.payment_failed") {
     const invoice = event.data.object as Stripe.Invoice;
     const customerId = typeof invoice.customer === "string" ? invoice.customer : "";
+    const subscriptionId =
+      typeof invoice.parent === "object" &&
+      invoice.parent &&
+      "subscription_details" in invoice.parent &&
+      invoice.parent.subscription_details &&
+      typeof invoice.parent.subscription_details === "object" &&
+      "subscription" in invoice.parent.subscription_details &&
+      typeof invoice.parent.subscription_details.subscription === "string"
+        ? invoice.parent.subscription_details.subscription
+        : null;
+
     if (!customerId) {
       return NextResponse.json({ ok: true, skipped: "missing_customer_id" });
     }
@@ -142,7 +153,7 @@ export async function POST(request: Request) {
     const { error } = await updateCompanyBillingState(company.id, {
       plan: paymentFailed ? "trial" : paidPlan,
       stripeCustomerId: customerId,
-      stripeSubscriptionId: typeof invoice.subscription === "string" ? invoice.subscription : null,
+      stripeSubscriptionId: subscriptionId,
       stripePaymentStatus: paymentFailed ? "failed" : "paid",
       stripeSubscriptionStatus: paymentFailed ? "past_due" : "active",
     });
