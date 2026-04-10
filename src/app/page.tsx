@@ -61,7 +61,7 @@ export default function LandingPage() {
             <div className="landing-mockup-head">
               <p>{t("landing_demo_label")}</p>
             </div>
-            <div className="landing-mockup-grid">
+            <div className="landing-mockup-stack">
               <div className="landing-mockup-list">
                 {mockupCards.map((card, index) => (
                   <div
