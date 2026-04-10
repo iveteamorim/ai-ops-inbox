@@ -756,7 +756,7 @@ a {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 40px;
-  align-items: center;
+  align-items: flex-start;
   margin-top: 24px;
 }
 
@@ -835,6 +835,7 @@ a {
   border-radius: 20px;
   padding: 18px;
   box-shadow: 0 25px 55px rgba(0, 0, 0, 0.35);
+  margin-top: 6px;
 }
 
 .landing-mockup-head {
