@@ -234,7 +234,7 @@ export default async function DashboardPage() {
   ];
 
   const latestRisk = visibleRisk[0];
-  const riskAge = latestRisk?.lastMessageAt ? formatRelativeTime(latestRisk.lastMessageAt) : null;
+  const riskAge = latestRisk?.lastMessageAt ? formatRelativeTime(latestRisk.lastMessageAt, lang) : null;
   const riskSummary =
     visibleRisk.length > 0
       ? `${visibleRisk.length} ${visibleRisk.length === 1 ? copy.riskOne : copy.riskMany}`

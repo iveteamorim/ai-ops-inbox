@@ -49,14 +49,15 @@ function getNoReplyMeta(
   status: "new" | "active" | "won" | "lost" | "no_response",
   isoDate: string | null,
   copy: InboxLangCopy,
+  lang: "es" | "pt" | "en",
 ) {
   if (status !== "no_response" || !isoDate) {
-    return { className: "", timeLabel: formatRelativeTime(isoDate) };
+    return { className: "", timeLabel: formatRelativeTime(isoDate, lang) };
   }
 
   const timestamp = new Date(isoDate).getTime();
   if (Number.isNaN(timestamp)) {
-    return { className: "", timeLabel: formatRelativeTime(isoDate) };
+    return { className: "", timeLabel: formatRelativeTime(isoDate, lang) };
   }
 
   const diffMs = Date.now() - timestamp;
@@ -94,15 +95,16 @@ function getStatusTimeLabel(
   row: { status: "new" | "active" | "won" | "lost" | "no_response"; lastMessageAt: string | null },
   noReplyTimeLabel: string,
   copy: InboxLangCopy,
+  lang: "es" | "pt" | "en",
 ) {
   if (row.status === "no_response") return noReplyTimeLabel;
   if (!row.lastMessageAt) return "";
 
   const timestamp = new Date(row.lastMessageAt).getTime();
-  if (Number.isNaN(timestamp)) return formatRelativeTime(row.lastMessageAt);
+  if (Number.isNaN(timestamp)) return formatRelativeTime(row.lastMessageAt, lang);
 
   const diffHours = (Date.now() - timestamp) / (1000 * 60 * 60);
-  const relative = formatRelativeTime(row.lastMessageAt);
+  const relative = formatRelativeTime(row.lastMessageAt, lang);
 
   if (row.status === "won") {
     if (diffHours < 24) return copy.wonToday;
@@ -362,10 +364,10 @@ export default async function InboxPage() {
   const newCount = newRows.length;
 
   const conversations = visibleRows.map((row) => {
-    const noReplyMeta = getNoReplyMeta(row.status, row.lastMessageAt, langCopy);
+    const noReplyMeta = getNoReplyMeta(row.status, row.lastMessageAt, langCopy, lang);
     const statusLabel = getVisibleStatusLabel(row, noReplyMeta.className, t, langCopy);
     const risk = riskLabel(row.aiPriority, langCopy);
-    const delay = getStatusTimeLabel(row, noReplyMeta.timeLabel, langCopy);
+    const delay = getStatusTimeLabel(row, noReplyMeta.timeLabel, langCopy, lang);
     const owner = row.assignedTo || teamById.get(row.assignedToId ?? "") || langCopy.unassigned;
     const isAssigned = Boolean(row.assignedToId);
     return {

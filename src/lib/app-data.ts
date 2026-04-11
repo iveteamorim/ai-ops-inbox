@@ -5,6 +5,7 @@ import type { DictionaryKey } from "@/lib/i18n/dictionaries";
 import { classifyLeadFromMessage } from "@/lib/revenue/classify";
 import { triageConversation, type ServiceType, type TriageResult } from "@/lib/triage/triage-conversation";
 import { getDecisionType, type DecisionType } from "@/lib/conversation-decision";
+import type { Lang } from "@/lib/i18n/config";
 
 type ProfileRow = {
   id: string;
@@ -444,7 +445,7 @@ function deriveEffectiveConversationStatus(
   return row.status;
 }
 
-export function formatRelativeTime(isoDate: string | null) {
+export function formatRelativeTime(isoDate: string | null, lang: Lang = "es") {
   if (!isoDate) return "-";
 
   const timestamp = new Date(isoDate).getTime();
@@ -452,12 +453,22 @@ export function formatRelativeTime(isoDate: string | null) {
 
   const diffMs = Date.now() - timestamp;
   const diffMinutes = Math.max(0, Math.round(diffMs / (1000 * 60)));
-  if (diffMinutes < 60) return `Hace ${diffMinutes} min`;
+  if (diffMinutes < 60) {
+    if (lang === "pt") return `há ${diffMinutes} min`;
+    if (lang === "en") return `${diffMinutes} min ago`;
+    return `Hace ${diffMinutes} min`;
+  }
 
   const diffHours = Math.round(diffMinutes / 60);
-  if (diffHours < 24) return `Hace ${diffHours}h`;
+  if (diffHours < 24) {
+    if (lang === "pt") return `há ${diffHours} h`;
+    if (lang === "en") return `${diffHours}h ago`;
+    return `Hace ${diffHours}h`;
+  }
 
   const diffDays = Math.round(diffHours / 24);
+  if (lang === "pt") return `há ${diffDays} dias`;
+  if (lang === "en") return `${diffDays} days ago`;
   return `Hace ${diffDays} días`;
 }
 
