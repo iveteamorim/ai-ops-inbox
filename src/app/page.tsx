@@ -147,9 +147,12 @@ export default function NovuaLanding() {
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <button className="rounded-2xl bg-green-500 px-6 py-3 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.22)] transition duration-300 hover:scale-[1.02] hover:bg-green-400">
+              <Link
+                href="/setup-requests"
+                className="rounded-2xl bg-green-500 px-6 py-3 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.22)] transition duration-300 hover:scale-[1.02] hover:bg-green-400"
+              >
                 Solicitar demo
-              </button>
+              </Link>
               <span className="text-sm text-gray-400">15 min · lo activamos contigo</span>
             </div>
 
@@ -343,9 +346,12 @@ export default function NovuaLanding() {
           </div>
 
           <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <button className="rounded-2xl bg-green-500 px-7 py-3.5 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.25)] transition duration-300 hover:scale-[1.02] hover:bg-green-400">
+            <Link
+              href="/setup-requests"
+              className="rounded-2xl bg-green-500 px-7 py-3.5 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.25)] transition duration-300 hover:scale-[1.02] hover:bg-green-400"
+            >
               Solicitar demo
-            </button>
+            </Link>
             <p className="text-sm text-gray-400">Te ayudamos a activarlo en tu negocio</p>
           </div>
         </motion.section>
@@ -360,8 +366,8 @@ export default function NovuaLanding() {
           <h2 className="mx-auto max-w-4xl text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
             Prioriza mejor. Responde antes. Deja visible qué conversación importa ahora.
           </h2>
-          <motion.button
-            className="mt-8 rounded-2xl bg-green-500 px-8 py-4 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.25)] transition duration-300 hover:scale-[1.02] hover:bg-green-400"
+          <motion.div
+            className="mt-8 inline-block"
             animate={{
               boxShadow: [
                 "0 0 30px rgba(34,197,94,0.18)",
@@ -371,8 +377,13 @@ export default function NovuaLanding() {
             }}
             transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
           >
+            <Link
+              href="/setup-requests"
+              className="rounded-2xl bg-green-500 px-8 py-4 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.25)] transition duration-300 hover:scale-[1.02] hover:bg-green-400"
+            >
             Solicitar demo
-          </motion.button>
+            </Link>
+          </motion.div>
         </motion.section>
       </div>
     </main>
