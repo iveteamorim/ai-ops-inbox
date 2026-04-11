@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { cookies, headers } from "next/headers";
 import { AppNav } from "@/components/AppNav";
+import { DashboardDecisionView } from "@/components/dashboard/DashboardDecisionView";
 import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
@@ -161,7 +161,6 @@ export default async function DashboardPage() {
 
   const workspaceOpen = conversations.filter((item) => item.status === "new" || item.status === "active" || item.status === "no_response");
   const workspaceRisk = conversations.filter((item) => item.status === "no_response");
-  const workspaceNew = conversations.filter((item) => item.status === "new");
   const workspaceWon = conversations.filter((item) => item.status === "won");
   const workspaceWonToday = workspaceWon.filter((item) => occurredToday(item.lastMessageAt ?? item.createdAt, todayStart));
 
@@ -176,33 +175,48 @@ export default async function DashboardPage() {
   const visibleRisk = canManageBusiness ? workspaceRisk : myRisk;
   const visibleWonToday = canManageBusiness ? workspaceWonToday : myWonToday;
   const visibleActive = visibleOpen.filter((item) => item.status === "active");
-  const visibleNew = canManageBusiness ? workspaceNew : conversations.filter((item) => item.status === "new");
   const visibleRecoveredToday = countValue(visibleWonToday);
+  const visibleRiskAmount = countValue(visibleRisk);
+  const visibleActiveAmount = countValue(visibleActive);
+  const highValueLeads = conversations.filter(
+    (item) => item.aiPriority === "high" && (item.status === "new" || item.status === "active" || item.status === "no_response"),
+  );
+  const highValueAmount = countValue(highValueLeads);
 
-  const actionCards = [
+  const metrics = [
+    { label: "Ingresos en riesgo", value: format(visibleRiskAmount) },
+    { label: "Conversaciones activas", value: String(visibleActive.length) },
+    { label: "Sin respuesta", value: String(visibleRisk.length) },
+    { label: "Recuperados hoy", value: format(visibleRecoveredToday) },
+  ];
+
+  const decisionGroups = [
     {
+      title: "Riesgo alto",
+      subtitle: "Conversaciones sin respuesta > 1h",
+      value: format(visibleRiskAmount),
+      count: `${visibleRisk.length} conversaciones`,
+      action: "Revisar prioridades en el inbox",
+      tone: "yellow",
       href: "/inbox?scope=no_response",
-      title: copy.reviewNow,
-      detail: `${visibleRisk.length} ${visibleRisk.length === 1 ? copy.riskOne : copy.riskMany}`,
-      tone: "dashboard-action-risk",
-      cta: copy.goInbox,
-      emoji: "🔴",
     },
     {
-      href: canManageBusiness ? "/inbox" : "/inbox?scope=mine",
-      title: copy.followup,
-      detail: `${visibleActive.length} ${visibleActive.length === 1 ? copy.activeOne : copy.activeMany}`,
-      tone: "dashboard-action-followup",
-      cta: copy.view,
-      emoji: "🟠",
+      title: "Oportunidad",
+      subtitle: "Leads de alto valor sin seguimiento",
+      value: format(highValueAmount),
+      count: `${highValueLeads.length} leads`,
+      action: "Priorizar leads > €150",
+      tone: "green",
+      href: "/inbox",
     },
     {
-      href: "/inbox?scope=new",
-      title: copy.newConversations,
-      detail: `${visibleNew.length} ${visibleNew.length === 1 ? copy.unopenedOne : copy.unopenedMany}`,
-      tone: "dashboard-action-new",
-      cta: copy.open,
-      emoji: "🔵",
+      title: "Seguimiento",
+      subtitle: "Conversaciones activas esperando siguiente paso",
+      value: format(visibleActiveAmount),
+      count: `${visibleActive.length} conversaciones`,
+      action: "Empujar seguimiento hoy",
+      tone: "blue",
+      href: "/inbox?scope=active",
     },
   ];
 
@@ -214,55 +228,14 @@ export default async function DashboardPage() {
         userName={context.profile.full_name ?? context.user.email ?? null}
         userRole={context.profile.role}
       />
-      <header className="header">
-        <div>
-          <h1 className="title">{t("dashboard_title")}</h1>
-          <p className="subtitle">
-            {canManageBusiness
-              ? copy.manageSubtitle
-              : copy.agentSubtitle}
-          </p>
-        </div>
-      </header>
-
-      <article className="card dashboard-hero dashboard-hero-risk">
-        <p className="dashboard-hero-value">💰 {format(countValue(visibleRisk))} {copy.heroRisk}</p>
-        <p className="dashboard-hero-detail">
-          {visibleRisk.length} {visibleRisk.length === 1 ? copy.criticalOne : copy.criticalMany}
-        </p>
-      </article>
-
-      <div className="grid cols-2" style={{ marginTop: 12, marginBottom: 12 }}>
-        <article className="card dashboard-hero dashboard-hero-active">
-          <p className="dashboard-secondary-value">💰 {format(countValue(visibleOpen))} {copy.inConversation}</p>
-          <p className="dashboard-hero-detail">
-            {canManageBusiness ? copy.activeProcess : copy.activeUnderCare}
-          </p>
-        </article>
-        <article className="card dashboard-hero dashboard-hero-won">
-          <p className="dashboard-secondary-value">💰 {format(visibleRecoveredToday)} {copy.recoveredToday}</p>
-          <p className="dashboard-hero-detail">
-            {canManageBusiness ? copy.closedToday : copy.myClosedToday}
-          </p>
-        </article>
-      </div>
-
-      <article className="card dashboard-actions-shell">
-        <p className="label">{copy.whatNow}</p>
-        <div className="dashboard-actions-list">
-          {actionCards.map((item) => (
-            <div key={item.href} className={`dashboard-action-row ${item.tone}`.trim()}>
-              <div>
-                <div className="dashboard-action-title">{item.emoji} {item.title}</div>
-                <div className="dashboard-action-detail">{item.detail}</div>
-              </div>
-              <Link className={item.tone === "dashboard-action-risk" ? "button" : "mini-button dashboard-action-button"} href={item.href}>
-                {item.cta}
-              </Link>
-            </div>
-          ))}
-        </div>
-      </article>
+      <DashboardDecisionView
+        metrics={metrics}
+        decisionGroups={decisionGroups}
+        riskAmountLabel={format(visibleRiskAmount)}
+        riskHelp={`${visibleRisk.length} ${visibleRisk.length === 1 ? copy.riskOne : copy.riskMany}`}
+        actionSummary={`${visibleRisk.length} ${visibleRisk.length === 1 ? copy.criticalOne : copy.criticalMany}`}
+        actionHref="/inbox?scope=no_response"
+      />
     </section>
   );
 }
