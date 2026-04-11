@@ -14,6 +14,8 @@ type Props = {
   unitOptions: string[];
 };
 
+type Translate = ReturnType<typeof useI18n>["t"];
+
 function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
   return new Intl.NumberFormat(lang, {
     style: "currency",
@@ -63,11 +65,11 @@ function statusClass(status: string) {
   return "status-lost";
 }
 
-function formatChannel(channel: ConversationView["channel"]) {
+function formatChannel(channel: ConversationView["channel"], lang: string, t: Translate) {
   if (channel === "whatsapp") return "WhatsApp";
   if (channel === "instagram") return "Instagram";
   if (channel === "email") return "Email";
-  return "Form";
+  return t("conversation_channel_form");
 }
 
 export function ConversationWorkspace({
@@ -310,13 +312,13 @@ export function ConversationWorkspace({
 
       const payload = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
       if (!response.ok || !payload?.ok) {
-        setError(payload?.error ?? (lang === "en" ? "Could not update conversation." : lang === "pt" ? "Não foi possível atualizar a conversa." : "No se pudo actualizar la conversación."));
+        setError(payload?.error ?? t("inbox_update_error"));
         return;
       }
 
       router.refresh();
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : (lang === "en" ? "Could not update conversation." : lang === "pt" ? "Não foi possível atualizar a conversa." : "No se pudo actualizar la conversación."));
+      setError(requestError instanceof Error ? requestError.message : t("inbox_update_error"));
     } finally {
       setUpdatingStatus(null);
     }
@@ -361,8 +363,8 @@ export function ConversationWorkspace({
         <p className="label">{t("conversation_messages")}</p>
         {messages.length === 0 ? (
           <div className="empty-state">
-            <h3>No messages yet</h3>
-            <p>Inbound and outbound conversation history will appear here.</p>
+            <h3>{t("conversation_empty_title")}</h3>
+            <p>{t("conversation_empty_body")}</p>
           </div>
         ) : (
           <div className="chat-list">
@@ -464,7 +466,7 @@ export function ConversationWorkspace({
             </div>
             <div className="preview-row">
               <span>{t("inbox_channel")}</span>
-              <span>{formatChannel(conversation.channel)}</span>
+              <span>{formatChannel(conversation.channel, lang, t)}</span>
             </div>
             <div className="preview-row">
               <span>{t("inbox_status")}</span>
@@ -507,6 +509,7 @@ export function ConversationWorkspace({
                   noResponse: t("inbox_filter_no_reply"),
                   won: t("revenue_filter_won"),
                   lost: t("inbox_filter_lost"),
+                  error: t("inbox_update_error"),
                 }}
               />
             </div>

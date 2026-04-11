@@ -19,6 +19,7 @@ type Props = {
     noResponse: string;
     won: string;
     lost: string;
+    error: string;
   };
 };
 
@@ -50,7 +51,7 @@ export function InboxRowActions({
 
       const payload = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
       if (!response.ok || !payload?.ok) {
-        setError(payload?.error ?? "Could not update conversation.");
+        setError(payload?.error ?? labels.error);
         return;
       }
 

@@ -90,9 +90,9 @@ function getSetupCopy(lang: string) {
       pilotFeedbackSubmitting: "Enviando...",
       pilotFeedbackSuccess: "Feedback enviado.",
       pilotFeedbackError: "No se pudo enviar el feedback.",
-      pilotFeedbackBug: "Bug",
-      pilotFeedbackGeneral: "Feedback",
-      pilotFeedbackFeature: "Feature request",
+      pilotFeedbackBug: "Error",
+      pilotFeedbackGeneral: "Comentarios",
+      pilotFeedbackFeature: "Solicitud de mejora",
       pilotFeedbackHistoryTitle: "Tus reportes",
       pilotFeedbackHistoryEmpty: "Todavía no has enviado reportes.",
       pilotFeedbackHistoryStatus: "Estado",
@@ -113,7 +113,7 @@ function getSetupCopy(lang: string) {
       systemFollowUpAutomation: "Automatización de seguimiento",
       systemWhatsappWebhook: "Webhook de WhatsApp",
       noTeamMembers: "No hay miembros del equipo todavía.",
-      settingsUnavailable: "Settings requiere un workspace autenticado y configurado.",
+      settingsUnavailable: "Configuración requiere un workspace autenticado y configurado.",
       workspaceModeTitle: "Modo del workspace",
       workspaceModeInternal: "Workspace interno de demo. Aquí se muestran herramientas internas.",
       workspaceModeCustomerDemo:
@@ -210,7 +210,7 @@ function getSetupCopy(lang: string) {
       pilotFeedbackError: "Não foi possível enviar o feedback.",
       pilotFeedbackBug: "Bug",
       pilotFeedbackGeneral: "Feedback",
-      pilotFeedbackFeature: "Feature request",
+      pilotFeedbackFeature: "Pedido de melhoria",
       pilotFeedbackHistoryTitle: "Seus reportes",
       pilotFeedbackHistoryEmpty: "Ainda não enviaste reportes.",
       pilotFeedbackHistoryStatus: "Estado",
@@ -231,7 +231,7 @@ function getSetupCopy(lang: string) {
       systemFollowUpAutomation: "Automatização de seguimento",
       systemWhatsappWebhook: "Webhook do WhatsApp",
       noTeamMembers: "Ainda não há membros na equipa.",
-      settingsUnavailable: "Settings requer um workspace autenticado e configurado.",
+      settingsUnavailable: "Configurações requerem um workspace autenticado e configurado.",
       workspaceModeTitle: "Modo do workspace",
       workspaceModeInternal: "Workspace interno de demo. Ferramentas internas visíveis.",
       workspaceModeCustomerDemo:
@@ -673,7 +673,7 @@ export default async function SettingsPage() {
             </p>
             {channels.length > 0 ? (
               <div className="preview-row" style={{ marginBottom: 12 }}>
-                <span>{formatChannel(channels[0].type)}</span>
+                <span>{formatChannel(channels[0].type, t)}</span>
                 <span className={`badge ${channels[0].is_active ? "status-active" : "status-no-response"}`}>
                   {channels[0].is_active ? t("settings_active") : t("settings_disconnected")}
                 </span>

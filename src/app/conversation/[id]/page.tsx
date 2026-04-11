@@ -41,7 +41,7 @@ export default async function ConversationPage({ params }: { params: Promise<{ i
       <header className="header">
         <div>
           <h1 className="title">
-            {t("conversation_title")}: {detail.conversation.contactName}
+            {t("conversation_title")}: {detail.conversation.contactName || t("inbox_unknown_contact")}
           </h1>
           <p className="subtitle">{t("conversation_subtitle")}</p>
         </div>

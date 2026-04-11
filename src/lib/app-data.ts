@@ -383,11 +383,11 @@ function normalizePriority(priority: ConversationRow["ai_priority"]): "high" | "
   return "medium";
 }
 
-export function formatChannel(channel: ConversationView["channel"]) {
+export function formatChannel(channel: ConversationView["channel"], t: (key: DictionaryKey) => string) {
   if (channel === "whatsapp") return "WhatsApp";
   if (channel === "instagram") return "Instagram";
   if (channel === "email") return "Email";
-  return "Form";
+  return t("conversation_channel_form");
 }
 
 export function formatStatus(status: ConversationView["status"], t: (key: DictionaryKey) => string) {
@@ -401,7 +401,7 @@ export function formatStatus(status: ConversationView["status"], t: (key: Dictio
 export function formatPriority(priority: ConversationView["aiPriority"], t: (key: DictionaryKey) => string) {
   if (priority === "high") return t("dashboard_risk_high");
   if (priority === "medium") return t("dashboard_risk_medium");
-  return "Low";
+  return t("dashboard_risk_low");
 }
 
 function deriveEffectiveConversationStatus(
@@ -593,7 +593,7 @@ export async function getConversationViews(
 
     return {
       id: row.id,
-      contactName: contact?.name?.trim() || contact?.phone || contact?.email || "Unknown contact",
+      contactName: contact?.name?.trim() || contact?.phone || contact?.email || "",
       contactPhone: contact?.phone ?? null,
       unit: row.unit?.trim() || null,
       leadType: persistedLeadType || classification.leadType,
@@ -609,7 +609,7 @@ export async function getConversationViews(
           ? persistedEstimatedValue
           : classification.estimatedValue,
       expectedValue: Number(row.expected_value ?? 0),
-      lastMessageText: latestMessage?.text?.trim() || "No messages yet",
+      lastMessageText: latestMessage?.text?.trim() || "",
       lastMessageAt: row.last_message_at ?? latestMessage?.created_at ?? row.updated_at,
       lastInboundAt: row.last_inbound_at,
       lastOutboundAt: row.last_outbound_at,

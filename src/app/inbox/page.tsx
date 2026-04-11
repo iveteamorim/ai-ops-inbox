@@ -200,7 +200,7 @@ export default async function InboxPage() {
         <header className="header">
           <div>
             <h1 className="title">{t("inbox_title")}</h1>
-            <p className="subtitle">Connect Supabase and sign in to unlock the inbox.</p>
+            <p className="subtitle">{t("inbox_locked_subtitle")}</p>
           </div>
         </header>
       </section>
@@ -372,8 +372,8 @@ export default async function InboxPage() {
     const isAssigned = Boolean(row.assignedToId);
     return {
       id: row.id,
-      name: row.contactName,
-      message: row.lastMessageText,
+      name: row.contactName || t("inbox_unknown_contact"),
+      message: row.lastMessageText || t("inbox_no_messages"),
       state: statusLabel,
       stateClass: stateClassFor(row.status),
       value: format(row.estimatedValue),
