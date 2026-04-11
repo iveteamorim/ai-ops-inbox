@@ -86,6 +86,18 @@ const problemCards = [
 export default function NovuaLanding() {
   const [activeIndex, setActiveIndex] = useState(1);
 
+  const fadeUp = {
+    hidden: { opacity: 0, y: 18 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+  };
+
+  const stagger = {
+    hidden: {},
+    show: {
+      transition: { staggerChildren: 0.12, delayChildren: 0.1 },
+    },
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % conversations.length);
@@ -243,17 +255,30 @@ export default function NovuaLanding() {
           </div>
         </section>
 
-        <section className="py-16 text-center sm:py-20">
+        <motion.section
+          className="py-16 text-center sm:py-20"
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.6 }}
+        >
           <p className="mx-auto max-w-4xl text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
             No es un CRM. Es una capa de decisión sobre tus conversaciones.
           </p>
-        </section>
+        </motion.section>
 
-        <section className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
+        <motion.section
+          className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3"
+          variants={stagger}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.3 }}
+        >
           {problemCards.map((card) => (
-            <div
+            <motion.div
               key={card.label}
               className="rounded-[28px] border border-white/5 bg-[linear-gradient(180deg,rgba(12,27,22,0.98),rgba(10,20,18,0.96))] p-6"
+              variants={fadeUp}
             >
               <p className="mb-4 text-sm uppercase tracking-[0.18em] text-green-300/90">{card.label}</p>
               <h3 className="text-2xl font-bold leading-tight text-white">{card.title}</h3>
@@ -275,11 +300,17 @@ export default function NovuaLanding() {
               ) : (
                 <p className="mt-4 text-base leading-7 text-gray-300">{card.text}</p>
               )}
-            </div>
+            </motion.div>
           ))}
-        </section>
+        </motion.section>
 
-        <section className="mt-8 rounded-[28px] border border-white/5 bg-[linear-gradient(180deg,rgba(12,27,22,0.98),rgba(10,20,18,0.96))] p-6 sm:p-8">
+        <motion.section
+          className="mt-8 rounded-[28px] border border-white/5 bg-[linear-gradient(180deg,rgba(12,27,22,0.98),rgba(10,20,18,0.96))] p-6 sm:p-8"
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.4 }}
+        >
           <p className="mb-3 text-sm uppercase tracking-[0.18em] text-green-300/90">Onboarding</p>
           <h2 className="text-3xl font-bold leading-tight text-white sm:text-4xl">
             Activamos tu canal real contigo
@@ -304,16 +335,32 @@ export default function NovuaLanding() {
             </button>
             <p className="text-sm text-gray-400">Te ayudamos a activarlo en tu negocio</p>
           </div>
-        </section>
+        </motion.section>
 
-        <section className="py-16 text-center sm:py-20">
+        <motion.section
+          className="py-16 text-center sm:py-20"
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.6 }}
+        >
           <h2 className="mx-auto max-w-4xl text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
             Prioriza mejor. Responde antes. Deja visible qué conversación importa ahora.
           </h2>
-          <button className="mt-8 rounded-2xl bg-green-500 px-8 py-4 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.25)] transition duration-300 hover:scale-[1.02] hover:bg-green-400">
+          <motion.button
+            className="mt-8 rounded-2xl bg-green-500 px-8 py-4 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.25)] transition duration-300 hover:scale-[1.02] hover:bg-green-400"
+            animate={{
+              boxShadow: [
+                "0 0 30px rgba(34,197,94,0.18)",
+                "0 0 40px rgba(34,197,94,0.32)",
+                "0 0 30px rgba(34,197,94,0.18)",
+              ],
+            }}
+            transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+          >
             Solicitar demo
-          </button>
-        </section>
+          </motion.button>
+        </motion.section>
       </div>
     </main>
   );
