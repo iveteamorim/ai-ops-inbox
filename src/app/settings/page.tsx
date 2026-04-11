@@ -1,785 +1,137 @@
-import { AppNav } from "@/components/AppNav";
-import { BusinessSetupForm } from "@/components/BusinessSetupForm";
-import { InviteUserForm } from "@/components/InviteUserForm";
-import { PendingInvitesList } from "@/components/PendingInvitesList";
-import { PilotFeedbackForm } from "@/components/PilotFeedbackForm";
-import { PilotFeedbackHistory } from "@/components/PilotFeedbackHistory";
-import { SetupRequestButton } from "@/components/SetupRequestButton";
-import { TeamMembersList } from "@/components/TeamMembersList";
-import { WorkspaceDangerZone } from "@/components/WorkspaceDangerZone";
-import { cookies } from "next/headers";
-import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
-import { translate } from "@/lib/i18n/dictionaries";
-import { formatChannel, getAppContext, getBusinessSetup, getSettingsData } from "@/lib/app-data";
-import { canManageInternalWorkspace, canSeeCustomerFeedback, getWorkspaceMode } from "@/lib/internal-access";
+"use client";
 
-function getSetupCopy(lang: string) {
-  if (lang === "es") {
-    return {
-      channelsEmpty: "WhatsApp se configura con Novua durante el onboarding.",
-      channelUsage: "Se usa para recibir y responder mensajes entrantes.",
-      channelsNote: "Configurado por Novua durante onboarding.",
-      requestSetup: "Solicitar setup",
-      requestWhatsAppSetup: "Solicitar setup de WhatsApp",
-      updateWhatsAppSetup: "Actualizar solicitud",
-      setupRequested: "Setup solicitado",
-      setupInProgress: "Setup en curso",
-      setupRequestedNote: "Estamos preparando contigo la conexión real de WhatsApp.",
-      setupPhoneRequired: "Es obligatorio indicar el número de WhatsApp.",
-      setupNumberLabel: "Número de WhatsApp",
-      setupNumberPlaceholder: "+34 600 111 222",
-      setupMetaVerifiedLabel: "¿Tienes Meta Business verificado?",
-      setupMetaVerifiedYes: "Sí",
-      setupMetaVerifiedNo: "No",
-      setupNotesLabel: "Nota",
-      setupNotesPlaceholder: "Nombre de contacto, disponibilidad o cualquier detalle útil.",
-      inviteTitle: "Añade agentes o admins al mismo workspace.",
-      inviteEmail: "Email",
-      inviteRole: "Rol",
-      inviteUser: "Invitar usuario",
-      invitePending: "Enviando invitación...",
-      inviteSuccess: "Invitación enviada.",
-      inviteAdmin: "Admin",
-      inviteAgent: "Agente",
-      inviteOwner: "Propietario",
-      inviteError: "No se pudo enviar la invitación.",
-      seatLimitError: "Límite de usuarios alcanzado para este plan.",
-      pendingInvites: "Invitaciones pendientes",
-      resendInvite: "Reenviar",
-      cancelInvite: "Cancelar",
-      resendPending: "Reenviando...",
-      cancelPending: "Cancelando...",
-      inviteResent: "Invitación reenviada.",
-      inviteCancelled: "Invitación cancelada.",
-      removeUser: "Eliminar acceso",
-      removingUser: "Eliminando...",
-      removeUserSuccess: "Acceso eliminado.",
-      removeUserError: "No se pudo eliminar el acceso.",
-      reassignPlaceholder: "Reasignar a...",
-      reassignAction: "Reasignar",
-      reassigningAction: "Reasignando...",
-      reassignSuccess: "Conversaciones abiertas reasignadas.",
-      reassignError: "No se pudieron reasignar las conversaciones.",
-      businessSetupTitle: "Tu negocio",
-      businessSetupHelp:
-        "Esto ayuda a Novua a priorizar mejor tus conversaciones y estimar el valor de cada cliente.",
-      businessSetupName: "Nombre del negocio",
-      businessSetupLeadTypesBlock: "Tipos de consulta",
-      businessSetupLeadTypes: "¿Qué tipo de consultas recibes?",
-      businessSetupAddLeadType: "+ Añadir tipo",
-      businessSetupLeadTypeName: "Nombre",
-      businessSetupEstimatedValue: "Valor estimado (€)",
-      businessSetupRemoveLeadType: "Eliminar",
-      businessSetupSave: "Guardar configuración",
-      businessSetupSaving: "Guardando...",
-      businessSetupBackfill: "Recalcular conversaciones",
-      businessSetupBackfilling: "Recalculando...",
-      businessSetupBackfillSuccess: "Conversaciones actualizadas",
-      businessSetupReseedDemo: "Recrear demo",
-      businessSetupReseedingDemo: "Recreando demo...",
-      businessSetupReseedDemoSuccess: "Demo recreada.",
-      businessSetupReseedDemoConfirm:
-        "Esto borrará los leads demo actuales de esta cuenta y volverá a crear la demo base. ¿Continuar?",
-      businessSetupSuccess: "Configuración guardada.",
-      businessSetupError: "No se pudo guardar la configuración.",
-      pilotFeedbackTitle: "Reportar problema",
-      pilotFeedbackHelp: "",
-      pilotFeedbackCategory: "Tipo",
-      pilotFeedbackMessage: "Cuéntanos qué ha pasado o qué mejorarías.",
-      pilotFeedbackSubmit: "Enviar feedback",
-      pilotFeedbackSubmitting: "Enviando...",
-      pilotFeedbackSuccess: "Feedback enviado.",
-      pilotFeedbackError: "No se pudo enviar el feedback.",
-      pilotFeedbackBug: "Bug",
-      pilotFeedbackGeneral: "Feedback",
-      pilotFeedbackFeature: "Feature request",
-      pilotFeedbackHistoryTitle: "Tus reportes",
-      pilotFeedbackHistoryEmpty: "Todavía no has enviado reportes.",
-      pilotFeedbackHistoryStatus: "Estado",
-      pilotFeedbackHistoryPage: "Página",
-      pilotFeedbackHistoryReply: "Respuesta de Novua",
-      pilotFeedbackStatusNew: "Nuevo",
-      pilotFeedbackStatusReviewed: "Revisado",
-      pilotFeedbackStatusClosed: "Cerrado",
-      accountTitle: "Tu acceso",
-      accountHelp: "Información de la cuenta con la que estás trabajando ahora mismo.",
-      accountRole: "Rol",
-      accountWorkspace: "Workspace",
-      accountEmail: "Email",
-      accountPermissions: "Permisos",
-      accountPermissionsAgent: "Puedes gestionar conversaciones, responder mensajes y reportar incidencias.",
-      accountPermissionsAdmin: "Puedes configurar el workspace, gestionar equipo y operar conversaciones.",
-      systemAiAssistance: "Asistencia IA",
-      systemFollowUpAutomation: "Automatización de seguimiento",
-      systemWhatsappWebhook: "Webhook de WhatsApp",
-      noTeamMembers: "No hay miembros del equipo todavía.",
-      settingsUnavailable: "Settings requiere un workspace autenticado y configurado.",
-      workspaceModeTitle: "Modo del workspace",
-      workspaceModeInternal: "Workspace interno de demo. Aquí se muestran herramientas internas.",
-      workspaceModeCustomerDemo:
-        "Workspace demo de cliente. Aquí se muestra setup orientado a cliente sin herramientas internas.",
-      workspaceModeCustomer: "Workspace cliente. Aquí están activos setup y feedback orientados a cliente.",
-      requestError: "No se pudo solicitar el setup ahora mismo.",
-      dangerTitle: "Zona peligrosa",
-      dangerHelp: "Elimina el workspace, el canal configurado y todos los datos asociados.",
-      dangerWarning:
-        "Esta acción es irreversible. Se eliminarán contactos, conversaciones, mensajes y accesos del equipo.",
-      dangerConfirmationLabel: "Escribe el nombre del workspace para confirmar",
-      dangerDeleteLabel: "Eliminar workspace y datos",
-      dangerDeletingLabel: "Eliminando...",
-      dangerDeletedLabel: "Eliminando workspace. Redirigiendo...",
-      dangerError: "No se pudo eliminar el workspace.",
-    };
-  }
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-  if (lang === "pt") {
-    return {
-      channelsEmpty: "O WhatsApp é configurado com a Novua durante o onboarding.",
-      channelUsage: "É usado para receber e responder a mensagens de entrada.",
-      channelsNote: "Configurado pela Novua durante o onboarding.",
-      requestSetup: "Solicitar setup",
-      requestWhatsAppSetup: "Solicitar setup de WhatsApp",
-      updateWhatsAppSetup: "Atualizar solicitação",
-      setupRequested: "Setup solicitado",
-      setupInProgress: "Setup em curso",
-      setupRequestedNote: "Estamos preparando com você a conexão real do WhatsApp.",
-      setupPhoneRequired: "O número de WhatsApp é obrigatório.",
-      setupNumberLabel: "Número de WhatsApp",
-      setupNumberPlaceholder: "+351 912 345 678",
-      setupMetaVerifiedLabel: "Tem Meta Business verificado?",
-      setupMetaVerifiedYes: "Sim",
-      setupMetaVerifiedNo: "Não",
-      setupNotesLabel: "Nota",
-      setupNotesPlaceholder: "Nome do contato, disponibilidade ou qualquer detalhe útil.",
-      inviteTitle: "Adicione agentes ou admins ao mesmo workspace.",
-      inviteEmail: "Email",
-      inviteRole: "Função",
-      inviteUser: "Convidar usuário",
-      invitePending: "Enviando convite...",
-      inviteSuccess: "Convite enviado.",
-      inviteAdmin: "Admin",
-      inviteAgent: "Agente",
-      inviteOwner: "Proprietário",
-      inviteError: "Não foi possível enviar o convite.",
-      seatLimitError: "O limite de usuários deste plano foi atingido.",
-      pendingInvites: "Convites pendentes",
-      resendInvite: "Reenviar",
-      cancelInvite: "Cancelar",
-      resendPending: "Reenviando...",
-      cancelPending: "Cancelando...",
-      inviteResent: "Convite reenviado.",
-      inviteCancelled: "Convite cancelado.",
-      removeUser: "Remover acesso",
-      removingUser: "Removendo...",
-      removeUserSuccess: "Acesso removido.",
-      removeUserError: "Não foi possível remover o acesso.",
-      reassignPlaceholder: "Reatribuir para...",
-      reassignAction: "Reatribuir",
-      reassigningAction: "A reatribuir...",
-      reassignSuccess: "Conversas abertas reatribuídas.",
-      reassignError: "Não foi possível reatribuir as conversas.",
-      businessSetupTitle: "Seu negócio",
-      businessSetupHelp:
-        "Isto ajuda a Novua a priorizar melhor as suas conversas e estimar o valor de cada cliente.",
-      businessSetupName: "Nome do negócio",
-      businessSetupLeadTypesBlock: "Tipos de consulta",
-      businessSetupLeadTypes: "Que tipo de consultas recebes?",
-      businessSetupAddLeadType: "+ Adicionar tipo",
-      businessSetupLeadTypeName: "Nome",
-      businessSetupEstimatedValue: "Valor estimado (€)",
-      businessSetupRemoveLeadType: "Remover",
-      businessSetupSave: "Guardar configuração",
-      businessSetupSaving: "Guardando...",
-      businessSetupBackfill: "Recalcular conversas",
-      businessSetupBackfilling: "Recalculando...",
-      businessSetupBackfillSuccess: "Conversas atualizadas",
-      businessSetupReseedDemo: "Recriar demo",
-      businessSetupReseedingDemo: "Recriando demo...",
-      businessSetupReseedDemoSuccess: "Demo recriada.",
-      businessSetupReseedDemoConfirm:
-        "Isto irá apagar os leads demo atuais desta conta e recriar a demo base. Continuar?",
-      businessSetupSuccess: "Configuração guardada.",
-      businessSetupError: "Não foi possível guardar a configuração.",
-      pilotFeedbackTitle: "Reportar problema",
-      pilotFeedbackHelp: "",
-      pilotFeedbackCategory: "Tipo",
-      pilotFeedbackMessage: "Conta-nos o que aconteceu ou o que melhorarias.",
-      pilotFeedbackSubmit: "Enviar feedback",
-      pilotFeedbackSubmitting: "Enviando...",
-      pilotFeedbackSuccess: "Feedback enviado.",
-      pilotFeedbackError: "Não foi possível enviar o feedback.",
-      pilotFeedbackBug: "Bug",
-      pilotFeedbackGeneral: "Feedback",
-      pilotFeedbackFeature: "Feature request",
-      pilotFeedbackHistoryTitle: "Seus reportes",
-      pilotFeedbackHistoryEmpty: "Ainda não enviaste reportes.",
-      pilotFeedbackHistoryStatus: "Estado",
-      pilotFeedbackHistoryPage: "Página",
-      pilotFeedbackHistoryReply: "Resposta da Novua",
-      pilotFeedbackStatusNew: "Novo",
-      pilotFeedbackStatusReviewed: "Revisado",
-      pilotFeedbackStatusClosed: "Fechado",
-      accountTitle: "O seu acesso",
-      accountHelp: "Informação da conta com a qual está a trabalhar neste momento.",
-      accountRole: "Função",
-      accountWorkspace: "Workspace",
-      accountEmail: "Email",
-      accountPermissions: "Permissões",
-      accountPermissionsAgent: "Pode gerir conversas, responder mensagens e reportar incidências.",
-      accountPermissionsAdmin: "Pode configurar o workspace, gerir equipa e operar conversas.",
-      systemAiAssistance: "Assistência IA",
-      systemFollowUpAutomation: "Automação de follow-up",
-      systemWhatsappWebhook: "Webhook do WhatsApp",
-      noTeamMembers: "Ainda não há membros na equipa.",
-      settingsUnavailable: "Settings requer um workspace autenticado e configurado.",
-      workspaceModeTitle: "Modo do workspace",
-      workspaceModeInternal: "Workspace interno de demo. As ferramentas internas ficam visíveis aqui.",
-      workspaceModeCustomerDemo:
-        "Workspace demo de cliente. O setup orientado ao cliente aparece aqui sem ferramentas internas.",
-      workspaceModeCustomer: "Workspace cliente. Setup e feedback orientados ao cliente estão ativos aqui.",
-      requestError: "Não foi possível solicitar o setup neste momento.",
-      dangerTitle: "Zona de perigo",
-      dangerHelp: "Elimina o workspace, o canal configurado e todos os dados associados.",
-      dangerWarning:
-        "Esta ação é irreversível. Contatos, conversas, mensagens e acessos da equipa serão eliminados.",
-      dangerConfirmationLabel: "Escreva o nome do workspace para confirmar",
-      dangerDeleteLabel: "Eliminar workspace e dados",
-      dangerDeletingLabel: "Eliminando...",
-      dangerDeletedLabel: "Eliminando workspace. A redirecionar...",
-      dangerError: "Não foi possível eliminar o workspace.",
-    };
-  }
-
-  return {
-    channelsEmpty: "WhatsApp is configured with Novua during onboarding.",
-    channelUsage: "Used to receive and respond to inbound messages.",
-    channelsNote: "Configured by Novua during onboarding.",
-    requestSetup: "Request setup",
-    requestWhatsAppSetup: "Request WhatsApp setup",
-    updateWhatsAppSetup: "Update request",
-    setupRequested: "Setup requested",
-    setupInProgress: "Setup en curso",
-    setupRequestedNote: "We are preparing the real WhatsApp connection with you.",
-    setupPhoneRequired: "WhatsApp number is required.",
-    setupNumberLabel: "WhatsApp number",
-    setupNumberPlaceholder: "+34 600 111 222",
-    setupMetaVerifiedLabel: "Do you have Meta Business verified?",
-    setupMetaVerifiedYes: "Yes",
-    setupMetaVerifiedNo: "No",
-    setupNotesLabel: "Note",
-    setupNotesPlaceholder: "Contact name, availability, or any useful detail.",
-    inviteTitle: "Add agents or admins to the same workspace.",
-    inviteEmail: "Email",
-    inviteRole: "Role",
-    inviteUser: "Invite user",
-    invitePending: "Sending invite...",
-    inviteSuccess: "Invitation sent.",
-    inviteAdmin: "Admin",
-    inviteAgent: "Agent",
-    inviteOwner: "Owner",
-    inviteError: "Could not send the invitation.",
-    seatLimitError: "This plan has reached its user limit.",
-    pendingInvites: "Pending invites",
-    resendInvite: "Resend",
-    cancelInvite: "Cancel",
-    resendPending: "Resending...",
-    cancelPending: "Cancelling...",
-    inviteResent: "Invitation resent.",
-    inviteCancelled: "Invitation cancelled.",
-    removeUser: "Remove access",
-    removingUser: "Removing...",
-    removeUserSuccess: "Access removed.",
-    removeUserError: "Could not remove access.",
-    reassignPlaceholder: "Reassign to...",
-    reassignAction: "Reassign",
-    reassigningAction: "Reassigning...",
-    reassignSuccess: "Open conversations reassigned.",
-    reassignError: "Could not reassign conversations.",
-    businessSetupTitle: "Your business",
-    businessSetupHelp:
-      "This helps Novua prioritize your conversations better and estimate the value of each customer.",
-    businessSetupName: "Business name",
-    businessSetupLeadTypesBlock: "Inquiry types",
-    businessSetupLeadTypes: "What types of inquiries do you receive?",
-    businessSetupAddLeadType: "+ Add type",
-    businessSetupLeadTypeName: "Name",
-    businessSetupEstimatedValue: "Estimated value (€)",
-    businessSetupRemoveLeadType: "Remove",
-    businessSetupSave: "Save configuration",
-    businessSetupSaving: "Saving...",
-    businessSetupBackfill: "Recalculate conversations",
-    businessSetupBackfilling: "Recalculating...",
-    businessSetupBackfillSuccess: "Conversations updated",
-    businessSetupReseedDemo: "Recreate demo",
-    businessSetupReseedingDemo: "Recreating demo...",
-    businessSetupReseedDemoSuccess: "Demo recreated.",
-    businessSetupReseedDemoConfirm:
-      "This will delete the current demo leads for this account and recreate the base demo. Continue?",
-    businessSetupSuccess: "Configuration saved.",
-    businessSetupError: "Could not save the configuration.",
-    pilotFeedbackTitle: "Report an issue",
-    pilotFeedbackHelp: "",
-    pilotFeedbackCategory: "Type",
-    pilotFeedbackMessage: "Tell us what happened or what you would improve.",
-    pilotFeedbackSubmit: "Send feedback",
-    pilotFeedbackSubmitting: "Sending...",
-    pilotFeedbackSuccess: "Feedback sent.",
-    pilotFeedbackError: "Could not send feedback.",
-    pilotFeedbackBug: "Bug",
-    pilotFeedbackGeneral: "Feedback",
-    pilotFeedbackFeature: "Feature request",
-    pilotFeedbackHistoryTitle: "Your reports",
-    pilotFeedbackHistoryEmpty: "You have not sent any reports yet.",
-    pilotFeedbackHistoryStatus: "Status",
-    pilotFeedbackHistoryPage: "Page",
-    pilotFeedbackHistoryReply: "Reply from Novua",
-    pilotFeedbackStatusNew: "New",
-    pilotFeedbackStatusReviewed: "Reviewed",
-    pilotFeedbackStatusClosed: "Closed",
-    accountTitle: "Your access",
-    accountHelp: "Information about the account you are currently using.",
-    accountRole: "Role",
-    accountWorkspace: "Workspace",
-    accountEmail: "Email",
-    accountPermissions: "Permissions",
-    accountPermissionsAgent: "You can manage conversations, reply to messages, and report issues.",
-    accountPermissionsAdmin: "You can configure the workspace, manage the team, and operate conversations.",
-    systemAiAssistance: "AI assistance",
-    systemFollowUpAutomation: "Automatización de seguimiento",
-    systemWhatsappWebhook: "WhatsApp webhook",
-    noTeamMembers: "No team members yet.",
-    settingsUnavailable: "Settings requires an authenticated and configured workspace.",
-    workspaceModeTitle: "Modo del workspace",
-    workspaceModeInternal: "Internal demo workspace. Internal tools are visible here.",
-    workspaceModeCustomerDemo:
-      "Customer demo workspace. Customer-facing setup appears here without internal tools.",
-    workspaceModeCustomer: "Customer workspace. Customer-facing setup and feedback are enabled here.",
-    requestError: "No se pudo solicitar el setup en este momento.",
-    dangerTitle: "Danger zone",
-    dangerHelp: "Delete the workspace, the configured channel, and all associated data.",
-    dangerWarning:
-      "This action is irreversible. Contacts, conversations, messages, and team access will be deleted.",
-    dangerConfirmationLabel: "Type the workspace name to confirm",
-    dangerDeleteLabel: "Delete workspace and data",
-    dangerDeletingLabel: "Deleting...",
-    dangerDeletedLabel: "Deleting workspace. Redirecting...",
-    dangerError: "Could not delete the workspace.",
-  };
-}
-
-function formatRoleLabel(lang: string, role: string) {
-  if (lang === "pt") {
-    if (role === "owner") return "Proprietário";
-    if (role === "admin") return "Admin";
-    return "Agente";
-  }
-
-  if (lang === "en") {
-    if (role === "owner") return "Owner";
-    if (role === "admin") return "Admin";
-    return "Agent";
-  }
-
-  if (role === "owner") return "Propietario";
-  if (role === "admin") return "Admin";
-  return "Agente";
-}
-
-export default async function SettingsPage() {
-  const cookieStore = await cookies();
-  const lang = normalizeLang(cookieStore.get(LANG_COOKIE)?.value);
-  const t = (key: Parameters<typeof translate>[1]) => translate(lang, key);
-  const copy = getSetupCopy(lang);
-
-  const context = await getAppContext();
-  if (context.kind !== "ready") {
-    return (
-      <section className="page">
-        <AppNav />
-        <header className="header">
-          <div>
-            <h1 className="title">{t("settings_title")}</h1>
-            <p className="subtitle">{copy.settingsUnavailable}</p>
-          </div>
-        </header>
-      </section>
-    );
-  }
-
-  const { channels, team, pendingInvites, setupRequests, feedbackHistory } = await getSettingsData(
-    context.supabase,
-    context.profile.company_id,
-    context.user.id,
-  );
-  const workspaceMode = getWorkspaceMode(context.company, context.user.email);
-  const canSeeInternalSetup = canManageInternalWorkspace(workspaceMode);
-  const showCustomerFeedback = canSeeCustomerFeedback(workspaceMode);
-  const canManageTeam = context.profile.role === "owner" || context.profile.role === "admin";
-  const seatLimit =
-    context.company?.plan === "growth" ? 6 : context.company?.plan === "pro" ? 15 : 3;
-  const usedSeats = team.length + pendingInvites.length;
-  const seatsNote =
-    lang === "es"
-      ? `${usedSeats}/${seatLimit} usuarios usados en el plan ${context.company?.plan ?? "trial"}.`
-      : lang === "pt"
-        ? `${usedSeats}/${seatLimit} usuários usados no plano ${context.company?.plan ?? "trial"}.`
-        : `${usedSeats}/${seatLimit} users used on the ${context.company?.plan ?? "trial"} plan.`;
-  const hasWebhookSecrets = Boolean(process.env.WHATSAPP_VERIFY_TOKEN && process.env.WHATSAPP_APP_SECRET);
-  const whatsappSetupRequest = setupRequests.find((request) => request.channel === "whatsapp" && (request.status === "requested" || request.status === "in_progress"));
-  const businessSetup = getBusinessSetup(context.company);
-  const roleLabel = formatRoleLabel(lang, context.profile.role);
-  const workspaceLabel = context.company?.name ?? "Novua Inbox";
-  const whatsappConnected = channels.length > 0;
-  const settingsText =
-    lang === "pt"
-      ? {
-          heroConnected: "WhatsApp conectado",
-          heroDisconnected: "WhatsApp desconectado",
-          heroConnectedCopy: "Já podes receber e responder conversas reais desde a Novua.",
-          heroDisconnectedCopy: "Neste momento não estás a receber conversas na Novua.",
-          heroConnectedAction: "Atualizar canal",
-          heroDisconnectedAction: "Conectar agora",
-          systemTitleManage: "Como a Novua decide",
-          systemTitleAgent: "Sistema",
-          capabilities: [
-            { title: copy.systemAiAssistance, description: "Ajuda a equipa a responder mais rápido e com contexto." },
-            { title: t("settings_lead_score"), description: "Prioriza conversas segundo valor, intenção e urgência." },
-            { title: copy.systemFollowUpAutomation, description: "Empurra conversas ativas para não perder oportunidades." },
-            { title: copy.systemWhatsappWebhook, description: hasWebhookSecrets ? "Canal pronto para receber mensagens." : "Ligação técnica pendente." },
-          ],
-          teamTitle: canManageTeam ? "Quem responde aos clientes" : t("settings_users"),
-          channelTitle: "Conecta WhatsApp",
-          channelHelp: "Usa este canal para solicitar ou atualizar a conexão real do WhatsApp durante o onboarding guiado.",
-          unnamedUser: "Utilizador sem nome",
-          detail: "Ver detalhe",
-          open: "Abertas",
-          noReply: "Sem resposta",
-          won: "Ganhas",
-          lost: "Perdidas",
-        }
-      : lang === "en"
-        ? {
-            heroConnected: "WhatsApp connected",
-            heroDisconnected: "WhatsApp disconnected",
-            heroConnectedCopy: "You can now receive and reply to real conversations in Novua.",
-            heroDisconnectedCopy: "You are not receiving conversations in Novua right now.",
-            heroConnectedAction: "Update channel",
-            heroDisconnectedAction: "Connect now",
-            systemTitleManage: "How Novua decides",
-            systemTitleAgent: "System",
-            capabilities: [
-              { title: copy.systemAiAssistance, description: "Helps the team reply faster and with context." },
-              { title: t("settings_lead_score"), description: "Prioritizes conversations by value, intent, and urgency." },
-              { title: copy.systemFollowUpAutomation, description: "Pushes active conversations so opportunities are not lost." },
-              { title: copy.systemWhatsappWebhook, description: hasWebhookSecrets ? "Channel ready to receive messages." : "Technical connection still pending." },
-            ],
-            teamTitle: canManageTeam ? "Who replies to customers" : t("settings_users"),
-            channelTitle: "Connect WhatsApp",
-            channelHelp: "Use this area to request or update the real WhatsApp connection during guided onboarding.",
-            unnamedUser: "Usuario sin nombre",
-            detail: "View details",
-            open: "Open",
-            noReply: "No reply",
-            won: "Won",
-            lost: "Lost",
-          }
-        : {
-            heroConnected: "WhatsApp conectado",
-            heroDisconnected: "WhatsApp desconectado",
-            heroConnectedCopy: "Ya puedes recibir y responder conversaciones reales desde Novua.",
-            heroDisconnectedCopy: "Ahora mismo no estás recibiendo conversaciones en Novua.",
-            heroConnectedAction: "Actualizar canal",
-            heroDisconnectedAction: "Conectar ahora",
-            systemTitleManage: "Cómo Novua decide",
-            systemTitleAgent: "Sistema",
-            capabilities: [
-              { title: copy.systemAiAssistance, description: "Ayuda al equipo a responder más rápido y con contexto." },
-              { title: t("settings_lead_score"), description: "Prioriza conversaciones según valor, intención y urgencia." },
-              { title: copy.systemFollowUpAutomation, description: "Empuja conversaciones activas para no perder oportunidades." },
-              { title: copy.systemWhatsappWebhook, description: hasWebhookSecrets ? "Canal listo para recibir mensajes." : "Pendiente de conexión técnica." },
-            ],
-            teamTitle: canManageTeam ? "Quién responde a los clientes" : t("settings_users"),
-            channelTitle: "Conecta WhatsApp",
-            channelHelp: "Usa este canal para solicitar o actualizar la conexión real de WhatsApp durante onboarding guiado.",
-            unnamedUser: "Usuario sin nombre",
-            detail: "Ver detalle",
-            open: "Abiertas",
-            noReply: "Sin respuesta",
-            won: "Ganadas",
-            lost: "Perdidas",
-          };
-
+export default function Settings() {
   return (
-    <section className="page">
-      <AppNav
-        showSetup={canSeeInternalSetup}
-        showLocale={canSeeInternalSetup}
-        userName={context.profile.full_name ?? context.user.email ?? null}
-        userRole={context.profile.role}
-      />
-      <header className="header">
+    <div className="min-h-screen bg-gradient-to-br from-black via-[#061a14] to-[#0b2a20] text-white p-8 -m-6">
+      <div className="max-w-6xl mx-auto space-y-10">
         <div>
-          <h1 className="title">{t("settings_title")}</h1>
-          <p className="subtitle">{t("settings_subtitle")}</p>
+          <p className="text-green-400 text-sm mb-2">NÓVUA · CONFIGURACIÓN</p>
+          <h1 className="text-3xl md:text-4xl font-semibold">Define cómo funciona tu sistema</h1>
+          <p className="text-gray-300 mt-2 max-w-xl">
+            Aquí defines cómo se calcula el valor de cada conversación, quién responde y cómo se prioriza el trabajo.
+          </p>
         </div>
-      </header>
 
-      <article className={`card settings-hero ${whatsappConnected ? "settings-hero-connected" : "settings-hero-disconnected"}`.trim()}>
-        <div className="settings-hero-content">
-          <div>
-            <p className="settings-hero-title">
-              {whatsappConnected ? settingsText.heroConnected : settingsText.heroDisconnected}
-            </p>
-            <p className="settings-hero-copy">
-              {whatsappConnected
-                ? settingsText.heroConnectedCopy
-                : settingsText.heroDisconnectedCopy}
-            </p>
-          </div>
-          {canManageTeam ? (
-            <div className="settings-hero-action">
-              <a className="button" href="#whatsapp-setup">
-                {whatsappConnected ? settingsText.heroConnectedAction : settingsText.heroDisconnectedAction}
-              </a>
+        <Card className="bg-green-500/10 border border-green-500/20 backdrop-blur-xl">
+          <CardContent className="p-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+            <div>
+              <p className="text-green-400 font-semibold text-white">Canal activo: WhatsApp</p>
+              <p className="text-sm text-gray-200">Tu equipo ya está recibiendo y respondiendo conversaciones reales</p>
             </div>
-          ) : null}
-        </div>
-      </article>
+            <Button className="bg-green-500 hover:bg-green-400 text-black">Actualizar conexión</Button>
+          </CardContent>
+        </Card>
 
-      <div className="grid cols-2" style={{ marginTop: 12 }}>
-        <article className="card">
-          <p className="label">{canManageTeam ? settingsText.systemTitleManage : settingsText.systemTitleAgent}</p>
-          <div className="settings-capability-list">
-            {settingsText.capabilities.map((item) => (
-              <div key={item.title} className="settings-capability-card">
-                <strong>✓ {item.title}</strong>
-                <span>{item.description}</span>
+        <div className="grid md:grid-cols-2 gap-8">
+          <Card className="bg-white/10 border-white/20 backdrop-blur-xl">
+            <CardContent className="p-6 space-y-6">
+              <div>
+                <h2 className="text-lg font-semibold text-white">Cómo se calcula el valor</h2>
+                <p className="text-sm text-gray-200">
+                  Define cuánto vale cada tipo de conversación. Esto determina qué aparece primero en el inbox.
+                </p>
               </div>
-            ))}
-          </div>
-        </article>
 
-        <article className="card">
-          <p className="label">{settingsText.teamTitle}</p>
-          {team.length === 0 ? (
-            <p className="subtitle">{copy.noTeamMembers}</p>
-          ) : (
-            <TeamMembersList
-              members={team}
-              currentUserId={context.user.id}
-              currentUserRole={context.profile.role}
-              activeLabel={t("settings_active")}
-              ownerLabel={copy.inviteOwner}
-              adminLabel={copy.inviteAdmin}
-              agentLabel={copy.inviteAgent}
-              unnamedLabel={settingsText.unnamedUser}
-              detailLabel={settingsText.detail}
-              openLabel={settingsText.open}
-              noReplyLabel={settingsText.noReply}
-              wonLabel={settingsText.won}
-              lostLabel={settingsText.lost}
-              reassignPlaceholder={copy.reassignPlaceholder}
-              reassignLabel={copy.reassignAction}
-              reassigningLabel={copy.reassigningAction}
-              reassignSuccess={copy.reassignSuccess}
-              reassignError={copy.reassignError}
-              removeLabel={copy.removeUser}
-              removingLabel={copy.removingUser}
-              removeSuccess={copy.removeUserSuccess}
-              removeError={copy.removeUserError}
-            />
-          )}
-          {canManageTeam ? (
-            <div style={{ marginTop: 12 }}>
-              <InviteUserForm
-                title={copy.inviteTitle}
-                seatsNote={seatsNote}
-                emailLabel={copy.inviteEmail}
-                submitLabel={copy.inviteUser}
-                pendingLabel={copy.invitePending}
-                successLabel={copy.inviteSuccess}
-                adminLabel={copy.inviteAdmin}
-                agentLabel={copy.inviteAgent}
-                errorGeneric={copy.inviteError}
-                seatLimitError={copy.seatLimitError}
-              />
-            </div>
-          ) : null}
-          {canManageTeam && pendingInvites.length > 0 ? (
-            <PendingInvitesList
-              invites={pendingInvites}
-              title={copy.pendingInvites}
-              ownerLabel={copy.inviteOwner}
-              adminLabel={copy.inviteAdmin}
-              agentLabel={copy.inviteAgent}
-              resendLabel={copy.resendInvite}
-              cancelLabel={copy.cancelInvite}
-              sendingLabel={copy.resendPending}
-              cancellingLabel={copy.cancelPending}
-              successResent={copy.inviteResent}
-              successCancelled={copy.inviteCancelled}
-              errorGeneric={copy.inviteError}
-            />
-          ) : null}
-        </article>
-      </div>
+              <div>
+                <p className="text-sm text-gray-200 mb-1">Nombre del negocio</p>
+                <Input defaultValue="Clínica estética" />
+              </div>
 
-      <div className="grid cols-2" style={{ marginTop: 12 }}>
-        {canManageTeam ? (
-          <BusinessSetupForm
-            initialValue={businessSetup}
-            showInternalTools={canSeeInternalSetup}
-            labels={{
-              title: copy.businessSetupTitle,
-              help: copy.businessSetupHelp,
-              businessName: copy.businessSetupName,
-              leadTypesBlock: copy.businessSetupLeadTypesBlock,
-              leadTypes: copy.businessSetupLeadTypes,
-              addLeadType: copy.businessSetupAddLeadType,
-              leadTypeName: copy.businessSetupLeadTypeName,
-              estimatedValue: copy.businessSetupEstimatedValue,
-              removeLeadType: copy.businessSetupRemoveLeadType,
-              save: copy.businessSetupSave,
-              saving: copy.businessSetupSaving,
-              backfill: copy.businessSetupBackfill,
-              backfilling: copy.businessSetupBackfilling,
-              backfillSuccess: copy.businessSetupBackfillSuccess,
-              reseedDemo: copy.businessSetupReseedDemo,
-              reseedingDemo: copy.businessSetupReseedingDemo,
-              reseedDemoSuccess: copy.businessSetupReseedDemoSuccess,
-              reseedDemoConfirm: copy.businessSetupReseedDemoConfirm,
-              success: copy.businessSetupSuccess,
-              error: copy.businessSetupError,
-            }}
-          />
-        ) : (
-          <article className="card">
-            <p className="label">{copy.accountTitle}</p>
-            <p className="subtitle" style={{ marginBottom: 12 }}>{copy.accountHelp}</p>
-            <div className="preview-row">
-              <span>{copy.accountRole}</span>
-              <span className="badge status-active">{roleLabel}</span>
-            </div>
-            <div className="preview-row">
-              <span>{copy.accountWorkspace}</span>
-              <span>{workspaceLabel}</span>
-            </div>
-            <div className="preview-row">
-              <span>{copy.accountEmail}</span>
-              <span>{context.user.email ?? "-"}</span>
-            </div>
-            <div className="agent-settings-note">
-              <p className="label" style={{ marginBottom: 6 }}>{copy.accountPermissions}</p>
-              <p className="subtitle" style={{ margin: 0 }}>
-                {context.profile.role === "agent" ? copy.accountPermissionsAgent : copy.accountPermissionsAdmin}
+              <div>
+                <p className="text-sm text-gray-200 mb-2">Tipos de consulta y valor estimado (€)</p>
+
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <Input defaultValue="Primera visita" />
+                    <Input defaultValue="60" />
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Input defaultValue="Tratamiento premium" />
+                    <Input defaultValue="180" />
+                  </div>
+                </div>
+
+                <Button variant="outline" className="mt-3">
+                  + Añadir tipo de consulta
+                </Button>
+              </div>
+
+              <Button className="bg-green-500 hover:bg-green-400 text-black w-full">Guardar cambios</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/10 border-white/20 backdrop-blur-xl">
+            <CardContent className="p-6 space-y-6">
+              <div>
+                <h2 className="text-lg font-semibold text-white">Equipo que responde</h2>
+                <p className="text-sm text-gray-200">
+                  Define quién gestiona las conversaciones y cómo se reparten.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="font-semibold text-white">Sara</p>
+                    <p className="text-sm text-gray-200">Propietaria</p>
+                  </div>
+                  <Button variant="outline">Reasignar</Button>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="font-semibold text-white">Agente</p>
+                    <p className="text-sm text-gray-200">Atención al cliente</p>
+                  </div>
+                  <Button variant="outline">Reasignar</Button>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <Input placeholder="email@empresa.com" />
+                <Button className="bg-green-500 hover:bg-green-400 text-black">Invitar usuario</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="bg-white/10 border-white/20 backdrop-blur-xl">
+          <CardContent className="p-6 space-y-4">
+            <div>
+              <h2 className="text-lg font-semibold text-white">Feedback del sistema</h2>
+              <p className="text-sm text-gray-200">
+                Ayúdanos a mejorar Novua. ¿Qué no está funcionando o qué te gustaría cambiar?
               </p>
             </div>
-          </article>
-        )}
 
-        <article className="card" id="whatsapp-setup">
-          <p className="label">{settingsText.channelTitle}</p>
-          <p className="subtitle" style={{ marginBottom: 12 }}>
-            {settingsText.channelHelp}
-          </p>
-          {channels.length > 0 ? (
-            <div className="preview-row" style={{ marginBottom: 12 }}>
-              <span>{formatChannel(channels[0].type)}</span>
-              <span className={`badge ${channels[0].is_active ? "status-active" : "status-no-response"}`}>
-                {channels[0].is_active ? t("settings_active") : t("settings_disconnected")}
-              </span>
+            <Input placeholder="Escribe tu feedback aquí..." />
+
+            <Button className="bg-green-500 hover:bg-green-400 text-black w-fit">Enviar feedback</Button>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-red-500/10 border border-red-500/20 backdrop-blur-xl">
+          <CardContent className="p-6 space-y-4">
+            <div>
+              <h2 className="text-lg font-semibold text-red-400">Eliminar sistema</h2>
+              <p className="text-sm text-gray-200">
+                Esta acción elimina el workspace, las conversaciones y toda la configuración. No se puede deshacer.
+              </p>
             </div>
-          ) : null}
-          {canManageTeam ? (
-            <SetupRequestButton
-              idleLabel={copy.requestWhatsAppSetup}
-              updateLabel={copy.updateWhatsAppSetup}
-              requestedLabel={copy.setupRequested}
-              requestedNote={copy.setupRequestedNote}
-              numberLabel={copy.setupNumberLabel}
-              numberPlaceholder={copy.setupNumberPlaceholder}
-              metaVerifiedLabel={copy.setupMetaVerifiedLabel}
-              metaVerifiedYes={copy.setupMetaVerifiedYes}
-              metaVerifiedNo={copy.setupMetaVerifiedNo}
-              notesLabel={copy.setupNotesLabel}
-              notesPlaceholder={copy.setupNotesPlaceholder}
-              phoneRequiredError={copy.setupPhoneRequired}
-              requestErrorLabel={copy.requestError}
-              inProgressLabel={copy.setupInProgress}
-              existingStatus={whatsappSetupRequest?.status ?? null}
-              existingNotes={whatsappSetupRequest?.notes ?? null}
-            />
-          ) : (
-            <div className="setup-state">
-              <p className="note">{copy.channelUsage}</p>
-              <p className="note">{copy.channelsNote}</p>
-            </div>
-          )}
-        </article>
+
+            <Input placeholder="Escribe el nombre del negocio para confirmar" />
+
+            <Button variant="destructive" className="w-fit">
+              Eliminar definitivamente
+            </Button>
+          </CardContent>
+        </Card>
       </div>
-
-      {showCustomerFeedback ? (
-        <>
-          <PilotFeedbackForm
-            labels={{
-              title: copy.pilotFeedbackTitle,
-              help: copy.pilotFeedbackHelp,
-              category: copy.pilotFeedbackCategory,
-              message: copy.pilotFeedbackMessage,
-              submit: copy.pilotFeedbackSubmit,
-              submitting: copy.pilotFeedbackSubmitting,
-              success: copy.pilotFeedbackSuccess,
-              error: copy.pilotFeedbackError,
-              bug: copy.pilotFeedbackBug,
-              feedback: copy.pilotFeedbackGeneral,
-              featureRequest: copy.pilotFeedbackFeature,
-            }}
-          />
-          <PilotFeedbackHistory
-            items={feedbackHistory}
-            labels={{
-              title: copy.pilotFeedbackHistoryTitle,
-              empty: copy.pilotFeedbackHistoryEmpty,
-              status: copy.pilotFeedbackHistoryStatus,
-              page: copy.pilotFeedbackHistoryPage,
-              reply: copy.pilotFeedbackHistoryReply,
-              new: copy.pilotFeedbackStatusNew,
-              reviewed: copy.pilotFeedbackStatusReviewed,
-              closed: copy.pilotFeedbackStatusClosed,
-            }}
-          />
-        </>
-      ) : null}
-
-      {context.profile.role === "owner" ? (
-        <WorkspaceDangerZone
-          title={copy.dangerTitle}
-          help={copy.dangerHelp}
-          warning={copy.dangerWarning}
-          confirmationLabel={copy.dangerConfirmationLabel}
-          confirmationPlaceholder={workspaceLabel}
-          deleteLabel={copy.dangerDeleteLabel}
-          deletingLabel={copy.dangerDeletingLabel}
-          successRedirectingLabel={copy.dangerDeletedLabel}
-          errorLabel={copy.dangerError}
-          workspaceName={workspaceLabel}
-        />
-      ) : null}
-
-      {canSeeInternalSetup ? (
-        <>
-          <article className="card" style={{ marginTop: 12 }}>
-            <p className="label">{copy.workspaceModeTitle}</p>
-            <p className="subtitle" style={{ marginBottom: 0 }}>
-              {workspaceMode === "internal_demo"
-                ? copy.workspaceModeInternal
-                : workspaceMode === "customer_demo"
-                  ? copy.workspaceModeCustomerDemo
-                  : copy.workspaceModeCustomer}
-            </p>
-          </article>
-        </>
-      ) : null}
-    </section>
+    </div>
   );
 }
