@@ -73,7 +73,7 @@ export function InboxDecisionView({
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] items-start">
-          <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-5 sm:p-6 max-h-[70vh] overflow-y-auto">
+          <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-4 sm:p-5 max-h-[78vh] overflow-y-auto">
             <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-gray-400">
               <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Todas</span>
               <span className="rounded-full border border-yellow-500/20 bg-yellow-500/5 px-3 py-1 text-yellow-300">En riesgo</span>
@@ -90,7 +90,7 @@ export function InboxDecisionView({
                     whileHover={{ y: -2 }}
                     onClick={() => setSelectedId(conversation.id)}
                     className={[
-                      "w-full rounded-2xl border p-5 text-left transition-all duration-300",
+                      "w-full rounded-2xl border p-4 text-left transition-all duration-300",
                       isSelected
                         ? "border-green-400/40 bg-[#132922] shadow-[0_0_35px_rgba(52,211,153,0.12)]"
                         : "border-white/5 bg-[#10211C] hover:border-white/10",
@@ -104,7 +104,7 @@ export function InboxDecisionView({
                             {conversation.state}
                           </span>
                         </div>
-                        <p className="mt-3 line-clamp-2 text-base leading-7 text-gray-300">{conversation.message}</p>
+                        <p className="mt-2 line-clamp-2 text-base leading-7 text-gray-300">{conversation.message}</p>
                       </div>
 
                       <div className="text-right">
@@ -113,7 +113,7 @@ export function InboxDecisionView({
                       </div>
                     </div>
 
-                    <div className="mt-5 grid gap-3 border-t border-white/10 pt-4 text-sm sm:grid-cols-3">
+                    <div className="mt-4 grid gap-3 border-t border-white/10 pt-3 text-sm sm:grid-cols-3">
                       <div>
                         <div className="text-gray-500">Estado temporal</div>
                         <div className="mt-1 text-gray-200">{conversation.delay}</div>
