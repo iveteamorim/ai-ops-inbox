@@ -12,18 +12,21 @@ export default function LandingPage() {
         name: "Maria",
         text: t("landing_mockup_msg_1"),
         badge: t("landing_mockup_status_high"),
+        value: t("landing_mockup_value_1"),
         tone: "high",
       },
       {
         name: "Ana",
         text: t("landing_mockup_msg_2"),
         badge: t("landing_mockup_status_risk"),
+        value: t("landing_mockup_value_2"),
         tone: "risk",
       },
       {
         name: "Joao",
         text: t("landing_mockup_msg_3"),
         badge: t("landing_mockup_status_active"),
+        value: t("landing_mockup_value_3"),
         tone: "active",
       },
     ],
@@ -75,6 +78,10 @@ export default function LandingPage() {
                     <span className={`landing-mockup-badge badge-${card.tone}`}>
                       {card.badge}
                     </span>
+                    <div className="landing-mockup-meta">
+                      <span>{t("landing_mockup_value_label")}</span>
+                      <strong>{card.value}</strong>
+                    </div>
                   </div>
                 ))}
               </div>
