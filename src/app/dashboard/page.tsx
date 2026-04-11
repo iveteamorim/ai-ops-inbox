@@ -74,6 +74,7 @@ export default async function DashboardPage() {
           totalRiskLabel: "Risco total",
           riskNone: "Nenhuma conversa em risco",
           riskNoneDetail: "Sem respostas pendentes",
+          riskAmountLabel: "em risco",
         }
       : lang === "en"
         ? {
@@ -119,9 +120,10 @@ export default async function DashboardPage() {
             suggestedAction: "Suggested action",
           viewPriorities: "View priorities",
           statusTitle: "Status",
-            totalRiskLabel: "Total risk",
-            riskNone: "No conversations at risk",
-            riskNoneDetail: "No pending replies",
+          totalRiskLabel: "Total risk",
+          riskNone: "No conversations at risk",
+          riskNoneDetail: "No pending replies",
+          riskAmountLabel: "at risk",
           }
         : {
             loadingSubtitle: "Completa la autenticación de Supabase y el bootstrap del tenant para desbloquear la app.",
@@ -167,9 +169,10 @@ export default async function DashboardPage() {
             suggestedAction: "Acción sugerida",
           viewPriorities: "Ver prioridades",
           statusTitle: "Estado",
-            totalRiskLabel: "Riesgo total",
-            riskNone: "No hay conversaciones en riesgo",
-            riskNoneDetail: "Sin respuestas pendientes",
+          totalRiskLabel: "Riesgo total",
+          riskNone: "No hay conversaciones en riesgo",
+          riskNoneDetail: "Sin respuestas pendientes",
+          riskAmountLabel: "en riesgo",
           };
 
   const context = await getAppContext();
@@ -241,7 +244,7 @@ export default async function DashboardPage() {
       : copy.riskNone;
   const riskDetail =
     visibleRisk.length > 0
-      ? `${format(visibleRiskAmount)} en riesgo · ${riskAge ?? ""}`.trim()
+      ? `${format(visibleRiskAmount)} ${copy.riskAmountLabel} · ${riskAge ?? ""}`.trim()
       : copy.riskNoneDetail;
 
   const statusLines = [
