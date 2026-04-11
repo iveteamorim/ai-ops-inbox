@@ -119,7 +119,15 @@ export default function NovuaLanding() {
         <div className="absolute right-[-4%] top-24 h-[28rem] w-[28rem] rounded-full bg-emerald-400/8 blur-3xl" />
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-4 pt-14 pb-16 sm:px-6 lg:px-8 lg:pt-20">
+      <div className="relative mx-auto max-w-7xl px-4 pt-10 pb-16 sm:px-6 lg:px-8 lg:pt-14">
+        <div className="mb-10 flex items-center justify-end">
+          <Link
+            href="/login"
+            className="rounded-full border border-white/15 px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:border-white/30 hover:bg-white/5"
+          >
+            Login
+          </Link>
+        </div>
         <section className="grid items-start gap-12 lg:grid-cols-[0.95fr_1.2fr] lg:gap-14">
           <div className="max-w-xl">
             <p className="mb-3 text-xs uppercase tracking-[0.24em] text-green-400 sm:text-sm">
@@ -142,12 +150,6 @@ export default function NovuaLanding() {
               <button className="rounded-2xl bg-green-500 px-6 py-3 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.22)] transition duration-300 hover:scale-[1.02] hover:bg-green-400">
                 Solicitar demo
               </button>
-              <Link
-                href="/login"
-                className="rounded-2xl border border-white/15 px-6 py-3 text-base font-semibold text-white transition duration-300 hover:border-white/30 hover:bg-white/5"
-              >
-                Login
-              </Link>
               <span className="text-sm text-gray-400">15 min · lo activamos contigo</span>
             </div>
 
