@@ -197,7 +197,7 @@ export default async function DashboardPage() {
       value: format(visibleRiskAmount),
       count: `${visibleRisk.length} conversaciones`,
       action: "Revisar prioridades en el inbox",
-      tone: "yellow",
+      tone: "yellow" as const,
       href: "/inbox?scope=no_response",
     },
     {
@@ -206,7 +206,7 @@ export default async function DashboardPage() {
       value: format(highValueAmount),
       count: `${highValueLeads.length} leads`,
       action: "Priorizar leads > €150",
-      tone: "green",
+      tone: "green" as const,
       href: "/inbox",
     },
     {
@@ -215,7 +215,7 @@ export default async function DashboardPage() {
       value: format(visibleActiveAmount),
       count: `${visibleActive.length} conversaciones`,
       action: "Empujar seguimiento hoy",
-      tone: "blue",
+      tone: "blue" as const,
       href: "/inbox?scope=active",
     },
   ];
