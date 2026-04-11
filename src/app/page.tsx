@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -141,6 +142,12 @@ export default function NovuaLanding() {
               <button className="rounded-2xl bg-green-500 px-6 py-3 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.22)] transition duration-300 hover:scale-[1.02] hover:bg-green-400">
                 Solicitar demo
               </button>
+              <Link
+                href="/login"
+                className="rounded-2xl border border-white/15 px-6 py-3 text-base font-semibold text-white transition duration-300 hover:border-white/30 hover:bg-white/5"
+              >
+                Login
+              </Link>
               <span className="text-sm text-gray-400">15 min · lo activamos contigo</span>
             </div>
 
