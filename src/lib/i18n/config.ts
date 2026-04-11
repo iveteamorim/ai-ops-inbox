@@ -25,3 +25,10 @@ export function detectLangFromHeader(header: string | null): Lang {
 
   return candidates[0] ?? "es";
 }
+
+export function resolveLang(cookieValue: string | undefined | null, headerValue: string | null): Lang {
+  if (cookieValue) {
+    return normalizeLang(cookieValue);
+  }
+  return detectLangFromHeader(headerValue);
+}

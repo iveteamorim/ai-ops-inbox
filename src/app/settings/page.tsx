@@ -7,8 +7,8 @@ import { PilotFeedbackHistory } from "@/components/PilotFeedbackHistory";
 import { SetupRequestButton } from "@/components/SetupRequestButton";
 import { TeamMembersList } from "@/components/TeamMembersList";
 import { WorkspaceDangerZone } from "@/components/WorkspaceDangerZone";
-import { cookies } from "next/headers";
-import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
+import { cookies, headers } from "next/headers";
+import { LANG_COOKIE, resolveLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
 import { formatChannel, getAppContext, getBusinessSetup, getSettingsData } from "@/lib/app-data";
 import { canManageInternalWorkspace, canSeeCustomerFeedback, getWorkspaceMode } from "@/lib/internal-access";
@@ -385,7 +385,8 @@ function formatRoleLabel(lang: string, role: string) {
 
 export default async function SettingsPage() {
   const cookieStore = await cookies();
-  const lang = normalizeLang(cookieStore.get(LANG_COOKIE)?.value);
+  const headerStore = await headers();
+  const lang = resolveLang(cookieStore.get(LANG_COOKIE)?.value, headerStore.get("accept-language"));
   const t = (key: Parameters<typeof translate>[1]) => translate(lang, key);
   const copy = getSetupCopy(lang);
 
@@ -738,13 +739,29 @@ export default async function SettingsPage() {
             </>
           ) : (
             <article className="card">
-              <p className="label">Feedback del sistema</p>
-              <p className="subtitle">
-                Ayúdanos a mejorar Novua. ¿Qué no está funcionando o qué te gustaría cambiar?
+              <p className="label">
+                {lang === "en" ? "System feedback" : lang === "pt" ? "Feedback do sistema" : "Feedback del sistema"}
               </p>
-              <input className="input" placeholder="Escribe tu feedback aquí..." disabled />
+              <p className="subtitle">
+                {lang === "en"
+                  ? "Help us improve Novua. What isn’t working or what should change?"
+                  : lang === "pt"
+                    ? "Ajude-nos a melhorar a Novua. O que não está a funcionar ou o que gostaria de mudar?"
+                    : "Ayúdanos a mejorar Novua. ¿Qué no está funcionando o qué te gustaría cambiar?"}
+              </p>
+              <input
+                className="input"
+                placeholder={
+                  lang === "en"
+                    ? "Write your feedback here..."
+                    : lang === "pt"
+                      ? "Escreva o seu feedback aqui..."
+                      : "Escribe tu feedback aquí..."
+                }
+                disabled
+              />
               <button className="button" type="button" disabled>
-                Enviar feedback
+                {lang === "en" ? "Send feedback" : lang === "pt" ? "Enviar feedback" : "Enviar feedback"}
               </button>
             </article>
           )}

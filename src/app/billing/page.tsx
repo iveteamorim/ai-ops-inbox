@@ -1,9 +1,9 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { createClient } from "@/lib/supabase/server";
 import { formatTrialEnd } from "@/lib/trial";
-import { normalizeLang, LANG_COOKIE } from "@/lib/i18n/config";
+import { resolveLang, LANG_COOKIE } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
 import { canManageInternalWorkspace, getWorkspaceMode } from "@/lib/internal-access";
 
@@ -28,7 +28,8 @@ function withPaymentContext(paymentLink: string, companyId?: string | null, emai
 
 export default async function BillingPage() {
   const cookieStore = await cookies();
-  const lang = normalizeLang(cookieStore.get(LANG_COOKIE)?.value);
+  const headerStore = await headers();
+  const lang = resolveLang(cookieStore.get(LANG_COOKIE)?.value, headerStore.get("accept-language"));
   const t = (key: Parameters<typeof translate>[1]) => translate(lang, key);
 
   const supabase = await createClient();

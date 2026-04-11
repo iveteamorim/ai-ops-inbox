@@ -29,6 +29,9 @@ type DashboardDecisionViewProps = {
   decisionGroups: DecisionGroup[];
   statusTitle: string;
   statusLines: string[];
+  whatNowLabel: string;
+  openLabel: string;
+  totalRiskLabel: string;
 };
 
 export function DashboardDecisionView({
@@ -42,6 +45,9 @@ export function DashboardDecisionView({
   decisionGroups,
   statusTitle,
   statusLines,
+  whatNowLabel,
+  openLabel,
+  totalRiskLabel,
 }: DashboardDecisionViewProps) {
   return (
     <main className="min-h-screen bg-[#061412] text-white -m-6">
@@ -80,7 +86,7 @@ export function DashboardDecisionView({
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 p-5 rounded-xl bg-[#0b1f1b] border border-white/10">
-            <h3 className="text-base mb-4">Qué hacer ahora</h3>
+            <h3 className="text-base mb-4">{whatNowLabel}</h3>
 
             <div className="space-y-3">
               {decisionGroups.map((group) => {
@@ -103,7 +109,7 @@ export function DashboardDecisionView({
                     <div className="text-right">
                       <p className="text-sm text-white">{group.value}</p>
                       <Link className="text-xs text-green-400" href={group.href}>
-                        abrir →
+                        {openLabel} →
                       </Link>
                     </div>
                   </div>
@@ -116,7 +122,7 @@ export function DashboardDecisionView({
             <h3 className="text-base mb-4">{statusTitle}</h3>
 
             <div className="mb-4">
-              <p className="text-xs text-gray-500 mb-1">Riesgo total</p>
+              <p className="text-xs text-gray-500 mb-1">{totalRiskLabel}</p>
               <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                 <div className="h-full w-1/2 bg-yellow-400"></div>
               </div>

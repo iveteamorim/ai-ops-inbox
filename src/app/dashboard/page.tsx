@@ -2,7 +2,7 @@ import { cookies, headers } from "next/headers";
 import { AppNav } from "@/components/AppNav";
 import { DashboardDecisionView } from "@/components/dashboard/DashboardDecisionView";
 import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
-import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
+import { LANG_COOKIE, resolveLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
 import { formatRelativeTime, getAppContext, getConversationViews } from "@/lib/app-data";
 import { canManageInternalWorkspace, getWorkspaceMode } from "@/lib/internal-access";
@@ -22,7 +22,7 @@ function countValue(items: Array<{ estimatedValue: number }>) {
 export default async function DashboardPage() {
   const cookieStore = await cookies();
   const headerStore = await headers();
-  const lang = normalizeLang(cookieStore.get(LANG_COOKIE)?.value);
+  const lang = resolveLang(cookieStore.get(LANG_COOKIE)?.value, headerStore.get("accept-language"));
   const t = (key: Parameters<typeof translate>[1]) => translate(lang, key);
   const currency = detectCurrencyFromLocale(headerStore.get("accept-language"));
   const format = (value: number) => formatMoney(lang, currency, value);
@@ -36,6 +36,7 @@ export default async function DashboardPage() {
           manageSubtitle: "Resumo do workspace e foco operacional do dia.",
           agentSubtitle: "Resumo rápido da tua carga atual e acessos diretos para operar.",
           reviewNow: "Rever agora",
+          riskActiveTitle: "Risco ativo",
           riskOne: "conversa em risco",
           riskMany: "conversas em risco",
           goInbox: "Ir ao inbox",
@@ -43,7 +44,11 @@ export default async function DashboardPage() {
           activeOne: "conversa ativa",
           activeMany: "conversas ativas",
           view: "Ver",
+          openLabel: "abrir",
           newConversations: "Novas conversas",
+          responseRateLabel: "taxa de resposta",
+          highValueLabel: "alto valor",
+          newConversationsLabel: "novas conversas",
           unopenedOne: "conversa por abrir",
           unopenedMany: "conversas por abrir",
           open: "Abrir",
@@ -65,6 +70,10 @@ export default async function DashboardPage() {
           riskTitle: "Receita em risco",
           suggestedAction: "Ação sugerida",
           viewPriorities: "Ver prioridades",
+          statusTitle: "Status",
+          totalRiskLabel: "Risco total",
+          riskNone: "Nenhuma conversa em risco",
+          riskNoneDetail: "Sem respostas pendentes",
         }
       : lang === "en"
         ? {
@@ -74,7 +83,8 @@ export default async function DashboardPage() {
             signInNeeded: "Sign in to access the dashboard.",
             manageSubtitle: "Workspace snapshot and operational focus for today.",
             agentSubtitle: "Quick view of your current load and direct actions.",
-            reviewNow: "Review now",
+          reviewNow: "Review now",
+          riskActiveTitle: "Active risk",
             riskOne: "conversation at risk",
             riskMany: "conversations at risk",
             goInbox: "Go to inbox",
@@ -82,7 +92,11 @@ export default async function DashboardPage() {
             activeOne: "active conversation",
             activeMany: "active conversations",
             view: "View",
+            openLabel: "open",
             newConversations: "New conversations",
+            responseRateLabel: "response rate",
+            highValueLabel: "high value",
+            newConversationsLabel: "new conversations",
             unopenedOne: "unopened conversation",
             unopenedMany: "unopened conversations",
             open: "Open",
@@ -103,7 +117,11 @@ export default async function DashboardPage() {
             estimatedImpact: "estimated impact",
             riskTitle: "Revenue at risk",
             suggestedAction: "Suggested action",
-            viewPriorities: "View priorities",
+          viewPriorities: "View priorities",
+          statusTitle: "Status",
+            totalRiskLabel: "Total risk",
+            riskNone: "No conversations at risk",
+            riskNoneDetail: "No pending replies",
           }
         : {
             loadingSubtitle: "Completa la autenticación de Supabase y el bootstrap del tenant para desbloquear la app.",
@@ -112,7 +130,8 @@ export default async function DashboardPage() {
             signInNeeded: "Inicia sesión para acceder al dashboard.",
             manageSubtitle: "Resumen del workspace y foco operativo del día.",
             agentSubtitle: "Resumen rápido de tu carga actual y accesos directos para operar.",
-            reviewNow: "Revisar ahora",
+          reviewNow: "Revisar ahora",
+          riskActiveTitle: "Riesgo activo",
             riskOne: "conversación en riesgo",
             riskMany: "conversaciones en riesgo",
             goInbox: "Ir al inbox",
@@ -120,7 +139,11 @@ export default async function DashboardPage() {
             activeOne: "conversación activa",
             activeMany: "conversaciones activas",
             view: "Ver",
+            openLabel: "abrir",
             newConversations: "Nuevas conversaciones",
+            responseRateLabel: "tasa de respuesta",
+            highValueLabel: "alto valor",
+            newConversationsLabel: "nuevas conversaciones",
             unopenedOne: "conversación sin abrir",
             unopenedMany: "conversaciones sin abrir",
             open: "Abrir",
@@ -142,7 +165,11 @@ export default async function DashboardPage() {
             estimatedImpact: "impacto estimado",
             riskTitle: "Ingresos en riesgo",
             suggestedAction: "Acción sugerida",
-            viewPriorities: "Ver prioridades",
+          viewPriorities: "Ver prioridades",
+          statusTitle: "Estado",
+            totalRiskLabel: "Riesgo total",
+            riskNone: "No hay conversaciones en riesgo",
+            riskNoneDetail: "Sin respuestas pendientes",
           };
 
   const context = await getAppContext();
@@ -201,9 +228,9 @@ export default async function DashboardPage() {
   const newCount = visibleOpen.filter((item) => item.status === "new").length;
 
   const metrics = [
-    { label: lang === "en" ? "response rate" : "tasa de respuesta", value: `${responseRate}%` },
-    { label: lang === "en" ? "high value" : "alto valor", value: `${highValuePercent}%` },
-    { label: lang === "en" ? "new conversations" : "nuevas conversaciones", value: String(newCount) },
+    { label: copy.responseRateLabel, value: `${responseRate}%` },
+    { label: copy.highValueLabel, value: `${highValuePercent}%` },
+    { label: copy.newConversationsLabel, value: String(newCount) },
   ];
 
   const latestRisk = visibleRisk[0];
@@ -211,15 +238,11 @@ export default async function DashboardPage() {
   const riskSummary =
     visibleRisk.length > 0
       ? `${visibleRisk.length} ${visibleRisk.length === 1 ? copy.riskOne : copy.riskMany}`
-      : lang === "en"
-        ? "No conversations at risk"
-        : "No hay conversaciones en riesgo";
+      : copy.riskNone;
   const riskDetail =
     visibleRisk.length > 0
       ? `${format(visibleRiskAmount)} en riesgo · ${riskAge ?? ""}`.trim()
-      : lang === "en"
-        ? "No pending replies"
-        : "Sin respuestas pendientes";
+      : copy.riskNoneDetail;
 
   const statusLines = [
     `${visibleRisk.length} ${visibleRisk.length === 1 ? copy.criticalOne : copy.criticalMany}`,
@@ -229,29 +252,29 @@ export default async function DashboardPage() {
 
   const decisionGroups = [
     {
-      title: lang === "en" ? "High risk" : "Riesgo alto",
-      subtitle: lang === "en" ? "No reply > 1h" : "Conversaciones sin respuesta > 1h",
+      title: lang === "pt" ? "Risco alto" : lang === "en" ? "High risk" : "Riesgo alto",
+      subtitle: lang === "pt" ? "Sem resposta > 1h" : lang === "en" ? "No reply > 1h" : "Conversaciones sin respuesta > 1h",
       value: format(visibleRiskAmount),
       count: `${visibleRisk.length} ${visibleRisk.length === 1 ? copy.riskOne : copy.riskMany}`,
-      action: lang === "en" ? "Review priorities in inbox" : "Revisar prioridades en el inbox",
+      action: lang === "pt" ? "Rever prioridades no inbox" : lang === "en" ? "Review priorities in inbox" : "Revisar prioridades en el inbox",
       tone: "yellow" as const,
       href: "/inbox?scope=no_response",
     },
     {
-      title: lang === "en" ? "Opportunity" : "Oportunidad",
-      subtitle: lang === "en" ? "High value leads pending" : "Leads de alto valor sin seguimiento",
+      title: lang === "pt" ? "Oportunidade" : lang === "en" ? "Opportunity" : "Oportunidad",
+      subtitle: lang === "pt" ? "Leads de alto valor sem seguimento" : lang === "en" ? "High value leads pending" : "Leads de alto valor sin seguimiento",
       value: format(highValueAmount),
       count: `${highValueLeads.length} ${highValueLeads.length === 1 ? "lead" : "leads"}`,
-      action: lang === "en" ? "Prioritize > €150" : "Priorizar leads > €150",
+      action: lang === "pt" ? "Priorizar leads > €150" : lang === "en" ? "Prioritize > €150" : "Priorizar leads > €150",
       tone: "green" as const,
       href: "/inbox",
     },
     {
-      title: lang === "en" ? "Follow-up" : "Seguimiento",
-      subtitle: lang === "en" ? "Active conversations pending" : "Conversaciones activas esperando siguiente paso",
+      title: lang === "pt" ? "Follow-up" : lang === "en" ? "Follow-up" : "Seguimiento",
+      subtitle: lang === "pt" ? "Conversas ativas a aguardar próximo passo" : lang === "en" ? "Active conversations pending" : "Conversaciones activas esperando siguiente paso",
       value: format(visibleActiveAmount),
       count: `${visibleActive.length} ${visibleActive.length === 1 ? copy.activeOne : copy.activeMany}`,
-      action: lang === "en" ? "Push follow-up today" : "Empujar seguimiento hoy",
+      action: lang === "pt" ? "Ativar follow-up hoje" : lang === "en" ? "Push follow-up today" : "Empujar seguimiento hoy",
       tone: "blue" as const,
       href: "/inbox?scope=active",
     },
@@ -268,14 +291,17 @@ export default async function DashboardPage() {
       <DashboardDecisionView
         headerTitle={copy.dashboardTitle}
         headerSubtitle={copy.dashboardSubtitle}
-        riskTitle={lang === "en" ? "Active risk" : "Riesgo activo"}
+        riskTitle={copy.riskActiveTitle}
         riskSummary={riskSummary}
         riskDetail={riskDetail}
         riskButtonLabel={copy.goInbox}
         metrics={metrics}
         decisionGroups={decisionGroups}
-        statusTitle={lang === "en" ? "Status" : "Estado"}
+        statusTitle={copy.statusTitle}
         statusLines={statusLines}
+        whatNowLabel={copy.whatNow}
+        openLabel={copy.openLabel}
+        totalRiskLabel={copy.totalRiskLabel}
       />
     </section>
   );

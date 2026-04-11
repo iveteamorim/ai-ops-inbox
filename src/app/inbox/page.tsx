@@ -3,7 +3,7 @@ import { AppNav } from "@/components/AppNav";
 import { AutoRefresh } from "@/components/AutoRefresh";
 import { InboxDecisionView } from "@/components/inbox/InboxDecisionView";
 import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
-import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
+import { LANG_COOKIE, resolveLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
 import {
   formatRelativeTime,
@@ -185,7 +185,7 @@ function stateClassFor(status: string) {
 export default async function InboxPage() {
   const cookieStore = await cookies();
   const headerStore = await headers();
-  const lang = normalizeLang(cookieStore.get(LANG_COOKIE)?.value);
+  const lang = resolveLang(cookieStore.get(LANG_COOKIE)?.value, headerStore.get("accept-language"));
   const t = (key: Parameters<typeof translate>[1]) => translate(lang, key);
   const currency = detectCurrencyFromLocale(headerStore.get("accept-language"));
   const format = (value: number) => formatMoney(lang, currency, value);
@@ -220,6 +220,7 @@ export default async function InboxPage() {
           filterRisk: "Em risco",
           filterAssigned: "Atribuídas",
           filterNew: "Novas",
+          emptyState: "Ainda não há conversas.",
           temporalState: "Estado temporal",
           owner: "Responsável",
           nextAction: "Próxima ação",
@@ -241,6 +242,7 @@ export default async function InboxPage() {
             filterRisk: "At risk",
             filterAssigned: "Assigned",
             filterNew: "New",
+            emptyState: "No conversations yet.",
             temporalState: "Status timing",
             owner: "Owner",
             nextAction: "Next action",
@@ -261,6 +263,7 @@ export default async function InboxPage() {
             filterRisk: "En riesgo",
             filterAssigned: "Asignadas",
             filterNew: "Nuevas",
+            emptyState: "No hay conversaciones todavía.",
             temporalState: "Estado temporal",
             owner: "Responsable",
             nextAction: "Siguiente acción",

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import "./globals.css";
 import { LanguageProvider } from "@/components/i18n/LanguageProvider";
-import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
+import { LANG_COOKIE, resolveLang } from "@/lib/i18n/config";
 
 export const metadata: Metadata = {
   title: "Novua Inbox",
@@ -11,7 +11,8 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const cookieStore = await cookies();
-  const lang = normalizeLang(cookieStore.get(LANG_COOKIE)?.value);
+  const headerStore = await headers();
+  const lang = resolveLang(cookieStore.get(LANG_COOKIE)?.value, headerStore.get("accept-language"));
 
   return (
     <html lang={lang}>

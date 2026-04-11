@@ -35,6 +35,7 @@ type InboxDecisionViewProps = {
     filterRisk: string;
     filterAssigned: string;
     filterNew: string;
+    emptyState: string;
     temporalState: string;
     owner: string;
     nextAction: string;
@@ -74,7 +75,7 @@ export function InboxDecisionView({
     return (
       <main className="min-h-screen bg-[#07110E] text-white -m-6">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <p className="text-gray-300">No hay conversaciones todavía.</p>
+          <p className="text-gray-300">{labels.emptyState}</p>
         </div>
       </main>
     );
