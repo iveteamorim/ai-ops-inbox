@@ -96,6 +96,60 @@ a {
   font-size: 0.9rem;
 }
 
+/* Modern settings overrides */
+.settings-modern .card {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  padding: 24px;
+}
+
+.settings-modern .label {
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.settings-modern .subtitle,
+.settings-modern .note {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.settings-modern .input,
+.settings-modern select,
+.settings-modern textarea {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: #fff;
+}
+
+.settings-modern .button {
+  background: #22c55e;
+  color: #0b140f;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 600;
+}
+
+.settings-modern .button:hover {
+  background: #34d399;
+}
+
+.settings-modern .mini-button {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.settings-modern .mini-danger {
+  border-color: rgba(248, 113, 113, 0.4);
+  color: #fecaca;
+}
+
 .grid {
   display: grid;
   gap: 12px;

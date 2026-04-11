@@ -509,7 +509,7 @@ export default async function SettingsPage() {
 
   return (
     <section className="page">
-      <div className="min-h-screen bg-gradient-to-br from-black via-[#061a14] to-[#0b2a20] text-white p-8">
+      <div className="min-h-screen bg-gradient-to-br from-black via-[#061a14] to-[#0b2a20] text-white p-8 settings-modern">
         <AppNav
           showSetup={canSeeInternalSetup}
           showLocale={canSeeInternalSetup}
