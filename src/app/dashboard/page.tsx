@@ -64,6 +64,14 @@ export default async function DashboardPage() {
           closedToday: "receitas fechadas no dia",
           myClosedToday: "conversas fechadas hoje",
           whatNow: "O que fazer agora",
+          dashboardTitle: "O que está acontecendo agora",
+          dashboardSubtitle: "Visibilidade clara de receitas, risco e decisões necessárias em tempo real.",
+          decisionsNow: "Decisões agora",
+          decisionsSubtitle: "O dashboard agrupa risco e oportunidade para decidir o que deve entrar primeiro no inbox.",
+          estimatedImpact: "impacto estimado",
+          riskTitle: "Receita em risco",
+          suggestedAction: "Ação sugerida",
+          viewPriorities: "Ver prioridades",
         }
       : lang === "en"
         ? {
@@ -95,6 +103,14 @@ export default async function DashboardPage() {
             closedToday: "revenue closed today",
             myClosedToday: "conversations closed today",
             whatNow: "What to do now",
+            dashboardTitle: "What is happening right now",
+            dashboardSubtitle: "Clear visibility into revenue, risk, and the decisions needed in real time.",
+            decisionsNow: "Decisions now",
+            decisionsSubtitle: "The dashboard groups risk and opportunity to decide what should enter the inbox first.",
+            estimatedImpact: "estimated impact",
+            riskTitle: "Revenue at risk",
+            suggestedAction: "Suggested action",
+            viewPriorities: "View priorities",
           }
         : {
             loadingSubtitle: "Completa la autenticación de Supabase y el bootstrap del tenant para desbloquear la app.",
@@ -125,6 +141,15 @@ export default async function DashboardPage() {
             closedToday: "ingresos cerrados en el día",
             myClosedToday: "conversaciones cerradas hoy",
             whatNow: "Qué hacer ahora",
+            dashboardTitle: "Qué está pasando ahora",
+            dashboardSubtitle: "Visibilidad clara de ingresos, riesgo y decisiones necesarias en tiempo real.",
+            decisionsNow: "Decisiones ahora",
+            decisionsSubtitle:
+              "El dashboard agrupa riesgo y oportunidad para decidir qué tipo de trabajo debe entrar primero al inbox.",
+            estimatedImpact: "impacto estimado",
+            riskTitle: "Ingresos en riesgo",
+            suggestedAction: "Acción sugerida",
+            viewPriorities: "Ver prioridades",
           };
 
   const context = await getAppContext();
@@ -235,6 +260,17 @@ export default async function DashboardPage() {
         riskHelp={`${visibleRisk.length} ${visibleRisk.length === 1 ? copy.riskOne : copy.riskMany}`}
         actionSummary={`${visibleRisk.length} ${visibleRisk.length === 1 ? copy.criticalOne : copy.criticalMany}`}
         actionHref="/inbox?scope=no_response"
+        labels={{
+          headerTitle: copy.dashboardTitle,
+          headerSubtitle: copy.dashboardSubtitle,
+          decisionsNow: copy.decisionsNow,
+          decisionsSubtitle: copy.decisionsSubtitle,
+          estimatedImpact: copy.estimatedImpact,
+          riskTitle: copy.riskTitle,
+          riskHelp: `${visibleRisk.length} ${visibleRisk.length === 1 ? copy.riskOne : copy.riskMany}`,
+          suggestedAction: copy.suggestedAction,
+          viewPriorities: copy.viewPriorities,
+        }}
       />
     </section>
   );

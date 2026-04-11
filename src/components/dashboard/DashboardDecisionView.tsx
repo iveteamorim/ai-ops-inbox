@@ -25,25 +25,34 @@ type DashboardDecisionViewProps = {
   riskHelp: string;
   actionSummary: string;
   actionHref: string;
+  labels: {
+    headerTitle: string;
+    headerSubtitle: string;
+    decisionsNow: string;
+    decisionsSubtitle: string;
+    estimatedImpact: string;
+    riskTitle: string;
+    riskHelp: string;
+    suggestedAction: string;
+    viewPriorities: string;
+  };
 };
 
 export function DashboardDecisionView({
   metrics,
   decisionGroups,
   riskAmountLabel,
-  riskHelp,
   actionSummary,
   actionHref,
+  labels,
 }: DashboardDecisionViewProps) {
   return (
     <main className="min-h-screen bg-[#07110E] text-white -m-6">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="mb-10">
           <p className="text-xs uppercase tracking-[0.3em] text-green-400">NÓVUA · DASHBOARD</p>
-          <h1 className="mt-3 text-4xl font-semibold">Qué está pasando ahora</h1>
-          <p className="mt-3 text-gray-400 max-w-xl">
-            Visibilidad clara de ingresos, riesgo y decisiones necesarias en tiempo real.
-          </p>
+          <h1 className="mt-3 text-4xl font-semibold">{labels.headerTitle}</h1>
+          <p className="mt-3 text-gray-400 max-w-xl">{labels.headerSubtitle}</p>
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-10 md:grid-cols-4">
@@ -57,10 +66,8 @@ export function DashboardDecisionView({
 
         <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
           <section className="rounded-2xl border border-white/10 bg-[#0D1A16] p-6">
-            <h2 className="mb-2 text-xl font-semibold">Decisiones ahora</h2>
-            <p className="mb-5 max-w-2xl text-sm leading-6 text-gray-400">
-              El dashboard agrupa riesgo y oportunidad para decidir qué tipo de trabajo debe entrar primero al inbox.
-            </p>
+            <h2 className="mb-2 text-xl font-semibold">{labels.decisionsNow}</h2>
+            <p className="mb-5 max-w-2xl text-sm leading-6 text-gray-400">{labels.decisionsSubtitle}</p>
 
             <div className="space-y-4">
               {decisionGroups.map((group) => {
@@ -90,7 +97,7 @@ export function DashboardDecisionView({
 
                       <div className="text-left md:text-right">
                         <div className="text-2xl font-semibold text-white">{group.value}</div>
-                        <div className="mt-2 text-sm text-gray-400">impacto estimado</div>
+                        <div className="mt-2 text-sm text-gray-400">{labels.estimatedImpact}</div>
                       </div>
                     </div>
 
@@ -108,25 +115,25 @@ export function DashboardDecisionView({
 
           <aside className="space-y-6">
             <div className="rounded-2xl border border-white/10 bg-[#0D1A16] p-6">
-              <h3 className="text-sm text-gray-400">Ingresos en riesgo</h3>
+              <h3 className="text-sm text-gray-400">{labels.riskTitle}</h3>
               <div className="text-4xl font-semibold text-yellow-400 mt-2">{riskAmountLabel}</div>
 
               <div className="mt-4 h-2 bg-white/10 rounded-full">
                 <div className="h-full w-[70%] bg-gradient-to-r from-green-400 to-yellow-400 rounded-full" />
               </div>
 
-              <p className="mt-3 text-sm text-gray-400">{riskHelp}</p>
+              <p className="mt-3 text-sm text-gray-400">{labels.riskHelp}</p>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-[#0D1A16] p-6">
-              <h3 className="text-sm text-gray-400">Acción sugerida</h3>
+              <h3 className="text-sm text-gray-400">{labels.suggestedAction}</h3>
               <div className="text-xl font-semibold mt-2">{actionSummary}</div>
 
               <Link
                 href={actionHref}
                 className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-green-500 py-3 font-semibold text-black transition hover:bg-green-400"
               >
-                Ver prioridades
+                {labels.viewPriorities}
               </Link>
             </div>
           </aside>

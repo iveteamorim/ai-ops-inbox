@@ -181,6 +181,69 @@ export default async function InboxPage() {
     getConversationViews(context.supabase, context.profile.company_id),
     getTeamMembers(context.supabase, context.profile.company_id),
   ]);
+  const labels =
+    lang === "pt"
+      ? {
+          risk: "Em risco",
+          active: "Ativo",
+          highValue: "Alto valor",
+          newEntry: "Nova entrada",
+          filterAll: "Todas",
+          filterRisk: "Em risco",
+          filterAssigned: "Atribuídas",
+          filterNew: "Novas",
+          temporalState: "Estado temporal",
+          owner: "Responsável",
+          nextAction: "Próxima ação",
+          decisionLayer: "Camada de decisão",
+          value: "Valor",
+          riskLabel: "Risco",
+          whatNow: "O que fazer agora",
+          assignOwner: "Atribuir responsável",
+          productPrinciple: "Princípio de produto",
+          decisionCopy: "O revenue aparece onde gera decisão: dentro da conversa, não separado dela.",
+        }
+      : lang === "en"
+        ? {
+            risk: "At risk",
+            active: "Active",
+            highValue: "High value",
+            newEntry: "New",
+            filterAll: "All",
+            filterRisk: "At risk",
+            filterAssigned: "Assigned",
+            filterNew: "New",
+            temporalState: "Status timing",
+            owner: "Owner",
+            nextAction: "Next action",
+            decisionLayer: "Decision layer",
+            value: "Value",
+            riskLabel: "Risk",
+            whatNow: "What to do now",
+            assignOwner: "Assign owner",
+            productPrinciple: "Product principle",
+            decisionCopy: "Revenue lives where decisions happen: inside the conversation, not apart from it.",
+          }
+        : {
+            risk: "En riesgo",
+            active: "Activo",
+            highValue: "Alto valor",
+            newEntry: "Nueva entrada",
+            filterAll: "Todas",
+            filterRisk: "En riesgo",
+            filterAssigned: "Asignadas",
+            filterNew: "Nuevas",
+            temporalState: "Estado temporal",
+            owner: "Responsable",
+            nextAction: "Siguiente acción",
+            decisionLayer: "Capa de decisión",
+            value: "Valor",
+            riskLabel: "Riesgo",
+            whatNow: "Qué hacer ahora",
+            assignOwner: "Asignar responsable",
+            productPrinciple: "Principio de producto",
+            decisionCopy: "El revenue aparece donde genera decisión: dentro de la conversación, no separado de ella.",
+          };
   const workspaceMode = getWorkspaceMode(context.company, context.user.email);
   const canSeeInternalSetup = canManageInternalWorkspace(workspaceMode);
   const teamById = new Map(team.map((member) => [member.id, member.full_name ?? member.role ?? ""]));
@@ -239,6 +302,7 @@ export default async function InboxPage() {
         activeAmountLabel={format(activeAmount)}
         highValueAmountLabel={format(highValueAmount)}
         newCountLabel={String(newCount)}
+        labels={labels}
       />
     </section>
   );
