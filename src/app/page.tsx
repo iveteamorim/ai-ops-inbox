@@ -151,7 +151,7 @@ export default function NovuaLanding() {
                 href="/signup"
                 className="rounded-2xl bg-green-500 px-6 py-3 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.22)] transition duration-300 hover:scale-[1.02] hover:bg-green-400"
               >
-                Solicitar demo
+                Probar gratis
               </Link>
               <span className="text-sm text-gray-400">15 min · lo activamos contigo</span>
             </div>
@@ -350,7 +350,7 @@ export default function NovuaLanding() {
               href="/signup"
               className="rounded-2xl bg-green-500 px-7 py-3.5 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.25)] transition duration-300 hover:scale-[1.02] hover:bg-green-400"
             >
-              Solicitar demo
+              Probar gratis
             </Link>
             <p className="text-sm text-gray-400">Te ayudamos a activarlo en tu negocio</p>
           </div>
@@ -381,7 +381,7 @@ export default function NovuaLanding() {
               href="/signup"
               className="rounded-2xl bg-green-500 px-8 py-4 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.25)] transition duration-300 hover:scale-[1.02] hover:bg-green-400"
             >
-            Solicitar demo
+            Probar gratis
             </Link>
           </motion.div>
         </motion.section>
