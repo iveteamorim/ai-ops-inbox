@@ -911,8 +911,10 @@ a {
   margin-top: 12px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-size: 0.78rem;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.74rem;
   color: var(--landing-muted);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-top: 10px;
@@ -921,6 +923,9 @@ a {
 .landing-mockup-meta strong {
   color: #f3f8f6;
   font-weight: 600;
+  font-size: 0.85rem;
+  margin-left: auto;
+  text-align: right;
 }
 
 .landing-mockup-badge.badge-high {
