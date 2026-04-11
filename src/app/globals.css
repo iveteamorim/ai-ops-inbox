@@ -754,11 +754,10 @@ a {
 
 .landing-hero {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-  align-items: center;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 40px;
+  align-items: flex-start;
   margin-top: 24px;
-  justify-items: center;
 }
 
 .landing-kicker {
@@ -830,6 +829,10 @@ a {
   color: var(--landing-muted);
 }
 
+.landing-hero-copy {
+  max-width: 720px;
+}
+
 .landing-mockup {
   background: #0f1f1a;
   border: 1px solid var(--landing-card-border);
@@ -837,7 +840,7 @@ a {
   padding: 18px;
   box-shadow: 0 25px 55px rgba(0, 0, 0, 0.35);
   margin-top: 6px;
-  max-width: 760px;
+  max-width: 680px;
 }
 
 .landing-mockup {
