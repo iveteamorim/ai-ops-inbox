@@ -273,7 +273,7 @@ export default async function DashboardPage() {
       href: "/inbox",
     },
     {
-      title: lang === "pt" ? "Follow-up" : lang === "en" ? "Follow-up" : "Seguimiento",
+      title: lang === "pt" ? "Seguimento" : lang === "en" ? "Follow-up" : "Seguimiento",
       subtitle: lang === "pt" ? "Conversas ativas a aguardar próximo passo" : lang === "en" ? "Active conversations pending" : "Conversaciones activas esperando siguiente paso",
       value: format(visibleActiveAmount),
       count: `${visibleActive.length} ${visibleActive.length === 1 ? copy.activeOne : copy.activeMany}`,
