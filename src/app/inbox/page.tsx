@@ -1,452 +1,209 @@
-import Link from "next/link";
-import { cookies, headers } from "next/headers";
-import { AppNav } from "@/components/AppNav";
-import { AutoRefresh } from "@/components/AutoRefresh";
-import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
-import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
-import { translate } from "@/lib/i18n/dictionaries";
-import {
-  formatRelativeTime,
-  formatStatus,
-  getAppContext,
-  getConversationViews,
-  getTeamMembers,
-} from "@/lib/app-data";
-import { type DecisionType } from "@/lib/conversation-decision";
-import { canManageInternalWorkspace, getWorkspaceMode } from "@/lib/internal-access";
+"use client";
 
-function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
-  return new Intl.NumberFormat(lang, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(value);
-}
+import { useState } from "react";
+import { motion } from "framer-motion";
 
-function getNoReplyMeta(status: "new" | "active" | "won" | "lost" | "no_response", isoDate: string | null) {
-  if (status !== "no_response" || !isoDate) {
-    return { className: "", badgeLabel: null as string | null, timeLabel: formatRelativeTime(isoDate) };
-  }
+const conversations = [
+  {
+    id: "1",
+    name: "Maria",
+    message: "Quiero saber el precio del tratamiento facial completo.",
+    state: "En riesgo",
+    stateClass: "border-yellow-500/30 bg-yellow-500/10 text-yellow-400",
+    value: "€180",
+    risk: "Alto",
+    riskClass: "text-yellow-400",
+    delay: "Sin respuesta por 2h",
+    action: "Responder ahora",
+    owner: "Sin asignar",
+  },
+  {
+    id: "2",
+    name: "Joao",
+    message: "¿Tenéis horarios para mañana por la tarde?",
+    state: "Activo",
+    stateClass: "border-blue-500/30 bg-blue-500/10 text-blue-400",
+    value: "€60",
+    risk: "Medio",
+    riskClass: "text-blue-400",
+    delay: "Último mensaje hace 4 min",
+    action: "Continuar conversación",
+    owner: "Anic",
+  },
+  {
+    id: "3",
+    name: "Ana",
+    message: "Perfecto, me interesa el peeling. ¿Cómo reservo?",
+    state: "Alto valor",
+    stateClass: "border-green-500/30 bg-green-500/10 text-green-400",
+    value: "€120",
+    risk: "Bajo",
+    riskClass: "text-green-400",
+    delay: "Respondido hace 3 min",
+    action: "Cerrar venta",
+    owner: "Marta",
+  },
+  {
+    id: "4",
+    name: "Lucas",
+    message: "¿Incluye valoración inicial?",
+    state: "Nuevo",
+    stateClass: "border-white/15 bg-white/5 text-gray-300",
+    value: "€90",
+    risk: "Pendiente",
+    riskClass: "text-gray-300",
+    delay: "Nuevo mensaje",
+    action: "Abrir conversación",
+    owner: "Sin asignar",
+  },
+];
 
-  const timestamp = new Date(isoDate).getTime();
-  if (Number.isNaN(timestamp)) {
-    return { className: "", badgeLabel: null as string | null, timeLabel: formatRelativeTime(isoDate) };
-  }
-
-  const diffMs = Date.now() - timestamp;
-  const diffMinutes = Math.max(0, Math.round(diffMs / (1000 * 60)));
-  const diffHours = diffMinutes / 60;
-  const timeLabel =
-    diffMinutes < 60
-      ? `${diffMinutes} min sin respuesta`
-      : diffHours < 24
-        ? `${Math.round(diffHours)}h sin respuesta`
-        : `${Math.round(diffHours / 24)} días sin respuesta`;
-
-  if (diffHours >= 72) {
-    return { className: "time-critical", badgeLabel: null as string | null, timeLabel };
-  }
-
-  if (diffHours >= 24) {
-    return { className: "time-warning", badgeLabel: "Pendiente", timeLabel };
-  }
-
-  return { className: "", badgeLabel: null as string | null, timeLabel };
-}
-
-function actionLabel(type: DecisionType, isAssigned: boolean) {
-  if (type === "recover") return "Responder ahora";
-  if (type === "complex") return "Escalar caso";
-  if (type === "new") return "Abrir conversación";
-  if (type === "won") return "Ver detalle";
-  if (type === "lost") return "Ver motivo";
-  if (!isAssigned) return "Responder";
-  return "Continuar conversación";
-}
-
-function getStatusTimeLabel(
-  row: { status: "new" | "active" | "won" | "lost" | "no_response"; lastMessageAt: string | null },
-  noReplyTimeLabel: string,
-) {
-  if (row.status === "no_response") return noReplyTimeLabel;
-  if (!row.lastMessageAt) return "";
-
-  const timestamp = new Date(row.lastMessageAt).getTime();
-  if (Number.isNaN(timestamp)) return formatRelativeTime(row.lastMessageAt);
-
-  const diffHours = (Date.now() - timestamp) / (1000 * 60 * 60);
-  const relative = formatRelativeTime(row.lastMessageAt);
-
-  if (row.status === "won") {
-    if (diffHours < 24) return "Ganado hoy";
-    if (diffHours < 48) return "Ganado ayer";
-    return `Ganado ${relative}`;
-  }
-
-  if (row.status === "lost") {
-    if (diffHours < 24) return "Perdido hoy";
-    if (diffHours < 48) return "Perdido ayer";
-    return `Perdido ${relative}`;
-  }
-
-  return relative;
-}
-
-function getVisibleStatusLabel(
-  row: { status: "new" | "active" | "won" | "lost" | "no_response" },
-  noReplyClassName: string,
-  t: (key: Parameters<typeof translate>[1]) => string,
-) {
-  if (row.status === "no_response" && noReplyClassName === "time-critical") {
-    return "En riesgo";
-  }
-  return formatStatus(row.status, t);
-}
-
-function conversationPriorityScore(row: {
-  decisionType: DecisionType;
-  status: "new" | "active" | "won" | "lost" | "no_response";
-  aiPriority: "high" | "medium" | "low";
-  estimatedValue: number;
-}) {
-  const statusBonus =
-    row.decisionType === "recover"
-      ? 200
-      : row.decisionType === "complex"
-        ? 140
-        : row.decisionType === "new"
-          ? 80
-          : row.status === "active"
-            ? 24
-            : 0;
-  const aiBonus = row.aiPriority === "high" ? 18 : row.aiPriority === "medium" ? 8 : 0;
-  return row.estimatedValue + statusBonus + aiBonus;
-}
-
-export default async function InboxPage({
-  searchParams,
-}: {
-  searchParams?: Promise<{ unit?: string; demo?: string; focus?: string; scope?: string }>;
-}) {
-  const cookieStore = await cookies();
-  const headerStore = await headers();
-  const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const lang = normalizeLang(cookieStore.get(LANG_COOKIE)?.value);
-  const t = (key: Parameters<typeof translate>[1]) => translate(lang, key);
-  const currency = detectCurrencyFromLocale(headerStore.get("accept-language"));
-  const format = (value: number) => formatMoney(lang, currency, value);
-
-  const context = await getAppContext();
-  if (context.kind !== "ready") {
-    return (
-      <section className="page">
-        <AppNav />
-        <header className="header">
-          <div>
-            <h1 className="title">{t("inbox_title")}</h1>
-            <p className="subtitle">Connect Supabase and sign in to unlock the inbox.</p>
-          </div>
-        </header>
-      </section>
-    );
-  }
-
-  const [rows, team] = await Promise.all([
-    getConversationViews(context.supabase, context.profile.company_id),
-    getTeamMembers(context.supabase, context.profile.company_id),
-  ]);
-  const workspaceMode = getWorkspaceMode(context.company, context.user.email);
-  const canSeeInternalSetup = canManageInternalWorkspace(workspaceMode);
-  const unitOptions = Array.from(new Set(rows.map((row) => row.unit).filter((value): value is string => Boolean(value))));
-  const selectedUnit = resolvedSearchParams?.unit?.trim() || "";
-  const selectedScope = resolvedSearchParams?.scope?.trim() || "all";
-  const showDemoNotice = resolvedSearchParams?.demo?.trim() === "1";
-  const focusedConversationId = resolvedSearchParams?.focus?.trim() || "";
-  const scopedRows = rows.filter((row) => {
-    if (selectedUnit && row.unit !== selectedUnit) return false;
-    if (selectedScope === "mine") return row.assignedToId === context.user.id;
-    if (selectedScope === "unassigned") return !row.assignedToId;
-    if (selectedScope === "no_response") return row.status === "no_response";
-    if (selectedScope === "new") return row.status === "new";
-    return true;
-  });
-  const visibleRows = scopedRows.sort((a, b) => {
-    const scoreDiff = conversationPriorityScore(b) - conversationPriorityScore(a);
-    if (scoreDiff !== 0) return scoreDiff;
-    const recencyA = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
-    const recencyB = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
-    return recencyB - recencyA;
-  });
-  const unansweredRows = rows.filter((row) => row.status === "no_response");
-  const newRows = rows.filter((row) => row.status === "new");
-  const activeRows = rows.filter((row) => row.status === "active");
-  const leadsAtRisk = unansweredRows.length;
-  const riskAmount = unansweredRows.reduce((sum, row) => sum + row.estimatedValue, 0);
-  const activeAmount = activeRows.reduce((sum, row) => sum + row.estimatedValue, 0);
-  const newAmount = newRows.reduce((sum, row) => sum + row.estimatedValue, 0);
-  const complexCount = rows.filter((row) => row.decisionType === "complex").length;
-  void team;
-
-  function buildInboxHref(scope: string) {
-    const params = new URLSearchParams();
-    if (scope !== "all") params.set("scope", scope);
-    if (selectedUnit) params.set("unit", selectedUnit);
-    if (showDemoNotice) params.set("demo", "1");
-    if (focusedConversationId) params.set("focus", focusedConversationId);
-    const query = params.toString();
-    return query ? `/inbox?${query}` : "/inbox";
-  }
+export default function InboxRevenuePreview() {
+  const [selectedId, setSelectedId] = useState("1");
+  const selected = conversations.find((c) => c.id === selectedId) ?? conversations[0];
 
   return (
-    <section className="page">
-      <AutoRefresh intervalMs={12000} />
-      <AppNav
-        showSetup={canSeeInternalSetup}
-        showLocale={canSeeInternalSetup}
-        userName={context.profile.full_name ?? context.user.email ?? null}
-        userRole={context.profile.role}
-      />
-      <header className="header">
-        <div>
-          <h1 className="title">{t("inbox_title")}</h1>
-          <p className="subtitle">{t("inbox_subtitle")}</p>
-        </div>
-      </header>
+    <main className="min-h-screen bg-[#07110E] text-white -m-6">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="mb-2 text-xs uppercase tracking-[0.24em] text-green-400">app.novua.digital/inbox</p>
+            <h1 className="text-3xl font-semibold sm:text-4xl">Inbox que prioriza por revenue y riesgo</h1>
+            <p className="mt-3 max-w-2xl text-base leading-7 text-gray-300">
+              El revenue no vive en otra pantalla. Vive dentro de cada conversación, donde decide la prioridad.
+            </p>
+          </div>
 
-      <div className="grid cols-3" style={{ marginBottom: 12 }}>
-        <article className="card decision-card decision-card-warn">
-          <p className="label">En riesgo ahora</p>
-          <p className="kpi" style={{ marginBottom: 6 }}>{format(riskAmount)}</p>
-          <p className="subtitle" style={{ margin: 0 }}>
-            {leadsAtRisk} conversaciones sin respuesta
-          </p>
-        </article>
-        <article className="card decision-card decision-card-active">
-          <p className="label">En progreso</p>
-          <p className="kpi" style={{ marginBottom: 6 }}>{format(activeAmount)}</p>
-          <p className="subtitle" style={{ margin: 0 }}>
-            {activeRows.length} conversaciones activas
-          </p>
-        </article>
-        <article className="card decision-card decision-card-neutral">
-          {complexCount > 0 ? (
-            <>
-              <p className="label">Requieren atención</p>
-              <p className="kpi" style={{ marginBottom: 6 }}>{complexCount}</p>
-              <p className="subtitle" style={{ margin: 0 }}>
-                casos complejos detectados
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="label">Nuevas conversaciones</p>
-              <p className="kpi" style={{ marginBottom: 6 }}>{format(newAmount)}</p>
-              <p className="subtitle" style={{ margin: 0 }}>
-                {newRows.length} conversaciones nuevas
-              </p>
-            </>
-          )}
-        </article>
-      </div>
-
-      <article className="card" style={{ marginBottom: 12 }}>
-        <p className="warn" style={{ marginBottom: 6 }}>
-          {format(riskAmount)} {t("inbox_risk_money_now")}
-        </p>
-        <p className="subtitle" style={{ margin: 0 }}>
-          {leadsAtRisk > 0 ? `${leadsAtRisk} ${t("inbox_risk_line")}` : "No hay conversaciones en riesgo por demora."}
-        </p>
-      </article>
-
-      <article className="card">
-        {visibleRows.length === 0 ? (
-          <div className="empty-state">
-            <h3>{t("inbox_empty_title")}</h3>
-            <p>{t("inbox_empty_text")}</p>
-            <div className="actions" style={{ marginTop: 12 }}>
-              <Link className="button" href="/settings#channels-setup">
-                Review setup
-              </Link>
-              <Link className="mini-button" href="/settings#request-setup">
-                Request onboarding
-              </Link>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 opacity-80">
+              <div className="text-xs text-gray-400">En riesgo</div>
+              <div className="mt-1 text-2xl font-semibold text-yellow-400">€270</div>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 opacity-80">
+              <div className="text-xs text-gray-400">Alto valor</div>
+              <div className="mt-1 text-2xl font-semibold text-green-400">€120</div>
             </div>
           </div>
-        ) : (
-          <>
-            {showDemoNotice ? (
-              <div className="demo-notice" style={{ marginBottom: 12 }}>
-                <p className="label" style={{ marginBottom: 6 }}>Demo lista</p>
-                <p className="subtitle" style={{ margin: 0 }}>
-                  Hemos creado conversaciones de ejemplo para que veas prioridad, valor y acción desde el primer minuto.
-                </p>
-              </div>
-            ) : null}
-            <div className="inbox-quick-filters">
-              <Link
-                className={selectedScope === "all" ? "mini-button filter-pill filter-pill-all is-active" : "mini-button filter-pill filter-pill-all"}
-                href={buildInboxHref("all")}
-              >
-                Todas
-              </Link>
-              <Link
-                className={selectedScope === "mine" ? "mini-button filter-pill filter-pill-mine is-active" : "mini-button filter-pill filter-pill-mine"}
-                href={buildInboxHref("mine")}
-              >
-                Mías
-              </Link>
-              <Link
-                className={
-                  selectedScope === "unassigned"
-                    ? "mini-button filter-pill filter-pill-unassigned is-active"
-                    : "mini-button filter-pill filter-pill-unassigned"
-                }
-                href={buildInboxHref("unassigned")}
-              >
-                Sin asignar
-              </Link>
-              <Link
-                className={
-                  selectedScope === "no_response"
-                    ? "mini-button filter-pill filter-pill-no-response is-active"
-                    : "mini-button filter-pill filter-pill-no-response"
-                }
-                href={buildInboxHref("no_response")}
-              >
-                Sin respuesta
-              </Link>
-              <Link
-                className={selectedScope === "new" ? "mini-button filter-pill filter-pill-new is-active" : "mini-button filter-pill filter-pill-new"}
-                href={buildInboxHref("new")}
-              >
-                Nuevas
-              </Link>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] items-start">
+          <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-5 sm:p-6 max-h-[70vh] overflow-y-auto">
+            <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-gray-400">
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Todas</span>
+              <span className="rounded-full border border-yellow-500/20 bg-yellow-500/5 px-3 py-1 text-yellow-300">En riesgo</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Asignadas</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Nuevas</span>
             </div>
-            <form method="GET" className="actions" style={{ marginBottom: 12 }}>
-              <input type="hidden" name="scope" value={selectedScope === "all" ? "" : selectedScope} />
-              {showDemoNotice ? <input type="hidden" name="demo" value="1" /> : null}
-              {focusedConversationId ? <input type="hidden" name="focus" value={focusedConversationId} /> : null}
-              <select className="input row-select" name="unit" defaultValue={selectedUnit}>
-                <option value="">{t("inbox_all_units")}</option>
-                {unitOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-              <button className="mini-button" type="submit">
-                {t("inbox_filter_units")}
-              </button>
-              {selectedUnit ? (
-                <Link className="mini-button" href="/inbox">
-                  {t("inbox_clear_unit_filter")}
-                </Link>
-              ) : null}
-            </form>
-            <div className="inbox-card-list">
-              {visibleRows.map((row) => {
-                const primaryAction = actionLabel(row.decisionType, Boolean(row.assignedToId));
-                const noReplyMeta = getNoReplyMeta(row.status, row.lastInboundAt ?? row.lastMessageAt);
-                const visibleStatusLabel = getVisibleStatusLabel(row, noReplyMeta.className, t);
-                const isCriticalRisk = visibleStatusLabel === "En riesgo";
-                const timeLabel = getStatusTimeLabel(row, noReplyMeta.timeLabel);
-                const statusToneClass =
-                  row.status === "no_response" && visibleStatusLabel === "En riesgo"
-                    ? "inbox-row-status-risk"
-                    : row.status === "active"
-                      ? "inbox-row-status-active"
-                      : row.status === "new"
-                        ? "inbox-row-status-new"
-                        : row.status === "won"
-                          ? "inbox-row-status-won"
-                          : row.status === "lost"
-                            ? "inbox-row-status-lost"
-                        : "";
-                const rowClassName = [
-                  row.id === focusedConversationId ? "inbox-row-card-focus" : "",
-                  isCriticalRisk
-                    ? "inbox-row-card-risk"
-                    : row.status === "active"
-                      ? "inbox-row-card-active"
-                      : row.status === "new"
-                        ? "inbox-row-card-new"
-                        : row.status === "won"
-                          ? "inbox-row-card-won"
-                          : row.status === "lost"
-                            ? "inbox-row-card-lost"
-                            : "",
-                  row.assignedToId === context.user.id ? "inbox-row-card-mine" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ");
-                const assignedLabel = row.assignedTo
-                  ? row.assignedToId === context.user.id
-                    ? "Asignado a ti"
-                    : row.assignedTo
-                  : "Sin asignar";
+
+            <div className="space-y-4">
+              {conversations.map((conversation) => {
+                const isSelected = conversation.id === selectedId;
                 return (
-                  <article key={row.id} className={`inbox-row-card ${rowClassName}`.trim()}>
-                    <div className="inbox-row-card-top">
-                      <div>
-                        <div className={`inbox-row-status ${statusToneClass}`.trim()}>
-                          {row.status === "no_response" && visibleStatusLabel === "En riesgo"
-                            ? "🔴 "
-                            : row.status === "active"
-                              ? "🟢 "
-                              : row.status === "new"
-                                ? "🔵 "
-                                : row.status === "won"
-                                  ? "🟢 "
-                                  : row.status === "lost"
-                                    ? "⚪ "
-                                    : ""}
-                          {visibleStatusLabel}
+                  <motion.button
+                    key={conversation.id}
+                    whileHover={{ y: -2 }}
+                    onClick={() => setSelectedId(conversation.id)}
+                    className={[
+                      "w-full rounded-2xl border p-5 text-left transition-all duration-300",
+                      isSelected
+                        ? "border-green-400/40 bg-[#132922] shadow-[0_0_35px_rgba(52,211,153,0.12)]"
+                        : "border-white/5 bg-[#10211C] hover:border-white/10",
+                    ].join(" ")}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-xl font-semibold text-white">{conversation.name}</p>
+                          <span className={`rounded-full border px-3 py-1 text-xs ${conversation.stateClass}`}>
+                            {conversation.state}
+                          </span>
                         </div>
-                        <div className={`inbox-row-time ${noReplyMeta.className}`.trim()}>{timeLabel}</div>
+                        <p className="mt-3 line-clamp-2 text-base leading-7 text-gray-300">{conversation.message}</p>
                       </div>
-                      <div className="inbox-row-value">
-                        <div className={`inbox-row-value-amount ${isCriticalRisk ? "risk-label" : ""}`}>💰 {format(row.estimatedValue)}</div>
-                        <div className="inbox-row-value-type">{row.leadType ?? t("inbox_unclassified")}</div>
+
+                      <div className="text-right">
+                        <div className="text-2xl font-semibold text-white">{conversation.value}</div>
+                        <div className={`mt-1 text-sm font-medium ${conversation.riskClass}`}>{conversation.risk}</div>
                       </div>
                     </div>
 
-                    <div className="inbox-row-body">
-                      <Link className="inbox-row-contact" href={`/conversation/${row.id}`}>
-                        {row.contactName}
-                      </Link>
-                      <div className="inbox-row-message">{row.lastMessageText}</div>
+                    <div className="mt-5 grid gap-3 border-t border-white/10 pt-4 text-sm sm:grid-cols-3">
+                      <div>
+                        <div className="text-gray-500">Estado temporal</div>
+                        <div className="mt-1 text-gray-200">{conversation.delay}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-500">Responsable</div>
+                        <div className="mt-1 text-gray-200">{conversation.owner}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-500">Siguiente acción</div>
+                        <div className="mt-1 font-medium text-white">{conversation.action}</div>
+                      </div>
                     </div>
-
-                    <div className="inbox-row-footer">
-                      <div className="inbox-row-assigned">{assignedLabel}</div>
-                      {primaryAction ? (
-                        <Link
-                          className={
-                            isCriticalRisk
-                              ? "button"
-                              : row.status === "new"
-                                ? "mini-button inbox-row-secondary-action inbox-row-secondary-action-new"
-                                : row.status === "won"
-                                  ? "mini-button inbox-row-secondary-action inbox-row-secondary-action-won"
-                                  : row.status === "lost"
-                                    ? "mini-button inbox-row-secondary-action inbox-row-secondary-action-lost"
-                                    : "mini-button inbox-row-secondary-action"
-                          }
-                          href={`/conversation/${row.id}`}
-                        >
-                          {primaryAction}
-                        </Link>
-                      ) : (
-                        <span className="note" style={{ marginTop: 0 }}>—</span>
-                      )}
-                    </div>
-                  </article>
+                  </motion.button>
                 );
               })}
             </div>
-          </>
-        )}
-      </article>
-    </section>
+          </section>
+
+          <aside className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-5 sm:p-6 sticky top-6 h-fit">
+            <p className="text-xs uppercase tracking-[0.18em] text-gray-400">Capa de decisión</p>
+
+            <div className="mt-5 rounded-2xl border border-white/5 bg-[#101B18] p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-2xl font-semibold text-white">{selected.name}</p>
+                  <p className="mt-2 text-sm text-gray-400">{selected.delay}</p>
+                </div>
+                <span className={`rounded-full border px-3 py-1 text-sm ${selected.stateClass}`}>{selected.state}</span>
+              </div>
+
+              <div className="mt-6 h-2 w-full overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-green-400 via-lime-300 to-yellow-400"
+                  style={{ width: selected.id === "1" ? "82%" : selected.id === "2" ? "52%" : selected.id === "3" ? "68%" : "34%" }}
+                />
+              </div>
+
+              <div className="mt-6 grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-xs uppercase tracking-[0.18em] text-gray-400">Valor</div>
+                  <div className="mt-2 text-3xl font-semibold text-white">{selected.value}</div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase tracking-[0.18em] text-gray-400">Riesgo</div>
+                  <div className={`mt-2 text-3xl font-semibold ${selected.riskClass}`}>{selected.risk}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-white/5 bg-[#101B18] p-5">
+              <p className="text-xs uppercase tracking-[0.18em] text-gray-400">Qué hacer ahora</p>
+              <p className="mt-3 text-2xl font-semibold text-white">{selected.action}</p>
+              <p className="mt-3 text-base leading-7 text-gray-400">
+                El revenue aparece donde genera decisión: dentro de la conversación, no separado de ella.
+              </p>
+
+              <div className="mt-6 flex flex-col gap-3">
+                <button className="rounded-2xl bg-green-500 px-5 py-3 text-base font-semibold text-black transition hover:bg-green-400">
+                  {selected.action}
+                </button>
+                <button className="rounded-2xl border border-white/10 px-5 py-3 text-base font-medium text-gray-200 transition hover:bg-white/5">
+                  Asignar responsable
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-white/5 bg-[#101B18] p-5">
+              <p className="text-xs uppercase tracking-[0.18em] text-gray-400">Principio de producto</p>
+              <p className="mt-3 text-lg font-semibold text-white">
+                No mostramos revenue en abstracto. Hacemos visible dónde actuar para no perderlo.
+              </p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
   );
 }
