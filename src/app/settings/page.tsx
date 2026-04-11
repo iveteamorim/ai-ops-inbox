@@ -509,13 +509,13 @@ export default async function SettingsPage() {
 
   return (
     <section className="page">
-      <AppNav
-        showSetup={canSeeInternalSetup}
-        showLocale={canSeeInternalSetup}
-        userName={context.profile.full_name ?? context.user.email ?? null}
-        userRole={context.profile.role}
-      />
-      <div className="min-h-screen bg-gradient-to-br from-black via-[#061a14] to-[#0b2a20] text-white p-8 -m-6">
+      <div className="min-h-screen bg-gradient-to-br from-black via-[#061a14] to-[#0b2a20] text-white p-8">
+        <AppNav
+          showSetup={canSeeInternalSetup}
+          showLocale={canSeeInternalSetup}
+          userName={context.profile.full_name ?? context.user.email ?? null}
+          userRole={context.profile.role}
+        />
         <div className="max-w-6xl mx-auto space-y-10">
           <div>
             <p className="text-green-400 text-sm mb-2">NÓVUA · CONFIGURACIÓN</p>
