@@ -148,7 +148,7 @@ export default function NovuaLanding() {
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link
-                href="/setup-requests"
+                href="/signup"
                 className="rounded-2xl bg-green-500 px-6 py-3 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.22)] transition duration-300 hover:scale-[1.02] hover:bg-green-400"
               >
                 Solicitar demo
@@ -347,7 +347,7 @@ export default function NovuaLanding() {
 
           <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Link
-              href="/setup-requests"
+              href="/signup"
               className="rounded-2xl bg-green-500 px-7 py-3.5 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.25)] transition duration-300 hover:scale-[1.02] hover:bg-green-400"
             >
               Solicitar demo
@@ -378,7 +378,7 @@ export default function NovuaLanding() {
             transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
           >
             <Link
-              href="/setup-requests"
+              href="/signup"
               className="rounded-2xl bg-green-500 px-8 py-4 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.25)] transition duration-300 hover:scale-[1.02] hover:bg-green-400"
             >
             Solicitar demo
