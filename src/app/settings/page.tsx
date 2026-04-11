@@ -546,17 +546,57 @@ export default async function SettingsPage() {
           </article>
 
           <div className="grid cols-2" style={{ marginTop: 12 }}>
-            <article className="card">
-              <p className="label">{canManageTeam ? settingsText.systemTitleManage : settingsText.systemTitleAgent}</p>
-              <div className="settings-capability-list">
-                {settingsText.capabilities.map((item) => (
-                  <div key={item.title} className="settings-capability-card">
-                    <strong>✓ {item.title}</strong>
-                    <span>{item.description}</span>
-                  </div>
-                ))}
-              </div>
-            </article>
+            {canManageTeam ? (
+              <BusinessSetupForm
+                initialValue={businessSetup}
+                showInternalTools={canSeeInternalSetup}
+                labels={{
+                  title: copy.businessSetupTitle,
+                  help: copy.businessSetupHelp,
+                  businessName: copy.businessSetupName,
+                  leadTypesBlock: copy.businessSetupLeadTypesBlock,
+                  leadTypes: copy.businessSetupLeadTypes,
+                  addLeadType: copy.businessSetupAddLeadType,
+                  leadTypeName: copy.businessSetupLeadTypeName,
+                  estimatedValue: copy.businessSetupEstimatedValue,
+                  removeLeadType: copy.businessSetupRemoveLeadType,
+                  save: copy.businessSetupSave,
+                  saving: copy.businessSetupSaving,
+                  backfill: copy.businessSetupBackfill,
+                  backfilling: copy.businessSetupBackfilling,
+                  backfillSuccess: copy.businessSetupBackfillSuccess,
+                  reseedDemo: copy.businessSetupReseedDemo,
+                  reseedingDemo: copy.businessSetupReseedingDemo,
+                  reseedDemoSuccess: copy.businessSetupReseedDemoSuccess,
+                  reseedDemoConfirm: copy.businessSetupReseedDemoConfirm,
+                  success: copy.businessSetupSuccess,
+                  error: copy.businessSetupError,
+                }}
+              />
+            ) : (
+              <article className="card">
+                <p className="label">{copy.accountTitle}</p>
+                <p className="subtitle" style={{ marginBottom: 12 }}>{copy.accountHelp}</p>
+                <div className="preview-row">
+                  <span>{copy.accountRole}</span>
+                  <span className="badge status-active">{roleLabel}</span>
+                </div>
+                <div className="preview-row">
+                  <span>{copy.accountWorkspace}</span>
+                  <span>{workspaceLabel}</span>
+                </div>
+                <div className="preview-row">
+                  <span>{copy.accountEmail}</span>
+                  <span>{context.user.email ?? "-"}</span>
+                </div>
+                <div className="agent-settings-note">
+                  <p className="label" style={{ marginBottom: 6 }}>{copy.accountPermissions}</p>
+                  <p className="subtitle" style={{ margin: 0 }}>
+                    {context.profile.role === "agent" ? copy.accountPermissionsAgent : copy.accountPermissionsAdmin}
+                  </p>
+                </div>
+              </article>
+            )}
 
             <article className="card">
               <p className="label">{settingsText.teamTitle}</p>
@@ -623,99 +663,57 @@ export default async function SettingsPage() {
             </article>
           </div>
 
-          <div className="grid cols-2" style={{ marginTop: 12 }}>
+          <article className="card" id="whatsapp-setup">
+            <p className="label">{settingsText.channelTitle}</p>
+            <p className="subtitle" style={{ marginBottom: 12 }}>
+              {settingsText.channelHelp}
+            </p>
+            {channels.length > 0 ? (
+              <div className="preview-row" style={{ marginBottom: 12 }}>
+                <span>{formatChannel(channels[0].type)}</span>
+                <span className={`badge ${channels[0].is_active ? "status-active" : "status-no-response"}`}>
+                  {channels[0].is_active ? t("settings_active") : t("settings_disconnected")}
+                </span>
+              </div>
+            ) : null}
             {canManageTeam ? (
-              <BusinessSetupForm
-                initialValue={businessSetup}
-                showInternalTools={canSeeInternalSetup}
-                labels={{
-                  title: copy.businessSetupTitle,
-                  help: copy.businessSetupHelp,
-                  businessName: copy.businessSetupName,
-                  leadTypesBlock: copy.businessSetupLeadTypesBlock,
-                  leadTypes: copy.businessSetupLeadTypes,
-                  addLeadType: copy.businessSetupAddLeadType,
-                  leadTypeName: copy.businessSetupLeadTypeName,
-                  estimatedValue: copy.businessSetupEstimatedValue,
-                  removeLeadType: copy.businessSetupRemoveLeadType,
-                  save: copy.businessSetupSave,
-                  saving: copy.businessSetupSaving,
-                  backfill: copy.businessSetupBackfill,
-                  backfilling: copy.businessSetupBackfilling,
-                  backfillSuccess: copy.businessSetupBackfillSuccess,
-                  reseedDemo: copy.businessSetupReseedDemo,
-                  reseedingDemo: copy.businessSetupReseedingDemo,
-                  reseedDemoSuccess: copy.businessSetupReseedDemoSuccess,
-                  reseedDemoConfirm: copy.businessSetupReseedDemoConfirm,
-                  success: copy.businessSetupSuccess,
-                  error: copy.businessSetupError,
-                }}
+              <SetupRequestButton
+                idleLabel={copy.requestWhatsAppSetup}
+                updateLabel={copy.updateWhatsAppSetup}
+                requestedLabel={copy.setupRequested}
+                requestedNote={copy.setupRequestedNote}
+                numberLabel={copy.setupNumberLabel}
+                numberPlaceholder={copy.setupNumberPlaceholder}
+                metaVerifiedLabel={copy.setupMetaVerifiedLabel}
+                metaVerifiedYes={copy.setupMetaVerifiedYes}
+                metaVerifiedNo={copy.setupMetaVerifiedNo}
+                notesLabel={copy.setupNotesLabel}
+                notesPlaceholder={copy.setupNotesPlaceholder}
+                phoneRequiredError={copy.setupPhoneRequired}
+                requestErrorLabel={copy.requestError}
+                inProgressLabel={copy.setupInProgress}
+                existingStatus={whatsappSetupRequest?.status ?? null}
+                existingNotes={whatsappSetupRequest?.notes ?? null}
               />
             ) : (
-              <article className="card">
-                <p className="label">{copy.accountTitle}</p>
-                <p className="subtitle" style={{ marginBottom: 12 }}>{copy.accountHelp}</p>
-                <div className="preview-row">
-                  <span>{copy.accountRole}</span>
-                  <span className="badge status-active">{roleLabel}</span>
-                </div>
-                <div className="preview-row">
-                  <span>{copy.accountWorkspace}</span>
-                  <span>{workspaceLabel}</span>
-                </div>
-                <div className="preview-row">
-                  <span>{copy.accountEmail}</span>
-                  <span>{context.user.email ?? "-"}</span>
-                </div>
-                <div className="agent-settings-note">
-                  <p className="label" style={{ marginBottom: 6 }}>{copy.accountPermissions}</p>
-                  <p className="subtitle" style={{ margin: 0 }}>
-                    {context.profile.role === "agent" ? copy.accountPermissionsAgent : copy.accountPermissionsAdmin}
-                  </p>
-                </div>
-              </article>
+              <div className="setup-state">
+                <p className="note">{copy.channelUsage}</p>
+                <p className="note">{copy.channelsNote}</p>
+              </div>
             )}
+          </article>
 
-            <article className="card" id="whatsapp-setup">
-              <p className="label">{settingsText.channelTitle}</p>
-              <p className="subtitle" style={{ marginBottom: 12 }}>
-                {settingsText.channelHelp}
-              </p>
-              {channels.length > 0 ? (
-                <div className="preview-row" style={{ marginBottom: 12 }}>
-                  <span>{formatChannel(channels[0].type)}</span>
-                  <span className={`badge ${channels[0].is_active ? "status-active" : "status-no-response"}`}>
-                    {channels[0].is_active ? t("settings_active") : t("settings_disconnected")}
-                  </span>
+          <article className="card">
+            <p className="label">{canManageTeam ? settingsText.systemTitleManage : settingsText.systemTitleAgent}</p>
+            <div className="settings-capability-list">
+              {settingsText.capabilities.map((item) => (
+                <div key={item.title} className="settings-capability-card">
+                  <strong>✓ {item.title}</strong>
+                  <span>{item.description}</span>
                 </div>
-              ) : null}
-              {canManageTeam ? (
-                <SetupRequestButton
-                  idleLabel={copy.requestWhatsAppSetup}
-                  updateLabel={copy.updateWhatsAppSetup}
-                  requestedLabel={copy.setupRequested}
-                  requestedNote={copy.setupRequestedNote}
-                  numberLabel={copy.setupNumberLabel}
-                  numberPlaceholder={copy.setupNumberPlaceholder}
-                  metaVerifiedLabel={copy.setupMetaVerifiedLabel}
-                  metaVerifiedYes={copy.setupMetaVerifiedYes}
-                  metaVerifiedNo={copy.setupMetaVerifiedNo}
-                  notesLabel={copy.setupNotesLabel}
-                  notesPlaceholder={copy.setupNotesPlaceholder}
-                  phoneRequiredError={copy.setupPhoneRequired}
-                  requestErrorLabel={copy.requestError}
-                  inProgressLabel={copy.setupInProgress}
-                  existingStatus={whatsappSetupRequest?.status ?? null}
-                  existingNotes={whatsappSetupRequest?.notes ?? null}
-                />
-              ) : (
-                <div className="setup-state">
-                  <p className="note">{copy.channelUsage}</p>
-                  <p className="note">{copy.channelsNote}</p>
-                </div>
-              )}
-            </article>
-          </div>
+              ))}
+            </div>
+          </article>
 
           {showCustomerFeedback ? (
             <>
