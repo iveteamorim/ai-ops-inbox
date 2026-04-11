@@ -249,8 +249,8 @@ export const dictionary = {
     revenue_more_types_label: "Más tipos",
     revenue_more_types_subtitle: "agrupados fuera del top 6",
 
-    settings_title: "Configuración",
-    settings_subtitle: "Gestiona tu workspace en autoservicio y revisa el estado de la conexión asistida de WhatsApp.",
+    settings_title: "Define cómo funciona tu sistema",
+    settings_subtitle: "Aquí defines cómo se calcula el valor de cada conversación, quién responde y cómo se prioriza el trabajo.",
     settings_channels: "Canales",
     settings_users: "Usuarios",
     settings_ai_revenue: "IA y Revenue",
@@ -583,8 +583,8 @@ export const dictionary = {
     revenue_more_types_label: "Mais tipos",
     revenue_more_types_subtitle: "agrupados fora do top 6",
 
-    settings_title: "Configurações",
-    settings_subtitle: "Gerencie o workspace em autosserviço e revise o estado da conexão assistida do WhatsApp.",
+    settings_title: "Defina como seu sistema funciona",
+    settings_subtitle: "Aqui você define o valor de cada conversa, quem responde e como o trabalho é priorizado.",
     settings_channels: "Canais",
     settings_users: "Usuários",
     settings_ai_revenue: "IA e Receita",
@@ -915,8 +915,8 @@ export const dictionary = {
     revenue_more_types_label: "More types",
     revenue_more_types_subtitle: "grouped outside the top 6",
 
-    settings_title: "Settings",
-    settings_subtitle: "Manage your workspace in self-serve and review the status of the assisted WhatsApp connection.",
+    settings_title: "Define how your system works",
+    settings_subtitle: "Set how value is calculated, who responds, and how work is prioritized.",
     settings_channels: "Channels",
     settings_users: "Users",
     settings_ai_revenue: "AI and Revenue",

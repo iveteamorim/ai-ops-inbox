@@ -60,11 +60,11 @@ function getSetupCopy(lang: string) {
       reassigningAction: "Reasignando...",
       reassignSuccess: "Conversaciones abiertas reasignadas.",
       reassignError: "No se pudieron reasignar las conversaciones.",
-      businessSetupTitle: "Tu negocio",
+      businessSetupTitle: "Cómo se calcula el valor",
       businessSetupHelp:
-        "Esto ayuda a Novua a priorizar mejor tus conversaciones y estimar el valor de cada cliente.",
+        "Define cuánto vale cada tipo de conversación. Esto determina qué aparece primero en el inbox.",
       businessSetupName: "Nombre del negocio",
-      businessSetupLeadTypesBlock: "Tipos de consulta",
+      businessSetupLeadTypesBlock: "Tipos de consulta y valor estimado (€)",
       businessSetupLeadTypes: "¿Qué tipo de consultas recibes?",
       businessSetupAddLeadType: "+ Añadir tipo",
       businessSetupLeadTypeName: "Nombre",
@@ -178,11 +178,11 @@ function getSetupCopy(lang: string) {
       reassigningAction: "A reatribuir...",
       reassignSuccess: "Conversas abertas reatribuídas.",
       reassignError: "Não foi possível reatribuir as conversas.",
-      businessSetupTitle: "Seu negócio",
+      businessSetupTitle: "Como calculamos o valor",
       businessSetupHelp:
-        "Isto ajuda a Novua a priorizar melhor as suas conversas e estimar o valor de cada cliente.",
+        "Defina quanto vale cada tipo de conversa. Isso determina o que aparece primeiro no inbox.",
       businessSetupName: "Nome do negócio",
-      businessSetupLeadTypesBlock: "Tipos de consulta",
+      businessSetupLeadTypesBlock: "Tipos de consulta e valor estimado (€)",
       businessSetupLeadTypes: "Que tipo de consultas recebes?",
       businessSetupAddLeadType: "+ Adicionar tipo",
       businessSetupLeadTypeName: "Nome",
@@ -295,11 +295,11 @@ function getSetupCopy(lang: string) {
     reassigningAction: "Reassigning...",
     reassignSuccess: "Open conversations reassigned.",
     reassignError: "Conversations could not be reassigned.",
-    businessSetupTitle: "Your business",
+    businessSetupTitle: "How value is calculated",
     businessSetupHelp:
-      "This helps Novua prioritize conversations and estimate the value of each client.",
+      "Define how much each type of conversation is worth. This determines what appears first in the inbox.",
     businessSetupName: "Business name",
-    businessSetupLeadTypesBlock: "Lead types",
+    businessSetupLeadTypesBlock: "Lead types and estimated value (€)",
     businessSetupLeadTypes: "What types of inquiries do you receive?",
     businessSetupAddLeadType: "+ Add type",
     businessSetupLeadTypeName: "Name",
@@ -445,7 +445,7 @@ export default async function SettingsPage() {
             { title: copy.systemFollowUpAutomation, description: "Empurra conversas ativas para não perder oportunidades." },
             { title: copy.systemWhatsappWebhook, description: hasWebhookSecrets ? "Canal pronto para receber mensagens." : "Ligação técnica pendente." },
           ],
-          teamTitle: canManageTeam ? "Quem responde aos clientes" : t("settings_users"),
+            teamTitle: canManageTeam ? "Equipe que responde" : t("settings_users"),
           channelTitle: "Conecta WhatsApp",
           channelHelp: "Usa este canal para solicitar ou atualizar a conexão real do WhatsApp durante o onboarding guiado.",
           unnamedUser: "Utilizador sem nome",
@@ -471,7 +471,7 @@ export default async function SettingsPage() {
               { title: copy.systemFollowUpAutomation, description: "Pushes active conversations so opportunities are not lost." },
               { title: copy.systemWhatsappWebhook, description: hasWebhookSecrets ? "Channel ready to receive messages." : "Technical connection still pending." },
             ],
-            teamTitle: canManageTeam ? "Who replies to customers" : t("settings_users"),
+            teamTitle: canManageTeam ? "Response team" : t("settings_users"),
             channelTitle: "Connect WhatsApp",
             channelHelp: "Use this area to request or update the real WhatsApp connection during guided onboarding.",
             unnamedUser: "Usuario sin nombre",
@@ -496,7 +496,7 @@ export default async function SettingsPage() {
               { title: copy.systemFollowUpAutomation, description: "Empuja conversaciones activas para no perder oportunidades." },
               { title: copy.systemWhatsappWebhook, description: hasWebhookSecrets ? "Canal listo para recibir mensajes." : "Pendiente de conexión técnica." },
             ],
-            teamTitle: canManageTeam ? "Quién responde a los clientes" : t("settings_users"),
+            teamTitle: canManageTeam ? "Equipo que responde" : t("settings_users"),
             channelTitle: "Conecta WhatsApp",
             channelHelp: "Usa este canal para solicitar o actualizar la conexión real de WhatsApp durante onboarding guiado.",
             unnamedUser: "Usuario sin nombre",
@@ -701,18 +701,6 @@ export default async function SettingsPage() {
                 <p className="note">{copy.channelsNote}</p>
               </div>
             )}
-          </article>
-
-          <article className="card">
-            <p className="label">{canManageTeam ? settingsText.systemTitleManage : settingsText.systemTitleAgent}</p>
-            <div className="settings-capability-list">
-              {settingsText.capabilities.map((item) => (
-                <div key={item.title} className="settings-capability-card">
-                  <strong>✓ {item.title}</strong>
-                  <span>{item.description}</span>
-                </div>
-              ))}
-            </div>
           </article>
 
           {showCustomerFeedback ? (
