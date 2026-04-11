@@ -193,9 +193,13 @@ export default async function InboxPage() {
   });
   const visibleRows = sortedRows.slice(0, 12);
   const atRiskRows = rows.filter((row) => row.status === "no_response");
+  const activeRows = rows.filter((row) => row.status === "active");
+  const newRows = rows.filter((row) => row.status === "new");
   const highValueRows = rows.filter((row) => row.aiPriority === "high");
   const riskAmount = atRiskRows.reduce((sum, row) => sum + row.estimatedValue, 0);
+  const activeAmount = activeRows.reduce((sum, row) => sum + row.estimatedValue, 0);
   const highValueAmount = highValueRows.reduce((sum, row) => sum + row.estimatedValue, 0);
+  const newCount = newRows.length;
 
   const conversations = visibleRows.map((row) => {
     const noReplyMeta = getNoReplyMeta(row.status, row.lastMessageAt);
@@ -232,7 +236,9 @@ export default async function InboxPage() {
       <InboxDecisionView
         conversations={conversations}
         riskAmountLabel={format(riskAmount)}
+        activeAmountLabel={format(activeAmount)}
         highValueAmountLabel={format(highValueAmount)}
+        newCountLabel={String(newCount)}
       />
     </section>
   );

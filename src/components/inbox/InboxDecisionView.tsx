@@ -21,10 +21,18 @@ type InboxConversation = {
 type InboxDecisionViewProps = {
   conversations: InboxConversation[];
   riskAmountLabel: string;
+  activeAmountLabel: string;
   highValueAmountLabel: string;
+  newCountLabel: string;
 };
 
-export function InboxDecisionView({ conversations, riskAmountLabel, highValueAmountLabel }: InboxDecisionViewProps) {
+export function InboxDecisionView({
+  conversations,
+  riskAmountLabel,
+  activeAmountLabel,
+  highValueAmountLabel,
+  newCountLabel,
+}: InboxDecisionViewProps) {
   const initialId = conversations[0]?.id ?? "";
   const [selectedId, setSelectedId] = useState(initialId);
   const selected = useMemo(
@@ -45,14 +53,22 @@ export function InboxDecisionView({ conversations, riskAmountLabel, highValueAmo
   return (
     <main className="min-h-screen bg-[#07110E] text-white -m-6">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-2">
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 opacity-80">
             <div className="text-xs text-gray-400">En riesgo</div>
             <div className="mt-1 text-2xl font-semibold text-yellow-400">{riskAmountLabel}</div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 opacity-80">
+            <div className="text-xs text-gray-400">Activo</div>
+            <div className="mt-1 text-2xl font-semibold text-blue-400">{activeAmountLabel}</div>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 opacity-80">
             <div className="text-xs text-gray-400">Alto valor</div>
             <div className="mt-1 text-2xl font-semibold text-green-400">{highValueAmountLabel}</div>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 opacity-80">
+            <div className="text-xs text-gray-400">Nueva entrada</div>
+            <div className="mt-1 text-2xl font-semibold text-white">{newCountLabel}</div>
           </div>
         </div>
 
