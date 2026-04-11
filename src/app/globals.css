@@ -754,10 +754,11 @@ a {
 
 .landing-hero {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 40px;
-  align-items: flex-start;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: center;
   margin-top: 24px;
+  justify-items: center;
 }
 
 .landing-kicker {
@@ -836,6 +837,11 @@ a {
   padding: 18px;
   box-shadow: 0 25px 55px rgba(0, 0, 0, 0.35);
   margin-top: 6px;
+  max-width: 760px;
+}
+
+.landing-mockup {
+  width: 100%;
 }
 
 .landing-mockup-head {
@@ -1117,10 +1123,6 @@ a {
 }
 
 @media (max-width: 980px) {
-  .landing-hero {
-    grid-template-columns: 1fr;
-  }
-
   .landing-grid {
     grid-template-columns: 1fr;
   }
