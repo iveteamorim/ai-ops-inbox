@@ -191,10 +191,19 @@ export default async function DashboardPage() {
   );
   const highValueAmount = countValue(highValueLeads);
 
+  const totalConversations = visibleOpen.length;
+  const responseRate =
+    totalConversations > 0
+      ? Math.round(((totalConversations - visibleRisk.length) / totalConversations) * 100)
+      : 0;
+  const highValuePercent =
+    visibleOpen.length > 0 ? Math.round((highValueLeads.length / visibleOpen.length) * 100) : 0;
+  const newCount = visibleOpen.filter((item) => item.status === "new").length;
+
   const metrics = [
-    { label: lang === "en" ? "response" : "respuesta", value: "↓ 42%" },
-    { label: lang === "en" ? "conversion" : "conversión", value: "↑ 28%" },
-    { label: lang === "en" ? "risk visible" : "ingresos en riesgo visibles", value: "+" },
+    { label: lang === "en" ? "response rate" : "tasa de respuesta", value: `${responseRate}%` },
+    { label: lang === "en" ? "high value" : "alto valor", value: `${highValuePercent}%` },
+    { label: lang === "en" ? "new conversations" : "nuevas conversaciones", value: String(newCount) },
   ];
 
   const latestRisk = visibleRisk[0];
@@ -215,34 +224,34 @@ export default async function DashboardPage() {
   const statusLines = [
     `${visibleRisk.length} ${visibleRisk.length === 1 ? copy.criticalOne : copy.criticalMany}`,
     `${visibleActive.length} ${visibleActive.length === 1 ? copy.activeOne : copy.activeMany}`,
-    `${visibleOpen.filter((item) => item.status === "new").length} ${visibleOpen.filter((item) => item.status === "new").length === 1 ? copy.unopenedOne : copy.unopenedMany}`,
+    `${newCount} ${newCount === 1 ? copy.unopenedOne : copy.unopenedMany}`,
   ];
 
   const decisionGroups = [
     {
-      title: "Riesgo alto",
-      subtitle: "Conversaciones sin respuesta > 1h",
+      title: lang === "en" ? "High risk" : "Riesgo alto",
+      subtitle: lang === "en" ? "No reply > 1h" : "Conversaciones sin respuesta > 1h",
       value: format(visibleRiskAmount),
-      count: `${visibleRisk.length} conversaciones`,
-      action: "Revisar prioridades en el inbox",
+      count: `${visibleRisk.length} ${visibleRisk.length === 1 ? copy.riskOne : copy.riskMany}`,
+      action: lang === "en" ? "Review priorities in inbox" : "Revisar prioridades en el inbox",
       tone: "yellow" as const,
       href: "/inbox?scope=no_response",
     },
     {
-      title: "Oportunidad",
-      subtitle: "Leads de alto valor sin seguimiento",
+      title: lang === "en" ? "Opportunity" : "Oportunidad",
+      subtitle: lang === "en" ? "High value leads pending" : "Leads de alto valor sin seguimiento",
       value: format(highValueAmount),
-      count: `${highValueLeads.length} leads`,
-      action: "Priorizar leads > €150",
+      count: `${highValueLeads.length} ${highValueLeads.length === 1 ? "lead" : "leads"}`,
+      action: lang === "en" ? "Prioritize > €150" : "Priorizar leads > €150",
       tone: "green" as const,
       href: "/inbox",
     },
     {
-      title: "Seguimiento",
-      subtitle: "Conversaciones activas esperando siguiente paso",
+      title: lang === "en" ? "Follow-up" : "Seguimiento",
+      subtitle: lang === "en" ? "Active conversations pending" : "Conversaciones activas esperando siguiente paso",
       value: format(visibleActiveAmount),
-      count: `${visibleActive.length} conversaciones`,
-      action: "Empujar seguimiento hoy",
+      count: `${visibleActive.length} ${visibleActive.length === 1 ? copy.activeOne : copy.activeMany}`,
+      action: lang === "en" ? "Push follow-up today" : "Empujar seguimiento hoy",
       tone: "blue" as const,
       href: "/inbox?scope=active",
     },
