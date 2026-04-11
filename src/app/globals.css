@@ -878,6 +878,7 @@ a {
   opacity: 0.6;
   transform: translateY(0);
   position: relative;
+  padding-bottom: 46px;
 }
 
 .landing-mockup-card.is-active {
@@ -907,10 +908,7 @@ a {
 }
 
 .landing-mockup-meta {
-  position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: 12px;
+  margin-top: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
