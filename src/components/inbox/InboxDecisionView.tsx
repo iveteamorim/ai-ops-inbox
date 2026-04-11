@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 
@@ -172,12 +173,18 @@ export function InboxDecisionView({
               </p>
 
               <div className="mt-6 flex flex-col gap-3">
-                <button className="rounded-2xl bg-green-500 px-5 py-3 text-base font-semibold text-black transition hover:bg-green-400">
+                <Link
+                  href={`/conversation/${selected.id}`}
+                  className="rounded-2xl bg-green-500 px-5 py-3 text-base font-semibold text-black transition hover:bg-green-400"
+                >
                   {selected.action}
-                </button>
-                <button className="rounded-2xl border border-white/10 px-5 py-3 text-base font-medium text-gray-200 transition hover:bg-white/5">
+                </Link>
+                <Link
+                  href={`/conversation/${selected.id}?assign=1`}
+                  className="rounded-2xl border border-white/10 px-5 py-3 text-base font-medium text-gray-200 transition hover:bg-white/5"
+                >
                   Asignar responsable
-                </button>
+                </Link>
               </div>
             </div>
 
