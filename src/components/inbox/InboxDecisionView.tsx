@@ -45,24 +45,14 @@ export function InboxDecisionView({ conversations, riskAmountLabel, highValueAmo
   return (
     <main className="min-h-screen bg-[#07110E] text-white -m-6">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="mb-2 text-xs uppercase tracking-[0.24em] text-green-400">app.novua.digital/inbox</p>
-            <h1 className="text-3xl font-semibold sm:text-4xl">Inbox que prioriza por revenue y riesgo</h1>
-            <p className="mt-3 max-w-2xl text-base leading-7 text-gray-300">
-              El revenue no vive en otra pantalla. Vive dentro de cada conversación, donde decide la prioridad.
-            </p>
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 opacity-80">
+            <div className="text-xs text-gray-400">En riesgo</div>
+            <div className="mt-1 text-2xl font-semibold text-yellow-400">{riskAmountLabel}</div>
           </div>
-
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 opacity-80">
-              <div className="text-xs text-gray-400">En riesgo</div>
-              <div className="mt-1 text-2xl font-semibold text-yellow-400">{riskAmountLabel}</div>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 opacity-80">
-              <div className="text-xs text-gray-400">Alto valor</div>
-              <div className="mt-1 text-2xl font-semibold text-green-400">{highValueAmountLabel}</div>
-            </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 opacity-80">
+            <div className="text-xs text-gray-400">Alto valor</div>
+            <div className="mt-1 text-2xl font-semibold text-green-400">{highValueAmountLabel}</div>
           </div>
         </div>
 
