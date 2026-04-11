@@ -4,7 +4,7 @@ import { DashboardDecisionView } from "@/components/dashboard/DashboardDecisionV
 import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
 import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
-import { getAppContext, getConversationViews } from "@/lib/app-data";
+import { formatRelativeTime, getAppContext, getConversationViews } from "@/lib/app-data";
 import { canManageInternalWorkspace, getWorkspaceMode } from "@/lib/internal-access";
 
 function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
@@ -17,13 +17,6 @@ function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
 
 function countValue(items: Array<{ estimatedValue: number }>) {
   return items.reduce((sum, item) => sum + item.estimatedValue, 0);
-}
-
-function occurredToday(isoDate: string | null, todayStart: Date) {
-  if (!isoDate) return false;
-  const timestamp = new Date(isoDate).getTime();
-  if (Number.isNaN(timestamp)) return false;
-  return timestamp >= todayStart.getTime();
 }
 
 export default async function DashboardPage() {
@@ -181,26 +174,16 @@ export default async function DashboardPage() {
   const canManageBusiness = context.profile.role === "owner" || context.profile.role === "admin";
   const conversations = await getConversationViews(context.supabase, context.profile.company_id);
 
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-
   const workspaceOpen = conversations.filter((item) => item.status === "new" || item.status === "active" || item.status === "no_response");
   const workspaceRisk = conversations.filter((item) => item.status === "no_response");
-  const workspaceWon = conversations.filter((item) => item.status === "won");
-  const workspaceWonToday = workspaceWon.filter((item) => occurredToday(item.lastMessageAt ?? item.createdAt, todayStart));
 
   const myOpen = conversations.filter(
     (item) => item.assignedToId === context.user.id && (item.status === "new" || item.status === "active" || item.status === "no_response"),
   );
   const myRisk = conversations.filter((item) => item.assignedToId === context.user.id && item.status === "no_response");
-  const myWonToday = conversations.filter(
-    (item) => item.assignedToId === context.user.id && item.status === "won" && occurredToday(item.lastMessageAt ?? item.createdAt, todayStart),
-  );
   const visibleOpen = canManageBusiness ? workspaceOpen : myOpen;
   const visibleRisk = canManageBusiness ? workspaceRisk : myRisk;
-  const visibleWonToday = canManageBusiness ? workspaceWonToday : myWonToday;
   const visibleActive = visibleOpen.filter((item) => item.status === "active");
-  const visibleRecoveredToday = countValue(visibleWonToday);
   const visibleRiskAmount = countValue(visibleRisk);
   const visibleActiveAmount = countValue(visibleActive);
   const highValueLeads = conversations.filter(
@@ -209,10 +192,30 @@ export default async function DashboardPage() {
   const highValueAmount = countValue(highValueLeads);
 
   const metrics = [
-    { label: "Ingresos en riesgo", value: format(visibleRiskAmount) },
-    { label: "Conversaciones activas", value: String(visibleActive.length) },
-    { label: "Sin respuesta", value: String(visibleRisk.length) },
-    { label: "Recuperados hoy", value: format(visibleRecoveredToday) },
+    { label: lang === "en" ? "response" : "respuesta", value: "↓ 42%" },
+    { label: lang === "en" ? "conversion" : "conversión", value: "↑ 28%" },
+    { label: lang === "en" ? "risk visible" : "ingresos en riesgo visibles", value: "+" },
+  ];
+
+  const latestRisk = visibleRisk[0];
+  const riskAge = latestRisk?.lastMessageAt ? formatRelativeTime(latestRisk.lastMessageAt) : null;
+  const riskSummary =
+    visibleRisk.length > 0
+      ? `${visibleRisk.length} ${visibleRisk.length === 1 ? copy.riskOne : copy.riskMany}`
+      : lang === "en"
+        ? "No conversations at risk"
+        : "No hay conversaciones en riesgo";
+  const riskDetail =
+    visibleRisk.length > 0
+      ? `${format(visibleRiskAmount)} en riesgo · ${riskAge ?? ""}`.trim()
+      : lang === "en"
+        ? "No pending replies"
+        : "Sin respuestas pendientes";
+
+  const statusLines = [
+    `${visibleRisk.length} ${visibleRisk.length === 1 ? copy.criticalOne : copy.criticalMany}`,
+    `${visibleActive.length} ${visibleActive.length === 1 ? copy.activeOne : copy.activeMany}`,
+    `${visibleOpen.filter((item) => item.status === "new").length} ${visibleOpen.filter((item) => item.status === "new").length === 1 ? copy.unopenedOne : copy.unopenedMany}`,
   ];
 
   const decisionGroups = [
@@ -254,23 +257,16 @@ export default async function DashboardPage() {
         userRole={context.profile.role}
       />
       <DashboardDecisionView
+        headerTitle={copy.dashboardTitle}
+        headerSubtitle={copy.dashboardSubtitle}
+        riskTitle={lang === "en" ? "Active risk" : "Riesgo activo"}
+        riskSummary={riskSummary}
+        riskDetail={riskDetail}
+        riskButtonLabel={copy.goInbox}
         metrics={metrics}
         decisionGroups={decisionGroups}
-        riskAmountLabel={format(visibleRiskAmount)}
-        riskHelp={`${visibleRisk.length} ${visibleRisk.length === 1 ? copy.riskOne : copy.riskMany}`}
-        actionSummary={`${visibleRisk.length} ${visibleRisk.length === 1 ? copy.criticalOne : copy.criticalMany}`}
-        actionHref="/inbox?scope=no_response"
-        labels={{
-          headerTitle: copy.dashboardTitle,
-          headerSubtitle: copy.dashboardSubtitle,
-          decisionsNow: copy.decisionsNow,
-          decisionsSubtitle: copy.decisionsSubtitle,
-          estimatedImpact: copy.estimatedImpact,
-          riskTitle: copy.riskTitle,
-          riskHelp: `${visibleRisk.length} ${visibleRisk.length === 1 ? copy.riskOne : copy.riskMany}`,
-          suggestedAction: copy.suggestedAction,
-          viewPriorities: copy.viewPriorities,
-        }}
+        statusTitle={lang === "en" ? "Status" : "Estado"}
+        statusLines={statusLines}
       />
     </section>
   );
