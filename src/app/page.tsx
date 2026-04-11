@@ -176,10 +176,9 @@ export default function NovuaLanding() {
             <div className="absolute inset-0 rounded-[28px] bg-green-500/10 blur-3xl" />
 
             <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-5 shadow-[0_0_60px_rgba(16,185,129,0.08)] sm:p-6 lg:p-8">
-              <div className="mb-6 flex items-center justify-between gap-3">
-                <p className="text-sm text-gray-400">Inbox operativo en tiempo real</p>
+              <div className="mb-6 flex items-center justify-end gap-3">
                 <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-400">
-                  app.novua.digital/inbox
+                  Inbox
                 </div>
               </div>
 
