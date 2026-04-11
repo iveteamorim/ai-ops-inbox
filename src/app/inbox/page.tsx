@@ -283,6 +283,7 @@ export default async function InboxPage() {
       delay,
       action: actionLabel(row.decisionType, isAssigned),
       owner,
+      isAssigned,
       progress: progressFor(row.aiPriority),
     };
   });

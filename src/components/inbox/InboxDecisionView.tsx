@@ -16,6 +16,7 @@ type InboxConversation = {
   delay: string;
   action: string;
   owner: string;
+  isAssigned: boolean;
   progress: number;
 };
 
@@ -57,10 +58,17 @@ export function InboxDecisionView({
 }: InboxDecisionViewProps) {
   const initialId = conversations[0]?.id ?? "";
   const [selectedId, setSelectedId] = useState(initialId);
+  const [activeFilter, setActiveFilter] = useState<"all" | "risk" | "assigned" | "new">("all");
   const selected = useMemo(
     () => conversations.find((item) => item.id === selectedId) ?? conversations[0],
     [conversations, selectedId],
   );
+  const filteredConversations = useMemo(() => {
+    if (activeFilter === "all") return conversations;
+    if (activeFilter === "risk") return conversations.filter((item) => item.state === labels.filterRisk);
+    if (activeFilter === "assigned") return conversations.filter((item) => item.isAssigned);
+    return conversations.filter((item) => item.state === labels.filterNew);
+  }, [activeFilter, conversations, labels.filterNew, labels.filterRisk]);
 
   if (!selected) {
     return (
@@ -97,16 +105,48 @@ export function InboxDecisionView({
         <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] items-start">
           <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-4 sm:p-5 max-h-[78vh] overflow-y-auto">
             <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-gray-400">
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">{labels.filterAll}</span>
-              <span className="rounded-full border border-yellow-500/20 bg-yellow-500/5 px-3 py-1 text-yellow-300">
+              <button
+                type="button"
+                onClick={() => setActiveFilter("all")}
+                className={`rounded-full border px-3 py-1 transition ${
+                  activeFilter === "all" ? "border-white/30 bg-white/10 text-white" : "border-white/10 bg-white/5"
+                }`}
+              >
+                {labels.filterAll}
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveFilter("risk")}
+                className={`rounded-full border px-3 py-1 transition ${
+                  activeFilter === "risk"
+                    ? "border-yellow-500/40 bg-yellow-500/15 text-yellow-200"
+                    : "border-yellow-500/20 bg-yellow-500/5 text-yellow-300"
+                }`}
+              >
                 {labels.filterRisk}
-              </span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">{labels.filterAssigned}</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">{labels.filterNew}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveFilter("assigned")}
+                className={`rounded-full border px-3 py-1 transition ${
+                  activeFilter === "assigned" ? "border-white/30 bg-white/10 text-white" : "border-white/10 bg-white/5"
+                }`}
+              >
+                {labels.filterAssigned}
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveFilter("new")}
+                className={`rounded-full border px-3 py-1 transition ${
+                  activeFilter === "new" ? "border-white/30 bg-white/10 text-white" : "border-white/10 bg-white/5"
+                }`}
+              >
+                {labels.filterNew}
+              </button>
             </div>
 
             <div className="space-y-4">
-              {conversations.map((conversation) => {
+              {filteredConversations.map((conversation) => {
                 const isSelected = conversation.id === selectedId;
                 return (
                   <motion.button
