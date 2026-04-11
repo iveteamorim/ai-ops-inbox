@@ -518,7 +518,9 @@ export default async function SettingsPage() {
         />
         <div className="max-w-6xl mx-auto space-y-10">
           <div>
-            <p className="text-green-400 text-sm mb-2">NÓVUA · CONFIGURACIÓN</p>
+            <p className="text-green-400 text-sm mb-2">
+              {lang === "en" ? "NÓVUA · SETTINGS" : lang === "pt" ? "NÓVUA · CONFIGURAÇÕES" : "NÓVUA · CONFIGURACIÓN"}
+            </p>
             <h1 className="text-3xl md:text-4xl font-semibold">{t("settings_title")}</h1>
             <p className="text-gray-300 mt-2 max-w-xl">{t("settings_subtitle")}</p>
           </div>

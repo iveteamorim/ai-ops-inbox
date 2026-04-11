@@ -23,7 +23,33 @@ function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
   }).format(value);
 }
 
-function getNoReplyMeta(status: "new" | "active" | "won" | "lost" | "no_response", isoDate: string | null) {
+type InboxLangCopy = {
+  atRiskLabel: string;
+  noReplyMinutes: string;
+  noReplyHours: string;
+  noReplyDays: string;
+  wonToday: string;
+  wonYesterday: string;
+  lostToday: string;
+  lostYesterday: string;
+  actionRecover: string;
+  actionComplex: string;
+  actionNew: string;
+  actionWon: string;
+  actionLost: string;
+  actionReply: string;
+  actionContinue: string;
+  unassigned: string;
+  riskHigh: string;
+  riskMedium: string;
+  riskLow: string;
+};
+
+function getNoReplyMeta(
+  status: "new" | "active" | "won" | "lost" | "no_response",
+  isoDate: string | null,
+  copy: InboxLangCopy,
+) {
   if (status !== "no_response" || !isoDate) {
     return { className: "", timeLabel: formatRelativeTime(isoDate) };
   }
@@ -38,10 +64,10 @@ function getNoReplyMeta(status: "new" | "active" | "won" | "lost" | "no_response
   const diffHours = diffMinutes / 60;
   const timeLabel =
     diffMinutes < 60
-      ? `${diffMinutes} min sin respuesta`
+      ? `${diffMinutes}${copy.noReplyMinutes}`
       : diffHours < 24
-        ? `${Math.round(diffHours)}h sin respuesta`
-        : `${Math.round(diffHours / 24)} días sin respuesta`;
+        ? `${Math.round(diffHours)}${copy.noReplyHours}`
+        : `${Math.round(diffHours / 24)}${copy.noReplyDays}`;
 
   if (diffHours >= 72) {
     return { className: "time-critical", timeLabel };
@@ -54,19 +80,20 @@ function getNoReplyMeta(status: "new" | "active" | "won" | "lost" | "no_response
   return { className: "", timeLabel };
 }
 
-function actionLabel(type: DecisionType, isAssigned: boolean) {
-  if (type === "recover") return "Responder ahora";
-  if (type === "complex") return "Escalar caso";
-  if (type === "new") return "Abrir conversación";
-  if (type === "won") return "Ver detalle";
-  if (type === "lost") return "Ver motivo";
-  if (!isAssigned) return "Responder";
-  return "Continuar conversación";
+function actionLabel(type: DecisionType, isAssigned: boolean, copy: InboxLangCopy) {
+  if (type === "recover") return copy.actionRecover;
+  if (type === "complex") return copy.actionComplex;
+  if (type === "new") return copy.actionNew;
+  if (type === "won") return copy.actionWon;
+  if (type === "lost") return copy.actionLost;
+  if (!isAssigned) return copy.actionReply;
+  return copy.actionContinue;
 }
 
 function getStatusTimeLabel(
   row: { status: "new" | "active" | "won" | "lost" | "no_response"; lastMessageAt: string | null },
   noReplyTimeLabel: string,
+  copy: InboxLangCopy,
 ) {
   if (row.status === "no_response") return noReplyTimeLabel;
   if (!row.lastMessageAt) return "";
@@ -78,15 +105,15 @@ function getStatusTimeLabel(
   const relative = formatRelativeTime(row.lastMessageAt);
 
   if (row.status === "won") {
-    if (diffHours < 24) return "Ganado hoy";
-    if (diffHours < 48) return "Ganado ayer";
-    return `Ganado ${relative}`;
+    if (diffHours < 24) return copy.wonToday;
+    if (diffHours < 48) return copy.wonYesterday;
+    return `${copy.wonToday.split(" ")[0]} ${relative}`;
   }
 
   if (row.status === "lost") {
-    if (diffHours < 24) return "Perdido hoy";
-    if (diffHours < 48) return "Perdido ayer";
-    return `Perdido ${relative}`;
+    if (diffHours < 24) return copy.lostToday;
+    if (diffHours < 48) return copy.lostYesterday;
+    return `${copy.lostToday.split(" ")[0]} ${relative}`;
   }
 
   return relative;
@@ -96,9 +123,10 @@ function getVisibleStatusLabel(
   row: { status: "new" | "active" | "won" | "lost" | "no_response" },
   noReplyClassName: string,
   t: (key: Parameters<typeof translate>[1]) => string,
+  copy: InboxLangCopy,
 ) {
   if (row.status === "no_response" && noReplyClassName === "time-critical") {
-    return "En riesgo";
+    return copy.atRiskLabel;
   }
   return formatStatus(row.status, t);
 }
@@ -123,10 +151,10 @@ function conversationPriorityScore(row: {
   return row.estimatedValue + statusBonus + aiBonus;
 }
 
-function riskLabel(priority: "high" | "medium" | "low") {
-  if (priority === "high") return { label: "Alto", className: "text-yellow-400" };
-  if (priority === "medium") return { label: "Medio", className: "text-blue-400" };
-  return { label: "Bajo", className: "text-green-400" };
+function riskLabel(priority: "high" | "medium" | "low", copy: InboxLangCopy) {
+  if (priority === "high") return { label: copy.riskHigh, className: "text-yellow-400" };
+  if (priority === "medium") return { label: copy.riskMedium, className: "text-blue-400" };
+  return { label: copy.riskLow, className: "text-green-400" };
 }
 
 function progressFor(priority: "high" | "medium" | "low") {
@@ -135,8 +163,8 @@ function progressFor(priority: "high" | "medium" | "low") {
   return 34;
 }
 
-function stateClassFor(statusLabel: string, status: string) {
-  if (statusLabel === "En riesgo" || status === "no_response") {
+function stateClassFor(status: string) {
+  if (status === "no_response") {
     return "border-yellow-500/30 bg-yellow-500/10 text-yellow-400";
   }
   if (status === "active") {
@@ -244,6 +272,72 @@ export default async function InboxPage() {
             productPrinciple: "Principio de producto",
             decisionCopy: "El revenue aparece donde genera decisión: dentro de la conversación, no separado de ella.",
           };
+  const langCopy: InboxLangCopy =
+    lang === "pt"
+      ? {
+          atRiskLabel: "Em risco",
+          noReplyMinutes: " min sem resposta",
+          noReplyHours: "h sem resposta",
+          noReplyDays: " dias sem resposta",
+          wonToday: "Ganho hoje",
+          wonYesterday: "Ganho ontem",
+          lostToday: "Perdido hoje",
+          lostYesterday: "Perdido ontem",
+          actionRecover: "Responder agora",
+          actionComplex: "Escalar caso",
+          actionNew: "Abrir conversa",
+          actionWon: "Ver detalhe",
+          actionLost: "Ver motivo",
+          actionReply: "Responder",
+          actionContinue: "Continuar conversa",
+          unassigned: "Sem responsável",
+          riskHigh: "Alto",
+          riskMedium: "Médio",
+          riskLow: "Baixo",
+        }
+      : lang === "en"
+        ? {
+            atRiskLabel: "At risk",
+            noReplyMinutes: " min without reply",
+            noReplyHours: "h without reply",
+            noReplyDays: " days without reply",
+            wonToday: "Won today",
+            wonYesterday: "Won yesterday",
+            lostToday: "Lost today",
+            lostYesterday: "Lost yesterday",
+            actionRecover: "Reply now",
+            actionComplex: "Escalate case",
+            actionNew: "Open conversation",
+            actionWon: "View details",
+            actionLost: "View reason",
+            actionReply: "Reply",
+            actionContinue: "Continue conversation",
+            unassigned: "Unassigned",
+            riskHigh: "High",
+            riskMedium: "Medium",
+            riskLow: "Low",
+          }
+        : {
+            atRiskLabel: "En riesgo",
+            noReplyMinutes: " min sin respuesta",
+            noReplyHours: "h sin respuesta",
+            noReplyDays: " días sin respuesta",
+            wonToday: "Ganado hoy",
+            wonYesterday: "Ganado ayer",
+            lostToday: "Perdido hoy",
+            lostYesterday: "Perdido ayer",
+            actionRecover: "Responder ahora",
+            actionComplex: "Escalar caso",
+            actionNew: "Abrir conversación",
+            actionWon: "Ver detalle",
+            actionLost: "Ver motivo",
+            actionReply: "Responder",
+            actionContinue: "Continuar conversación",
+            unassigned: "Sin asignar",
+            riskHigh: "Alto",
+            riskMedium: "Medio",
+            riskLow: "Bajo",
+          };
   const workspaceMode = getWorkspaceMode(context.company, context.user.email);
   const canSeeInternalSetup = canManageInternalWorkspace(workspaceMode);
   const teamById = new Map(team.map((member) => [member.id, member.full_name ?? member.role ?? ""]));
@@ -265,23 +359,23 @@ export default async function InboxPage() {
   const newCount = newRows.length;
 
   const conversations = visibleRows.map((row) => {
-    const noReplyMeta = getNoReplyMeta(row.status, row.lastMessageAt);
-    const statusLabel = getVisibleStatusLabel(row, noReplyMeta.className, t);
-    const risk = riskLabel(row.aiPriority);
-    const delay = getStatusTimeLabel(row, noReplyMeta.timeLabel);
-    const owner = row.assignedTo || teamById.get(row.assignedToId ?? "") || "Sin asignar";
+    const noReplyMeta = getNoReplyMeta(row.status, row.lastMessageAt, langCopy);
+    const statusLabel = getVisibleStatusLabel(row, noReplyMeta.className, t, langCopy);
+    const risk = riskLabel(row.aiPriority, langCopy);
+    const delay = getStatusTimeLabel(row, noReplyMeta.timeLabel, langCopy);
+    const owner = row.assignedTo || teamById.get(row.assignedToId ?? "") || langCopy.unassigned;
     const isAssigned = Boolean(row.assignedToId);
     return {
       id: row.id,
       name: row.contactName,
       message: row.lastMessageText,
       state: statusLabel,
-      stateClass: stateClassFor(statusLabel, row.status),
+      stateClass: stateClassFor(row.status),
       value: format(row.estimatedValue),
       risk: risk.label,
       riskClass: risk.className,
       delay,
-      action: actionLabel(row.decisionType, isAssigned),
+      action: actionLabel(row.decisionType, isAssigned, langCopy),
       owner,
       isAssigned,
       progress: progressFor(row.aiPriority),
