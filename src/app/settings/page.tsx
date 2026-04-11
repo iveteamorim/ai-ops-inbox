@@ -734,7 +734,18 @@ export default async function SettingsPage() {
                 }}
               />
             </>
-          ) : null}
+          ) : (
+            <article className="card">
+              <p className="label">Feedback del sistema</p>
+              <p className="subtitle">
+                Ayúdanos a mejorar Novua. ¿Qué no está funcionando o qué te gustaría cambiar?
+              </p>
+              <input className="input" placeholder="Escribe tu feedback aquí..." disabled />
+              <button className="button" type="button" disabled>
+                Enviar feedback
+              </button>
+            </article>
+          )}
 
           {context.profile.role === "owner" ? (
             <WorkspaceDangerZone

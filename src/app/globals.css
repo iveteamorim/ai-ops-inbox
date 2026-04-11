@@ -2105,14 +2105,14 @@ a {
 .settings-modern .setup-panel,
 .settings-modern .lead-type-row,
 .settings-modern .settings-lead-card {
-  border-radius: 18px;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  background: linear-gradient(180deg, rgba(12, 27, 22, 0.98), rgba(9, 19, 18, 0.96));
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(14, 26, 22, 0.92);
+  box-shadow: none;
 }
 
 .settings-modern .team-member-row {
-  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .settings-modern .label {
@@ -2131,9 +2131,9 @@ a {
 .settings-modern select,
 .settings-modern textarea {
   background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.2);
+  border: 1px solid rgba(15, 23, 42, 0.18);
   color: #0b1412;
-  border-radius: 12px;
+  border-radius: 10px;
 }
 
 .settings-modern .input:focus,
@@ -2148,9 +2148,9 @@ a {
   background: #22c55e;
   color: #0b140f;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   font-weight: 600;
-  box-shadow: 0 12px 30px rgba(34, 197, 94, 0.2);
+  box-shadow: none;
 }
 
 .settings-modern .button:hover {
@@ -2158,17 +2158,17 @@ a {
 }
 
 .settings-modern .mini-button {
-  border-radius: 999px;
+  border-radius: 10px;
   padding: 6px 12px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  background: rgba(255, 255, 255, 0.04);
-  color: #e2e8f0;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #ffffff;
+  color: #0b1412;
 }
 
 .settings-modern .mini-button:hover {
-  border-color: rgba(34, 197, 94, 0.5);
-  background: rgba(34, 197, 94, 0.08);
-  color: #ecfdf3;
+  border-color: rgba(34, 197, 94, 0.6);
+  background: #f0fdf4;
+  color: #0b1412;
 }
 
 .settings-modern .mini-danger {
