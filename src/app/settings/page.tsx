@@ -345,7 +345,7 @@ function getSetupCopy(lang: string) {
     accountPermissionsAgent: "You can manage conversations, reply to messages, and report issues.",
     accountPermissionsAdmin: "You can configure the workspace, manage the team, and operate conversations.",
     systemAiAssistance: "AI assistance",
-    systemFollowUpAutomation: "Follow-up automation",
+    systemFollowUpAutomation: "Automated follow-up",
     systemWhatsappWebhook: "WhatsApp webhook",
     noTeamMembers: "No team members yet.",
     settingsUnavailable: "Settings requires an authenticated, configured workspace.",

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { useI18n } from "@/components/i18n/LanguageProvider";
 import type { SetupRequestView } from "@/lib/app-data";
 
 type Props = {
@@ -10,10 +11,83 @@ type Props = {
 
 export function SetupRequestsTable({ requests }: Props) {
   const router = useRouter();
+  const { lang } = useI18n();
   const [filter, setFilter] = useState<"all" | "requested" | "in_progress" | "completed">("all");
   const [pendingKey, setPendingKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const copy =
+    lang === "pt"
+      ? {
+          title: "Solicitações de setup",
+          empty: "Ainda não há solicitações de setup.",
+          filters: {
+            all: "Todos",
+            requested: "Solicitado",
+            inProgress: "Em curso",
+            completed: "Concluído",
+          },
+          status: {
+            requested: "solicitado",
+            inProgress: "em curso",
+            completed: "concluído",
+            cancelled: "cancelado",
+          },
+          actions: {
+            markInProgress: "Marcar como em curso",
+            markCompleted: "Marcar como concluído",
+            saving: "Guardando...",
+            updating: "A atualizar...",
+            failed: "Não foi possível atualizar.",
+          },
+        }
+      : lang === "en"
+        ? {
+            title: "Setup requests",
+            empty: "No setup requests yet.",
+            filters: {
+              all: "All",
+              requested: "Requested",
+              inProgress: "In progress",
+              completed: "Completed",
+            },
+            status: {
+              requested: "requested",
+              inProgress: "in progress",
+              completed: "completed",
+              cancelled: "cancelled",
+            },
+            actions: {
+              markInProgress: "Mark in progress",
+              markCompleted: "Mark completed",
+              saving: "Saving...",
+              updating: "Updating...",
+              failed: "Request failed",
+            },
+          }
+        : {
+            title: "Solicitudes de setup",
+            empty: "Todavía no hay solicitudes de setup.",
+            filters: {
+              all: "Todas",
+              requested: "Solicitada",
+              inProgress: "En curso",
+              completed: "Completada",
+            },
+            status: {
+              requested: "solicitada",
+              inProgress: "en curso",
+              completed: "completada",
+              cancelled: "cancelada",
+            },
+            actions: {
+              markInProgress: "Marcar en curso",
+              markCompleted: "Marcar completada",
+              saving: "Guardando...",
+              updating: "Actualizando...",
+              failed: "No se pudo actualizar.",
+            },
+          };
 
   const statusPriority: Record<SetupRequestView["status"], number> = {
     requested: 0,
@@ -43,7 +117,7 @@ export function SetupRequestsTable({ requests }: Props) {
 
       const payload = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
       if (!response.ok || !payload?.ok) {
-        setError(payload?.error ?? "Request failed");
+        setError(payload?.error ?? copy.actions.failed);
         setPendingKey(null);
         return;
       }
@@ -55,13 +129,13 @@ export function SetupRequestsTable({ requests }: Props) {
 
   return (
     <article className="card">
-      <p className="label">Setup requests</p>
+      <p className="label">{copy.title}</p>
       <div className="actions" style={{ marginBottom: 12 }}>
         {[
-          ["all", "All"],
-          ["requested", "Requested"],
-          ["in_progress", "In progress"],
-          ["completed", "Completed"],
+          ["all", copy.filters.all],
+          ["requested", copy.filters.requested],
+          ["in_progress", copy.filters.inProgress],
+          ["completed", copy.filters.completed],
         ].map(([value, label]) => (
           <button
             key={value}
@@ -75,7 +149,7 @@ export function SetupRequestsTable({ requests }: Props) {
           </button>
         ))}
       </div>
-      {requests.length === 0 ? <p className="subtitle">No setup requests yet.</p> : null}
+      {requests.length === 0 ? <p className="subtitle">{copy.empty}</p> : null}
       {visibleRequests.map((request) => (
         <div key={request.id} className="preview-row" style={{ alignItems: "flex-start" }}>
           <div>
@@ -93,7 +167,13 @@ export function SetupRequestsTable({ requests }: Props) {
                   ? "status-new"
                   : "status-no-response"
             }`}>
-              {request.status}
+              {request.status === "requested"
+                ? copy.status.requested
+                : request.status === "in_progress"
+                  ? copy.status.inProgress
+                  : request.status === "completed"
+                    ? copy.status.completed
+                    : copy.status.cancelled}
             </span>
             {request.status !== "in_progress" ? (
               <button
@@ -102,7 +182,7 @@ export function SetupRequestsTable({ requests }: Props) {
                 disabled={isPending}
                 onClick={() => handleStatus(request.id, "in_progress")}
               >
-                {pendingKey === `${request.id}:in_progress` ? "Saving..." : "Mark in progress"}
+                {pendingKey === `${request.id}:in_progress` ? copy.actions.saving : copy.actions.markInProgress}
               </button>
             ) : null}
             {request.status !== "completed" ? (
@@ -112,13 +192,13 @@ export function SetupRequestsTable({ requests }: Props) {
                 disabled={isPending}
                 onClick={() => handleStatus(request.id, "completed")}
               >
-                {pendingKey === `${request.id}:completed` ? "Saving..." : "Mark completed"}
+                {pendingKey === `${request.id}:completed` ? copy.actions.saving : copy.actions.markCompleted}
               </button>
             ) : null}
           </div>
         </div>
       ))}
-      {isPending ? <p className="note">Updating...</p> : null}
+      {isPending ? <p className="note">{copy.actions.updating}</p> : null}
       {error ? <p className="note">{error}</p> : null}
     </article>
   );

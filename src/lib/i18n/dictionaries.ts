@@ -766,7 +766,7 @@ export const dictionary = {
     landing_feature: "Feature",
     landing_feature_1_title: "Unified Inbox",
     landing_feature_1_text: "Centralize messages to respond faster.",
-    landing_feature_2_title: "Smart Follow-up",
+    landing_feature_2_title: "Smart follow-up",
     landing_feature_2_text: "Detect forgotten opportunities and trigger action.",
     landing_feature_3_title: "Decision AI",
     landing_feature_3_text: "Prioritize by commercial impact, not chat volume.",

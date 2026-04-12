@@ -1,4 +1,5 @@
 import type { UserPilotFeedbackView } from "@/lib/app-data";
+import { useI18n } from "@/components/i18n/LanguageProvider";
 
 type Props = {
   items: UserPilotFeedbackView[];
@@ -20,10 +21,20 @@ function formatDate(value: string) {
   return date.toLocaleString();
 }
 
-function formatCategory(value: UserPilotFeedbackView["category"]) {
-  if (value === "feature_request") return "Feature request";
-  if (value === "feedback") return "Feedback";
-  return "Bug";
+function formatCategory(value: UserPilotFeedbackView["category"], lang: string) {
+  if (lang === "pt") {
+    if (value === "feature_request") return "Pedido de melhoria";
+    if (value === "feedback") return "Feedback";
+    return "Bug";
+  }
+  if (lang === "en") {
+    if (value === "feature_request") return "Feature request";
+    if (value === "feedback") return "Feedback";
+    return "Bug";
+  }
+  if (value === "feature_request") return "Solicitud de mejora";
+  if (value === "feedback") return "Comentarios";
+  return "Error";
 }
 
 function formatStatus(value: UserPilotFeedbackView["status"], labels: Props["labels"]) {
@@ -33,6 +44,7 @@ function formatStatus(value: UserPilotFeedbackView["status"], labels: Props["lab
 }
 
 export function PilotFeedbackHistory({ items, labels }: Props) {
+  const { lang } = useI18n();
   return (
     <article className="card" style={{ marginTop: 12 }}>
       <p className="label">{labels.title}</p>
@@ -43,7 +55,7 @@ export function PilotFeedbackHistory({ items, labels }: Props) {
           {items.map((item) => (
             <div key={item.id} style={{ borderTop: "1px solid var(--border)", paddingTop: 12 }}>
               <div className="preview-row">
-                <span>{formatCategory(item.category)}</span>
+                <span>{formatCategory(item.category, lang)}</span>
                 <span className="badge status-active">{formatStatus(item.status, labels)}</span>
               </div>
               <p style={{ margin: "8px 0 0" }}>{item.message}</p>
