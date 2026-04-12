@@ -104,6 +104,10 @@ export default function NovuaLanding() {
   };
 
   useEffect(() => {
+    if (typeof document !== "undefined" && !document.cookie.includes("lang=")) {
+      document.cookie = "lang=es; path=/; max-age=31536000; samesite=lax";
+      document.documentElement.lang = "es";
+    }
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % conversations.length);
     }, 2400);
@@ -125,7 +129,7 @@ export default function NovuaLanding() {
             href="/login"
             className="rounded-full border border-white/15 px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:border-white/30 hover:bg-white/5"
           >
-            Login
+            Entrar
           </Link>
         </div>
         <section className="grid items-start gap-12 lg:grid-cols-[0.95fr_1.2fr] lg:gap-14">

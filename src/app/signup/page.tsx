@@ -60,7 +60,7 @@ export default function SignupPage() {
         return;
       }
 
-      router.push("/dashboard");
+      router.push("/inbox");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Signup failed");
