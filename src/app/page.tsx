@@ -281,6 +281,9 @@ export default function NovuaLanding() {
           whileInView="show"
           viewport={{ once: true, amount: 0.6 }}
         >
+          <p className="mx-auto mb-4 max-w-3xl text-sm uppercase tracking-[0.3em] text-green-300/80">
+            Novua decide qué conversación atender primero y por qué.
+          </p>
           <p className="mx-auto max-w-4xl text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
             No es un CRM. Es una capa de decisión sobre tus conversaciones.
           </p>
@@ -332,13 +335,13 @@ export default function NovuaLanding() {
         >
           <p className="mb-3 text-sm uppercase tracking-[0.18em] text-green-300/90">Onboarding</p>
           <h2 className="text-3xl font-bold leading-tight text-white sm:text-4xl">
-            Activamos tu canal real contigo
+            Conectamos tu negocio en 15 minutos
           </h2>
           <p className="mt-5 max-w-5xl text-base leading-7 text-gray-300 sm:text-lg">
-            Conectamos tu canal, configuramos el sistema contigo y definimos cómo se toman decisiones en tu equipo.
+            Configuramos Novua contigo para que no pierdas oportunidades reales.
           </p>
           <p className="mt-4 max-w-5xl text-base font-semibold leading-7 text-yellow-400 sm:text-lg">
-            El objetivo no es añadir otro inbox. Es hacer obvia la conversación correcta en el momento correcto.
+            Tu equipo ya responde. El problema es a qué responde.
           </p>
 
           <div className="mt-7 rounded-2xl border border-yellow-700/50 bg-[#17140E] p-5">
