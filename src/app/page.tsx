@@ -159,6 +159,7 @@ export default function NovuaLanding() {
               </Link>
               <span className="text-sm text-gray-400">15 min · lo activamos contigo</span>
             </div>
+            <p className="mt-3 text-sm text-gray-400">No necesitas tarjeta.</p>
 
             <div className="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm text-gray-400">
               <div className="flex items-center gap-2">
