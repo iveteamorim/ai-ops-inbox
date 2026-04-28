@@ -1,10 +1,10 @@
-# Novua Inbox
+# Novua Inbox — AI operations decision system
 
 Conversation operations workspace for teams that lose money when replies arrive too late.
 
 Most teams don't know they are losing money in their inbox.
 
-Novua makes that visible - and actionable.
+Novua makes that visible — and actionable.
 
 ---
 
@@ -14,14 +14,14 @@ Most teams don't lose inbound revenue because leads disappear.
 
 They lose it because nobody acts in time.
 
-- replies arrive too late
-- high-value conversations are hidden in the noise
-- ownership is unclear
-- follow-ups never happen
+- replies arrive too late  
+- high-value conversations are hidden in the noise  
+- ownership is unclear  
+- follow-ups never happen  
 
 The result is simple:
 
--> **money is lost silently inside the inbox**
+→ money is lost silently inside the inbox
 
 ---
 
@@ -31,16 +31,16 @@ Novua Inbox is not a CRM.
 
 It is an operating layer that answers one question:
 
-> **What conversation needs attention now, who owns it, and how much money is at risk if nobody acts?**
+**What conversation needs attention now, who owns it, and what is at risk if nobody acts?**
 
 ---
 
 ## ⚡ What you see immediately
 
-- 💰 how much money is at risk right now
-- 🔴 which conversations are critical
-- 👤 who is responsible for each one
-- 👉 what action should happen next
+- 💰 what is at risk right now  
+- 🔴 which conversations are critical  
+- 👤 who is responsible for each one  
+- 👉 what action should happen next  
 
 ---
 
@@ -49,29 +49,95 @@ It is an operating layer that answers one question:
 Demo: https://ai-ops-inbox-one.vercel.app  
 Repo: https://github.com/iveteamorim/ai-ops-inbox
 
-## Screenshot
+---
+## 📸 Screenshot
 
-![Novua Inbox](./public/screenshots/inbox-demo-current.png)
+![Novua Inbox](./public/screenshot.png)
 
-## Example
+
+---
+## 🧩 Example
 
 A clinic receives multiple WhatsApp inquiries per day.
 
 Before:
 
-- all conversations look the same
-- replies depend on whoever is available
-- valuable leads are missed
+- all conversations look the same  
+- replies depend on whoever is available  
+- valuable leads are missed  
 
 With Novua:
 
-- high-value conversations are surfaced as `En riesgo`
-- ownership is assigned automatically on first reply
-- the team sees exactly what to answer next
+- high-value conversations are surfaced as *En riesgo*  
+- ownership is assigned automatically on first reply  
+- the team sees exactly what to answer next  
 
--> response improves before revenue is lost
+→ response improves before revenue is lost
 
-## Product model
+---
+
+## 🧠 AI usage & decision model
+
+Novua does not rely purely on AI to make decisions.
+
+The system combines:
+
+- deterministic logic (state, ownership, timing)  
+- estimated value signals defined in the workspace  
+- optional AI assistance (classification, structured outputs, reply suggestions)  
+
+AI is used as a support layer, not as the source of truth.
+
+Critical decisions such as assignment, state transitions, and blocking duplicate replies are handled deterministically.
+
+This ensures reliability in multi-agent environments where incorrect AI outputs could create operational conflicts.
+
+---
+
+## ⚖️ Key decisions & trade-offs
+
+**Not a CRM**  
+The system intentionally avoids becoming a full CRM.  
+It focuses on prioritization and decision-making at the moment of action.
+
+**AI is not required**  
+The product works without AI.  
+AI improves suggestions, but the core system remains functional and predictable without it.
+
+**Inbox-first model**  
+Instead of managing contacts or pipelines, the system centers the inbox as the operational surface.
+
+**Ownership via action**  
+Ownership is not assigned upfront.  
+It is claimed through the first real reply to reflect actual responsibility.
+
+**Trade-off: not real-time websockets**  
+The UI uses periodic refresh instead of full real-time synchronization.  
+Protection against conflicts is enforced server-side.
+
+---
+
+## ⚠️ Failure modes
+
+**AI suggestion errors**  
+AI-generated replies may be incorrect or irrelevant.  
+The system treats them as suggestions, never as automatic actions.
+
+**Race conditions**  
+Two agents may attempt to reply simultaneously.  
+The backend enforces a claim check to prevent double responses.
+
+**Incorrect value estimation**  
+Lead value is estimated based on predefined types.  
+If misconfigured, prioritization may be skewed.
+
+**Delayed updates**  
+Due to periodic refresh, UI may not reflect changes instantly.  
+The system prioritizes consistency over instant visual updates.
+
+---
+
+## 🧩 Product model
 
 ### Inbox
 
@@ -79,230 +145,183 @@ The inbox is the main operating surface.
 
 It renders conversations as decision cards instead of administrative rows, with emphasis on:
 
-- `En riesgo`
-- `Nuevo`
-- `En conversación`
-- `Ganado`
-- `Perdido`
+- En riesgo  
+- Nuevo  
+- En conversación  
+- Ganado  
+- Perdido  
 
 Each card highlights:
 
-- current state
-- response delay
-- estimated value
-- assignment
-- next action
+- current state  
+- response delay  
+- estimated value  
+- assignment  
+- next action  
+
+---
 
 ### Conversation ownership
 
-Conversations are not meant to be manually distributed one by one.
+The first agent who sends a real reply claims the conversation.
 
-The current rule is:
+- ownership remains after claim  
+- owner/admin can bulk reassign conversations  
+- backend blocks duplicate replies  
 
-- the first agent who sends a real reply claims the conversation
-- ownership remains on that conversation after the claim
-- owner/admin can bulk reassign open conversations from one agent to another
-
-To reduce duplicate replies:
-
-- the UI refreshes periodically
-- the backend blocks a second agent from replying if another agent already claimed the conversation
+---
 
 ### Dashboard
 
-The dashboard is not a generic reporting page.
+The dashboard answers:
 
-It answers:
+- what is at risk now  
+- what is active now  
+- what should be handled next  
 
-- what money is at risk now
-- what is active now
-- what should be handled next
+---
 
 ### Revenue
 
 The revenue view is built around:
 
-- money at risk now
-- open pipeline value
-- recently recovered value
-- immediate actions required
+- money at risk now  
+- open pipeline value  
+- recently recovered value  
+- immediate actions required  
 
-For agents, it is tactical.  
-For owner/admin, it is broader across the workspace.
+---
 
 ### Settings
 
-Settings define how the workspace works.
+Defines:
 
-It is organized around:
+- channel status  
+- prioritization logic  
+- team structure  
+- business setup and lead values  
 
-- channel status
-- how Novua prioritizes work
-- who answers customers
-- business setup and lead values
+---
 
-This is where the workspace defines the lead types and estimated values used across inbox, revenue, and conversation views.
+## 👥 Roles
 
-## Roles
+**Owner**  
+- manages workspace  
+- invites/removes users  
+- reassigns conversations  
+- edits business setup  
 
-### Owner
+**Admin**  
+- manages team  
+- operates conversations  
 
-Can:
+**Agent**  
+- works inbox  
+- replies  
+- sees system state  
 
-- manage the workspace
-- invite and remove users
-- bulk reassign open conversations
-- edit business setup
-- operate conversations
+---
 
-### Admin
+## 🚧 What is still early
 
-Can:
+- full production hardening  
+- webhook retry and idempotency maturity  
+- deeper observability  
+- business setup UX  
+- edge-case handling  
 
-- manage team and business setup
-- operate conversations
-- bulk reassign open conversations
+---
 
-### Agent
+## 🧱 Tech stack
 
-Can:
+- Next.js (App Router)  
+- React 19  
+- Supabase (auth + database)  
+- Vercel (deployment)  
+- LLM-based assistance (classification, structured outputs, reply suggestions)  
 
-- work the inbox
-- reply to conversations
-- see system state
-- report issues
+---
 
-Agent settings are intentionally reduced compared to owner/admin.
-
-## What this enables
-
-- teams respond before losing revenue
-- ownership is clear across agents
-- high-value conversations are never ignored
-- follow-ups become systematic instead of manual
-
-## What is still early
-
-- full production hardening
-- webhook retry and idempotency maturity
-- deeper observability
-- business setup UX still lags behind inbox
-- some remaining edge-case copy and i18n cleanup
-
-## Current stack
-
-- `Next.js` App Router
-- `React 19`
-- `Supabase` for auth and data
-- `Vercel` for deployment
-- optional `OpenAI` integration for reply suggestions
-
-## Local setup
+## ⚙️ Local setup
 
 ### Requirements
 
-- Node.js `>= 20`
-- Supabase project with auth and database configured
+- Node.js >= 20  
+- Supabase project  
 
 ### Install
 
-```bash
 npm install
-```
 
-### Run locally
+### Run
 
-```bash
 npm run dev
-```
 
-App runs at:
-
-```text
 http://localhost:3000
-```
 
-### Lint
+---
 
-```bash
-npm run lint
-```
+## 🔐 Environment variables
 
-## Environment variables
+Required:
 
-### Required
+- NEXT_PUBLIC_SUPABASE_URL  
+- NEXT_PUBLIC_SUPABASE_ANON_KEY  
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+Server:
 
-### Required for admin/server actions
+- SUPABASE_SERVICE_ROLE_KEY  
 
-- `SUPABASE_SERVICE_ROLE_KEY`
+Optional:
 
-### Optional internal workspace controls
+- OPENAI_API_KEY  
+- WHATSAPP_VERIFY_TOKEN  
+- INSTAGRAM_VERIFY_TOKEN  
 
-- `NOVUA_INTERNAL_EMAILS`
-- `NOVUA_INTERNAL_DOMAINS`
+---
 
-### Optional WhatsApp / Instagram webhook setup
+## 📁 Project structure
 
-- `WHATSAPP_VERIFY_TOKEN`
-- `WHATSAPP_APP_SECRET`
-- `INSTAGRAM_VERIFY_TOKEN`
-- `INSTAGRAM_APP_SECRET`
+- src/app → routes & API  
+- src/components → UI  
+- src/lib → logic, auth, scoring  
+- public → assets  
+- docs → documentation  
 
-### Optional AI reply suggestions
+---
 
-- `OPENAI_API_KEY`
+## 🧠 Operational behavior worth knowing
 
-If `OPENAI_API_KEY` is missing, the app falls back to deterministic suggestion behavior in the UI and the API route returns the expected not-configured path.
+**Assignment visibility**  
+A conversation is only considered assigned after a real reply.
 
-## Project structure
+**Multi-agent safety**  
+- periodic refresh (UI)  
+- backend claim enforcement  
 
-- `src/app` - routes, pages, API endpoints
-- `src/components` - UI and workflow components
-- `src/lib` - app data, auth, i18n, internal access, scoring logic
-- `public` - static assets
-- `docs` - supporting documentation
+---
 
-## Operational behavior worth knowing
+## 🎯 What this repo is
 
-### Assignment visibility
+- a serious product demo  
+- a pilot-ready system  
+- a foundation for real deployments  
 
-A conversation is only treated as truly assigned in the UI once there is a human reply signal.
+---
 
-This prevents untouched conversations from looking owned too early.
+## ❌ What this repo is not
 
-### Multi-agent safety
+- a full CRM  
+- a fully hardened production system  
 
-The app uses two layers:
+---
 
-- periodic refresh in inbox and conversation views
-- backend claim check before sending a reply
+## 🧨 Bottom line
 
-That means visual updates are near-real-time, while the actual protection is enforced server-side.
+The key question is not:
 
-### Demo seeding
-
-The repo includes demo-oriented flows for business setup and reseeding.
-These are useful for walkthroughs, but should be treated as demo tooling, not final production onboarding architecture.
-
-## What this repo is best for right now
-
-This repo is best understood as:
-
-- a serious product demo
-- a pilot-ready inbox workflow
-- a foundation for paid onboarding and pilot projects
-
-It is not yet a fully hardened production platform.
-
-## Bottom line
-
-If you evaluate Novua Inbox, the key question is not:
-
-- "does it have every CRM feature?"
+"does it have every CRM feature?"
 
 The key question is:
 
-- "does it help a team decide what to answer now, before money is lost?"
+**"does it help a team decide what to answer now, before value is lost?"**
