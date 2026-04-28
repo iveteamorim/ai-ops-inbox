@@ -54,7 +54,7 @@ Repo: https://github.com/iveteamorim/ai-ops-inbox
 
 ## 📸 Product preview
 
-<img src="https://raw.githubusercontent.com/iveteamorim/ai-ops-inbox/main/public/screenshots/inbox-demo.png" width="100%" />
+<img src="https://raw.githubusercontent.com/iveteamorim/ai-ops-inbox/main/public/screenshots/inbox-demo-current.png" width="100%" />
 
 ---
 ## 🧩 Example
