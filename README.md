@@ -52,8 +52,9 @@ Repo: https://github.com/iveteamorim/ai-ops-inbox
 ---
 ## 📸 Screenshot
 
-![Novua Inbox](./public/screenshot.png)
+## 📸 Product preview
 
+<img src="https://raw.githubusercontent.com/iveteamorim/ai-ops-inbox/main/public/screenshots/inbox-demo.png" width="100%" />
 
 ---
 ## 🧩 Example
