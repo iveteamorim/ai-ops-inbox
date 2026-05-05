@@ -5,7 +5,7 @@ import path from "node:path";
 const DEFAULT_DEMO_EMAIL = "demo@novua.digital";
 const DEFAULT_DEMO_PASSWORD = "NovuaDemo2026!";
 const DEFAULT_DEMO_COMPANY_NAME = "Novua Demo Workspace";
-const DEFAULT_DEMO_FULL_NAME = "Recruiter Demo";
+const DEFAULT_DEMO_FULL_NAME = "DEMO";
 
 const DEMO_LEAD_TYPES = [
   { id: "premium-treatment", name: "Premium treatment", estimated_value: 300 },
