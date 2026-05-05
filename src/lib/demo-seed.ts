@@ -8,6 +8,7 @@ type DemoContactSeed = {
   hoursAgo: number;
   status: "new" | "active" | "no_response" | "won" | "lost";
   replyOffsetHours?: number;
+  replyText?: string;
 };
 
 type DemoMessageInsert = {
@@ -30,48 +31,49 @@ export const DEMO_SEED_PHONES = [
 ] as const;
 
 export function buildDemoConversationSeeds(serviceCatalog: ServiceType[]): DemoContactSeed[] {
-  const primary = serviceCatalog[0]?.name?.trim() || "primera consulta";
-  const secondary = serviceCatalog[1]?.name?.trim() || primary;
-  const tertiary = serviceCatalog[2]?.name?.trim() || secondary;
+  const primary = serviceCatalog[0]?.name?.trim() || "Premium treatment";
+  const secondary = serviceCatalog[1]?.name?.trim() || "General information";
+  const tertiary = serviceCatalog[2]?.name?.trim() || "Follow-up update";
 
   return [
     {
-      name: "Nora Nuevo",
+      name: "Emma Hot Lead",
       phone: "+34600000010",
-      message: `Hola, quería pedir información sobre ${primary.toLowerCase()} y saber si tenéis hueco mañana.`,
-      hoursAgo: 1,
-      status: "new",
-    },
-    {
-      name: "Carlos Ejemplo",
-      phone: "+34600000011",
-      message: `Hola, me interesa ${tertiary.toLowerCase()}. ¿Podéis darme más información?`,
-      hoursAgo: 4,
-      status: "active",
-      replyOffsetHours: 1,
-    },
-    {
-      name: "Marina Test",
-      phone: "+34600000012",
-      message: `Hola, quería saber el precio de ${secondary.toLowerCase()}.`,
-      hoursAgo: 18,
+      message: `Hi, I want to book a ${primary.toLowerCase()} this week.`,
+      hoursAgo: 26,
       status: "no_response",
     },
     {
-      name: "Lucia Demo",
-      phone: "+34600000013",
-      message: `Hola, quiero reservar ${primary.toLowerCase()} esta semana. ¿Tenéis disponibilidad?`,
-      hoursAgo: 12,
-      status: "won",
-      replyOffsetHours: 10,
+      name: "Mia Info Lead",
+      phone: "+34600000011",
+      message: `Can you send me more information about ${secondary.toLowerCase()}?`,
+      hoursAgo: 2,
+      status: "new",
     },
     {
-      name: "Diego Perdido",
+      name: "Olivia Follow-up",
+      phone: "+34600000012",
+      message: `I asked yesterday about ${tertiary.toLowerCase()}, any update?`,
+      hoursAgo: 28,
+      status: "no_response",
+    },
+    {
+      name: "Sofia Availability",
+      phone: "+34600000013",
+      message: `Do you have availability tomorrow for a ${primary.toLowerCase()}?`,
+      hoursAgo: 6,
+      status: "active",
+      replyOffsetHours: 2,
+      replyText: "Yes, we can check tomorrow's availability and help you move forward with the booking.",
+    },
+    {
+      name: "Lucas Converted",
       phone: "+34600000014",
-      message: `Hola, quería reservar ${secondary.toLowerCase()} esta semana.`,
+      message: `I want to confirm the ${primary.toLowerCase()} booking for Friday.`,
       hoursAgo: 24,
-      status: "lost",
-      replyOffsetHours: 18,
+      status: "won",
+      replyOffsetHours: 20,
+      replyText: "Confirmed. Your premium treatment booking is scheduled and we will send the final details shortly.",
     },
   ];
 }
@@ -192,7 +194,7 @@ export async function seedDemoConversations(params: {
         direction: "outbound",
         sender_type: "agent",
         channel: "whatsapp",
-        text: triage.suggestedResponse,
+        text: seed.replyText ?? triage.suggestedResponse,
         raw_payload: { source: "demo_seed" },
         created_at: outboundAt,
       });

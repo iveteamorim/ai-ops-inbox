@@ -5,9 +5,9 @@ export const DEFAULT_PUBLIC_DEMO_EMAILS = ["demo@novua.digital"] as const;
 export const DEFAULT_DEMO_COMPANY_NAME = "Novua Demo Workspace";
 
 export const DEFAULT_DEMO_LEAD_TYPES = [
-  { id: "premium-treatment", name: "Tratamiento premium", estimated_value: 180 },
-  { id: "first-visit", name: "Primera visita", estimated_value: 90 },
-  { id: "follow-up", name: "Seguimiento", estimated_value: 60 },
+  { id: "premium-treatment", name: "Premium treatment", estimated_value: 300 },
+  { id: "general-information", name: "General information", estimated_value: 50 },
+  { id: "follow-up-update", name: "Follow-up update", estimated_value: 120 },
 ] as const;
 
 export function getPublicDemoEmails() {

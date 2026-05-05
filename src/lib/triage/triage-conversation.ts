@@ -64,6 +64,19 @@ function scoreLeadType(message: string, service: ServiceType) {
   }
 
   const genericInquiryHints = [
+    "appointment",
+    "availability",
+    "available",
+    "book",
+    "booking",
+    "cost",
+    "information",
+    "price",
+    "schedule",
+    "this week",
+    "tomorrow",
+    "treatment",
+    "update",
     "precio",
     "precios",
     "coste",
@@ -85,6 +98,12 @@ function scoreLeadType(message: string, service: ServiceType) {
   ];
 
   const broadCommercialType =
+    name.includes("appointment") ||
+    name.includes("consultation") ||
+    name.includes("follow-up") ||
+    name.includes("premium") ||
+    name.includes("treatment") ||
+    name.includes("visit") ||
     name.includes("visita") ||
     name.includes("consulta") ||
     name.includes("sesion") ||
@@ -102,9 +121,14 @@ function scoreLeadType(message: string, service: ServiceType) {
 function detectIntent(message: string): TriageIntent {
   const text = normalizeText(message);
   if (!text) return "other";
-  if (["precio", "precios", "coste", "costo", "tarifa"].some((hint) => text.includes(hint))) return "pricing";
+  if (["price", "pricing", "cost", "rate", "precio", "precios", "coste", "costo", "tarifa"].some((hint) => text.includes(hint))) return "pricing";
   if (
     [
+      "appointment",
+      "book",
+      "booking",
+      "confirm booking",
+      "reserve",
       "reservar",
       "reserva",
       "agendar",
@@ -119,10 +143,10 @@ function detectIntent(message: string): TriageIntent {
   ) {
     return "booking";
   }
-  if (["disponibilidad", "disponible", "hueco", "horario", "horarios", "manana", "esta semana"].some((hint) => text.includes(hint))) {
+  if (["availability", "available", "opening", "schedule", "tomorrow", "this week", "disponibilidad", "disponible", "hueco", "horario", "horarios", "manana", "esta semana"].some((hint) => text.includes(hint))) {
     return "availability";
   }
-  if (["hola", "informacion", "info", "ayuda"].some((hint) => text.includes(hint))) return "general";
+  if (["hello", "hi", "information", "info", "help", "update", "hola", "informacion", "ayuda"].some((hint) => text.includes(hint))) return "general";
   return "other";
 }
 
