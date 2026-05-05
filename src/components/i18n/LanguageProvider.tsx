@@ -1,7 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { type DictionaryKey, translate } from "@/lib/i18n/dictionaries";
 import { LANG_COOKIE, type Lang } from "@/lib/i18n/config";
 
@@ -20,9 +19,7 @@ export function LanguageProvider({
   initialLang: Lang;
   children: React.ReactNode;
 }) {
-  const router = useRouter();
   const [langState, setLangState] = useState<Lang>(initialLang);
-  const [, startTransition] = useTransition();
 
   const setLang = useCallback((value: Lang) => {
     if (value === langState) return;
@@ -30,10 +27,7 @@ export function LanguageProvider({
     setLangState(value);
     document.cookie = `${LANG_COOKIE}=${value}; path=/; max-age=31536000; samesite=lax`;
     document.documentElement.lang = value;
-    startTransition(() => {
-      router.refresh();
-    });
-  }, [langState, router]);
+  }, [langState]);
 
   const value = useMemo(
     () => ({

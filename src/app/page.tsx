@@ -102,7 +102,7 @@ export default function NovuaLanding() {
   const stagger = {
     hidden: {},
     show: {
-      transition: { staggerChildren: 0.12, delayChildren: 0.1 },
+      transition: { staggerChildren: 0.08 },
     },
   };
 
@@ -116,14 +116,14 @@ export default function NovuaLanding() {
   const panel = rightPanelStates[activeIndex];
 
   return (
-    <main className="min-h-screen bg-[#07110E] text-white -m-6">
+    <main className="min-h-screen bg-[#07110E] text-white -m-4 md:-m-6">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-[-8%] top-0 h-[32rem] w-[32rem] rounded-full bg-green-500/10 blur-3xl" />
         <div className="absolute right-[-4%] top-24 h-[28rem] w-[28rem] rounded-full bg-emerald-400/8 blur-3xl" />
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-4 pt-10 pb-16 sm:px-6 lg:px-8 lg:pt-14">
-        <div className="mb-10 flex items-center justify-end gap-3">
+      <div className="relative mx-auto max-w-7xl px-4 pt-6 pb-14 sm:px-6 sm:pt-10 lg:px-8 lg:pt-14">
+        <div className="mb-8 flex items-center justify-end gap-3 sm:mb-10">
           <LocaleMenu />
           <Link
             href="/login"
@@ -132,21 +132,21 @@ export default function NovuaLanding() {
             {t("cta_signin")}
           </Link>
         </div>
-        <section className="grid items-start gap-12 lg:grid-cols-[0.95fr_1.2fr] lg:gap-14">
+        <section className="grid items-start gap-10 lg:grid-cols-[0.95fr_1.2fr] lg:gap-14">
           <div className="max-w-xl">
-            <p className="mb-3 text-xs uppercase tracking-[0.24em] text-green-400 sm:text-sm">
+            <p className="mb-3 text-xs uppercase tracking-[0.16em] text-green-400 sm:text-sm sm:tracking-[0.24em]">
               {t("landing_brand_kicker")}
             </p>
 
-            <h1 className="text-4xl font-semibold leading-[0.95] text-white sm:text-5xl lg:text-6xl">
+            <h1 className="text-4xl font-semibold leading-[1.02] text-white sm:text-5xl lg:text-6xl lg:leading-[0.95]">
               {t("landing_title")}
             </h1>
 
-            <p className="mt-6 text-base leading-8 text-zinc-300 sm:text-lg">
+            <p className="mt-5 text-base leading-7 text-zinc-300 sm:mt-6 sm:text-lg sm:leading-8">
               {t("landing_subtitle")}
             </p>
 
-            <p className="mt-6 text-xl font-semibold leading-8 text-yellow-400">
+            <p className="mt-5 text-lg font-semibold leading-7 text-yellow-400 sm:mt-6 sm:text-xl sm:leading-8">
               {t("landing_hero_highlight")}
             </p>
 
@@ -161,7 +161,7 @@ export default function NovuaLanding() {
             </div>
             <p className="mt-3 text-sm text-zinc-500">{t("landing_no_card")}</p>
 
-            <div className="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm text-zinc-400">
+            <div className="mt-8 flex flex-wrap gap-x-5 gap-y-3 text-sm text-zinc-400 sm:mt-10 sm:gap-x-6">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-green-400">↓ 42%</span>
                 <span>{t("landing_response_time").toLowerCase()}</span>
@@ -171,7 +171,7 @@ export default function NovuaLanding() {
                 <span>{t("landing_converted").toLowerCase()}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-green-400">+ visibilidad</span>
+                <span className="font-semibold text-green-400">{t("landing_visibility_metric")}</span>
                 <span>{t("landing_panel_2_title").toLowerCase()}</span>
               </div>
             </div>
@@ -180,7 +180,7 @@ export default function NovuaLanding() {
           <div className="relative">
             <div className="absolute inset-0 rounded-[28px] bg-green-500/10 blur-3xl" />
 
-            <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-5 shadow-[0_0_60px_rgba(16,185,129,0.08)] sm:p-6 lg:p-8">
+            <div className="relative overflow-hidden rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-4 shadow-[0_0_60px_rgba(16,185,129,0.08)] sm:rounded-[28px] sm:p-6 lg:p-8">
               <div className="mb-6 flex items-center justify-end gap-3">
                 <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-400">
                   {t("nav_inbox")}
@@ -197,7 +197,7 @@ export default function NovuaLanding() {
                         layout
                         transition={{ duration: 0.35 }}
                         className={[
-                          "rounded-2xl border p-5 transition-all duration-500",
+                          "rounded-2xl border p-4 transition-all duration-500 sm:p-5",
                           isActive
                             ? "scale-[1.01] border-green-400/40 bg-[#132922] shadow-[0_0_35px_rgba(52,211,153,0.12)]"
                             : "border-white/5 bg-[#10211C] opacity-75",
@@ -206,10 +206,10 @@ export default function NovuaLanding() {
                         <div className="flex items-start justify-between gap-4">
                           <div>
                             <div className="flex items-center gap-2">
-                              <p className="text-2xl font-semibold text-white">{conversation.name}</p>
+                              <p className="text-xl font-semibold text-white sm:text-2xl">{conversation.name}</p>
                               <span className="text-xs text-zinc-500">{conversation.time}</span>
                             </div>
-                            <p className="mt-2 text-lg text-zinc-300">{conversation.message}</p>
+                            <p className="mt-2 text-base text-zinc-300 sm:text-lg">{conversation.message}</p>
                           </div>
 
                           <span className={`rounded-full border px-3 py-1 text-sm ${conversation.statusClass}`}>
@@ -226,7 +226,7 @@ export default function NovuaLanding() {
                   })}
                 </div>
 
-                <div className="flex min-h-[360px] flex-col justify-between rounded-2xl border border-white/5 bg-[#0C1210] p-5">
+                <div className="flex min-h-[300px] flex-col justify-between rounded-2xl border border-white/5 bg-[#0C1210] p-4 sm:min-h-[360px] sm:p-5">
                   <div>
                     <p className="text-xs uppercase tracking-[0.18em] text-zinc-400">{panel.title}</p>
 
@@ -237,7 +237,7 @@ export default function NovuaLanding() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -8 }}
                         transition={{ duration: 0.3 }}
-                        className={`mt-4 text-5xl font-bold ${panel.metricClass}`}
+                        className={`mt-4 text-4xl font-bold sm:text-5xl ${panel.metricClass}`}
                       >
                         {panel.metric}
                       </motion.p>
@@ -264,7 +264,7 @@ export default function NovuaLanding() {
                         exit={{ opacity: 0, y: -8 }}
                         transition={{ duration: 0.3 }}
                       >
-                        <p className="mt-3 text-2xl font-semibold text-white">{panel.action}</p>
+                        <p className="mt-3 text-xl font-semibold text-white sm:text-2xl">{panel.action}</p>
                         <p className="mt-3 text-base leading-7 text-zinc-400">{panel.helper}</p>
                         <p className="mt-5 text-sm font-medium text-emerald-300">{t("landing_value_at_risk")}</p>
                       </motion.div>
@@ -296,7 +296,7 @@ export default function NovuaLanding() {
           variants={stagger}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, amount: 0.3 }}
+          viewport={{ once: true, amount: 0.08, margin: "0px 0px -8% 0px" }}
         >
           {problemCards.map((card) => (
             <motion.div
