@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { enforceSameOrigin } from "@/lib/security/request-origin";
+import { getWorkspaceMember, type WorkspaceMember } from "@/lib/workspace-access";
 
 type ConversationRow = {
   id: string;
@@ -17,15 +19,22 @@ type PostBody = {
 
 async function getAuthenticatedClient() {
   const supabase = await createClient();
+  const admin = createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  return { user, supabase };
+  const profile = user ? await getWorkspaceMember(user).catch(() => null) : null;
+
+  return { user, supabase, admin, profile };
 }
 
-async function getAuthorizedConversation(supabase: Awaited<ReturnType<typeof createClient>>, conversationId: string) {
-  const { data: conversation, error: conversationError } = await supabase
+async function getAuthorizedConversation(
+  admin: ReturnType<typeof createAdminClient>,
+  profile: WorkspaceMember | null,
+  conversationId: string,
+) {
+  const { data: conversation, error: conversationError } = await admin
     .from("conversations")
     .select("id, company_id, channel, assigned_to")
     .eq("id", conversationId)
@@ -37,6 +46,10 @@ async function getAuthorizedConversation(supabase: Awaited<ReturnType<typeof cre
 
   if (!conversation) {
     return { conversation: null, error: "conversation_not_found", status: 404 as const };
+  }
+
+  if (!profile || profile.company_id !== conversation.company_id) {
+    return { conversation: null, error: "forbidden", status: 403 as const };
   }
 
   return { conversation, error: null, status: 200 as const };
@@ -61,12 +74,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
-  const access = await getAuthorizedConversation(authContext.supabase, conversationId);
+  const access = await getAuthorizedConversation(authContext.admin, authContext.profile, conversationId);
   if (!access.conversation) {
     return NextResponse.json({ ok: false, error: access.error }, { status: access.status });
   }
 
-  const { data, error } = await authContext.supabase
+  const { data, error } = await authContext.admin
     .from("messages")
     .select("id, direction, sender_type, text, created_at")
     .eq("conversation_id", access.conversation.id)
@@ -116,13 +129,13 @@ export async function POST(request: Request) {
     );
   }
 
-  const access = await getAuthorizedConversation(authContext.supabase, conversationId);
+  const access = await getAuthorizedConversation(authContext.admin, authContext.profile, conversationId);
   if (!access.conversation) {
     return NextResponse.json({ ok: false, error: access.error }, { status: access.status });
   }
 
   const now = new Date().toISOString();
-  const { data: claimedConversation, error: claimError } = await authContext.supabase
+  const { data: claimedConversation, error: claimError } = await authContext.admin
     .from("conversations")
     .update({
       assigned_to: authContext.user.id,
@@ -138,7 +151,7 @@ export async function POST(request: Request) {
   }
 
   if (!claimedConversation) {
-    const latestAccess = await getAuthorizedConversation(authContext.supabase, conversationId);
+    const latestAccess = await getAuthorizedConversation(authContext.admin, authContext.profile, conversationId);
     const assignedToOther =
       latestAccess.conversation?.assigned_to && latestAccess.conversation.assigned_to !== authContext.user.id;
 
@@ -155,7 +168,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "conversation_claim_failed" }, { status: 409 });
   }
 
-  const { error: insertError } = await authContext.supabase.from("messages").insert({
+  const { error: insertError } = await authContext.admin.from("messages").insert({
     company_id: access.conversation.company_id,
     conversation_id: access.conversation.id,
     direction: "outbound",
@@ -169,7 +182,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: insertError.message }, { status: 500 });
   }
 
-  const { error: updateError } = await authContext.supabase
+  const { error: updateError } = await authContext.admin
     .from("conversations")
     .update({
       status: "active",

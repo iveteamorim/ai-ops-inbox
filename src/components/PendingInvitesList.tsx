@@ -59,7 +59,7 @@ export function PendingInvitesList({
       const payload = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
 
       if (!response.ok || !payload?.ok) {
-        setError(payload?.error ?? errorGeneric);
+        setError(errorGeneric);
         setPendingKey(null);
         return;
       }

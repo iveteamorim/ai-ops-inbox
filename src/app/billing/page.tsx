@@ -2,6 +2,7 @@ import { cookies, headers } from "next/headers";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { formatTrialEnd } from "@/lib/trial";
 import { resolveLang, LANG_COOKIE } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
@@ -33,15 +34,16 @@ export default async function BillingPage() {
   const t = (key: Parameters<typeof translate>[1]) => translate(lang, key);
 
   const supabase = await createClient();
+  const admin = createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   const { data: profile } = user
-    ? await supabase.from("profiles").select("company_id, full_name, role").eq("id", user.id).maybeSingle<{ company_id: string; full_name: string | null; role: string | null }>()
+    ? await admin.from("profiles").select("company_id, full_name, role").eq("id", user.id).maybeSingle<{ company_id: string; full_name: string | null; role: string | null }>()
     : { data: null };
   const { data: company } =
     profile?.company_id
-      ? await supabase.from("companies").select("config").eq("id", profile.company_id).maybeSingle<{ config?: Record<string, unknown> | null }>()
+      ? await admin.from("companies").select("config").eq("id", profile.company_id).maybeSingle<{ config?: Record<string, unknown> | null }>()
       : { data: null };
 
   const trialEndsAt = (user?.user_metadata?.trial_ends_at as string | undefined) ?? null;

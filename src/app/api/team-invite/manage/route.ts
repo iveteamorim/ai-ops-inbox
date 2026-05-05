@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { enforceSameOrigin } from "@/lib/security/request-origin";
+import { canManageWorkspace, getWorkspaceMember } from "@/lib/workspace-access";
 
 type ProfileRow = {
   id: string;
@@ -42,6 +43,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
+  const admin = createAdminClient();
+
   const rateLimit = checkRateLimit({
     key: `team-invite-manage:${user.id}`,
     windowMs: 10 * 60_000,
@@ -54,21 +57,19 @@ export async function POST(request: Request) {
     );
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("company_id, role")
-    .eq("id", user.id)
-    .maybeSingle<ProfileRow>();
-
-  if (!profile) {
-    return NextResponse.json({ ok: false, error: "profile_not_found" }, { status: 404 });
+  let profile;
+  try {
+    profile = await getWorkspaceMember(user);
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: error instanceof Error ? error.message : "workspace_bootstrap_failed" },
+      { status: 500 },
+    );
   }
 
-  if (!["owner", "admin"].includes(profile.role)) {
+  if (!canManageWorkspace(profile.role)) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
-
-  const admin = createAdminClient();
   const { data: authUserResult, error: userError } = await admin.auth.admin.getUserById(inviteId);
 
   if (userError || !authUserResult.user) {

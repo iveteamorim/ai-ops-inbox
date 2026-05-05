@@ -91,7 +91,7 @@ export function BusinessSetupForm({ initialValue, labels, showInternalTools = fa
         | { ok?: boolean; error?: string; seeded?: number; focusConversationId?: string | null }
         | null;
       if (!response.ok || !payload?.ok) {
-        setError(payload?.error ?? labels.error);
+        setError(labels.error);
         return;
       }
 
@@ -121,7 +121,7 @@ export function BusinessSetupForm({ initialValue, labels, showInternalTools = fa
         | null;
 
       if (!response.ok || !payload?.ok) {
-        setError(payload?.error ?? labels.error);
+        setError(labels.error);
         return;
       }
 
@@ -151,7 +151,7 @@ export function BusinessSetupForm({ initialValue, labels, showInternalTools = fa
         | null;
 
       if (!response.ok || !payload?.ok) {
-        setError(payload?.error ?? labels.error);
+        setError(labels.error);
         return;
       }
 

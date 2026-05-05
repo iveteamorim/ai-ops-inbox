@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { enforceSameOrigin } from "@/lib/security/request-origin";
+import { getWorkspaceMember } from "@/lib/workspace-access";
 
 type PostBody = {
   conversation_id?: string;
@@ -28,18 +30,22 @@ type MessageRow = {
 
 async function getAuthenticatedClient() {
   const supabase = await createClient();
+  const admin = createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  return { user, supabase };
+  const profile = user ? await getWorkspaceMember(user).catch(() => null) : null;
+
+  return { user, supabase, admin, profile };
 }
 
 async function getAuthorizedConversation(
-  supabase: Awaited<ReturnType<typeof createClient>>,
+  admin: ReturnType<typeof createAdminClient>,
+  companyId: string | null | undefined,
   conversationId: string,
 ) {
-  const { data: conversation, error } = await supabase
+  const { data: conversation, error } = await admin
     .from("conversations")
     .select("id, company_id, contact_id, status, lead_type, estimated_value")
     .eq("id", conversationId)
@@ -51,6 +57,10 @@ async function getAuthorizedConversation(
 
   if (!conversation) {
     return { conversation: null, error: "conversation_not_found", status: 404 as const };
+  }
+
+  if (!companyId || companyId !== conversation.company_id) {
+    return { conversation: null, error: "forbidden", status: 403 as const };
   }
 
   return { conversation, error: null, status: 200 as const };
@@ -97,18 +107,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
-  const access = await getAuthorizedConversation(authContext.supabase, conversationId);
+  const access = await getAuthorizedConversation(authContext.admin, authContext.profile?.company_id, conversationId);
   if (!access.conversation) {
     return NextResponse.json({ ok: false, error: access.error }, { status: access.status });
   }
 
   const [contactResult, messagesResult] = await Promise.all([
-    authContext.supabase
+    authContext.admin
       .from("contacts")
       .select("name")
       .eq("id", access.conversation.contact_id)
+      .eq("company_id", access.conversation.company_id)
       .maybeSingle<ContactRow>(),
-    authContext.supabase
+    authContext.admin
       .from("messages")
       .select("direction, sender_type, text, created_at")
       .eq("conversation_id", access.conversation.id)

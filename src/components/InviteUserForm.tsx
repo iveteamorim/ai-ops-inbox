@@ -52,7 +52,7 @@ export function InviteUserForm({
         if (payload?.error === "seat_limit_reached") {
           setError(seatLimitError);
         } else {
-          setError(payload?.error ?? errorGeneric);
+          setError(errorGeneric);
         }
         return;
       }

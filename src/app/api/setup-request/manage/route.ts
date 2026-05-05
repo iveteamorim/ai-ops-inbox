@@ -3,10 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isNovuaInternalUser } from "@/lib/internal-access";
 import { enforceSameOrigin } from "@/lib/security/request-origin";
-
-type ProfileRow = {
-  role: string;
-};
+import { canManageWorkspace, getWorkspaceMember } from "@/lib/workspace-access";
 
 type Payload = {
   requestId?: string;
@@ -29,6 +26,7 @@ export async function POST(request: Request) {
   }
 
   const supabase = await createClient();
+  const admin = createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -37,21 +35,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle<ProfileRow>();
-
-  if (profileError) {
-    return NextResponse.json({ ok: false, error: profileError.message }, { status: 500 });
+  let profile;
+  try {
+    profile = await getWorkspaceMember(user);
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: error instanceof Error ? error.message : "workspace_bootstrap_failed" },
+      { status: 500 },
+    );
   }
 
-  if (!profile || !["owner", "admin"].includes(profile.role) || !isNovuaInternalUser(user.email)) {
+  if (!canManageWorkspace(profile.role) || !isNovuaInternalUser(user.email)) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
 
-  const admin = createAdminClient();
   const { error } = await admin
     .from("setup_requests")
     .update({ status })

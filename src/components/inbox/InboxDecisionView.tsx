@@ -103,8 +103,8 @@ export function InboxDecisionView({
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] items-start">
-          <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-4 sm:p-5 max-h-[78vh] overflow-y-auto">
+        <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
+          <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-4 sm:p-5 overflow-y-auto lg:h-[640px]">
             <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-gray-400">
               <button
                 type="button"
@@ -150,10 +150,18 @@ export function InboxDecisionView({
               {filteredConversations.map((conversation) => {
                 const isSelected = conversation.id === selectedId;
                 return (
-                  <motion.button
+                  <motion.div
                     key={conversation.id}
                     whileHover={{ y: -2 }}
                     onClick={() => setSelectedId(conversation.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        setSelectedId(conversation.id);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
                     className={[
                       "w-full rounded-2xl border p-4 text-left transition-all duration-300",
                       isSelected
@@ -189,16 +197,22 @@ export function InboxDecisionView({
                       </div>
                       <div>
                         <div className="text-gray-500">{labels.nextAction}</div>
-                        <div className="mt-1 font-medium text-white">{conversation.action}</div>
+                        <Link
+                          href={`/conversation/${conversation.id}`}
+                          onClick={(event) => event.stopPropagation()}
+                          className="mt-1 inline-flex font-medium text-emerald-300 underline-offset-4 hover:text-emerald-200 hover:underline"
+                        >
+                          {conversation.action}
+                        </Link>
                       </div>
                     </div>
-                  </motion.button>
+                  </motion.div>
                 );
               })}
             </div>
           </section>
 
-          <aside className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-5 sm:p-6 sticky top-6 h-fit">
+          <aside className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-5 sm:p-6 lg:h-[640px] lg:overflow-y-auto">
             <p className="text-xs uppercase tracking-[0.18em] text-gray-400">{labels.decisionLayer}</p>
 
             <div className="mt-5 rounded-2xl border border-white/5 bg-[#101B18] p-5">

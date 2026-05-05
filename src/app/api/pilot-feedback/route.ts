@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { enforceSameOrigin } from "@/lib/security/request-origin";
-
-type ProfileRow = {
-  id: string;
-  company_id: string;
-};
+import { getWorkspaceMember } from "@/lib/workspace-access";
 
 type Payload = {
   category?: "bug" | "feedback" | "feature_request";
@@ -59,21 +56,18 @@ export async function POST(request: Request) {
     );
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("id, company_id")
-    .eq("id", user.id)
-    .maybeSingle<ProfileRow>();
-
-  if (profileError) {
-    return NextResponse.json({ ok: false, error: profileError.message }, { status: 500 });
+  const admin = createAdminClient();
+  let profile;
+  try {
+    profile = await getWorkspaceMember(user);
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: error instanceof Error ? error.message : "workspace_bootstrap_failed" },
+      { status: 500 },
+    );
   }
 
-  if (!profile) {
-    return NextResponse.json({ ok: false, error: "profile_not_found" }, { status: 404 });
-  }
-
-  const { error: insertError } = await supabase.from("pilot_feedback").insert({
+  const { error: insertError } = await admin.from("pilot_feedback").insert({
     company_id: profile.company_id,
     user_id: profile.id,
     category,

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isNovuaInternalUser } from "@/lib/internal-access";
 import { enforceSameOrigin } from "@/lib/security/request-origin";
+import { getWorkspaceMember } from "@/lib/workspace-access";
 
 type Payload = {
   feedbackId?: string;
@@ -51,6 +52,14 @@ export async function POST(request: Request) {
   }
 
   const admin = createAdminClient();
+  try {
+    await getWorkspaceMember(user);
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: error instanceof Error ? error.message : "workspace_bootstrap_failed" },
+      { status: 500 },
+    );
+  }
   const patch: {
     status?: "new" | "reviewed" | "closed";
     admin_reply?: string | null;

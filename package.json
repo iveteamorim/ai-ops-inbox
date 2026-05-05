@@ -9,7 +9,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "check:client-hooks": "node scripts/check-client-hooks.mjs",
+    "verify:hardening": "npm run lint && npm run check:client-hooks",
+    "smoke:user:create": "node scripts/create-smoke-user.mjs",
+    "smoke:production": "node scripts/production-smoke.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",

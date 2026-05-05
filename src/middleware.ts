@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { createClient as createAdminSupabaseClient } from "@supabase/supabase-js";
 import { hasTrialExpired } from "@/lib/trial";
 import { LANG_COOKIE, detectLangFromHeader, normalizeLang } from "@/lib/i18n/config";
 import { isNovuaInternalUser } from "@/lib/internal-access";
@@ -35,6 +36,22 @@ function applyLanguageCookie(request: NextRequest, response: NextResponse) {
       sameSite: "lax",
     });
   }
+}
+
+function createAdminClient() {
+  const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !serviceRole) {
+    return null;
+  }
+
+  return createAdminSupabaseClient(url, serviceRole, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
 }
 
 export async function middleware(request: NextRequest) {
@@ -88,18 +105,15 @@ export async function middleware(request: NextRequest) {
   let companyPlan: string | null = null;
 
   if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("company_id")
-      .eq("id", user.id)
-      .maybeSingle<{ company_id: string }>();
+    const admin = createAdminClient();
+    const { data: profile } = admin
+      ? await admin.from("profiles").select("company_id").eq("id", user.id).maybeSingle<{ company_id: string }>()
+      : { data: null };
 
     if (profile?.company_id) {
-      const { data: company } = await supabase
-        .from("companies")
-        .select("plan")
-        .eq("id", profile.company_id)
-        .maybeSingle<{ plan: string }>();
+      const { data: company } = admin
+        ? await admin.from("companies").select("plan").eq("id", profile.company_id).maybeSingle<{ plan: string }>()
+        : await supabase.from("companies").select("plan").eq("id", profile.company_id).maybeSingle<{ plan: string }>();
       companyPlan = company?.plan ?? null;
     }
   }

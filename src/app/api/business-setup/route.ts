@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { ServiceType } from "@/lib/triage/triage-conversation";
 import { seedDemoConversations } from "@/lib/demo-seed";
 import { enforceSameOrigin } from "@/lib/security/request-origin";
+import { canManageWorkspace, getWorkspaceMember } from "@/lib/workspace-access";
 
 type LeadTypeInput = {
   id?: string;
@@ -14,11 +15,6 @@ type LeadTypeInput = {
 type Payload = {
   businessName?: string;
   leadTypes?: LeadTypeInput[];
-};
-
-type ProfileRow = {
-  id: string;
-  company_id: string;
 };
 
 type CompanyRow = {
@@ -47,18 +43,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("id, company_id")
-    .eq("id", user.id)
-    .maybeSingle<ProfileRow>();
-
-  if (profileError) {
-    return NextResponse.json({ ok: false, error: profileError.message }, { status: 500 });
+  const admin = createAdminClient();
+  let profile;
+  try {
+    profile = await getWorkspaceMember(user);
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: error instanceof Error ? error.message : "workspace_bootstrap_failed" },
+      { status: 500 },
+    );
   }
 
-  if (!profile) {
-    return NextResponse.json({ ok: false, error: "profile_not_found" }, { status: 404 });
+  if (!canManageWorkspace(profile.role)) {
+    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
 
   const businessName = typeof body.businessName === "string" ? body.businessName.trim().slice(0, 120) : "";
@@ -86,7 +83,7 @@ export async function POST(request: Request) {
         .slice(0, 12)
     : [];
 
-  const { data: company, error: companyError } = await supabase
+  const { data: company, error: companyError } = await admin
     .from("companies")
     .select("id, config")
     .eq("id", profile.company_id)
@@ -114,7 +111,7 @@ export async function POST(request: Request) {
     },
   };
 
-  const { error: updateError } = await supabase
+  const { error: updateError } = await admin
     .from("companies")
     .update({
       name: businessName || undefined,
@@ -125,8 +122,6 @@ export async function POST(request: Request) {
   if (updateError) {
     return NextResponse.json({ ok: false, error: updateError.message }, { status: 500 });
   }
-
-  const admin = createAdminClient();
   const serviceCatalog: ServiceType[] = leadTypes.map((item) => ({
     name: item.name,
     estimatedValue: item.estimated_value,

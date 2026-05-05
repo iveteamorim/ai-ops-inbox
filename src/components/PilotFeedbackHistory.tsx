@@ -1,3 +1,5 @@
+"use client";
+
 import type { UserPilotFeedbackView } from "@/lib/app-data";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 

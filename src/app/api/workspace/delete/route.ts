@@ -3,12 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { enforceSameOrigin } from "@/lib/security/request-origin";
-
-type ProfileRow = {
-  id: string;
-  company_id: string;
-  role: string;
-};
+import { getWorkspaceMember } from "@/lib/workspace-access";
 
 type CompanyRow = {
   id: string;
@@ -35,6 +30,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
+  const admin = createAdminClient();
+
   const rateLimit = checkRateLimit({
     key: `workspace-delete:${user.id}`,
     windowMs: 10 * 60_000,
@@ -47,21 +44,19 @@ export async function POST(request: Request) {
     );
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, company_id, role")
-    .eq("id", user.id)
-    .maybeSingle<ProfileRow>();
-
-  if (!profile) {
-    return NextResponse.json({ ok: false, error: "profile_not_found" }, { status: 404 });
+  let profile;
+  try {
+    profile = await getWorkspaceMember(user);
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: error instanceof Error ? error.message : "workspace_bootstrap_failed" },
+      { status: 500 },
+    );
   }
 
   if (profile.role !== "owner") {
     return NextResponse.json({ ok: false, error: "owner_only_action" }, { status: 403 });
   }
-
-  const admin = createAdminClient();
   const { data: company } = await admin
     .from("companies")
     .select("id, name")

@@ -4,11 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getLeadTypesFromBusinessConfig } from "@/lib/revenue/classify";
 import { triageConversation, type ServiceType } from "@/lib/triage/triage-conversation";
 import { enforceSameOrigin } from "@/lib/security/request-origin";
-
-type ProfileRow = {
-  id: string;
-  company_id: string;
-};
+import { canManageWorkspace, getWorkspaceMember } from "@/lib/workspace-access";
 
 type CompanyRow = {
   id: string;
@@ -54,22 +50,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("id, company_id")
-    .eq("id", user.id)
-    .maybeSingle<ProfileRow>();
-
-  if (profileError) {
-    return NextResponse.json({ ok: false, error: profileError.message }, { status: 500 });
-  }
-
-  if (!profile) {
-    return NextResponse.json({ ok: false, error: "profile_not_found" }, { status: 404 });
-  }
-
   const admin = createAdminClient();
+  let profile;
+  try {
+    profile = await getWorkspaceMember(user);
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: error instanceof Error ? error.message : "workspace_bootstrap_failed" },
+      { status: 500 },
+    );
+  }
 
+  if (!canManageWorkspace(profile.role)) {
+    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
+  }
   const [{ data: company, error: companyError }, { data: conversations, error: conversationsError }] =
     await Promise.all([
       admin.from("companies").select("id, config").eq("id", profile.company_id).maybeSingle<CompanyRow>(),

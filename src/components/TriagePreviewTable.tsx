@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import type { ConversationTriagePreviewView } from "@/lib/app-data";
 import { useI18n } from "@/components/i18n/LanguageProvider";

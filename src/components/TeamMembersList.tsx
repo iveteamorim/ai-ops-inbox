@@ -94,7 +94,7 @@ export function TeamMembersList({
 
       const payload = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
       if (!response.ok || !payload?.ok) {
-        setError(payload?.error ?? removeError);
+        setError(removeError);
         setPendingId(null);
         setPendingAction(null);
         return;
@@ -125,7 +125,7 @@ export function TeamMembersList({
 
       const payload = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
       if (!response.ok || !payload?.ok) {
-        setError(payload?.error ?? reassignError);
+        setError(reassignError);
         setPendingId(null);
         setPendingAction(null);
         return;

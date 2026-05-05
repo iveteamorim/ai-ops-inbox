@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { enforceSameOrigin } from "@/lib/security/request-origin";
-
-type ProfileRow = {
-  company_id: string;
-};
+import { getWorkspaceMember } from "@/lib/workspace-access";
 
 export async function POST(request: Request) {
   const originError = enforceSameOrigin(request);
@@ -42,21 +40,18 @@ export async function POST(request: Request) {
     );
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("company_id")
-    .eq("id", user.id)
-    .maybeSingle<ProfileRow>();
-
-  if (profileError) {
-    return NextResponse.json({ ok: false, error: profileError.message }, { status: 500 });
+  const admin = createAdminClient();
+  let profile;
+  try {
+    profile = await getWorkspaceMember(user);
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: error instanceof Error ? error.message : "workspace_bootstrap_failed" },
+      { status: 500 },
+    );
   }
 
-  if (!profile) {
-    return NextResponse.json({ ok: false, error: "profile_not_found" }, { status: 404 });
-  }
-
-  const { data: existing, error: existingError } = await supabase
+  const { data: existing, error: existingError } = await admin
     .from("setup_requests")
     .select("id, status")
     .eq("company_id", profile.company_id)
@@ -71,7 +66,7 @@ export async function POST(request: Request) {
   }
 
   if (existing) {
-    const { data: updated, error: updateError } = await supabase
+    const { data: updated, error: updateError } = await admin
       .from("setup_requests")
       .update({ notes })
       .eq("id", existing.id)
@@ -85,7 +80,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, alreadyRequested: true, request: updated });
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await admin
     .from("setup_requests")
     .insert({
       company_id: profile.company_id,

@@ -6,6 +6,7 @@ import { classifyLeadFromMessage } from "@/lib/revenue/classify";
 import { triageConversation, type ServiceType, type TriageResult } from "@/lib/triage/triage-conversation";
 import { getDecisionType, type DecisionType } from "@/lib/conversation-decision";
 import type { Lang } from "@/lib/i18n/config";
+import { ensureUserWorkspace } from "@/lib/workspace-bootstrap";
 
 type ProfileRow = {
   id: string;
@@ -153,7 +154,7 @@ export type UserPilotFeedbackView = {
 export type AppContext =
   | { kind: "unconfigured" }
   | { kind: "unauthenticated" }
-  | { kind: "profile_missing"; user: User }
+  | { kind: "profile_missing"; user: User; reason?: string }
   | {
       kind: "ready";
       user: User;
@@ -254,85 +255,36 @@ export type ConversationTriagePreviewView = {
   triage: TriageResult;
 };
 
-function titleCase(value: string) {
-  return value
-    .split(/[\s_-]+/)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-    .join(" ");
-}
-
-function deriveCompanyName(user: User) {
-  const metadataCompany = user.user_metadata?.company_name;
-  if (typeof metadataCompany === "string" && metadataCompany.trim()) {
-    return metadataCompany.trim();
-  }
-
-  const email = user.email ?? "";
-  const local = email.split("@")[0] ?? "novua";
-  return titleCase(local);
-}
-
-function deriveFullName(user: User) {
-  const metadataName = user.user_metadata?.full_name;
-  if (typeof metadataName === "string" && metadataName.trim()) {
-    return metadataName.trim();
-  }
-
-  return null;
-}
-
 async function getProfileAndCompany(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
   userId: string,
 ) {
-  const { data: profile } = await supabase
+  const admin = createAdminClient();
+  const { data: profile, error: profileError } = await admin
     .from("profiles")
     .select("id, company_id, full_name, role")
     .eq("id", userId)
     .maybeSingle<ProfileRow>();
 
+  if (profileError) {
+    throw new Error(`profile_lookup_failed:${profileError.message}`);
+  }
+
   if (!profile) {
     return { profile: null, company: null };
   }
 
-  const { data: company } = await supabase
+  const { data: company, error: companyError } = await admin
     .from("companies")
     .select("id, name, plan, config")
     .eq("id", profile.company_id)
     .maybeSingle<CompanyRow>();
 
+  if (companyError) {
+    throw new Error(`company_lookup_failed:${companyError.message}`);
+  }
+
   return { profile, company: company ?? null };
-}
-
-async function bootstrapProfile(user: User) {
-  const admin = createAdminClient();
-  const companyName = deriveCompanyName(user);
-  const fullName = deriveFullName(user);
-
-  const { data: company, error: companyError } = await admin
-    .from("companies")
-    .insert({ name: companyName })
-    .select("id, name, plan, config")
-    .single<CompanyRow>();
-
-  if (companyError || !company) {
-    throw new Error(companyError?.message ?? "Failed to create company");
-  }
-
-  const { error: profileError } = await admin.from("profiles").upsert(
-    {
-      id: user.id,
-      company_id: company.id,
-      full_name: fullName,
-      role: "owner",
-    },
-    { onConflict: "id" },
-  );
-
-  if (profileError) {
-    throw new Error(profileError.message);
-  }
 }
 
 export async function getAppContext(): Promise<AppContext> {
@@ -351,20 +303,32 @@ export async function getAppContext(): Promise<AppContext> {
     return { kind: "unauthenticated" };
   }
 
-  let { profile, company } = await getProfileAndCompany(supabase, user.id);
-  if (!profile) {
+  let profile: ProfileRow | null = null;
+  let company: CompanyRow | null = null;
+  let profileMissingReason: string | undefined;
+
+  try {
+    const result = await getProfileAndCompany(supabase, user.id);
+    profile = result.profile;
+    company = result.company;
+  } catch (error) {
+    profileMissingReason = error instanceof Error ? error.message : "profile_lookup_failed";
+  }
+
+  if (!profile || !company) {
     try {
-      await bootstrapProfile(user);
+      await ensureUserWorkspace(user);
       const bootstrapped = await getProfileAndCompany(supabase, user.id);
       profile = bootstrapped.profile;
       company = bootstrapped.company;
-    } catch {
-      return { kind: "profile_missing", user };
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : "workspace_bootstrap_failed";
+      return { kind: "profile_missing", user, reason: profileMissingReason ? `${profileMissingReason}; ${reason}` : reason };
     }
   }
 
   if (!profile) {
-    return { kind: "profile_missing", user };
+    return { kind: "profile_missing", user, reason: profileMissingReason };
   }
 
   return {
@@ -493,16 +457,17 @@ export async function getConversationViews(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
   companyId: string,
 ) {
+  const admin = createAdminClient();
   const baseSelect =
     "id, company_id, contact_id, assigned_to, channel, status, last_message_at, last_inbound_at, last_outbound_at, created_at, updated_at, estimated_value, expected_value, is_complex, ai_priority, lead_type";
-  let { data: conversations, error } = await supabase
+  let { data: conversations, error } = await admin
     .from("conversations")
     .select(`${baseSelect}, unit`)
     .eq("company_id", companyId)
     .order("updated_at", { ascending: false });
 
   if (isMissingConversationUnitColumnError(error)) {
-    const fallback = await supabase
+    const fallback = await admin
       .from("conversations")
       .select(baseSelect)
       .eq("company_id", companyId)
@@ -531,13 +496,12 @@ export async function getConversationViews(
     new Set(conversationRows.map((row) => row.assigned_to).filter((value): value is string => Boolean(value))),
   );
 
-  const admin = createAdminClient();
   const [{ data: contacts }, { data: profiles }, { data: messages }, { data: company }] = await Promise.all([
-    supabase.from("contacts").select("id, name, phone, email").in("id", contactIds),
+    admin.from("contacts").select("id, name, phone, email").in("id", contactIds),
     assignedIds.length > 0
       ? admin.from("profiles").select("id, full_name").in("id", assignedIds)
       : Promise.resolve({ data: [] as ProfileNameRow[] }),
-    supabase
+    admin
       .from("messages")
       .select("id, conversation_id, direction, sender_type, text, created_at")
       .in(
@@ -546,7 +510,7 @@ export async function getConversationViews(
       )
       .order("created_at", { ascending: false })
       .limit(500),
-    supabase.from("companies").select("id, name, config").eq("id", companyId).maybeSingle<CompanyRow>(),
+    admin.from("companies").select("id, name, config").eq("id", companyId).maybeSingle<CompanyRow>(),
   ]);
 
   const contactsById = new Map((contacts as ContactRow[] | null | undefined)?.map((row) => [row.id, row]) ?? []);
@@ -622,7 +586,8 @@ export async function getTeamMembers(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
   companyId: string,
 ) {
-  const { data, error } = await supabase
+  const admin = createAdminClient();
+  const { data, error } = await admin
     .from("profiles")
     .select("id, full_name, role")
     .eq("company_id", companyId)
@@ -640,6 +605,7 @@ export async function getConversationDetail(
   companyId: string,
   conversationId: string,
 ) {
+  const admin = createAdminClient();
   const conversations = await getConversationViews(supabase, companyId);
   const conversation = conversations.find((row) => row.id === conversationId);
 
@@ -647,7 +613,7 @@ export async function getConversationDetail(
     return null;
   }
 
-  const { data: messages, error } = await supabase
+  const { data: messages, error } = await admin
     .from("messages")
     .select("id, direction, sender_type, text, created_at")
     .eq("company_id", companyId)
@@ -674,8 +640,9 @@ export async function getConversationTriagePreview(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
   companyId: string,
 ) {
+  const admin = createAdminClient();
   const conversations = await getConversationViews(supabase, companyId);
-  const { data: messages, error: messagesError } = await supabase
+  const { data: messages, error: messagesError } = await admin
     .from("messages")
     .select("id, conversation_id, direction, sender_type, text, created_at")
     .eq("company_id", companyId)
@@ -687,7 +654,7 @@ export async function getConversationTriagePreview(
     throw new Error(messagesError.message);
   }
 
-  const { data: company, error: companyError } = await supabase
+  const { data: company, error: companyError } = await admin
     .from("companies")
     .select("id, name, config")
     .eq("id", companyId)
@@ -763,19 +730,19 @@ export async function getSettingsData(
 ) {
   const admin = createAdminClient();
   const [
-    { data: channels },
-    { data: setupRequests },
-    { data: adminProfiles },
-    { data: feedbackHistory },
-    { data: assignedConversations },
+    { data: channels, error: channelsError },
+    { data: setupRequests, error: setupRequestsError },
+    { data: adminProfiles, error: adminProfilesError },
+    { data: feedbackHistory, error: feedbackHistoryError },
+    { data: assignedConversations, error: assignedConversationsError },
   ] =
     await Promise.all([
-    supabase
+    admin
       .from("channels")
       .select("id, type, external_account_id, is_active")
       .eq("company_id", companyId)
       .order("type", { ascending: true }),
-    supabase
+    admin
       .from("setup_requests")
       .select("id, channel, status, notes, created_at")
       .eq("company_id", companyId)
@@ -786,19 +753,35 @@ export async function getSettingsData(
       .select("id, full_name, role")
       .eq("company_id", companyId)
       .order("created_at", { ascending: true }),
-    supabase
+    admin
       .from("pilot_feedback")
       .select("id, category, message, page_path, status, admin_reply, replied_at, created_at")
       .eq("company_id", companyId)
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(20),
-    supabase
+    admin
       .from("conversations")
       .select("assigned_to, status")
       .eq("company_id", companyId)
       .not("assigned_to", "is", null),
   ]);
+
+  if (channelsError) {
+    throw new Error(`settings_channels_failed:${channelsError.message}`);
+  }
+  if (setupRequestsError) {
+    throw new Error(`settings_setup_requests_failed:${setupRequestsError.message}`);
+  }
+  if (adminProfilesError) {
+    throw new Error(`settings_profiles_failed:${adminProfilesError.message}`);
+  }
+  if (feedbackHistoryError) {
+    throw new Error(`settings_feedback_failed:${feedbackHistoryError.message}`);
+  }
+  if (assignedConversationsError) {
+    throw new Error(`settings_conversations_failed:${assignedConversationsError.message}`);
+  }
 
   let pendingInvites: PendingInviteView[] = [];
 

@@ -6,12 +6,14 @@ import { PilotFeedbackForm } from "@/components/PilotFeedbackForm";
 import { PilotFeedbackHistory } from "@/components/PilotFeedbackHistory";
 import { SetupRequestButton } from "@/components/SetupRequestButton";
 import { TeamMembersList } from "@/components/TeamMembersList";
+import { WhatsAppEmbeddedSignupCard } from "@/components/WhatsAppEmbeddedSignupCard";
 import { WorkspaceDangerZone } from "@/components/WorkspaceDangerZone";
 import { cookies, headers } from "next/headers";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
 import { formatChannel, getAppContext, getBusinessSetup, getSettingsData } from "@/lib/app-data";
 import { canManageInternalWorkspace, canSeeCustomerFeedback, getWorkspaceMode } from "@/lib/internal-access";
+import { getWhatsAppEmbeddedSignupRuntimeConfig } from "@/lib/whatsapp-embedded-signup";
 
 function getSetupCopy(lang: string) {
   if (lang === "es") {
@@ -120,6 +122,18 @@ function getSetupCopy(lang: string) {
         "Workspace demo de cliente. Aquí se muestra setup orientado a cliente sin herramientas internas.",
       workspaceModeCustomer: "Workspace cliente. Aquí están activos setup y feedback orientados a cliente.",
       requestError: "No se pudo solicitar el setup ahora mismo.",
+      embeddedConnectTitle: "Conectar con Meta",
+      embeddedConnectHelp:
+        "Haz login con Meta y autoriza tu número una sola vez. Novua guardará la conexión del canal cuando el flujo termine.",
+      embeddedConnectAction: "Conectar con Meta",
+      embeddedReconnectAction: "Reconectar WhatsApp",
+      embeddedSdkLoading: "Cargando conexión...",
+      embeddedSdkPreparing: "Preparando Meta...",
+      embeddedConnectSuccess: "WhatsApp conectado desde Meta.",
+      embeddedConnectError: "No se pudo abrir la conexión con Meta.",
+      embeddedSaveError: "Meta terminó el flujo, pero Novua no pudo guardar la conexión.",
+      embeddedFallbackTitle: "Si Meta no te deja terminar",
+      embeddedFallbackHelp: "Usa la solicitud manual de abajo y Novua te ayuda a cerrar la conexión.",
       dangerTitle: "Zona peligrosa",
       dangerHelp: "Elimina el workspace, el canal configurado y todos los datos asociados.",
       dangerWarning:
@@ -238,6 +252,18 @@ function getSetupCopy(lang: string) {
         "Workspace demo de cliente. Setup orientado a cliente sem ferramentas internas.",
       workspaceModeCustomer: "Workspace cliente. Setup e feedback orientados a cliente.",
       requestError: "Não foi possível solicitar o setup.",
+      embeddedConnectTitle: "Conectar com Meta",
+      embeddedConnectHelp:
+        "Faça login com a Meta e autorize o seu número uma única vez. A Novua guardará a conexão do canal ao terminar o fluxo.",
+      embeddedConnectAction: "Conectar com Meta",
+      embeddedReconnectAction: "Reconectar WhatsApp",
+      embeddedSdkLoading: "Carregando conexão...",
+      embeddedSdkPreparing: "Preparando Meta...",
+      embeddedConnectSuccess: "WhatsApp conectado pela Meta.",
+      embeddedConnectError: "Não foi possível abrir a conexão com a Meta.",
+      embeddedSaveError: "A Meta terminou o fluxo, mas a Novua não conseguiu guardar a conexão.",
+      embeddedFallbackTitle: "Se a Meta não deixar terminar",
+      embeddedFallbackHelp: "Use a solicitação manual abaixo e a Novua ajuda a fechar a conexão.",
       dangerTitle: "Zona perigosa",
       dangerHelp: "Remove o workspace, canal configurado e todos os dados associados.",
       dangerWarning:
@@ -354,6 +380,18 @@ function getSetupCopy(lang: string) {
     workspaceModeCustomerDemo: "Customer demo workspace. Setup visible, internal tools hidden.",
     workspaceModeCustomer: "Customer workspace. Setup and feedback available.",
     requestError: "Could not request setup.",
+    embeddedConnectTitle: "Connect with Meta",
+    embeddedConnectHelp:
+      "Log in with Meta and authorize your number once. Novua will save the channel connection when the flow finishes.",
+    embeddedConnectAction: "Connect with Meta",
+    embeddedReconnectAction: "Reconnect WhatsApp",
+    embeddedSdkLoading: "Loading connection...",
+    embeddedSdkPreparing: "Preparing Meta...",
+    embeddedConnectSuccess: "WhatsApp connected through Meta.",
+    embeddedConnectError: "Could not open the Meta connection flow.",
+    embeddedSaveError: "Meta finished the flow, but Novua could not save the connection.",
+    embeddedFallbackTitle: "If Meta does not let you finish",
+    embeddedFallbackHelp: "Use the manual request below and Novua will help you complete the connection.",
     dangerTitle: "Danger zone",
     dangerHelp: "Delete the workspace, configured channel, and all associated data.",
     dangerWarning: "This action is irreversible. Contacts, conversations, messages, and team access will be deleted.",
@@ -405,11 +443,27 @@ export default async function SettingsPage() {
     );
   }
 
-  const { channels, team, pendingInvites, setupRequests, feedbackHistory } = await getSettingsData(
-    context.supabase,
-    context.profile.company_id,
-    context.user.id,
-  );
+  let channels = [] as Awaited<ReturnType<typeof getSettingsData>>["channels"];
+  let team = [] as Awaited<ReturnType<typeof getSettingsData>>["team"];
+  let pendingInvites = [] as Awaited<ReturnType<typeof getSettingsData>>["pendingInvites"];
+  let setupRequests = [] as Awaited<ReturnType<typeof getSettingsData>>["setupRequests"];
+  let feedbackHistory = [] as Awaited<ReturnType<typeof getSettingsData>>["feedbackHistory"];
+  let settingsLoadError: string | null = null;
+
+  try {
+    ({ channels, team, pendingInvites, setupRequests, feedbackHistory } = await getSettingsData(
+      context.supabase,
+      context.profile.company_id,
+      context.user.id,
+    ));
+  } catch (error) {
+    settingsLoadError = error instanceof Error ? error.message : "settings_load_failed";
+    console.error("settings_page_load_failed", {
+      userId: context.user.id,
+      companyId: context.profile.company_id,
+      error: settingsLoadError,
+    });
+  }
   const workspaceMode = getWorkspaceMode(context.company, context.user.email);
   const canSeeInternalSetup = canManageInternalWorkspace(workspaceMode);
   const showCustomerFeedback = canSeeCustomerFeedback(workspaceMode);
@@ -424,11 +478,13 @@ export default async function SettingsPage() {
         ? `${usedSeats}/${seatLimit} usuários usados no plano ${context.company?.plan ?? "trial"}.`
         : `${usedSeats}/${seatLimit} users used on the ${context.company?.plan ?? "trial"} plan.`;
   const hasWebhookSecrets = Boolean(process.env.WHATSAPP_VERIFY_TOKEN && process.env.WHATSAPP_APP_SECRET);
+  const embeddedSignupConfig = getWhatsAppEmbeddedSignupRuntimeConfig();
   const whatsappSetupRequest = setupRequests.find((request) => request.channel === "whatsapp" && (request.status === "requested" || request.status === "in_progress"));
   const businessSetup = getBusinessSetup(context.company);
   const roleLabel = formatRoleLabel(lang, context.profile.role);
   const workspaceLabel = context.company?.name ?? "Novua Inbox";
-  const whatsappConnected = channels.length > 0;
+  const whatsappChannel = channels.find((channel) => channel.type === "whatsapp") ?? null;
+  const whatsappConnected = Boolean(whatsappChannel?.is_active);
   const settingsText =
     lang === "pt"
       ? {
@@ -446,9 +502,11 @@ export default async function SettingsPage() {
             { title: copy.systemFollowUpAutomation, description: "Empurra conversas ativas para não perder oportunidades." },
             { title: copy.systemWhatsappWebhook, description: hasWebhookSecrets ? "Canal pronto para receber mensagens." : "Ligação técnica pendente." },
           ],
-            teamTitle: canManageTeam ? "Equipe que responde" : t("settings_users"),
+          teamTitle: canManageTeam ? "Equipe que responde" : t("settings_users"),
           channelTitle: "Conecta WhatsApp",
-          channelHelp: "Usa este canal para solicitar ou atualizar a conexão real do WhatsApp durante o onboarding guiado.",
+          channelHelp: embeddedSignupConfig.enabled
+            ? "Conecta o teu número com a Meta dentro da Novua. Se algo falhar, mantém a solicitação manual como plano B."
+            : "Usa este canal para solicitar ou atualizar a conexão real do WhatsApp durante o onboarding guiado.",
           unnamedUser: "Utilizador sem nome",
           detail: "Ver detalhe",
           open: "Abertas",
@@ -474,7 +532,9 @@ export default async function SettingsPage() {
             ],
             teamTitle: canManageTeam ? "Response team" : t("settings_users"),
             channelTitle: "Connect WhatsApp",
-            channelHelp: "Use this area to request or update the real WhatsApp connection during guided onboarding.",
+            channelHelp: embeddedSignupConfig.enabled
+              ? "Connect your number with Meta inside Novua. If anything fails, keep the manual request as backup."
+              : "Use this area to request or update the real WhatsApp connection during guided onboarding.",
             unnamedUser: "Usuario sin nombre",
             detail: "View details",
             open: "Open",
@@ -499,7 +559,9 @@ export default async function SettingsPage() {
             ],
             teamTitle: canManageTeam ? "Equipo que responde" : t("settings_users"),
             channelTitle: "Conecta WhatsApp",
-            channelHelp: "Usa este canal para solicitar o actualizar la conexión real de WhatsApp durante onboarding guiado.",
+            channelHelp: embeddedSignupConfig.enabled
+              ? "Conecta tu número con Meta dentro de Novua. Si algo falla, mantén la solicitud manual como respaldo."
+              : "Usa este canal para solicitar o actualizar la conexión real de WhatsApp durante onboarding guiado.",
             unnamedUser: "Usuario sin nombre",
             detail: "Ver detalle",
             open: "Abiertas",
@@ -547,6 +609,21 @@ export default async function SettingsPage() {
               ) : null}
             </div>
           </article>
+
+          {settingsLoadError ? (
+            <article className="card">
+              <p className="label">
+                {lang === "en" ? "Settings loaded with limits" : lang === "pt" ? "Configurações carregadas com limitações" : "Configuración cargada con limitaciones"}
+              </p>
+              <p className="subtitle" style={{ marginBottom: 0 }}>
+                {lang === "en"
+                  ? "Some workspace data could not be loaded yet. Core actions remain available."
+                  : lang === "pt"
+                    ? "Alguns dados do workspace ainda não puderam ser carregados. As ações principais continuam disponíveis."
+                    : "Algunos datos del workspace todavía no se han podido cargar. Las acciones principales siguen disponibles."}
+              </p>
+            </article>
+          ) : null}
 
           <div className="grid cols-2" style={{ marginTop: 12 }}>
             {canManageTeam ? (
@@ -671,33 +748,55 @@ export default async function SettingsPage() {
             <p className="subtitle" style={{ marginBottom: 12 }}>
               {settingsText.channelHelp}
             </p>
-            {channels.length > 0 ? (
+            {whatsappChannel ? (
               <div className="preview-row" style={{ marginBottom: 12 }}>
-                <span>{formatChannel(channels[0].type, t)}</span>
-                <span className={`badge ${channels[0].is_active ? "status-active" : "status-no-response"}`}>
-                  {channels[0].is_active ? t("settings_active") : t("settings_disconnected")}
+                <span>{formatChannel(whatsappChannel.type, t)}</span>
+                <span className={`badge ${whatsappChannel.is_active ? "status-active" : "status-no-response"}`}>
+                  {whatsappChannel.is_active ? t("settings_active") : t("settings_disconnected")}
                 </span>
               </div>
             ) : null}
             {canManageTeam ? (
-              <SetupRequestButton
-                idleLabel={copy.requestWhatsAppSetup}
-                updateLabel={copy.updateWhatsAppSetup}
-                requestedLabel={copy.setupRequested}
-                requestedNote={copy.setupRequestedNote}
-                numberLabel={copy.setupNumberLabel}
-                numberPlaceholder={copy.setupNumberPlaceholder}
-                metaVerifiedLabel={copy.setupMetaVerifiedLabel}
-                metaVerifiedYes={copy.setupMetaVerifiedYes}
-                metaVerifiedNo={copy.setupMetaVerifiedNo}
-                notesLabel={copy.setupNotesLabel}
-                notesPlaceholder={copy.setupNotesPlaceholder}
-                phoneRequiredError={copy.setupPhoneRequired}
-                requestErrorLabel={copy.requestError}
-                inProgressLabel={copy.setupInProgress}
-                existingStatus={whatsappSetupRequest?.status ?? null}
-                existingNotes={whatsappSetupRequest?.notes ?? null}
-              />
+              <>
+                {embeddedSignupConfig.enabled ? (
+                  <WhatsAppEmbeddedSignupCard
+                    appId={embeddedSignupConfig.appId}
+                    configId={embeddedSignupConfig.configId}
+                    apiVersion={embeddedSignupConfig.apiVersion}
+                    isConnected={whatsappConnected}
+                    connectLabel={copy.embeddedConnectAction}
+                    reconnectLabel={copy.embeddedReconnectAction}
+                    readyLabel={copy.embeddedSdkPreparing}
+                    loadingLabel={copy.embeddedSdkLoading}
+                    launchErrorLabel={copy.embeddedConnectError}
+                    saveErrorLabel={copy.embeddedSaveError}
+                    connectedLabel={copy.embeddedConnectSuccess}
+                    helperLabel={copy.embeddedConnectHelp}
+                    fallbackLabel={copy.embeddedFallbackTitle}
+                    fallbackHelp={copy.embeddedFallbackHelp}
+                  />
+                ) : null}
+                <div style={{ marginTop: embeddedSignupConfig.enabled ? 18 : 0 }}>
+                  <SetupRequestButton
+                    idleLabel={copy.requestWhatsAppSetup}
+                    updateLabel={copy.updateWhatsAppSetup}
+                    requestedLabel={copy.setupRequested}
+                    requestedNote={copy.setupRequestedNote}
+                    numberLabel={copy.setupNumberLabel}
+                    numberPlaceholder={copy.setupNumberPlaceholder}
+                    metaVerifiedLabel={copy.setupMetaVerifiedLabel}
+                    metaVerifiedYes={copy.setupMetaVerifiedYes}
+                    metaVerifiedNo={copy.setupMetaVerifiedNo}
+                    notesLabel={copy.setupNotesLabel}
+                    notesPlaceholder={copy.setupNotesPlaceholder}
+                    phoneRequiredError={copy.setupPhoneRequired}
+                    requestErrorLabel={copy.requestError}
+                    inProgressLabel={copy.setupInProgress}
+                    existingStatus={whatsappSetupRequest?.status ?? null}
+                    existingNotes={whatsappSetupRequest?.notes ?? null}
+                  />
+                </div>
+              </>
             ) : (
               <div className="setup-state">
                 <p className="note">{copy.channelUsage}</p>

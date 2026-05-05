@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { enforceSameOrigin } from "@/lib/security/request-origin";
+import { canManageWorkspace, getWorkspaceMember } from "@/lib/workspace-access";
 
 type ConversationRow = {
   id: string;
@@ -8,12 +10,6 @@ type ConversationRow = {
   estimated_value: number | null;
   expected_value: number | null;
   status: "new" | "active" | "no_response" | "won" | "lost";
-};
-
-type ProfileRow = {
-  id: string;
-  company_id: string;
-  role: string;
 };
 
 type Payload = {
@@ -59,7 +55,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
-  const { data: conversation, error: conversationError } = await supabase
+  const admin = createAdminClient();
+
+  const { data: conversation, error: conversationError } = await admin
     .from("conversations")
     .select("id, company_id, estimated_value, expected_value, status")
     .eq("id", conversationId)
@@ -73,21 +71,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "conversation_not_found" }, { status: 404 });
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("id, company_id, role")
-    .eq("id", user.id)
-    .maybeSingle<ProfileRow>();
-
-  if (profileError) {
-    return NextResponse.json({ ok: false, error: profileError.message }, { status: 500 });
+  let profile;
+  try {
+    profile = await getWorkspaceMember(user);
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: error instanceof Error ? error.message : "workspace_bootstrap_failed" },
+      { status: 500 },
+    );
   }
 
   if (!profile || profile.company_id !== conversation.company_id) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
 
-  const canManageBusinessStates = profile.role === "owner" || profile.role === "admin";
+  const canManageBusinessStates = canManageWorkspace(profile.role);
 
   if (assignedTo !== undefined) {
     return NextResponse.json(
@@ -123,7 +121,7 @@ export async function POST(request: Request) {
     patch.unit = unit || null;
   }
 
-  const { error: updateError } = await supabase
+  const { error: updateError } = await admin
     .from("conversations")
     .update(patch)
     .eq("id", conversation.id);

@@ -1,5 +1,6 @@
 import { cookies, headers } from "next/headers";
 import { AppNav } from "@/components/AppNav";
+import { WorkspaceBootstrapCard } from "@/components/WorkspaceBootstrapCard";
 import { DashboardDecisionView } from "@/components/dashboard/DashboardDecisionView";
 import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/config";
@@ -32,6 +33,15 @@ export default async function DashboardPage() {
           loadingSubtitle: "Complete a autenticação Supabase e o bootstrap do tenant para desbloquear a app.",
           missingEnv: "Faltam variáveis de ambiente do Supabase.",
           profileMissing: "O utilizador autenticado ainda não tem empresa/perfil.",
+          profileRepairTitle: "A configuração do workspace está incompleta",
+          profileRepairDescription:
+            "O utilizador está autenticado, mas o registo de empresa/perfil está em falta ou desligado. Tente novamente o bootstrap do workspace para repará-lo.",
+          profileRepairRetry: "Tentar setup do workspace",
+          profileRepairPending: "A reparar workspace...",
+          profileRepairSuccess: "Workspace reparado. A recarregar acesso...",
+          profileRepairFallback:
+            "A reparação do workspace falhou. Verifique SUPABASE_SERVICE_ROLE_KEY e o trigger de auth.",
+          profileRepairReasonLabel: "Diagnóstico",
           signInNeeded: "Inicie sessão para aceder ao dashboard.",
           manageSubtitle: "Resumo do workspace e foco operacional do dia.",
           agentSubtitle: "Resumo rápido da tua carga atual e acessos diretos para operar.",
@@ -75,12 +85,22 @@ export default async function DashboardPage() {
           riskNone: "Nenhuma conversa em risco",
           riskNoneDetail: "Sem respostas pendentes",
           riskAmountLabel: "em risco",
+          leadOne: "cliente potencial",
+          leadMany: "clientes potenciais",
         }
       : lang === "en"
         ? {
             loadingSubtitle: "Complete Supabase auth and tenant bootstrap to unlock the app.",
             missingEnv: "Missing Supabase environment variables.",
             profileMissing: "Authenticated user has no company/profile yet.",
+            profileRepairTitle: "Workspace setup is incomplete",
+            profileRepairDescription:
+              "Your user is authenticated, but the company/profile record is missing or disconnected. Retry the workspace bootstrap to repair it.",
+            profileRepairRetry: "Retry workspace setup",
+            profileRepairPending: "Repairing workspace...",
+            profileRepairSuccess: "Workspace repaired. Reloading access...",
+            profileRepairFallback: "Workspace repair failed. Check SUPABASE_SERVICE_ROLE_KEY and the auth trigger.",
+            profileRepairReasonLabel: "Diagnostic",
             signInNeeded: "Sign in to access the dashboard.",
             manageSubtitle: "Workspace snapshot and operational focus for today.",
             agentSubtitle: "Quick view of your current load and direct actions.",
@@ -122,13 +142,24 @@ export default async function DashboardPage() {
           statusTitle: "Status",
           totalRiskLabel: "Total risk",
           riskNone: "No conversations at risk",
-          riskNoneDetail: "No pending replies",
-          riskAmountLabel: "at risk",
+            riskNoneDetail: "No pending replies",
+            riskAmountLabel: "at risk",
+            leadOne: "lead",
+            leadMany: "leads",
           }
         : {
             loadingSubtitle: "Completa la autenticación de Supabase y el bootstrap del tenant para desbloquear la app.",
             missingEnv: "Faltan variables de entorno de Supabase.",
             profileMissing: "El usuario autenticado todavía no tiene empresa o perfil.",
+            profileRepairTitle: "La configuración del workspace está incompleta",
+            profileRepairDescription:
+              "Tu usuario está autenticado, pero falta o está desconectado el registro de empresa/perfil. Reintenta el bootstrap del workspace para repararlo.",
+            profileRepairRetry: "Reintentar setup del workspace",
+            profileRepairPending: "Reparando workspace...",
+            profileRepairSuccess: "Workspace reparado. Recargando acceso...",
+            profileRepairFallback:
+              "La reparación del workspace falló. Revisa SUPABASE_SERVICE_ROLE_KEY y el trigger de auth.",
+            profileRepairReasonLabel: "Diagnóstico",
             signInNeeded: "Inicia sesión para acceder al dashboard.",
             manageSubtitle: "Resumen del workspace y foco operativo del día.",
             agentSubtitle: "Resumen rápido de tu carga actual y accesos directos para operar.",
@@ -171,8 +202,10 @@ export default async function DashboardPage() {
           statusTitle: "Estado",
           totalRiskLabel: "Riesgo total",
           riskNone: "No hay conversaciones en riesgo",
-          riskNoneDetail: "Sin respuestas pendientes",
-          riskAmountLabel: "en riesgo",
+            riskNoneDetail: "Sin respuestas pendientes",
+            riskAmountLabel: "en riesgo",
+            leadOne: "cliente potencial",
+            leadMany: "clientes potenciales",
           };
 
   const context = await getAppContext();
@@ -186,15 +219,34 @@ export default async function DashboardPage() {
             <p className="subtitle">{copy.loadingSubtitle}</p>
           </div>
         </header>
-        <article className="card">
-          <p className="warn" style={{ marginBottom: 0 }}>
-            {context.kind === "unconfigured"
-              ? copy.missingEnv
-              : context.kind === "profile_missing"
-                ? copy.profileMissing
-                : copy.signInNeeded}
-          </p>
-        </article>
+        {context.kind === "profile_missing" ? (
+          <WorkspaceBootstrapCard
+            copy={{
+              title: copy.profileRepairTitle,
+              description: copy.profileRepairDescription,
+              retry: copy.profileRepairRetry,
+              pending: copy.profileRepairPending,
+              success: copy.profileRepairSuccess,
+              fallback: copy.profileRepairFallback,
+            }}
+          />
+        ) : (
+          <article className="card">
+            <p className="warn" style={{ marginBottom: 0 }}>
+              {context.kind === "unconfigured" ? copy.missingEnv : copy.signInNeeded}
+            </p>
+          </article>
+        )}
+        {context.kind === "profile_missing" ? (
+          <article className="card" style={{ marginTop: 12 }}>
+            <p className="warn" style={{ marginBottom: 0 }}>{copy.profileMissing}</p>
+            {context.reason ? (
+              <p style={{ marginTop: 12, marginBottom: 0, color: "var(--muted)", fontSize: "0.92rem" }}>
+                <strong>{copy.profileRepairReasonLabel}:</strong> {context.reason}
+              </p>
+            ) : null}
+          </article>
+        ) : null}
       </section>
     );
   }
@@ -267,7 +319,7 @@ export default async function DashboardPage() {
       title: lang === "pt" ? "Oportunidade" : lang === "en" ? "Opportunity" : "Oportunidad",
       subtitle: lang === "pt" ? "Leads de alto valor sem seguimento" : lang === "en" ? "High value leads pending" : "Leads de alto valor sin seguimiento",
       value: format(highValueAmount),
-      count: `${highValueLeads.length} ${highValueLeads.length === 1 ? "lead" : "leads"}`,
+      count: `${highValueLeads.length} ${highValueLeads.length === 1 ? copy.leadOne : copy.leadMany}`,
       action: lang === "pt" ? "Priorizar leads > €150" : lang === "en" ? "Prioritize > €150" : "Priorizar leads > €150",
       tone: "green" as const,
       href: "/inbox",

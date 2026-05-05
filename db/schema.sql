@@ -264,11 +264,12 @@ alter table public.webhook_events enable row level security;
 alter table public.setup_requests enable row level security;
 alter table public.pilot_feedback enable row level security;
 
--- Baseline RLS policy: users can only read/write their own company records.
+-- Read your own profile directly. Do not self-join profiles here or RLS recurses.
 drop policy if exists "profiles_select_own_company" on public.profiles;
-create policy "profiles_select_own_company" on public.profiles
+drop policy if exists "profiles_select_self" on public.profiles;
+create policy "profiles_select_self" on public.profiles
 for select
-using (company_id = (select p.company_id from public.profiles p where p.id = auth.uid()));
+using (id = auth.uid());
 
 drop policy if exists "channels_rw_own_company" on public.channels;
 create policy "channels_rw_own_company" on public.channels

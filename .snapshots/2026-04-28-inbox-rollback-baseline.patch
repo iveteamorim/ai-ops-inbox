@@ -1,0 +1,1070 @@
+diff --git a/db/schema.sql b/db/schema.sql
+index 0d36e0d..fac3b4c 100644
+--- a/db/schema.sql
++++ b/db/schema.sql
+@@ -264,11 +264,12 @@ alter table public.webhook_events enable row level security;
+ alter table public.setup_requests enable row level security;
+ alter table public.pilot_feedback enable row level security;
+ 
+--- Baseline RLS policy: users can only read/write their own company records.
++-- Read your own profile directly. Do not self-join profiles here or RLS recurses.
+ drop policy if exists "profiles_select_own_company" on public.profiles;
+-create policy "profiles_select_own_company" on public.profiles
++drop policy if exists "profiles_select_self" on public.profiles;
++create policy "profiles_select_self" on public.profiles
+ for select
+-using (company_id = (select p.company_id from public.profiles p where p.id = auth.uid()));
++using (id = auth.uid());
+ 
+ drop policy if exists "channels_rw_own_company" on public.channels;
+ create policy "channels_rw_own_company" on public.channels
+diff --git a/package.json b/package.json
+index d1709d8..410cfc6 100644
+--- a/package.json
++++ b/package.json
+@@ -9,7 +9,8 @@
+     "dev": "next dev",
+     "build": "next build",
+     "start": "next start",
+-    "lint": "eslint ."
++    "lint": "eslint .",
++    "smoke:production": "node scripts/production-smoke.mjs"
+   },
+   "dependencies": {
+     "@supabase/ssr": "^0.7.0",
+diff --git a/src/app/api/business-setup/backfill/route.ts b/src/app/api/business-setup/backfill/route.ts
+index 190a3a1..997116f 100644
+--- a/src/app/api/business-setup/backfill/route.ts
++++ b/src/app/api/business-setup/backfill/route.ts
+@@ -8,6 +8,7 @@ import { enforceSameOrigin } from "@/lib/security/request-origin";
+ type ProfileRow = {
+   id: string;
+   company_id: string;
++  role: string;
+ };
+ 
+ type CompanyRow = {
+@@ -54,9 +55,11 @@ export async function POST(request: Request) {
+     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+   }
+ 
+-  const { data: profile, error: profileError } = await supabase
++  const admin = createAdminClient();
++
++  const { data: profile, error: profileError } = await admin
+     .from("profiles")
+-    .select("id, company_id")
++    .select("id, company_id, role")
+     .eq("id", user.id)
+     .maybeSingle<ProfileRow>();
+ 
+@@ -68,8 +71,9 @@ export async function POST(request: Request) {
+     return NextResponse.json({ ok: false, error: "profile_not_found" }, { status: 404 });
+   }
+ 
+-  const admin = createAdminClient();
+-
++  if (!["owner", "admin"].includes(profile.role)) {
++    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
++  }
+   const [{ data: company, error: companyError }, { data: conversations, error: conversationsError }] =
+     await Promise.all([
+       admin.from("companies").select("id, config").eq("id", profile.company_id).maybeSingle<CompanyRow>(),
+diff --git a/src/app/api/business-setup/reseed-demo/route.ts b/src/app/api/business-setup/reseed-demo/route.ts
+index ae3d69e..11ccbdb 100644
+--- a/src/app/api/business-setup/reseed-demo/route.ts
++++ b/src/app/api/business-setup/reseed-demo/route.ts
+@@ -8,6 +8,7 @@ import { enforceSameOrigin } from "@/lib/security/request-origin";
+ type ProfileRow = {
+   id: string;
+   company_id: string;
++  role: string;
+ };
+ 
+ type CompanyRow = {
+@@ -34,9 +35,11 @@ export async function POST(request: Request) {
+     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+   }
+ 
+-  const { data: profile, error: profileError } = await supabase
++  const admin = createAdminClient();
++
++  const { data: profile, error: profileError } = await admin
+     .from("profiles")
+-    .select("id, company_id")
++    .select("id, company_id, role")
+     .eq("id", user.id)
+     .maybeSingle<ProfileRow>();
+ 
+@@ -48,7 +51,11 @@ export async function POST(request: Request) {
+     return NextResponse.json({ ok: false, error: "profile_not_found" }, { status: 404 });
+   }
+ 
+-  const { data: company, error: companyError } = await supabase
++  if (!["owner", "admin"].includes(profile.role)) {
++    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
++  }
++
++  const { data: company, error: companyError } = await admin
+     .from("companies")
+     .select("id, config")
+     .eq("id", profile.company_id)
+@@ -95,7 +102,6 @@ export async function POST(request: Request) {
+   }
+ 
+   try {
+-    const admin = createAdminClient();
+     const result = await resetAndSeedDemoConversations({
+       companyId: company.id,
+       serviceCatalog,
+diff --git a/src/app/api/business-setup/route.ts b/src/app/api/business-setup/route.ts
+index b4fd3e5..429b11b 100644
+--- a/src/app/api/business-setup/route.ts
++++ b/src/app/api/business-setup/route.ts
+@@ -19,6 +19,7 @@ type Payload = {
+ type ProfileRow = {
+   id: string;
+   company_id: string;
++  role: string;
+ };
+ 
+ type CompanyRow = {
+@@ -47,9 +48,11 @@ export async function POST(request: Request) {
+     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+   }
+ 
+-  const { data: profile, error: profileError } = await supabase
++  const admin = createAdminClient();
++
++  const { data: profile, error: profileError } = await admin
+     .from("profiles")
+-    .select("id, company_id")
++    .select("id, company_id, role")
+     .eq("id", user.id)
+     .maybeSingle<ProfileRow>();
+ 
+@@ -61,6 +64,10 @@ export async function POST(request: Request) {
+     return NextResponse.json({ ok: false, error: "profile_not_found" }, { status: 404 });
+   }
+ 
++  if (!["owner", "admin"].includes(profile.role)) {
++    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
++  }
++
+   const businessName = typeof body.businessName === "string" ? body.businessName.trim().slice(0, 120) : "";
+   const leadTypes = Array.isArray(body.leadTypes)
+     ? body.leadTypes
+@@ -86,7 +93,7 @@ export async function POST(request: Request) {
+         .slice(0, 12)
+     : [];
+ 
+-  const { data: company, error: companyError } = await supabase
++  const { data: company, error: companyError } = await admin
+     .from("companies")
+     .select("id, config")
+     .eq("id", profile.company_id)
+@@ -114,7 +121,7 @@ export async function POST(request: Request) {
+     },
+   };
+ 
+-  const { error: updateError } = await supabase
++  const { error: updateError } = await admin
+     .from("companies")
+     .update({
+       name: businessName || undefined,
+@@ -125,8 +132,6 @@ export async function POST(request: Request) {
+   if (updateError) {
+     return NextResponse.json({ ok: false, error: updateError.message }, { status: 500 });
+   }
+-
+-  const admin = createAdminClient();
+   const serviceCatalog: ServiceType[] = leadTypes.map((item) => ({
+     name: item.name,
+     estimatedValue: item.estimated_value,
+diff --git a/src/app/api/conversations/manage/route.ts b/src/app/api/conversations/manage/route.ts
+index 9a1429c..6947476 100644
+--- a/src/app/api/conversations/manage/route.ts
++++ b/src/app/api/conversations/manage/route.ts
+@@ -1,5 +1,6 @@
+ import { NextResponse } from "next/server";
+ import { createClient } from "@/lib/supabase/server";
++import { createAdminClient } from "@/lib/supabase/admin";
+ import { enforceSameOrigin } from "@/lib/security/request-origin";
+ 
+ type ConversationRow = {
+@@ -59,7 +60,9 @@ export async function POST(request: Request) {
+     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+   }
+ 
+-  const { data: conversation, error: conversationError } = await supabase
++  const admin = createAdminClient();
++
++  const { data: conversation, error: conversationError } = await admin
+     .from("conversations")
+     .select("id, company_id, estimated_value, expected_value, status")
+     .eq("id", conversationId)
+@@ -73,7 +76,7 @@ export async function POST(request: Request) {
+     return NextResponse.json({ ok: false, error: "conversation_not_found" }, { status: 404 });
+   }
+ 
+-  const { data: profile, error: profileError } = await supabase
++  const { data: profile, error: profileError } = await admin
+     .from("profiles")
+     .select("id, company_id, role")
+     .eq("id", user.id)
+@@ -123,7 +126,7 @@ export async function POST(request: Request) {
+     patch.unit = unit || null;
+   }
+ 
+-  const { error: updateError } = await supabase
++  const { error: updateError } = await admin
+     .from("conversations")
+     .update(patch)
+     .eq("id", conversation.id);
+diff --git a/src/app/api/messages/route.ts b/src/app/api/messages/route.ts
+index e7817b0..9a464b8 100644
+--- a/src/app/api/messages/route.ts
++++ b/src/app/api/messages/route.ts
+@@ -1,5 +1,6 @@
+ import { NextResponse } from "next/server";
+ import { createClient } from "@/lib/supabase/server";
++import { createAdminClient } from "@/lib/supabase/admin";
+ import { checkRateLimit } from "@/lib/rate-limit";
+ import { enforceSameOrigin } from "@/lib/security/request-origin";
+ 
+@@ -10,6 +11,11 @@ type ConversationRow = {
+   assigned_to: string | null;
+ };
+ 
++type ProfileRow = {
++  id: string;
++  company_id: string;
++};
++
+ type PostBody = {
+   conversation_id?: string;
+   text?: string;
+@@ -17,15 +23,24 @@ type PostBody = {
+ 
+ async function getAuthenticatedClient() {
+   const supabase = await createClient();
++  const admin = createAdminClient();
+   const {
+     data: { user },
+   } = await supabase.auth.getUser();
+ 
+-  return { user, supabase };
++  const { data: profile } = user
++    ? await admin.from("profiles").select("id, company_id").eq("id", user.id).maybeSingle<ProfileRow>()
++    : { data: null };
++
++  return { user, supabase, admin, profile };
+ }
+ 
+-async function getAuthorizedConversation(supabase: Awaited<ReturnType<typeof createClient>>, conversationId: string) {
+-  const { data: conversation, error: conversationError } = await supabase
++async function getAuthorizedConversation(
++  admin: ReturnType<typeof createAdminClient>,
++  profile: ProfileRow | null,
++  conversationId: string,
++) {
++  const { data: conversation, error: conversationError } = await admin
+     .from("conversations")
+     .select("id, company_id, channel, assigned_to")
+     .eq("id", conversationId)
+@@ -39,6 +54,10 @@ async function getAuthorizedConversation(supabase: Awaited<ReturnType<typeof cre
+     return { conversation: null, error: "conversation_not_found", status: 404 as const };
+   }
+ 
++  if (!profile || profile.company_id !== conversation.company_id) {
++    return { conversation: null, error: "forbidden", status: 403 as const };
++  }
++
+   return { conversation, error: null, status: 200 as const };
+ }
+ 
+@@ -61,12 +80,12 @@ export async function GET(request: Request) {
+     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+   }
+ 
+-  const access = await getAuthorizedConversation(authContext.supabase, conversationId);
++  const access = await getAuthorizedConversation(authContext.admin, authContext.profile, conversationId);
+   if (!access.conversation) {
+     return NextResponse.json({ ok: false, error: access.error }, { status: access.status });
+   }
+ 
+-  const { data, error } = await authContext.supabase
++  const { data, error } = await authContext.admin
+     .from("messages")
+     .select("id, direction, sender_type, text, created_at")
+     .eq("conversation_id", access.conversation.id)
+@@ -116,13 +135,13 @@ export async function POST(request: Request) {
+     );
+   }
+ 
+-  const access = await getAuthorizedConversation(authContext.supabase, conversationId);
++  const access = await getAuthorizedConversation(authContext.admin, authContext.profile, conversationId);
+   if (!access.conversation) {
+     return NextResponse.json({ ok: false, error: access.error }, { status: access.status });
+   }
+ 
+   const now = new Date().toISOString();
+-  const { data: claimedConversation, error: claimError } = await authContext.supabase
++  const { data: claimedConversation, error: claimError } = await authContext.admin
+     .from("conversations")
+     .update({
+       assigned_to: authContext.user.id,
+@@ -138,7 +157,7 @@ export async function POST(request: Request) {
+   }
+ 
+   if (!claimedConversation) {
+-    const latestAccess = await getAuthorizedConversation(authContext.supabase, conversationId);
++    const latestAccess = await getAuthorizedConversation(authContext.admin, authContext.profile, conversationId);
+     const assignedToOther =
+       latestAccess.conversation?.assigned_to && latestAccess.conversation.assigned_to !== authContext.user.id;
+ 
+@@ -155,7 +174,7 @@ export async function POST(request: Request) {
+     return NextResponse.json({ ok: false, error: "conversation_claim_failed" }, { status: 409 });
+   }
+ 
+-  const { error: insertError } = await authContext.supabase.from("messages").insert({
++  const { error: insertError } = await authContext.admin.from("messages").insert({
+     company_id: access.conversation.company_id,
+     conversation_id: access.conversation.id,
+     direction: "outbound",
+@@ -169,7 +188,7 @@ export async function POST(request: Request) {
+     return NextResponse.json({ ok: false, error: insertError.message }, { status: 500 });
+   }
+ 
+-  const { error: updateError } = await authContext.supabase
++  const { error: updateError } = await authContext.admin
+     .from("conversations")
+     .update({
+       status: "active",
+diff --git a/src/app/api/pilot-feedback/route.ts b/src/app/api/pilot-feedback/route.ts
+index f86569e..2a2bf62 100644
+--- a/src/app/api/pilot-feedback/route.ts
++++ b/src/app/api/pilot-feedback/route.ts
+@@ -1,5 +1,6 @@
+ import { NextResponse } from "next/server";
+ import { createClient } from "@/lib/supabase/server";
++import { createAdminClient } from "@/lib/supabase/admin";
+ import { checkRateLimit } from "@/lib/rate-limit";
+ import { enforceSameOrigin } from "@/lib/security/request-origin";
+ 
+@@ -59,7 +60,9 @@ export async function POST(request: Request) {
+     );
+   }
+ 
+-  const { data: profile, error: profileError } = await supabase
++  const admin = createAdminClient();
++
++  const { data: profile, error: profileError } = await admin
+     .from("profiles")
+     .select("id, company_id")
+     .eq("id", user.id)
+@@ -73,7 +76,7 @@ export async function POST(request: Request) {
+     return NextResponse.json({ ok: false, error: "profile_not_found" }, { status: 404 });
+   }
+ 
+-  const { error: insertError } = await supabase.from("pilot_feedback").insert({
++  const { error: insertError } = await admin.from("pilot_feedback").insert({
+     company_id: profile.company_id,
+     user_id: profile.id,
+     category,
+diff --git a/src/app/api/setup-request/manage/route.ts b/src/app/api/setup-request/manage/route.ts
+index 749c00c..1b24a32 100644
+--- a/src/app/api/setup-request/manage/route.ts
++++ b/src/app/api/setup-request/manage/route.ts
+@@ -29,6 +29,7 @@ export async function POST(request: Request) {
+   }
+ 
+   const supabase = await createClient();
++  const admin = createAdminClient();
+   const {
+     data: { user },
+   } = await supabase.auth.getUser();
+@@ -37,7 +38,7 @@ export async function POST(request: Request) {
+     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+   }
+ 
+-  const { data: profile, error: profileError } = await supabase
++  const { data: profile, error: profileError } = await admin
+     .from("profiles")
+     .select("role")
+     .eq("id", user.id)
+@@ -51,7 +52,6 @@ export async function POST(request: Request) {
+     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
+   }
+ 
+-  const admin = createAdminClient();
+   const { error } = await admin
+     .from("setup_requests")
+     .update({ status })
+diff --git a/src/app/api/setup-request/route.ts b/src/app/api/setup-request/route.ts
+index 669f21b..4410e67 100644
+--- a/src/app/api/setup-request/route.ts
++++ b/src/app/api/setup-request/route.ts
+@@ -1,5 +1,6 @@
+ import { NextResponse } from "next/server";
+ import { createClient } from "@/lib/supabase/server";
++import { createAdminClient } from "@/lib/supabase/admin";
+ import { checkRateLimit } from "@/lib/rate-limit";
+ import { enforceSameOrigin } from "@/lib/security/request-origin";
+ 
+@@ -42,7 +43,9 @@ export async function POST(request: Request) {
+     );
+   }
+ 
+-  const { data: profile, error: profileError } = await supabase
++  const admin = createAdminClient();
++
++  const { data: profile, error: profileError } = await admin
+     .from("profiles")
+     .select("company_id")
+     .eq("id", user.id)
+@@ -56,7 +59,7 @@ export async function POST(request: Request) {
+     return NextResponse.json({ ok: false, error: "profile_not_found" }, { status: 404 });
+   }
+ 
+-  const { data: existing, error: existingError } = await supabase
++  const { data: existing, error: existingError } = await admin
+     .from("setup_requests")
+     .select("id, status")
+     .eq("company_id", profile.company_id)
+@@ -71,7 +74,7 @@ export async function POST(request: Request) {
+   }
+ 
+   if (existing) {
+-    const { data: updated, error: updateError } = await supabase
++    const { data: updated, error: updateError } = await admin
+       .from("setup_requests")
+       .update({ notes })
+       .eq("id", existing.id)
+@@ -85,7 +88,7 @@ export async function POST(request: Request) {
+     return NextResponse.json({ ok: true, alreadyRequested: true, request: updated });
+   }
+ 
+-  const { data, error } = await supabase
++  const { data, error } = await admin
+     .from("setup_requests")
+     .insert({
+       company_id: profile.company_id,
+diff --git a/src/app/api/team-invite/manage/route.ts b/src/app/api/team-invite/manage/route.ts
+index 3de97ef..b806c24 100644
+--- a/src/app/api/team-invite/manage/route.ts
++++ b/src/app/api/team-invite/manage/route.ts
+@@ -42,6 +42,8 @@ export async function POST(request: Request) {
+     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+   }
+ 
++  const admin = createAdminClient();
++
+   const rateLimit = checkRateLimit({
+     key: `team-invite-manage:${user.id}`,
+     windowMs: 10 * 60_000,
+@@ -54,7 +56,7 @@ export async function POST(request: Request) {
+     );
+   }
+ 
+-  const { data: profile } = await supabase
++  const { data: profile } = await admin
+     .from("profiles")
+     .select("company_id, role")
+     .eq("id", user.id)
+@@ -67,8 +69,6 @@ export async function POST(request: Request) {
+   if (!["owner", "admin"].includes(profile.role)) {
+     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
+   }
+-
+-  const admin = createAdminClient();
+   const { data: authUserResult, error: userError } = await admin.auth.admin.getUserById(inviteId);
+ 
+   if (userError || !authUserResult.user) {
+diff --git a/src/app/api/team-invite/route.ts b/src/app/api/team-invite/route.ts
+index 456ceaa..95b69bb 100644
+--- a/src/app/api/team-invite/route.ts
++++ b/src/app/api/team-invite/route.ts
+@@ -69,7 +69,9 @@ export async function POST(request: Request) {
+     );
+   }
+ 
+-  const { data: profile, error: profileError } = await supabase
++  const admin = createAdminClient();
++
++  const { data: profile, error: profileError } = await admin
+     .from("profiles")
+     .select("company_id, role")
+     .eq("id", user.id)
+@@ -86,8 +88,6 @@ export async function POST(request: Request) {
+   if (!["owner", "admin"].includes(profile.role)) {
+     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
+   }
+-
+-  const admin = createAdminClient();
+   const { data: company, error: companyError } = await admin
+     .from("companies")
+     .select("id, plan")
+diff --git a/src/app/api/workspace/delete/route.ts b/src/app/api/workspace/delete/route.ts
+index 1753550..16600d6 100644
+--- a/src/app/api/workspace/delete/route.ts
++++ b/src/app/api/workspace/delete/route.ts
+@@ -35,6 +35,8 @@ export async function POST(request: Request) {
+     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+   }
+ 
++  const admin = createAdminClient();
++
+   const rateLimit = checkRateLimit({
+     key: `workspace-delete:${user.id}`,
+     windowMs: 10 * 60_000,
+@@ -47,7 +49,7 @@ export async function POST(request: Request) {
+     );
+   }
+ 
+-  const { data: profile } = await supabase
++  const { data: profile } = await admin
+     .from("profiles")
+     .select("id, company_id, role")
+     .eq("id", user.id)
+@@ -60,8 +62,6 @@ export async function POST(request: Request) {
+   if (profile.role !== "owner") {
+     return NextResponse.json({ ok: false, error: "owner_only_action" }, { status: 403 });
+   }
+-
+-  const admin = createAdminClient();
+   const { data: company } = await admin
+     .from("companies")
+     .select("id, name")
+diff --git a/src/app/billing/page.tsx b/src/app/billing/page.tsx
+index 37f3c90..cf1f4e3 100644
+--- a/src/app/billing/page.tsx
++++ b/src/app/billing/page.tsx
+@@ -2,6 +2,7 @@ import { cookies, headers } from "next/headers";
+ import Link from "next/link";
+ import { AppNav } from "@/components/AppNav";
+ import { createClient } from "@/lib/supabase/server";
++import { createAdminClient } from "@/lib/supabase/admin";
+ import { formatTrialEnd } from "@/lib/trial";
+ import { resolveLang, LANG_COOKIE } from "@/lib/i18n/config";
+ import { translate } from "@/lib/i18n/dictionaries";
+@@ -33,15 +34,16 @@ export default async function BillingPage() {
+   const t = (key: Parameters<typeof translate>[1]) => translate(lang, key);
+ 
+   const supabase = await createClient();
++  const admin = createAdminClient();
+   const {
+     data: { user },
+   } = await supabase.auth.getUser();
+   const { data: profile } = user
+-    ? await supabase.from("profiles").select("company_id, full_name, role").eq("id", user.id).maybeSingle<{ company_id: string; full_name: string | null; role: string | null }>()
++    ? await admin.from("profiles").select("company_id, full_name, role").eq("id", user.id).maybeSingle<{ company_id: string; full_name: string | null; role: string | null }>()
+     : { data: null };
+   const { data: company } =
+     profile?.company_id
+-      ? await supabase.from("companies").select("config").eq("id", profile.company_id).maybeSingle<{ config?: Record<string, unknown> | null }>()
++      ? await admin.from("companies").select("config").eq("id", profile.company_id).maybeSingle<{ config?: Record<string, unknown> | null }>()
+       : { data: null };
+ 
+   const trialEndsAt = (user?.user_metadata?.trial_ends_at as string | undefined) ?? null;
+diff --git a/src/app/dashboard/page.tsx b/src/app/dashboard/page.tsx
+index 356c76d..e4c7c43 100644
+--- a/src/app/dashboard/page.tsx
++++ b/src/app/dashboard/page.tsx
+@@ -1,5 +1,6 @@
+ import { cookies, headers } from "next/headers";
+ import { AppNav } from "@/components/AppNav";
++import { WorkspaceBootstrapCard } from "@/components/WorkspaceBootstrapCard";
+ import { DashboardDecisionView } from "@/components/dashboard/DashboardDecisionView";
+ import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
+ import { LANG_COOKIE, resolveLang } from "@/lib/i18n/config";
+@@ -32,6 +33,15 @@ export default async function DashboardPage() {
+           loadingSubtitle: "Complete a autenticação Supabase e o bootstrap do tenant para desbloquear a app.",
+           missingEnv: "Faltam variáveis de ambiente do Supabase.",
+           profileMissing: "O utilizador autenticado ainda não tem empresa/perfil.",
++          profileRepairTitle: "A configuração do workspace está incompleta",
++          profileRepairDescription:
++            "O utilizador está autenticado, mas o registo de empresa/perfil está em falta ou desligado. Tente novamente o bootstrap do workspace para repará-lo.",
++          profileRepairRetry: "Tentar setup do workspace",
++          profileRepairPending: "A reparar workspace...",
++          profileRepairSuccess: "Workspace reparado. A recarregar acesso...",
++          profileRepairFallback:
++            "A reparação do workspace falhou. Verifique SUPABASE_SERVICE_ROLE_KEY e o trigger de auth.",
++          profileRepairReasonLabel: "Diagnóstico",
+           signInNeeded: "Inicie sessão para aceder ao dashboard.",
+           manageSubtitle: "Resumo do workspace e foco operacional do dia.",
+           agentSubtitle: "Resumo rápido da tua carga atual e acessos diretos para operar.",
+@@ -75,12 +85,22 @@ export default async function DashboardPage() {
+           riskNone: "Nenhuma conversa em risco",
+           riskNoneDetail: "Sem respostas pendentes",
+           riskAmountLabel: "em risco",
++          leadOne: "cliente potencial",
++          leadMany: "clientes potenciais",
+         }
+       : lang === "en"
+         ? {
+             loadingSubtitle: "Complete Supabase auth and tenant bootstrap to unlock the app.",
+             missingEnv: "Missing Supabase environment variables.",
+             profileMissing: "Authenticated user has no company/profile yet.",
++            profileRepairTitle: "Workspace setup is incomplete",
++            profileRepairDescription:
++              "Your user is authenticated, but the company/profile record is missing or disconnected. Retry the workspace bootstrap to repair it.",
++            profileRepairRetry: "Retry workspace setup",
++            profileRepairPending: "Repairing workspace...",
++            profileRepairSuccess: "Workspace repaired. Reloading access...",
++            profileRepairFallback: "Workspace repair failed. Check SUPABASE_SERVICE_ROLE_KEY and the auth trigger.",
++            profileRepairReasonLabel: "Diagnostic",
+             signInNeeded: "Sign in to access the dashboard.",
+             manageSubtitle: "Workspace snapshot and operational focus for today.",
+             agentSubtitle: "Quick view of your current load and direct actions.",
+@@ -122,13 +142,24 @@ export default async function DashboardPage() {
+           statusTitle: "Status",
+           totalRiskLabel: "Total risk",
+           riskNone: "No conversations at risk",
+-          riskNoneDetail: "No pending replies",
+-          riskAmountLabel: "at risk",
++            riskNoneDetail: "No pending replies",
++            riskAmountLabel: "at risk",
++            leadOne: "lead",
++            leadMany: "leads",
+           }
+         : {
+             loadingSubtitle: "Completa la autenticación de Supabase y el bootstrap del tenant para desbloquear la app.",
+             missingEnv: "Faltan variables de entorno de Supabase.",
+             profileMissing: "El usuario autenticado todavía no tiene empresa o perfil.",
++            profileRepairTitle: "La configuración del workspace está incompleta",
++            profileRepairDescription:
++              "Tu usuario está autenticado, pero falta o está desconectado el registro de empresa/perfil. Reintenta el bootstrap del workspace para repararlo.",
++            profileRepairRetry: "Reintentar setup del workspace",
++            profileRepairPending: "Reparando workspace...",
++            profileRepairSuccess: "Workspace reparado. Recargando acceso...",
++            profileRepairFallback:
++              "La reparación del workspace falló. Revisa SUPABASE_SERVICE_ROLE_KEY y el trigger de auth.",
++            profileRepairReasonLabel: "Diagnóstico",
+             signInNeeded: "Inicia sesión para acceder al dashboard.",
+             manageSubtitle: "Resumen del workspace y foco operativo del día.",
+             agentSubtitle: "Resumen rápido de tu carga actual y accesos directos para operar.",
+@@ -171,8 +202,10 @@ export default async function DashboardPage() {
+           statusTitle: "Estado",
+           totalRiskLabel: "Riesgo total",
+           riskNone: "No hay conversaciones en riesgo",
+-          riskNoneDetail: "Sin respuestas pendientes",
+-          riskAmountLabel: "en riesgo",
++            riskNoneDetail: "Sin respuestas pendientes",
++            riskAmountLabel: "en riesgo",
++            leadOne: "cliente potencial",
++            leadMany: "clientes potenciales",
+           };
+ 
+   const context = await getAppContext();
+@@ -186,15 +219,34 @@ export default async function DashboardPage() {
+             <p className="subtitle">{copy.loadingSubtitle}</p>
+           </div>
+         </header>
+-        <article className="card">
+-          <p className="warn" style={{ marginBottom: 0 }}>
+-            {context.kind === "unconfigured"
+-              ? copy.missingEnv
+-              : context.kind === "profile_missing"
+-                ? copy.profileMissing
+-                : copy.signInNeeded}
+-          </p>
+-        </article>
++        {context.kind === "profile_missing" ? (
++          <WorkspaceBootstrapCard
++            copy={{
++              title: copy.profileRepairTitle,
++              description: copy.profileRepairDescription,
++              retry: copy.profileRepairRetry,
++              pending: copy.profileRepairPending,
++              success: copy.profileRepairSuccess,
++              fallback: copy.profileRepairFallback,
++            }}
++          />
++        ) : (
++          <article className="card">
++            <p className="warn" style={{ marginBottom: 0 }}>
++              {context.kind === "unconfigured" ? copy.missingEnv : copy.signInNeeded}
++            </p>
++          </article>
++        )}
++        {context.kind === "profile_missing" ? (
++          <article className="card" style={{ marginTop: 12 }}>
++            <p className="warn" style={{ marginBottom: 0 }}>{copy.profileMissing}</p>
++            {context.reason ? (
++              <p style={{ marginTop: 12, marginBottom: 0, color: "var(--muted)", fontSize: "0.92rem" }}>
++                <strong>{copy.profileRepairReasonLabel}:</strong> {context.reason}
++              </p>
++            ) : null}
++          </article>
++        ) : null}
+       </section>
+     );
+   }
+@@ -267,7 +319,7 @@ export default async function DashboardPage() {
+       title: lang === "pt" ? "Oportunidade" : lang === "en" ? "Opportunity" : "Oportunidad",
+       subtitle: lang === "pt" ? "Leads de alto valor sem seguimento" : lang === "en" ? "High value leads pending" : "Leads de alto valor sin seguimiento",
+       value: format(highValueAmount),
+-      count: `${highValueLeads.length} ${highValueLeads.length === 1 ? "lead" : "leads"}`,
++      count: `${highValueLeads.length} ${highValueLeads.length === 1 ? copy.leadOne : copy.leadMany}`,
+       action: lang === "pt" ? "Priorizar leads > €150" : lang === "en" ? "Prioritize > €150" : "Priorizar leads > €150",
+       tone: "green" as const,
+       href: "/inbox",
+diff --git a/src/lib/app-data.ts b/src/lib/app-data.ts
+index 6c56e2b..fcf9efa 100644
+--- a/src/lib/app-data.ts
++++ b/src/lib/app-data.ts
+@@ -6,6 +6,7 @@ import { classifyLeadFromMessage } from "@/lib/revenue/classify";
+ import { triageConversation, type ServiceType, type TriageResult } from "@/lib/triage/triage-conversation";
+ import { getDecisionType, type DecisionType } from "@/lib/conversation-decision";
+ import type { Lang } from "@/lib/i18n/config";
++import { ensureUserWorkspace } from "@/lib/workspace-bootstrap";
+ 
+ type ProfileRow = {
+   id: string;
+@@ -153,7 +154,7 @@ export type UserPilotFeedbackView = {
+ export type AppContext =
+   | { kind: "unconfigured" }
+   | { kind: "unauthenticated" }
+-  | { kind: "profile_missing"; user: User }
++  | { kind: "profile_missing"; user: User; reason?: string }
+   | {
+       kind: "ready";
+       user: User;
+@@ -254,85 +255,36 @@ export type ConversationTriagePreviewView = {
+   triage: TriageResult;
+ };
+ 
+-function titleCase(value: string) {
+-  return value
+-    .split(/[\s_-]+/)
+-    .filter(Boolean)
+-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+-    .join(" ");
+-}
+-
+-function deriveCompanyName(user: User) {
+-  const metadataCompany = user.user_metadata?.company_name;
+-  if (typeof metadataCompany === "string" && metadataCompany.trim()) {
+-    return metadataCompany.trim();
+-  }
+-
+-  const email = user.email ?? "";
+-  const local = email.split("@")[0] ?? "novua";
+-  return titleCase(local);
+-}
+-
+-function deriveFullName(user: User) {
+-  const metadataName = user.user_metadata?.full_name;
+-  if (typeof metadataName === "string" && metadataName.trim()) {
+-    return metadataName.trim();
+-  }
+-
+-  return null;
+-}
+-
+ async function getProfileAndCompany(
+   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+   userId: string,
+ ) {
+-  const { data: profile } = await supabase
++  const admin = createAdminClient();
++  const { data: profile, error: profileError } = await admin
+     .from("profiles")
+     .select("id, company_id, full_name, role")
+     .eq("id", userId)
+     .maybeSingle<ProfileRow>();
+ 
++  if (profileError) {
++    throw new Error(`profile_lookup_failed:${profileError.message}`);
++  }
++
+   if (!profile) {
+     return { profile: null, company: null };
+   }
+ 
+-  const { data: company } = await supabase
++  const { data: company, error: companyError } = await admin
+     .from("companies")
+     .select("id, name, plan, config")
+     .eq("id", profile.company_id)
+     .maybeSingle<CompanyRow>();
+ 
+-  return { profile, company: company ?? null };
+-}
+-
+-async function bootstrapProfile(user: User) {
+-  const admin = createAdminClient();
+-  const companyName = deriveCompanyName(user);
+-  const fullName = deriveFullName(user);
+-
+-  const { data: company, error: companyError } = await admin
+-    .from("companies")
+-    .insert({ name: companyName })
+-    .select("id, name, plan, config")
+-    .single<CompanyRow>();
+-
+-  if (companyError || !company) {
+-    throw new Error(companyError?.message ?? "Failed to create company");
++  if (companyError) {
++    throw new Error(`company_lookup_failed:${companyError.message}`);
+   }
+ 
+-  const { error: profileError } = await admin.from("profiles").upsert(
+-    {
+-      id: user.id,
+-      company_id: company.id,
+-      full_name: fullName,
+-      role: "owner",
+-    },
+-    { onConflict: "id" },
+-  );
+-
+-  if (profileError) {
+-    throw new Error(profileError.message);
+-  }
++  return { profile, company: company ?? null };
+ }
+ 
+ export async function getAppContext(): Promise<AppContext> {
+@@ -351,20 +303,32 @@ export async function getAppContext(): Promise<AppContext> {
+     return { kind: "unauthenticated" };
+   }
+ 
+-  let { profile, company } = await getProfileAndCompany(supabase, user.id);
+-  if (!profile) {
++  let profile: ProfileRow | null = null;
++  let company: CompanyRow | null = null;
++  let profileMissingReason: string | undefined;
++
++  try {
++    const result = await getProfileAndCompany(supabase, user.id);
++    profile = result.profile;
++    company = result.company;
++  } catch (error) {
++    profileMissingReason = error instanceof Error ? error.message : "profile_lookup_failed";
++  }
++
++  if (!profile || !company) {
+     try {
+-      await bootstrapProfile(user);
++      await ensureUserWorkspace(user);
+       const bootstrapped = await getProfileAndCompany(supabase, user.id);
+       profile = bootstrapped.profile;
+       company = bootstrapped.company;
+-    } catch {
+-      return { kind: "profile_missing", user };
++    } catch (error) {
++      const reason = error instanceof Error ? error.message : "workspace_bootstrap_failed";
++      return { kind: "profile_missing", user, reason: profileMissingReason ? `${profileMissingReason}; ${reason}` : reason };
+     }
+   }
+ 
+   if (!profile) {
+-    return { kind: "profile_missing", user };
++    return { kind: "profile_missing", user, reason: profileMissingReason };
+   }
+ 
+   return {
+@@ -493,16 +457,17 @@ export async function getConversationViews(
+   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+   companyId: string,
+ ) {
++  const admin = createAdminClient();
+   const baseSelect =
+     "id, company_id, contact_id, assigned_to, channel, status, last_message_at, last_inbound_at, last_outbound_at, created_at, updated_at, estimated_value, expected_value, is_complex, ai_priority, lead_type";
+-  let { data: conversations, error } = await supabase
++  let { data: conversations, error } = await admin
+     .from("conversations")
+     .select(`${baseSelect}, unit`)
+     .eq("company_id", companyId)
+     .order("updated_at", { ascending: false });
+ 
+   if (isMissingConversationUnitColumnError(error)) {
+-    const fallback = await supabase
++    const fallback = await admin
+       .from("conversations")
+       .select(baseSelect)
+       .eq("company_id", companyId)
+@@ -531,13 +496,12 @@ export async function getConversationViews(
+     new Set(conversationRows.map((row) => row.assigned_to).filter((value): value is string => Boolean(value))),
+   );
+ 
+-  const admin = createAdminClient();
+   const [{ data: contacts }, { data: profiles }, { data: messages }, { data: company }] = await Promise.all([
+-    supabase.from("contacts").select("id, name, phone, email").in("id", contactIds),
++    admin.from("contacts").select("id, name, phone, email").in("id", contactIds),
+     assignedIds.length > 0
+       ? admin.from("profiles").select("id, full_name").in("id", assignedIds)
+       : Promise.resolve({ data: [] as ProfileNameRow[] }),
+-    supabase
++    admin
+       .from("messages")
+       .select("id, conversation_id, direction, sender_type, text, created_at")
+       .in(
+@@ -546,7 +510,7 @@ export async function getConversationViews(
+       )
+       .order("created_at", { ascending: false })
+       .limit(500),
+-    supabase.from("companies").select("id, name, config").eq("id", companyId).maybeSingle<CompanyRow>(),
++    admin.from("companies").select("id, name, config").eq("id", companyId).maybeSingle<CompanyRow>(),
+   ]);
+ 
+   const contactsById = new Map((contacts as ContactRow[] | null | undefined)?.map((row) => [row.id, row]) ?? []);
+@@ -622,7 +586,8 @@ export async function getTeamMembers(
+   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+   companyId: string,
+ ) {
+-  const { data, error } = await supabase
++  const admin = createAdminClient();
++  const { data, error } = await admin
+     .from("profiles")
+     .select("id, full_name, role")
+     .eq("company_id", companyId)
+@@ -640,6 +605,7 @@ export async function getConversationDetail(
+   companyId: string,
+   conversationId: string,
+ ) {
++  const admin = createAdminClient();
+   const conversations = await getConversationViews(supabase, companyId);
+   const conversation = conversations.find((row) => row.id === conversationId);
+ 
+@@ -647,7 +613,7 @@ export async function getConversationDetail(
+     return null;
+   }
+ 
+-  const { data: messages, error } = await supabase
++  const { data: messages, error } = await admin
+     .from("messages")
+     .select("id, direction, sender_type, text, created_at")
+     .eq("company_id", companyId)
+@@ -674,8 +640,9 @@ export async function getConversationTriagePreview(
+   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+   companyId: string,
+ ) {
++  const admin = createAdminClient();
+   const conversations = await getConversationViews(supabase, companyId);
+-  const { data: messages, error: messagesError } = await supabase
++  const { data: messages, error: messagesError } = await admin
+     .from("messages")
+     .select("id, conversation_id, direction, sender_type, text, created_at")
+     .eq("company_id", companyId)
+@@ -687,7 +654,7 @@ export async function getConversationTriagePreview(
+     throw new Error(messagesError.message);
+   }
+ 
+-  const { data: company, error: companyError } = await supabase
++  const { data: company, error: companyError } = await admin
+     .from("companies")
+     .select("id, name, config")
+     .eq("id", companyId)
+@@ -770,12 +737,12 @@ export async function getSettingsData(
+     { data: assignedConversations },
+   ] =
+     await Promise.all([
+-    supabase
++    admin
+       .from("channels")
+       .select("id, type, external_account_id, is_active")
+       .eq("company_id", companyId)
+       .order("type", { ascending: true }),
+-    supabase
++    admin
+       .from("setup_requests")
+       .select("id, channel, status, notes, created_at")
+       .eq("company_id", companyId)
+@@ -786,14 +753,14 @@ export async function getSettingsData(
+       .select("id, full_name, role")
+       .eq("company_id", companyId)
+       .order("created_at", { ascending: true }),
+-    supabase
++    admin
+       .from("pilot_feedback")
+       .select("id, category, message, page_path, status, admin_reply, replied_at, created_at")
+       .eq("company_id", companyId)
+       .eq("user_id", userId)
+       .order("created_at", { ascending: false })
+       .limit(20),
+-    supabase
++    admin
+       .from("conversations")
+       .select("assigned_to, status")
+       .eq("company_id", companyId)
+diff --git a/src/lib/supabase/admin.ts b/src/lib/supabase/admin.ts
+index 50f72c5..d9fb8bf 100644
+--- a/src/lib/supabase/admin.ts
++++ b/src/lib/supabase/admin.ts
+@@ -1,11 +1,11 @@
+ import { createClient } from "@supabase/supabase-js";
+ 
+ export function createAdminClient() {
+-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
++  const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+   const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
+ 
+   if (!url || !serviceRole) {
+-    throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
++    throw new Error("Missing SUPABASE_URL (or NEXT_PUBLIC_SUPABASE_URL) or SUPABASE_SERVICE_ROLE_KEY");
+   }
+ 
+   return createClient(url, serviceRole, {
+diff --git a/src/middleware.ts b/src/middleware.ts
+index b88f231..e92e21f 100644
+--- a/src/middleware.ts
++++ b/src/middleware.ts
+@@ -1,5 +1,6 @@
+ import { NextResponse, type NextRequest } from "next/server";
+ import { createServerClient } from "@supabase/ssr";
++import { createClient as createAdminSupabaseClient } from "@supabase/supabase-js";
+ import { hasTrialExpired } from "@/lib/trial";
+ import { LANG_COOKIE, detectLangFromHeader, normalizeLang } from "@/lib/i18n/config";
+ import { isNovuaInternalUser } from "@/lib/internal-access";
+@@ -37,6 +38,22 @@ function applyLanguageCookie(request: NextRequest, response: NextResponse) {
+   }
+ }
+ 
++function createAdminClient() {
++  const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
++  const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
++
++  if (!url || !serviceRole) {
++    return null;
++  }
++
++  return createAdminSupabaseClient(url, serviceRole, {
++    auth: {
++      persistSession: false,
++      autoRefreshToken: false,
++    },
++  });
++}
++
+ export async function middleware(request: NextRequest) {
+   const { pathname } = request.nextUrl;
+ 
+@@ -88,18 +105,15 @@ export async function middleware(request: NextRequest) {
+   let companyPlan: string | null = null;
+ 
+   if (user) {
+-    const { data: profile } = await supabase
+-      .from("profiles")
+-      .select("company_id")
+-      .eq("id", user.id)
+-      .maybeSingle<{ company_id: string }>();
++    const admin = createAdminClient();
++    const { data: profile } = admin
++      ? await admin.from("profiles").select("company_id").eq("id", user.id).maybeSingle<{ company_id: string }>()
++      : { data: null };
+ 
+     if (profile?.company_id) {
+-      const { data: company } = await supabase
+-        .from("companies")
+-        .select("plan")
+-        .eq("id", profile.company_id)
+-        .maybeSingle<{ plan: string }>();
++      const { data: company } = admin
++        ? await admin.from("companies").select("plan").eq("id", profile.company_id).maybeSingle<{ plan: string }>()
++        : await supabase.from("companies").select("plan").eq("id", profile.company_id).maybeSingle<{ plan: string }>();
+       companyPlan = company?.plan ?? null;
+     }
+   }
