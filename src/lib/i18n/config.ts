@@ -9,13 +9,13 @@ export function isSupportedLang(value: string | undefined | null): value is Lang
 }
 
 export function normalizeLang(value: string | undefined | null): Lang {
-  if (!value) return "es";
+  if (!value) return "en";
   const base = value.toLowerCase().split("-")[0];
-  return isSupportedLang(base) ? base : "es";
+  return isSupportedLang(base) ? base : "en";
 }
 
 export function detectLangFromHeader(header: string | null): Lang {
-  if (!header) return "es";
+  if (!header) return "en";
 
   const candidates = header
     .split(",")
@@ -23,12 +23,13 @@ export function detectLangFromHeader(header: string | null): Lang {
     .filter(Boolean)
     .map((entry) => normalizeLang(entry));
 
-  return candidates[0] ?? "es";
+  return candidates[0] ?? "en";
 }
 
 export function resolveLang(cookieValue: string | undefined | null, headerValue: string | null): Lang {
+  void headerValue;
   if (cookieValue) {
     return normalizeLang(cookieValue);
   }
-  return detectLangFromHeader(headerValue);
+  return "en";
 }

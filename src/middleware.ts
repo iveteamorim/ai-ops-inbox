@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { createClient as createAdminSupabaseClient } from "@supabase/supabase-js";
 import { hasTrialExpired } from "@/lib/trial";
-import { LANG_COOKIE, detectLangFromHeader, normalizeLang } from "@/lib/i18n/config";
+import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
 import { isNovuaInternalUser } from "@/lib/internal-access";
 
 const PUBLIC_PATHS = [
@@ -27,7 +27,7 @@ function isBypassPath(pathname: string): boolean {
 
 function applyLanguageCookie(request: NextRequest, response: NextResponse) {
   const current = request.cookies.get(LANG_COOKIE)?.value;
-  const lang = current ? normalizeLang(current) : detectLangFromHeader(request.headers.get("accept-language"));
+  const lang = current ? normalizeLang(current) : "en";
 
   if (!current || current !== lang) {
     response.cookies.set(LANG_COOKIE, lang, {
