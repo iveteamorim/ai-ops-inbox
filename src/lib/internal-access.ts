@@ -1,7 +1,13 @@
+import { isPublicDemoUser } from "@/lib/demo-access";
+
 export function isNovuaInternalUser(email?: string | null) {
   if (!email) return false;
 
   const normalizedEmail = email.trim().toLowerCase();
+  if (isPublicDemoUser(normalizedEmail)) {
+    return false;
+  }
+
   const allowedEmails = (
     process.env.NOVUA_INTERNAL_EMAILS?.split(",") ?? ["iveteamorim@gmail.com", "saraarubioo1@gmail.com"]
   )

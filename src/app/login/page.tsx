@@ -9,6 +9,12 @@ import { createClient } from "@/lib/supabase/client";
 import { createPublicAuthClient } from "@/lib/supabase/public-auth-client";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 
+const PUBLIC_DEMO_EMAILS = new Set(["demo@novua.digital"]);
+
+function isPublicDemoEmail(value: string) {
+  return PUBLIC_DEMO_EMAILS.has(value.trim().toLowerCase());
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const { t } = useI18n();
@@ -40,6 +46,7 @@ export default function LoginPage() {
         setError(signInError.message);
         return;
       }
+      await fetch("/api/demo/reset", { method: "POST" }).catch(() => null);
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
@@ -55,6 +62,11 @@ export default function LoginPage() {
 
     if (!email.trim()) {
       setError(t("login_forgot_requires_email"));
+      return;
+    }
+
+    if (isPublicDemoEmail(email)) {
+      setMessage(t("login_demo_reset_blocked"));
       return;
     }
 

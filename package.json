@@ -12,6 +12,7 @@
     "lint": "eslint .",
     "check:client-hooks": "node scripts/check-client-hooks.mjs",
     "verify:hardening": "npm run lint && npm run check:client-hooks",
+    "demo:setup": "node scripts/setup-demo-user.mjs",
     "smoke:user:create": "node scripts/create-smoke-user.mjs",
     "smoke:production": "node scripts/production-smoke.mjs"
   },
