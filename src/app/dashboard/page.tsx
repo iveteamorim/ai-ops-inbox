@@ -254,6 +254,7 @@ export default async function DashboardPage() {
   const workspaceMode = getWorkspaceMode(context.company, context.user.email);
   const canSeeInternalSetup = canManageInternalWorkspace(workspaceMode);
   const canManageBusiness = context.profile.role === "owner" || context.profile.role === "admin";
+  const canSeeWorkspaceDashboard = canManageBusiness || workspaceMode === "customer_demo";
   const conversations = await getConversationViews(context.supabase, context.profile.company_id);
 
   const workspaceOpen = conversations.filter((item) => item.status === "new" || item.status === "active" || item.status === "no_response");
@@ -263,8 +264,8 @@ export default async function DashboardPage() {
     (item) => item.assignedToId === context.user.id && (item.status === "new" || item.status === "active" || item.status === "no_response"),
   );
   const myRisk = conversations.filter((item) => item.assignedToId === context.user.id && item.status === "no_response");
-  const visibleOpen = canManageBusiness ? workspaceOpen : myOpen;
-  const visibleRisk = canManageBusiness ? workspaceRisk : myRisk;
+  const visibleOpen = canSeeWorkspaceDashboard ? workspaceOpen : myOpen;
+  const visibleRisk = canSeeWorkspaceDashboard ? workspaceRisk : myRisk;
   const visibleActive = visibleOpen.filter((item) => item.status === "active");
   const visibleRiskAmount = countValue(visibleRisk);
   const visibleActiveAmount = countValue(visibleActive);
