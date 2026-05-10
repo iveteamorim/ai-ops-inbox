@@ -126,6 +126,12 @@ export default function NovuaLanding() {
         <div className="mb-8 flex items-center justify-end gap-3 sm:mb-10">
           <LocaleMenu />
           <Link
+            href="/demo"
+            className="rounded-full border border-green-400/30 bg-green-400/10 px-5 py-2 text-sm font-semibold text-green-100 transition duration-300 hover:border-green-300/60 hover:bg-green-400/15"
+          >
+            {t("landing_demo_cta")}
+          </Link>
+          <Link
             href="/login"
             className="rounded-full border border-white/12 bg-white/[0.02] px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:border-white/25 hover:bg-white/[0.06]"
           >
@@ -152,8 +158,14 @@ export default function NovuaLanding() {
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link
-                href="/signup"
+                href="/demo"
                 className="rounded-2xl bg-green-500 px-6 py-3 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.22)] transition duration-300 hover:scale-[1.02] hover:bg-green-400"
+              >
+                {t("landing_demo_cta")}
+              </Link>
+              <Link
+                href="/signup"
+                className="rounded-2xl border border-white/10 px-6 py-3 text-base font-semibold text-white transition duration-300 hover:border-white/25 hover:bg-white/[0.06]"
               >
                 {t("landing_cta_free")}
               </Link>

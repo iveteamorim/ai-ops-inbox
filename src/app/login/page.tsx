@@ -1,15 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MarketingNav } from "@/components/MarketingNav";
 import { PasswordField } from "@/components/PasswordField";
 import { createClient } from "@/lib/supabase/client";
 import { createPublicAuthClient } from "@/lib/supabase/public-auth-client";
 import { useI18n } from "@/components/i18n/LanguageProvider";
+import { DEMO_EMAIL, DEMO_PASSWORD } from "@/lib/demo-credentials";
 
-const PUBLIC_DEMO_EMAILS = new Set(["demo@novua.digital"]);
+const PUBLIC_DEMO_EMAILS = new Set([DEMO_EMAIL]);
 
 function isPublicDemoEmail(value: string) {
   return PUBLIC_DEMO_EMAILS.has(value.trim().toLowerCase());
@@ -24,6 +25,22 @@ export default function LoginPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("demo") === "1") {
+      setEmail(DEMO_EMAIL);
+      setPassword(DEMO_PASSWORD);
+      setMessage(t("login_demo_prefilled"));
+    }
+  }, [t]);
+
+  function fillDemoCredentials() {
+    setEmail(DEMO_EMAIL);
+    setPassword(DEMO_PASSWORD);
+    setError(null);
+    setMessage(t("login_demo_prefilled"));
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -108,6 +125,18 @@ export default function LoginPage() {
       </header>
 
       <form className="card form" onSubmit={handleSubmit}>
+        <div className="demo-notice login-demo-notice">
+          <strong>{t("login_demo_title")}</strong>
+          <p>{t("login_demo_text")}</p>
+          <div className="demo-credentials-inline">
+            <code>{DEMO_EMAIL}</code>
+            <code>{DEMO_PASSWORD}</code>
+          </div>
+          <button className="button demo-fill-button" type="button" onClick={fillDemoCredentials}>
+            {t("login_demo_fill")}
+          </button>
+        </div>
+
         <label className="label" htmlFor="email">{t("form_email")}</label>
         <input id="email" className="input" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
 

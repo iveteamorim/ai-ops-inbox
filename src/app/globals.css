@@ -1699,6 +1699,72 @@ a {
   padding: 12px;
 }
 
+.login-demo-notice {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.login-demo-notice p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.demo-credentials-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.demo-credentials-inline code,
+.demo-credentials code {
+  border: 1px solid rgba(134, 239, 172, 0.28);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.18);
+  color: #c9ffd9;
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.demo-fill-button {
+  width: fit-content;
+}
+
+.demo-entry-page {
+  display: grid;
+  min-height: calc(100vh - 48px);
+  place-items: center;
+}
+
+.demo-entry-card {
+  max-width: 520px;
+  width: 100%;
+}
+
+.demo-credentials {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.demo-loader {
+  width: 42px;
+  height: 42px;
+  margin-top: 22px;
+  border: 3px solid rgba(134, 239, 172, 0.22);
+  border-top-color: var(--brand);
+  border-radius: 999px;
+  animation: demo-spin 0.8s linear infinite;
+}
+
+@keyframes demo-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .decision-panel {
   border: 1px solid rgba(182, 215, 207, 0.18);
   background: rgba(255, 255, 255, 0.03);

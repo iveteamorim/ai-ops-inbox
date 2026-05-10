@@ -6,7 +6,8 @@ import { LANG_COOKIE, resolveLang } from "@/lib/i18n/config";
 
 export const metadata: Metadata = {
   title: "Novua Inbox",
-  description: "AI Ops Inbox v1",
+  description:
+    "AI-powered operational inbox that prioritizes conversations by value, urgency, delay, and revenue risk.",
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

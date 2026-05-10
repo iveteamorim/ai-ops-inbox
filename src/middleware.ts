@@ -7,6 +7,7 @@ import { isNovuaInternalUser } from "@/lib/internal-access";
 
 const PUBLIC_PATHS = [
   "/",
+  "/demo",
   "/login",
   "/signup",
   "/accept-invite",
