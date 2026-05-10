@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 
 type InboxConversation = {
   id: string;
+  status: "new" | "active" | "won" | "lost" | "no_response";
   name: string;
   message: string;
   state: string;
@@ -60,16 +61,23 @@ export function InboxDecisionView({
   const initialId = conversations[0]?.id ?? "";
   const [selectedId, setSelectedId] = useState(initialId);
   const [activeFilter, setActiveFilter] = useState<"all" | "risk" | "assigned" | "new">("all");
-  const selected = useMemo(
-    () => conversations.find((item) => item.id === selectedId) ?? conversations[0],
-    [conversations, selectedId],
-  );
   const filteredConversations = useMemo(() => {
     if (activeFilter === "all") return conversations;
-    if (activeFilter === "risk") return conversations.filter((item) => item.state === labels.filterRisk);
+    if (activeFilter === "risk") return conversations.filter((item) => item.status === "no_response");
     if (activeFilter === "assigned") return conversations.filter((item) => item.isAssigned);
-    return conversations.filter((item) => item.state === labels.filterNew);
-  }, [activeFilter, conversations, labels.filterNew, labels.filterRisk]);
+    return conversations.filter((item) => item.status === "new");
+  }, [activeFilter, conversations]);
+  const selected = useMemo(() => {
+    const selectable = filteredConversations.length > 0 ? filteredConversations : conversations;
+    return selectable.find((item) => item.id === selectedId) ?? selectable[0];
+  }, [conversations, filteredConversations, selectedId]);
+
+  useEffect(() => {
+    if (filteredConversations.length === 0) return;
+    if (!filteredConversations.some((item) => item.id === selectedId)) {
+      setSelectedId(filteredConversations[0].id);
+    }
+  }, [filteredConversations, selectedId]);
 
   if (!selected) {
     return (
@@ -147,6 +155,12 @@ export function InboxDecisionView({
             </div>
 
             <div className="space-y-4">
+              {filteredConversations.length === 0 ? (
+                <div className="rounded-2xl border border-white/5 bg-[#10211C] p-5 text-gray-300">
+                  {labels.emptyState}
+                </div>
+              ) : null}
+
               {filteredConversations.map((conversation) => {
                 const isSelected = conversation.id === selectedId;
                 return (

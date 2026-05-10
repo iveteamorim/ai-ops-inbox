@@ -372,6 +372,7 @@ export default async function InboxPage() {
     const isAssigned = Boolean(row.assignedToId);
     return {
       id: row.id,
+      status: row.status,
       name: row.contactName || t("inbox_unknown_contact"),
       message: row.lastMessageText || t("inbox_no_messages"),
       state: statusLabel,
