@@ -46,9 +46,9 @@ It is an operating layer that answers one question:
 
 ## 🚀 Live
 
-One-click demo: https://ai-ops-inbox-one.vercel.app/demo  
+One-click demo: https://app.novua.digital/demo  
 Manual demo login: demo@novua.digital / NovuaDemo2026!  
-Landing: https://ai-ops-inbox-one.vercel.app  
+Landing: https://app.novua.digital  
 Repo: https://github.com/iveteamorim/ai-ops-inbox
 
 ---
