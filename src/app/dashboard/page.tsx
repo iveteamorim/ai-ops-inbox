@@ -340,6 +340,7 @@ export default async function DashboardPage() {
     <section className="page">
       <AppNav
         showSetup={canSeeInternalSetup}
+        showSettings={workspaceMode !== "customer_demo"}
         showLocale={canSeeInternalSetup}
         userName={context.profile.full_name ?? context.user.email ?? null}
         userRole={context.profile.role}

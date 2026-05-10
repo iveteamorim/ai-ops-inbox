@@ -6,6 +6,7 @@ import { LocaleMenu } from "@/components/i18n/LocaleMenu";
 
 type AppNavProps = {
   showSetup?: boolean;
+  showSettings?: boolean;
   showLocale?: boolean;
   userName?: string | null;
   userRole?: string | null;
@@ -32,13 +33,19 @@ function formatRole(role: string | null | undefined, lang: string) {
   return null;
 }
 
-export function AppNav({ showSetup = false, showLocale = false, userName, userRole }: AppNavProps) {
+export function AppNav({
+  showSetup = false,
+  showSettings = true,
+  showLocale = false,
+  userName,
+  userRole,
+}: AppNavProps) {
   const { t, lang } = useI18n();
 
   const links = [
     { href: "/dashboard", label: t("nav_dashboard") },
     { href: "/inbox", label: t("nav_inbox") },
-    { href: "/settings", label: t("nav_settings") },
+    ...(showSettings ? [{ href: "/settings", label: t("nav_settings") }] : []),
     ...(showSetup ? [{ href: "/setup-requests", label: "Setup" }] : []),
   ];
 

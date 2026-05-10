@@ -9,6 +9,7 @@ import { TeamMembersList } from "@/components/TeamMembersList";
 import { WhatsAppEmbeddedSignupCard } from "@/components/WhatsAppEmbeddedSignupCard";
 import { WorkspaceDangerZone } from "@/components/WorkspaceDangerZone";
 import { cookies, headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
 import { formatChannel, getAppContext, getBusinessSetup, getSettingsData } from "@/lib/app-data";
@@ -465,6 +466,10 @@ export default async function SettingsPage() {
     });
   }
   const workspaceMode = getWorkspaceMode(context.company, context.user.email);
+  if (workspaceMode === "customer_demo") {
+    redirect("/dashboard");
+  }
+
   const canSeeInternalSetup = canManageInternalWorkspace(workspaceMode);
   const showCustomerFeedback = canSeeCustomerFeedback(workspaceMode);
   const canManageTeam = context.profile.role === "owner" || context.profile.role === "admin";
