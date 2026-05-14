@@ -328,3 +328,16 @@ The key question is not:
 The key question is:
 
 **"does it help a team decide what to answer now, before value is lost?"**
+
+---
+
+## License
+
+This repository is source-available and proprietary.
+
+Copyright (c) 2026 Ivete de Amorim. All rights reserved.
+
+No permission is granted to use, copy, modify, redistribute, sell, or offer
+this software as a commercial service without prior written permission from the
+author. Commercial licensing is available on request via
+`iveteamorim@gmail.com`.
