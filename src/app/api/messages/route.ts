@@ -4,10 +4,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { enforceSameOrigin } from "@/lib/security/request-origin";
 import { getWorkspaceMember, type WorkspaceMember } from "@/lib/workspace-access";
+import { sendWhatsAppText } from "@/lib/messaging/whatsapp-send";
 
 type ConversationRow = {
   id: string;
   company_id: string;
+  contact_id: string;
   channel: "whatsapp" | "instagram" | "email" | "form";
   assigned_to: string | null;
 };
@@ -36,7 +38,7 @@ async function getAuthorizedConversation(
 ) {
   const { data: conversation, error: conversationError } = await admin
     .from("conversations")
-    .select("id, company_id, channel, assigned_to")
+    .select("id, company_id, contact_id, channel, assigned_to")
     .eq("id", conversationId)
     .maybeSingle<ConversationRow>();
 
@@ -122,6 +124,7 @@ export async function POST(request: Request) {
     windowMs: 60_000,
     limit: 20,
   });
+
   if (!rateLimit.allowed) {
     return NextResponse.json(
       { ok: false, error: "rate_limited" },
@@ -135,6 +138,7 @@ export async function POST(request: Request) {
   }
 
   const now = new Date().toISOString();
+
   const { data: claimedConversation, error: claimError } = await authContext.admin
     .from("conversations")
     .update({
@@ -156,13 +160,7 @@ export async function POST(request: Request) {
       latestAccess.conversation?.assigned_to && latestAccess.conversation.assigned_to !== authContext.user.id;
 
     if (assignedToOther) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "conversation_already_assigned",
-        },
-        { status: 409 },
-      );
+      return NextResponse.json({ ok: false, error: "conversation_already_assigned" }, { status: 409 });
     }
 
     return NextResponse.json({ ok: false, error: "conversation_claim_failed" }, { status: 409 });
@@ -182,6 +180,48 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: insertError.message }, { status: 500 });
   }
 
+  let whatsappSent = false;
+
+  if (access.conversation.channel === "whatsapp") {
+    const { data: contact, error: contactError } = await authContext.admin
+      .from("contacts")
+      .select("phone")
+      .eq("id", access.conversation.contact_id)
+      .maybeSingle<{ phone: string | null }>();
+
+    if (contactError) {
+      return NextResponse.json({ ok: false, error: contactError.message }, { status: 500 });
+    }
+
+    const { data: channel, error: channelError } = await authContext.admin
+      .from("channels")
+      .select("external_account_id")
+      .eq("company_id", access.conversation.company_id)
+      .eq("type", "whatsapp")
+      .eq("is_active", true)
+      .maybeSingle<{ external_account_id: string | null }>();
+
+    if (channelError) {
+      return NextResponse.json({ ok: false, error: channelError.message }, { status: 500 });
+    }
+
+    if (!contact?.phone) {
+      return NextResponse.json({ ok: false, error: "contact_phone_missing" }, { status: 400 });
+    }
+
+    if (!channel?.external_account_id) {
+      return NextResponse.json({ ok: false, error: "whatsapp_channel_missing" }, { status: 400 });
+    }
+
+    await sendWhatsAppText({
+      phoneNumberId: channel.external_account_id,
+      to: contact.phone,
+      text,
+    });
+
+    whatsappSent = true;
+  }
+
   const { error: updateError } = await authContext.admin
     .from("conversations")
     .update({
@@ -195,5 +235,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: updateError.message }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true, queued: true });
+  return NextResponse.json({ ok: true, queued: true, whatsappSent });
 }
