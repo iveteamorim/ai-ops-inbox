@@ -125,17 +125,7 @@ export default function LoginPage() {
       </header>
 
       <form className="card form" onSubmit={handleSubmit}>
-        <div className="demo-notice login-demo-notice">
-          <strong>{t("login_demo_title")}</strong>
-          <p>{t("login_demo_text")}</p>
-          <div className="demo-credentials-inline">
-            <code>{DEMO_EMAIL}</code>
-            <code>{DEMO_PASSWORD}</code>
-          </div>
-          <button className="button demo-fill-button" type="button" onClick={fillDemoCredentials}>
-            {t("login_demo_fill")}
-          </button>
-        </div>
+    
 
         <label className="label" htmlFor="email">{t("form_email")}</label>
         <input id="email" className="input" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
