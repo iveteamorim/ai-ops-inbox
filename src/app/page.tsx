@@ -396,6 +396,30 @@ export default function NovuaLanding() {
           </motion.div>
         </motion.section>
       </div>
+      <footer className="border-t border-white/5 mt-24">
+  <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-8 text-sm text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      © 2026 Novua Digital
+    </div>
+
+    <div className="flex items-center gap-6">
+      <Link href="/privacy" className="hover:text-white transition">
+        Privacy
+      </Link>
+
+      <Link href="/terms" className="hover:text-white transition">
+        Terms
+      </Link>
+
+      <a
+        href="mailto:contact@novua.digital"
+        className="hover:text-white transition"
+      >
+        Contact
+      </a>
+    </div>
+  </div>
+</footer>
     </main>
   );
 }
