@@ -10,6 +10,8 @@ const PUBLIC_PATHS = [
   "/demo",
   "/login",
   "/signup",
+  "/privacy",
+  "/terms",
   "/accept-invite",
   "/reset-password",
   "/api/webhooks/whatsapp",
