@@ -27,9 +27,14 @@ export async function sendWhatsAppText({
     }),
   });
 
-  if (!response.ok) {
+ if (!response.ok) {
     throw new Error(`WhatsApp send failed: ${await response.text()}`);
   }
 
-  return response.json();
+  const data = await response.json();
+
+  return {
+    raw: data,
+    messageId: data?.messages?.[0]?.id ?? null,
+  };
 }
