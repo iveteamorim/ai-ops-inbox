@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+
+import { createClient as createBrowserClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { InboxRowActions } from "@/components/InboxRowActions";
 import { useI18n } from "@/components/i18n/LanguageProvider";
@@ -15,7 +17,73 @@ type Props = {
 };
 
 type Translate = ReturnType<typeof useI18n>["t"];
+type MessageWithDelivery = MessageView & {
+  deliveryStatus?: string | null;
+  delivery_status?: string | null;
+  deliveredAt?: string | null;
+  delivered_at?: string | null;
+  readAt?: string | null;
+  read_at?: string | null;
+};
 
+function DeliveryCheckmarks({ message }: { message: MessageWithDelivery }) {
+  const status = message.deliveryStatus ?? message.delivery_status;
+
+  if (message.senderType !== "agent") return null;
+
+  if (status === "read") {
+    return (
+      <span
+        className="delivery-checkmarks delivery-read"
+        title="Read"
+        style={{
+          marginLeft: 6,
+          color: "#22c55e",
+          fontSize: 12,
+          fontWeight: 700,
+        }}
+      >
+        ✓✓
+      </span>
+    );
+  }
+
+  if (status === "delivered") {
+    return (
+      <span
+        className="delivery-checkmarks"
+        title="Delivered"
+        style={{
+          marginLeft: 6,
+          color: "#94a3b8",
+          fontSize: 12,
+          fontWeight: 700,
+        }}
+      >
+        ✓✓
+      </span>
+    );
+  }
+
+  if (status === "sent") {
+    return (
+      <span
+        className="delivery-checkmarks"
+        title="Sent"
+        style={{
+          marginLeft: 6,
+          color: "#64748b",
+          fontSize: 12,
+          fontWeight: 700,
+        }}
+      >
+        ✓
+      </span>
+    );
+  }
+
+  return null;
+}
 function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
   return new Intl.NumberFormat(lang, {
     style: "currency",
@@ -87,8 +155,7 @@ export function ConversationWorkspace({
   const [generatingSuggestion, setGeneratingSuggestion] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState<"active" | "won" | "lost" | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
-  const aiSuggestion = useMemo(() => {
+  const supabase = useMemo(() => createBrowserClient(), []);  const aiSuggestion = useMemo(() => {
     const leadType = (conversation.leadType ?? "").toLowerCase();
 
     if (conversation.estimatedValue === 0 || !conversation.leadType) {
@@ -237,18 +304,40 @@ export function ConversationWorkspace({
       : conversation.status === "new"
         ? panelCopy.riskLow
         : panelCopy.riskMedium;
+        
+useEffect(() => {
+  const channel = supabase
+    .channel(`conversation-${conversation.id}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "messages",
+        filter: `conversation_id=eq.${conversation.id}`,
+      },
+      () => {
+        router.refresh();
+      },
+    )
+    .on(
+      "postgres_changes",
+      {
+        event: "UPDATE",
+        schema: "public",
+        table: "conversations",
+        filter: `id=eq.${conversation.id}`,
+      },
+      () => {
+        router.refresh();
+      },
+    )
+    .subscribe();
 
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      if (document.visibilityState !== "visible" || sending) return;
-      router.refresh();
-    }, 8000);
-
-    return () => {
-      window.clearInterval(timer);
-    };
-  }, [router, sending]);
-
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, [conversation.id, router, supabase]);
   async function sendReply(overrideText?: string) {
     const text = (overrideText ?? draft).trim();
     if (!text) return;
@@ -374,8 +463,13 @@ export function ConversationWorkspace({
                 className={`chat-bubble ${message.senderType === "agent" ? "chat-agent" : "chat-client"}`}
               >
                 <p className="chat-meta">
-                  {message.senderType === "agent" ? t("conversation_sender_agent") : t("conversation_sender_client")} · {formatTime(message.createdAt)}
-                </p>
+  {message.senderType === "agent"
+    ? t("conversation_sender_agent")
+    : t("conversation_sender_client")}{" "}
+  · {formatTime(message.createdAt)}
+
+  <DeliveryCheckmarks message={message as MessageWithDelivery} />
+</p>
                 <p className="chat-text">{message.text}</p>
               </div>
             ))}
