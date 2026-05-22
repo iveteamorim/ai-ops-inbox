@@ -16,7 +16,6 @@ type Props = {
   unitOptions: string[];
 };
 
-type Translate = ReturnType<typeof useI18n>["t"];
 type MessageWithDelivery = MessageView & {
   deliveryStatus?: string | null;
   delivery_status?: string | null;
@@ -27,9 +26,9 @@ type MessageWithDelivery = MessageView & {
 };
 
 function DeliveryCheckmarks({ message }: { message: MessageWithDelivery }) {
-  const status = message.deliveryStatus ?? message.delivery_status;
-
   if (message.senderType !== "agent") return null;
+
+  const status = message.deliveryStatus ?? message.delivery_status;
 
   if (status === "read") {
     return (
@@ -84,6 +83,7 @@ function DeliveryCheckmarks({ message }: { message: MessageWithDelivery }) {
 
   return null;
 }
+
 function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
   return new Intl.NumberFormat(lang, {
     style: "currency",
@@ -133,7 +133,11 @@ function statusClass(status: string) {
   return "status-lost";
 }
 
-function formatChannel(channel: ConversationView["channel"], lang: string, t: Translate) {
+function formatChannel(
+  channel: ConversationView["channel"],
+  lang: string,
+  t: ReturnType<typeof useI18n>["t"]
+) {
   if (channel === "whatsapp") return "WhatsApp";
   if (channel === "instagram") return "Instagram";
   if (channel === "email") return "Email";
@@ -148,14 +152,21 @@ export function ConversationWorkspace({
 }: Props) {
   const router = useRouter();
   const { t, lang } = useI18n();
-  const [messages, setMessages] = useState(initialMessages);
+
+  const [messages, setMessages] = useState<MessageWithDelivery[]>(
+    initialMessages as MessageWithDelivery[]
+  );
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [generatingSuggestion, setGeneratingSuggestion] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState<"active" | "won" | "lost" | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const supabase = useMemo(() => createBrowserClient(), []);  const aiSuggestion = useMemo(() => {
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const supabase = useMemo(() => createBrowserClient(), []);
+
+  // AI Suggestion
+  const aiSuggestion = useMemo(() => {
     const leadType = (conversation.leadType ?? "").toLowerCase();
 
     if (conversation.estimatedValue === 0 || !conversation.leadType) {
@@ -189,6 +200,7 @@ export function ConversationWorkspace({
   }, [conversation.status, t]);
 
   const decisionType = useMemo(() => getDecisionType(conversation), [conversation]);
+
   const decisionCopy = useMemo(() => {
     if (lang === "pt") {
       if (decisionType === "recover") {
@@ -228,6 +240,7 @@ export function ConversationWorkspace({
       return { title: "In conversation", body: "There is interest, but the next step still needs to happen before momentum is lost." };
     }
 
+    // Spanish
     if (decisionType === "recover") {
       return { title: "En riesgo", body: "El cliente escribió y sigue esperando respuesta. Conviene responder primero." };
     }
@@ -281,6 +294,7 @@ export function ConversationWorkspace({
       };
     }
 
+    // Spanish
     return {
       currentState: "Estado actual",
       whatNow: "Qué hacer ahora",
@@ -298,46 +312,46 @@ export function ConversationWorkspace({
   }, [lang]);
 
   const lastReplyAge = formatRelativeAge(conversation.lastOutboundAt ?? conversation.lastMessageAt, lang);
+
   const riskLabel =
     decisionType === "recover"
       ? panelCopy.riskHigh
       : conversation.status === "new"
         ? panelCopy.riskLow
         : panelCopy.riskMedium;
-        
-useEffect(() => {
-  const channel = supabase
-    .channel(`conversation-${conversation.id}`)
-    .on(
-      "postgres_changes",
-      {
-        event: "INSERT",
-        schema: "public",
-        table: "messages",
-        filter: `conversation_id=eq.${conversation.id}`,
-      },
-      () => {
-        router.refresh();
-      },
-    )
-    .on(
-      "postgres_changes",
-      {
-        event: "UPDATE",
-        schema: "public",
-        table: "conversations",
-        filter: `id=eq.${conversation.id}`,
-      },
-      () => {
-        router.refresh();
-      },
-    )
-    .subscribe();
 
-  return () => {
-    supabase.removeChannel(channel);
-  };
-}, [conversation.id, router, supabase]);
+  // Real-time subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel(`conversation-${conversation.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversation.id}`,
+        },
+        () => router.refresh()
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "conversations",
+          filter: `id=eq.${conversation.id}`,
+        },
+        () => router.refresh()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [conversation.id, router, supabase]);
+
+  // === Suas funções (mantidas iguais) ===
   async function sendReply(overrideText?: string) {
     const text = (overrideText ?? draft).trim();
     if (!text) return;
@@ -374,8 +388,10 @@ useEffect(() => {
           senderType: "agent",
           text,
           createdAt: new Date().toISOString(),
-        },
+          deliveryStatus: "sent",
+        } as MessageWithDelivery,
       ]);
+
       setDraft(overrideText ? draft : "");
       router.refresh();
     } catch (requestError) {
@@ -450,6 +466,7 @@ useEffect(() => {
     <div className="conversation-layout">
       <article className="card conversation-main-card">
         <p className="label">{t("conversation_messages")}</p>
+
         {messages.length === 0 ? (
           <div className="empty-state">
             <h3>{t("conversation_empty_title")}</h3>
@@ -460,16 +477,22 @@ useEffect(() => {
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`chat-bubble ${message.senderType === "agent" ? "chat-agent" : "chat-client"}`}
+                className={`chat-bubble ${
+                  message.senderType === "agent" ? "chat-agent" : "chat-client"
+                }`}
               >
-            <p className="chat-meta">
-  {message.senderType === "agent"
-    ? t("conversation_sender_agent")
-    : t("conversation_sender_client")}{" "}
-  · {formatTime(message.createdAt)}
-
-  <DeliveryCheckmarks message={message as MessageWithDelivery} />
-</p>
+                <p
+                  className="chat-meta"
+                  style={{ display: "flex", alignItems: "center", gap: 6 }}
+                >
+                  <span>
+                    {message.senderType === "agent"
+                      ? t("conversation_sender_agent")
+                      : t("conversation_sender_client")}{" "}
+                    · {formatTime(message.createdAt)}
+                  </span>
+                  <DeliveryCheckmarks message={message} />
+                </p>
                 <p className="chat-text">{message.text}</p>
               </div>
             ))}
@@ -489,7 +512,7 @@ useEffect(() => {
             <p className="conversation-ai-title">{t("conversation_ai_label")}</p>
             <p className="conversation-ai-text">“{aiSuggestion}”</p>
           </div>
-          {error ? <p className="warn">{error}</p> : null}
+          {error && <p className="warn">{error}</p>}
           <div className="actions conversation-composer-actions">
             <button
               className="button"
@@ -499,7 +522,12 @@ useEffect(() => {
             >
               {generatingSuggestion ? "..." : panelCopy.useAi}
             </button>
-            <button className="mini-button" type="button" onClick={() => sendReply()} disabled={sending || !draft.trim()}>
+            <button
+              className="mini-button"
+              type="button"
+              onClick={() => sendReply()}
+              disabled={sending || !draft.trim()}
+            >
               {sending ? "..." : t("inbox_reply")}
             </button>
           </div>
@@ -515,7 +543,9 @@ useEffect(() => {
               💰 {formatMoney(lang, currency, conversation.estimatedValue)} {panelCopy.moneyInPlayNow}
             </p>
             <p className="conversation-money-type">{conversation.leadType ?? t("inbox_unclassified")}</p>
-            <p className="conversation-money-meta">⏱ {panelCopy.lastReply} {lastReplyAge || panelCopy.noReplyYet}</p>
+            <p className="conversation-money-meta">
+              ⏱ {panelCopy.lastReply} {lastReplyAge || panelCopy.noReplyYet}
+            </p>
             <p className="conversation-money-risk">🔥 {riskLabel}</p>
           </div>
 
@@ -552,6 +582,7 @@ useEffect(() => {
             </div>
           </div>
 
+          {/* resto do painel lateral mantido igual */}
           <div className="conversation-details-card">
             <p className="label">{t("conversation_details")}</p>
             <div className="preview-row">
@@ -570,18 +601,18 @@ useEffect(() => {
               <span>{t("inbox_unit")}</span>
               <span>{conversation.unit ?? t("inbox_no_unit")}</span>
             </div>
-            {conversation.contactPhone ? (
+            {conversation.contactPhone && (
               <div className="preview-row">
                 <span>{panelCopy.phone}</span>
                 <span>{conversation.contactPhone}</span>
               </div>
-            ) : null}
-            {conversation.status === "won" ? (
+            )}
+            {conversation.status === "won" && (
               <div className="preview-row">
                 <span>{t("conversation_recovered")}</span>
                 <span>{formatMoney(lang, currency, conversation.expectedValue || conversation.estimatedValue)}</span>
               </div>
-            ) : null}
+            )}
           </div>
 
           <details className="conversation-manage-details">
