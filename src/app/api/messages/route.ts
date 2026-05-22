@@ -77,13 +77,14 @@ export async function GET(request: Request) {
   }
 
   const access = await getAuthorizedConversation(authContext.admin, authContext.profile, conversationId);
+
   if (!access.conversation) {
     return NextResponse.json({ ok: false, error: access.error }, { status: access.status });
   }
 
   const { data, error } = await authContext.admin
     .from("messages")
-    .select("id, direction, sender_type, text, created_at")
+    .select("id, direction, sender_type, text, created_at, delivery_status, delivered_at, read_at")
     .eq("conversation_id", access.conversation.id)
     .eq("company_id", access.conversation.company_id)
     .order("created_at", { ascending: true })
@@ -133,6 +134,7 @@ export async function POST(request: Request) {
   }
 
   const access = await getAuthorizedConversation(authContext.admin, authContext.profile, conversationId);
+
   if (!access.conversation) {
     return NextResponse.json({ ok: false, error: access.error }, { status: access.status });
   }
@@ -156,8 +158,10 @@ export async function POST(request: Request) {
 
   if (!claimedConversation) {
     const latestAccess = await getAuthorizedConversation(authContext.admin, authContext.profile, conversationId);
+
     const assignedToOther =
-      latestAccess.conversation?.assigned_to && latestAccess.conversation.assigned_to !== authContext.user.id;
+      latestAccess.conversation?.assigned_to &&
+      latestAccess.conversation.assigned_to !== authContext.user.id;
 
     if (assignedToOther) {
       return NextResponse.json({ ok: false, error: "conversation_already_assigned" }, { status: 409 });
@@ -166,15 +170,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "conversation_claim_failed" }, { status: 409 });
   }
 
-  const { error: insertError } = await authContext.admin.from("messages").insert({
-    company_id: access.conversation.company_id,
-    conversation_id: access.conversation.id,
-    direction: "outbound",
-    sender_type: "agent",
-    channel: access.conversation.channel,
-    text,
-    raw_payload: { source: "api/messages" },
-  });
+  const { data: insertedMessage, error: insertError } = await authContext.admin
+    .from("messages")
+    .insert({
+      company_id: access.conversation.company_id,
+      conversation_id: access.conversation.id,
+      direction: "outbound",
+      sender_type: "agent",
+      channel: access.conversation.channel,
+      text,
+      raw_payload: { source: "api/messages" },
+      delivery_status: "sent",
+    })
+    .select("id")
+    .single<{ id: string }>();
 
   if (insertError) {
     return NextResponse.json({ ok: false, error: insertError.message }, { status: 500 });
@@ -213,13 +222,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "whatsapp_channel_missing" }, { status: 400 });
     }
 
-    await sendWhatsAppText({
+    const whatsappResult = await sendWhatsAppText({
       phoneNumberId: channel.external_account_id,
       to: contact.phone,
       text,
     });
 
     whatsappSent = true;
+
+    if (whatsappResult.messageId && insertedMessage?.id) {
+      await authContext.admin
+        .from("messages")
+        .update({
+          external_id: whatsappResult.messageId,
+          raw_payload: whatsappResult.raw,
+          delivery_status: "sent",
+        })
+        .eq("id", insertedMessage.id);
+    }
   }
 
   const { error: updateError } = await authContext.admin
@@ -237,4 +257,3 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ ok: true, queued: true, whatsappSent });
 }
-
