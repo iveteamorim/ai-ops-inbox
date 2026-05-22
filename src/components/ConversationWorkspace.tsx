@@ -462,7 +462,7 @@ useEffect(() => {
                 key={message.id}
                 className={`chat-bubble ${message.senderType === "agent" ? "chat-agent" : "chat-client"}`}
               >
-                <p className="chat-meta">
+            <p className="chat-meta">
   {message.senderType === "agent"
     ? t("conversation_sender_agent")
     : t("conversation_sender_client")}{" "}
