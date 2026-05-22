@@ -24,12 +24,43 @@ function verifyWhatsAppSignature(rawBody: string, signatureHeader: string | null
   }
 }
 
+function extractWhatsAppStatuses(payload: unknown) {
+  const statuses: { id: string; status: string; timestamp?: string }[] = [];
+
+  const entries = (payload as { entry?: unknown[] })?.entry ?? [];
+
+  for (const entry of entries) {
+    const changes = (entry as { changes?: unknown[] })?.changes ?? [];
+
+    for (const change of changes) {
+      const value = (change as { value?: { statuses?: unknown[] } })?.value;
+      const rawStatuses = value?.statuses ?? [];
+
+      for (const item of rawStatuses) {
+        const statusItem = item as { id?: string; status?: string; timestamp?: string };
+
+        if (statusItem.id && statusItem.status) {
+          statuses.push({
+            id: statusItem.id,
+            status: statusItem.status,
+            timestamp: statusItem.timestamp,
+          });
+        }
+      }
+    }
+  }
+
+  return statuses;
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const mode = searchParams.get("hub.mode");
   const token = searchParams.get("hub.verify_token");
   const challenge = searchParams.get("hub.challenge");
-  const verifyTokens = [process.env.WHATSAPP_VERIFY_TOKEN].filter((value): value is string => Boolean(value));
+  const verifyTokens = [process.env.WHATSAPP_VERIFY_TOKEN].filter(
+    (value): value is string => Boolean(value),
+  );
 
   if (mode === "subscribe" && token && challenge && verifyTokens.includes(token)) {
     return new Response(challenge, { status: 200 });
@@ -40,7 +71,10 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   if (!process.env.WHATSAPP_APP_SECRET) {
-    return NextResponse.json({ ok: false, error: "whatsapp_app_secret_not_configured" }, { status: 503 });
+    return NextResponse.json(
+      { ok: false, error: "whatsapp_app_secret_not_configured" },
+      { status: 503 },
+    );
   }
 
   const rawBody = await request.text();
@@ -56,11 +90,6 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ ok: false, error: "invalid_json" }, { status: 400 });
   }
-  const inboundMessages = extractInboundMessages(payload);
-
-  if (inboundMessages.length === 0) {
-    return NextResponse.json({ ok: true, processed: 0, note: "no_inbound_text_messages" });
-  }
 
   let supabase;
   try {
@@ -74,6 +103,46 @@ export async function POST(request: Request) {
       },
       { status: 202 },
     );
+  }
+
+  const statuses = extractWhatsAppStatuses(payload);
+
+  if (statuses.length > 0) {
+    for (const item of statuses) {
+      const when = item.timestamp
+        ? new Date(Number(item.timestamp) * 1000).toISOString()
+        : new Date().toISOString();
+
+      const updateData: {
+        delivery_status: string;
+        delivered_at?: string;
+        read_at?: string;
+      } = {
+        delivery_status: item.status,
+      };
+
+      if (item.status === "delivered") {
+        updateData.delivered_at = when;
+      }
+
+      if (item.status === "read") {
+        updateData.read_at = when;
+      }
+
+      await supabase.from("messages").update(updateData).eq("external_id", item.id);
+    }
+
+    return NextResponse.json({
+      ok: true,
+      processed: statuses.length,
+      type: "statuses",
+    });
+  }
+
+  const inboundMessages = extractInboundMessages(payload);
+
+  if (inboundMessages.length === 0) {
+    return NextResponse.json({ ok: true, processed: 0, note: "no_inbound_text_messages" });
   }
 
   const results = [];
