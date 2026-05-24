@@ -892,33 +892,12 @@ export default async function SettingsPage() {
                 </span>
               </div>
             ) : null}
-            <div className={`whatsapp-setup-overview ${whatsappConnected ? "whatsapp-setup-ready" : "whatsapp-setup-pending"}`.trim()}>
-              <div className="whatsapp-setup-header">
-                <div>
-                  <p className="label">{copy.whatsappHowTitle}</p>
-                  <p className="whatsapp-setup-copy">
-                    {whatsappConnected ? copy.whatsappHowConnected : copy.whatsappHowDisconnected}
-                  </p>
-                </div>
-                <span className={`badge ${whatsappConnected ? "status-active" : "status-no-response"}`}>
-                  {whatsappConnected ? t("settings_active") : t("settings_disconnected")}
-                </span>
+            {whatsappConnected ? (
+              <div className="preview-row" style={{ marginBottom: 12 }}>
+                <span>{copy.whatsappNumber}</span>
+                <span>{whatsappDisplayNumber ?? "-"}</span>
               </div>
-
-              {whatsappConnected ? (
-                <div className="whatsapp-setup-meta">
-                  <div>
-                    <span>{copy.whatsappNumber}</span>
-                    <strong>{whatsappDisplayNumber ?? "-"}</strong>
-                  </div>
-                  <div>
-                    <span>{lang === "en" ? "Last sync" : lang === "pt" ? "Última sincronização" : "Última sincronización"}</span>
-                    <strong>{syncLabel}</strong>
-                  </div>
-                </div>
-              ) : null}
-
-            </div>
+            ) : null}
             {canManageTeam ? (
               <>
                 {embeddedSignupConfig.enabled ? (
