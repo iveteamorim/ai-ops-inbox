@@ -3523,3 +3523,62 @@ a {
     border-radius: 12px;
   }
 }
+
+/* Final lock layer to avoid legacy overrides */
+.settings-v3.settings-dashboard {
+  background:
+    radial-gradient(1200px 520px at 86% -10%, rgba(45, 240, 189, 0.16), transparent 62%),
+    radial-gradient(1000px 460px at -12% 14%, rgba(146, 255, 231, 0.11), transparent 68%),
+    #071a15 !important;
+}
+
+.settings-v3 .settings-dashboard-inner {
+  max-width: 1240px !important;
+  gap: 16px !important;
+}
+
+.settings-v3 .card {
+  border: 1px solid rgba(167, 243, 208, 0.2) !important;
+  background: linear-gradient(180deg, rgba(10, 33, 27, 0.95), rgba(7, 25, 20, 0.9)) !important;
+  border-radius: 14px !important;
+}
+
+.settings-v3 .settings-hero {
+  display: block !important;
+  border-color: rgba(45, 240, 189, 0.34) !important;
+}
+
+.settings-v3 .settings-metric-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.settings-v3 .settings-metric-card {
+  min-height: 146px !important;
+  border-radius: 12px !important;
+  padding: 14px !important;
+  background: rgba(7, 37, 30, 0.85) !important;
+}
+
+.settings-v3 .settings-channel-card {
+  border-color: rgba(45, 240, 189, 0.38) !important;
+}
+
+.settings-v3 .button,
+.settings-v3 button.button {
+  border-radius: 10px !important;
+  background: linear-gradient(135deg, #2df0bd, #9bffe6) !important;
+  color: #062218 !important;
+}
+
+@media (max-width: 1100px) {
+  .settings-v3 .settings-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .settings-v3 .settings-metric-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

@@ -680,7 +680,7 @@ export default async function SettingsPage() {
 
   return (
     <section className="page settings-page-reset">
-      <div className="settings-modern settings-dashboard">
+      <div className="settings-modern settings-dashboard settings-v3">
         <AppNav
           showSetup={canSeeInternalSetup}
           showLocale={canSeeInternalSetup}
@@ -693,7 +693,7 @@ export default async function SettingsPage() {
               <p className="settings-kicker">
               {lang === "en" ? "NÓVUA · SETTINGS" : lang === "pt" ? "NÓVUA · CONFIGURAÇÕES" : "NÓVUA · CONFIGURACIÓN"}
               </p>
-              <h1>SETTINGS TEST 999</h1>
+              <h1>{t("settings_title")}</h1>
               <p>{t("settings_subtitle")}</p>
             </div>
           </header>
