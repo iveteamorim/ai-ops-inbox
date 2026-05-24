@@ -3229,19 +3229,19 @@ a {
 }
 
 .settings-metric-card[data-metric="revenue"] .settings-metric-icon::before {
-  content: "¤";
+  content: "$";
 }
 
 .settings-metric-card[data-metric="users"] .settings-metric-icon::before {
-  content: "◍";
+  content: "@";
 }
 
 .settings-metric-card[data-metric="conversations"] .settings-metric-icon::before {
-  content: "◻";
+  content: "#";
 }
 
 .settings-metric-card[data-metric="channel"] .settings-metric-icon::before {
-  content: "≋";
+  content: "~";
 }
 
 .settings-metric-status {
