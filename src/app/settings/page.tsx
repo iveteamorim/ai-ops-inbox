@@ -8,7 +8,6 @@ import { SetupRequestButton } from "@/components/SetupRequestButton";
 import { TeamMembersList } from "@/components/TeamMembersList";
 import { WhatsAppEmbeddedSignupCard } from "@/components/WhatsAppEmbeddedSignupCard";
 import { WorkspaceDangerZone } from "@/components/WorkspaceDangerZone";
-import { BadgeDollarSign, MessageSquareText, Users, Wifi } from "lucide-react";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/config";
@@ -645,7 +644,7 @@ export default async function SettingsPage() {
   const settingsMetrics = [
     {
       kind: "revenue",
-      icon: <BadgeDollarSign size={20} strokeWidth={2} />,
+      icon: "€",
       value: configuredRevenue > 0 ? `€${configuredRevenue}` : "—",
       label:
         lang === "en"
@@ -657,14 +656,14 @@ export default async function SettingsPage() {
     },
     {
       kind: "users",
-      icon: <Users size={20} strokeWidth={2} />,
+      icon: "👥",
       value: `${activeUserCount}/${seatLimit}`,
       label: lang === "en" ? "Active users" : lang === "pt" ? "Utilizadores ativos" : "Usuarios activos",
       status: activeLabel,
     },
     {
       kind: "conversations",
-      icon: <MessageSquareText size={20} strokeWidth={2} />,
+      icon: "💬",
       value: String(openConversations),
       label:
         lang === "en"
@@ -676,7 +675,7 @@ export default async function SettingsPage() {
     },
     {
       kind: "channel",
-      icon: <Wifi size={20} strokeWidth={2} />,
+      icon: "📶",
       value: whatsappConnected ? "WhatsApp" : "—",
       label: lang === "en" ? "Active channel" : lang === "pt" ? "Canal ativo" : "Canal activo",
       status: whatsappConnected ? activeLabel : channelStatusLabel,
