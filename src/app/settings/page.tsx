@@ -918,14 +918,6 @@ export default async function SettingsPage() {
                 </div>
               ) : null}
 
-              <div className="whatsapp-flow-list">
-                <p>{copy.whatsappFlowInbound}</p>
-                <p>{copy.whatsappFlowInbox}</p>
-                <p>{copy.whatsappFlowReply}</p>
-              </div>
-              <p className="whatsapp-next-step">
-                {whatsappConnected ? channelStatusLabel : copy.whatsappNextDisconnected}
-              </p>
             </div>
             {canManageTeam ? (
               <>
