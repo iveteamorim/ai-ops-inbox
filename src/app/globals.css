@@ -3508,7 +3508,7 @@ a {
 /* Final lock layer to avoid legacy overrides */
 .settings-v3.settings-dashboard {
   background:
-    radial-gradient(1000px 420px at 92% -8%, rgba(124, 58, 237, 0.1), transparent 66%),
+    radial-gradient(1000px 420px at 92% -8%, rgba(16, 185, 129, 0.1), transparent 66%),
     radial-gradient(860px 380px at -8% 10%, rgba(16, 185, 129, 0.08), transparent 70%),
     #0b1118 !important;
 }
@@ -3527,8 +3527,8 @@ a {
 
 .settings-v3 .settings-hero {
   display: block !important;
-  border-color: rgba(99, 102, 241, 0.35) !important;
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.92), rgba(17, 24, 39, 0.95)) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+  background: linear-gradient(135deg, rgba(8, 47, 38, 0.92), rgba(10, 25, 21, 0.95)) !important;
 }
 
 .settings-v3 .settings-metric-grid {
@@ -3550,24 +3550,24 @@ a {
 }
 
 .settings-v3 .settings-metric-status {
-  background: rgba(99, 102, 241, 0.16) !important;
-  color: #c7d2fe !important;
+  background: rgba(16, 185, 129, 0.16) !important;
+  color: #a7f3d0 !important;
 }
 
 .settings-v3 .settings-channel-card {
-  border-color: rgba(99, 102, 241, 0.35) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
 }
 
 .settings-v3 .button,
 .settings-v3 button.button {
   border-radius: 10px !important;
-  background: linear-gradient(135deg, #6366f1, #22c55e) !important;
-  color: #f8fafc !important;
+  background: linear-gradient(135deg, #10b981, #22c55e) !important;
+  color: #052e25 !important;
 }
 
 .settings-v3 .label {
   letter-spacing: 0.08em !important;
-  color: #93c5fd !important;
+  color: #6ee7b7 !important;
 }
 
 .settings-v3 .subtitle,
