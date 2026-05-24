@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 import { LocaleMenu } from "@/components/i18n/LocaleMenu";
 
@@ -41,6 +42,7 @@ export function AppNav({
   userRole,
 }: AppNavProps) {
   const { t, lang } = useI18n();
+  const pathname = usePathname();
 
   const links = [
     { href: "/dashboard", label: t("nav_dashboard") },
@@ -52,11 +54,20 @@ export function AppNav({
   return (
     <nav className="nav">
       <div className="nav-links">
-        {links.map((link) => (
-          <Link key={link.href} href={link.href}>
-            {link.label}
-          </Link>
-        ))}
+        {links.map((link) => {
+          const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
+
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={isActive ? "active" : undefined}
+              aria-current={isActive ? "page" : undefined}
+            >
+              {link.label}
+            </Link>
+          );
+        })}
       </div>
       <div className="nav-meta">
         {userName ? (

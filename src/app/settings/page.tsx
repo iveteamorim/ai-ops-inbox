@@ -639,21 +639,28 @@ export default async function SettingsPage() {
       : lang === "pt"
         ? "Pendente"
         : "Pendiente";
+  const activeLabel =
+    lang === "en" ? "Active" : lang === "pt" ? "Ativo" : "Activo";
   const settingsMetrics = [
     {
+      kind: "revenue",
       value: configuredRevenue > 0 ? `€${configuredRevenue}` : "—",
       label:
         lang === "en"
-          ? "Configured value"
+          ? "Revenue at risk"
           : lang === "pt"
-            ? "Valor configurado"
-            : "Valor configurado",
+            ? "Receita em risco"
+            : "Revenue en riesgo",
+      status: activeLabel,
     },
     {
+      kind: "users",
       value: `${activeUserCount}/${seatLimit}`,
       label: lang === "en" ? "Active users" : lang === "pt" ? "Utilizadores ativos" : "Usuarios activos",
+      status: activeLabel,
     },
     {
+      kind: "conversations",
       value: String(openConversations),
       label:
         lang === "en"
@@ -661,10 +668,13 @@ export default async function SettingsPage() {
           : lang === "pt"
             ? "Conversas abertas"
             : "Conversaciones abiertas",
+      status: activeLabel,
     },
     {
+      kind: "channel",
       value: whatsappConnected ? "WhatsApp" : "—",
       label: lang === "en" ? "Active channel" : lang === "pt" ? "Canal ativo" : "Canal activo",
+      status: whatsappConnected ? activeLabel : channelStatusLabel,
     },
   ];
 
@@ -690,9 +700,19 @@ export default async function SettingsPage() {
 
           <section className="settings-metric-grid" aria-label="Workspace status">
             {settingsMetrics.map((metric) => (
-              <div key={metric.label} className="settings-metric-card">
-                <p>{metric.label}</p>
-                <strong>{metric.value}</strong>
+              <div
+                key={metric.label}
+                className="settings-metric-card"
+                data-metric={metric.kind}
+              >
+                <div className="settings-metric-top">
+                  <span className="settings-metric-icon" aria-hidden="true" />
+                  <span className="settings-metric-status">{metric.status}</span>
+                </div>
+                <div>
+                  <strong>{metric.value}</strong>
+                  <p>{metric.label}</p>
+                </div>
               </div>
             ))}
           </section>

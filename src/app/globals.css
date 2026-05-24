@@ -3083,3 +3083,215 @@ a {
     font-size: clamp(2.6rem, 14vw, 4rem);
   }
 }
+
+.settings-dashboard {
+  padding: clamp(28px, 4vw, 58px);
+  background:
+    radial-gradient(circle at 24% 8%, rgba(16, 185, 129, 0.1), transparent 32%),
+    linear-gradient(135deg, #03120f 0%, #061510 52%, #03120f 100%);
+}
+
+.settings-dashboard-inner {
+  width: min(1390px, 100%);
+  gap: 36px;
+}
+
+.settings-dashboard .nav {
+  width: min(1390px, 100%);
+  margin: 0 auto 42px;
+  padding: 16px 18px;
+  border-radius: 30px;
+  border-color: rgba(255, 255, 255, 0.11);
+  background: rgba(255, 255, 255, 0.035);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.settings-dashboard .nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.settings-dashboard .nav-links a {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 13px 28px;
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1;
+}
+
+.settings-dashboard .nav-links a.active {
+  border-color: #93c5fd;
+  background: #6ee7b7;
+  color: #03120f;
+  box-shadow:
+    0 0 0 2px rgba(96, 165, 250, 0.95),
+    0 16px 30px rgba(20, 184, 166, 0.15);
+}
+
+.settings-dashboard .nav-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.settings-dashboard .nav-user {
+  min-width: 150px;
+  text-align: right;
+}
+
+.settings-dashboard .nav-user strong {
+  color: #f8faf5;
+}
+
+.settings-dashboard .nav-user span {
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.settings-dashboard .mini-button,
+.settings-dashboard .locale-menu-trigger,
+.settings-dashboard .locale-menu button {
+  min-height: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.035);
+  color: #f8faf5;
+  padding: 12px 18px;
+}
+
+.settings-dashboard-header {
+  display: block;
+  padding-top: 0;
+}
+
+.settings-dashboard-header h1 {
+  max-width: 980px;
+  font-size: clamp(3.5rem, 5.7vw, 6rem);
+  line-height: 0.95;
+  letter-spacing: -0.065em;
+  color: #fff;
+}
+
+.settings-dashboard-header p:not(.settings-kicker) {
+  max-width: 880px;
+  font-size: clamp(1.14rem, 1.75vw, 1.45rem);
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.settings-kicker,
+.settings-dashboard .label {
+  color: #6ee7b7;
+  letter-spacing: 0.32em;
+}
+
+.settings-dashboard .settings-hero {
+  display: none;
+}
+
+.settings-metric-grid {
+  gap: 22px;
+}
+
+.settings-metric-card {
+  min-height: 172px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 26px 28px 24px;
+  border-radius: 26px;
+  border-color: rgba(110, 231, 183, 0.14);
+  background: rgba(8, 32, 27, 0.78);
+}
+
+.settings-metric-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.settings-metric-icon {
+  position: relative;
+  display: inline-grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  color: #6ee7b7;
+}
+
+.settings-metric-icon::before {
+  color: currentColor;
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.settings-metric-card[data-metric="revenue"] .settings-metric-icon::before {
+  content: "▣";
+}
+
+.settings-metric-card[data-metric="users"] .settings-metric-icon::before {
+  content: "♙";
+}
+
+.settings-metric-card[data-metric="conversations"] .settings-metric-icon::before {
+  content: "▢";
+}
+
+.settings-metric-card[data-metric="channel"] .settings-metric-icon::before {
+  content: "≋";
+}
+
+.settings-metric-status {
+  border: 0;
+  border-radius: 999px;
+  background: rgba(74, 222, 128, 0.13);
+  color: #a7f3d0;
+  padding: 6px 14px;
+  font-size: 0.76rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.settings-metric-card strong {
+  margin-top: 32px;
+  color: #fff;
+  font-size: clamp(2.55rem, 4vw, 3.25rem);
+  line-height: 1;
+}
+
+.settings-metric-card p {
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.38);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.settings-dashboard .card {
+  border-color: rgba(110, 231, 183, 0.14);
+  background: rgba(5, 30, 24, 0.82);
+}
+
+@media (max-width: 980px) {
+  .settings-dashboard .nav {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .settings-dashboard .nav-meta {
+    margin-left: 0;
+    justify-content: space-between;
+  }
+
+  .settings-dashboard .nav-user {
+    min-width: 0;
+    text-align: left;
+  }
+}
