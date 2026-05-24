@@ -3561,8 +3561,14 @@ a {
 .settings-v3 .button,
 .settings-v3 button.button {
   border-radius: 10px !important;
-  background: linear-gradient(135deg, #10b981, #22c55e) !important;
+  background: #10b981 !important;
   color: #052e25 !important;
+  border-color: rgba(16, 185, 129, 0.65) !important;
+}
+
+.settings-v3 .button:hover,
+.settings-v3 button.button:hover {
+  background: #22c55e !important;
 }
 
 .settings-v3 .label {
