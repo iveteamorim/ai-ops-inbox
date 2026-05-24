@@ -693,7 +693,7 @@ export default async function SettingsPage() {
               <p className="settings-kicker">
               {lang === "en" ? "NÓVUA · SETTINGS" : lang === "pt" ? "NÓVUA · CONFIGURAÇÕES" : "NÓVUA · CONFIGURACIÓN"}
               </p>
-              <h1>{t("settings_title")}</h1>
+              <h1>SETTINGS TEST 999</h1>
               <p>{t("settings_subtitle")}</p>
             </div>
           </header>
