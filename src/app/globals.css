@@ -3536,6 +3536,11 @@ a {
   gap: 10px !important;
 }
 
+.settings-v3 .settings-main-grid {
+  grid-template-columns: 1fr !important;
+  gap: 14px !important;
+}
+
 .settings-v3 .settings-metric-card {
   min-height: 140px !important;
   border-radius: 12px !important;
