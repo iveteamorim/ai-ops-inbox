@@ -458,6 +458,13 @@ function formatRoleLabel(lang: string, role: string) {
   return "Agente";
 }
 
+function maskRuntimeValue(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return "(empty)";
+  if (trimmed.length <= 4) return `***${trimmed}`;
+  return `***${trimmed.slice(-4)}`;
+}
+
 export default async function SettingsPage() {
   const cookieStore = await cookies();
   const headerStore = await headers();
@@ -520,6 +527,12 @@ export default async function SettingsPage() {
         : `${usedSeats}/${seatLimit} users used on the ${context.company?.plan ?? "trial"} plan.`;
   const hasWebhookSecrets = Boolean(process.env.WHATSAPP_VERIFY_TOKEN && process.env.WHATSAPP_APP_SECRET);
   const embeddedSignupConfig = getWhatsAppEmbeddedSignupRuntimeConfig();
+  const embeddedDebug = {
+    enabled: embeddedSignupConfig.enabled,
+    appIdMasked: maskRuntimeValue(embeddedSignupConfig.appId),
+    configIdMasked: maskRuntimeValue(embeddedSignupConfig.configId),
+    apiVersion: embeddedSignupConfig.apiVersion || "(empty)",
+  };
   const whatsappSetupRequest = setupRequests.find((request) => request.channel === "whatsapp" && (request.status === "requested" || request.status === "in_progress"));
   const businessSetup = getBusinessSetup(context.company);
   const roleLabel = formatRoleLabel(lang, context.profile.role);
@@ -947,6 +960,29 @@ export default async function SettingsPage() {
                 <p className="note">{copy.channelsNote}</p>
               </div>
             )}
+            <details style={{ marginTop: 12 }}>
+              <summary className="label" style={{ cursor: "pointer" }}>
+                Embedded debug
+              </summary>
+              <div className="preview-row" style={{ marginTop: 10 }}>
+                <span>enabled</span>
+                <span className={`badge ${embeddedDebug.enabled ? "status-active" : "status-no-response"}`}>
+                  {String(embeddedDebug.enabled)}
+                </span>
+              </div>
+              <div className="preview-row">
+                <span>appId</span>
+                <span>{embeddedDebug.appIdMasked}</span>
+              </div>
+              <div className="preview-row">
+                <span>configId</span>
+                <span>{embeddedDebug.configIdMasked}</span>
+              </div>
+              <div className="preview-row" style={{ marginBottom: 0 }}>
+                <span>apiVersion</span>
+                <span>{embeddedDebug.apiVersion}</span>
+              </div>
+            </details>
           </article>
 
           {showCustomerFeedback ? (
