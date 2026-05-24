@@ -3222,26 +3222,7 @@ a {
 }
 
 .settings-metric-icon::before {
-  color: currentColor;
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.settings-metric-card[data-metric="revenue"] .settings-metric-icon::before {
-  content: "$";
-}
-
-.settings-metric-card[data-metric="users"] .settings-metric-icon::before {
-  content: "@";
-}
-
-.settings-metric-card[data-metric="conversations"] .settings-metric-icon::before {
-  content: "#";
-}
-
-.settings-metric-card[data-metric="channel"] .settings-metric-icon::before {
-  content: "~";
+  content: "";
 }
 
 .settings-metric-status {
