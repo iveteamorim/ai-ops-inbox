@@ -19,6 +19,20 @@ Required for API routes:
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `WHATSAPP_VERIFY_TOKEN`
 - `WHATSAPP_APP_SECRET`
+- `WHATSAPP_ACCESS_TOKEN`
+
+Optional for customer self-service setup:
+- `NEXT_PUBLIC_ENABLE_WHATSAPP_EMBEDDED_SIGNUP=true`
+- `NEXT_PUBLIC_META_APP_ID`
+- `NEXT_PUBLIC_WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID`
+- `NEXT_PUBLIC_META_API_VERSION` (defaults to `v23.0`)
+
+When enabled, owners/admins see the Meta Embedded Signup action in `/settings#whatsapp-setup`.
+The fallback manual setup request stays visible so onboarding can continue if Meta blocks or cancels the embedded flow.
+
+For paid self-service, configure the Stripe plan Payment Links to redirect back to
+`/settings#whatsapp-setup` after successful payment. That makes the customer flow:
+signup -> choose plan -> pay -> connect WhatsApp.
 
 ## 3) Endpoints
 ### Verify webhook

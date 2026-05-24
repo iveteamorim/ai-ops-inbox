@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 type Props = {
@@ -114,6 +114,7 @@ export function WhatsAppEmbeddedSignupCard({
   const finishPayloadRef = useRef<EmbeddedFinishPayload | null>(null);
   const authCodeRef = useRef<string | null>(null);
   const completionStartedRef = useRef(false);
+  const finishTimeoutRef = useRef<number | null>(null);
 
   const buttonLabel = useMemo(() => {
     if (status === "loading") return loadingLabel;
@@ -121,6 +122,59 @@ export function WhatsAppEmbeddedSignupCard({
     if (status === "saving" || isPending) return loadingLabel;
     return isConnected ? reconnectLabel : connectLabel;
   }, [connectLabel, isConnected, isPending, loadingLabel, reconnectLabel, status]);
+
+  const saveConnection = useCallback(async () => {
+    if (completionStartedRef.current || !finishPayloadRef.current) return;
+    completionStartedRef.current = true;
+    setStatus("saving");
+    setError(null);
+
+    try {
+      const res = await fetch("/api/whatsapp/embedded-signup/complete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          waba_id: finishPayloadRef.current.wabaId,
+          phone_number_id: finishPayloadRef.current.phoneNumberId,
+          display_phone_number: finishPayloadRef.current.displayPhoneNumber,
+          business_name: finishPayloadRef.current.businessName,
+          code: authCodeRef.current,
+        }),
+      });
+
+      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+      if (!res.ok || !data.ok) {
+        completionStartedRef.current = false;
+        setStatus("error");
+        setError(data.error === "phone_number_already_connected" ? connectedLabel : saveErrorLabel);
+        return;
+      }
+
+      setStatus("connected");
+      startTransition(() => {
+        router.refresh();
+      });
+    } catch {
+      completionStartedRef.current = false;
+      setStatus("error");
+      setError(saveErrorLabel);
+    }
+  }, [connectedLabel, router, saveErrorLabel, startTransition]);
+
+  const completeWhenReady = useCallback(
+    ({ allowMissingCode = false }: { allowMissingCode?: boolean } = {}) => {
+      if (!finishPayloadRef.current) return;
+      if (!authCodeRef.current && !allowMissingCode) return;
+      if (finishTimeoutRef.current) {
+        window.clearTimeout(finishTimeoutRef.current);
+        finishTimeoutRef.current = null;
+      }
+      void saveConnection();
+    },
+    [saveConnection],
+  );
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -162,40 +216,6 @@ export function WhatsAppEmbeddedSignupCard({
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    async function completeConnection() {
-      if (completionStartedRef.current || !finishPayloadRef.current) return;
-      completionStartedRef.current = true;
-      setStatus("saving");
-      setError(null);
-
-      const res = await fetch("/api/whatsapp/embedded-signup/complete", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          waba_id: finishPayloadRef.current.wabaId,
-          phone_number_id: finishPayloadRef.current.phoneNumberId,
-          display_phone_number: finishPayloadRef.current.displayPhoneNumber,
-          business_name: finishPayloadRef.current.businessName,
-          code: authCodeRef.current,
-        }),
-      });
-
-      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
-      if (!res.ok || !data.ok) {
-        completionStartedRef.current = false;
-        setStatus("error");
-        setError(data.error === "phone_number_already_connected" ? connectedLabel : saveErrorLabel);
-        return;
-      }
-
-      setStatus("connected");
-      startTransition(() => {
-        router.refresh();
-      });
-    }
-
     function handleMessage(event: MessageEvent) {
       if (event.origin !== "https://www.facebook.com" && event.origin !== "https://web.facebook.com") {
         return;
@@ -213,7 +233,10 @@ export function WhatsAppEmbeddedSignupCard({
           return;
         }
         finishPayloadRef.current = finishData;
-        void completeConnection();
+        completeWhenReady();
+        finishTimeoutRef.current = window.setTimeout(() => {
+          completeWhenReady({ allowMissingCode: true });
+        }, 4000);
         return;
       }
 
@@ -231,8 +254,12 @@ export function WhatsAppEmbeddedSignupCard({
     window.addEventListener("message", handleMessage);
     return () => {
       window.removeEventListener("message", handleMessage);
+      if (finishTimeoutRef.current) {
+        window.clearTimeout(finishTimeoutRef.current);
+        finishTimeoutRef.current = null;
+      }
     };
-  }, [connectedLabel, router, saveErrorLabel, startTransition]);
+  }, [completeWhenReady, saveErrorLabel]);
 
   function startEmbeddedSignup() {
     if (!window.FB || !sdkReady) {
@@ -246,6 +273,10 @@ export function WhatsAppEmbeddedSignupCard({
     finishPayloadRef.current = null;
     authCodeRef.current = null;
     completionStartedRef.current = false;
+    if (finishTimeoutRef.current) {
+      window.clearTimeout(finishTimeoutRef.current);
+      finishTimeoutRef.current = null;
+    }
 
     window.FB.login(
       (response) => {
@@ -258,6 +289,8 @@ export function WhatsAppEmbeddedSignupCard({
           typeof response.authResponse?.code === "string" && response.authResponse.code.trim()
             ? response.authResponse.code.trim()
             : null;
+
+        completeWhenReady();
       },
       {
         config_id: configId,

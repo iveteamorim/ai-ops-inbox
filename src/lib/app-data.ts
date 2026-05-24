@@ -69,6 +69,7 @@ type ChannelRow = {
   type: "whatsapp" | "instagram" | "email" | "form";
   external_account_id: string | null;
   is_active: boolean;
+  config?: Record<string, unknown> | null;
 };
 
 type SetupRequestRow = {
@@ -739,7 +740,7 @@ export async function getSettingsData(
     await Promise.all([
     admin
       .from("channels")
-      .select("id, type, external_account_id, is_active")
+      .select("id, type, external_account_id, is_active, config")
       .eq("company_id", companyId)
       .order("type", { ascending: true }),
     admin

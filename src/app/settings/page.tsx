@@ -134,7 +134,19 @@ function getSetupCopy(lang: string) {
       embeddedConnectError: "No se pudo abrir la conexión con Meta.",
       embeddedSaveError: "Meta terminó el flujo, pero Novua no pudo guardar la conexión.",
       embeddedFallbackTitle: "Si Meta no te deja terminar",
-      embeddedFallbackHelp: "Usa la solicitud manual de abajo y Novua te ayuda a cerrar la conexión.",
+      embeddedFallbackHelp: "Vuelve a intentarlo desde este botón. Si Meta sigue bloqueando el flujo, contacta con Novua.",
+      whatsappHowTitle: "Cómo funciona",
+      whatsappHowConnected:
+        "Este número ya recibe mensajes en Novua. Cada WhatsApp entrante crea o actualiza una conversación en Inbox.",
+      whatsappHowDisconnected:
+        "Conecta el número desde Meta para que los mensajes entren automáticamente en Inbox.",
+      whatsappNumber: "Número conectado",
+      whatsappPhoneId: "ID técnico",
+      whatsappFlowInbound: "1. El cliente escribe al WhatsApp conectado.",
+      whatsappFlowInbox: "2. Novua crea la conversación y la prioriza por valor.",
+      whatsappFlowReply: "3. El equipo responde desde Inbox y el cliente lo recibe en su móvil.",
+      whatsappNextConnected: "Siguiente paso: envía un mensaje de prueba desde otro móvil y responde desde Inbox.",
+      whatsappNextDisconnected: "Siguiente paso: pulsa Conectar con Meta y autoriza el número del cliente.",
       dangerTitle: "Zona peligrosa",
       dangerHelp: "Elimina el workspace, el canal configurado y todos los datos asociados.",
       dangerWarning:
@@ -264,7 +276,19 @@ function getSetupCopy(lang: string) {
       embeddedConnectError: "Não foi possível abrir a conexão com a Meta.",
       embeddedSaveError: "A Meta terminou o fluxo, mas a Novua não conseguiu guardar a conexão.",
       embeddedFallbackTitle: "Se a Meta não deixar terminar",
-      embeddedFallbackHelp: "Use a solicitação manual abaixo e a Novua ajuda a fechar a conexão.",
+      embeddedFallbackHelp: "Tente novamente neste botão. Se a Meta continuar bloqueando o fluxo, contate a Novua.",
+      whatsappHowTitle: "Como funciona",
+      whatsappHowConnected:
+        "Este número já recebe mensagens na Novua. Cada WhatsApp recebido cria ou atualiza uma conversa no Inbox.",
+      whatsappHowDisconnected:
+        "Conecte o número pela Meta para que as mensagens entrem automaticamente no Inbox.",
+      whatsappNumber: "Número conectado",
+      whatsappPhoneId: "ID técnico",
+      whatsappFlowInbound: "1. O cliente escreve para o WhatsApp conectado.",
+      whatsappFlowInbox: "2. A Novua cria a conversa e prioriza por valor.",
+      whatsappFlowReply: "3. A equipe responde pelo Inbox e o cliente recebe no celular.",
+      whatsappNextConnected: "Próximo passo: envie uma mensagem de teste de outro celular e responda pelo Inbox.",
+      whatsappNextDisconnected: "Próximo passo: clique em Conectar com Meta e autorize o número do cliente.",
       dangerTitle: "Zona perigosa",
       dangerHelp: "Remove o workspace, canal configurado e todos os dados associados.",
       dangerWarning:
@@ -392,7 +416,19 @@ function getSetupCopy(lang: string) {
     embeddedConnectError: "Could not open the Meta connection flow.",
     embeddedSaveError: "Meta finished the flow, but Novua could not save the connection.",
     embeddedFallbackTitle: "If Meta does not let you finish",
-    embeddedFallbackHelp: "Use the manual request below and Novua will help you complete the connection.",
+    embeddedFallbackHelp: "Try again from this button. If Meta keeps blocking the flow, contact Novua.",
+    whatsappHowTitle: "How it works",
+    whatsappHowConnected:
+      "This number already receives messages in Novua. Every inbound WhatsApp creates or updates a conversation in Inbox.",
+    whatsappHowDisconnected:
+      "Connect the number through Meta so messages enter Inbox automatically.",
+    whatsappNumber: "Connected number",
+    whatsappPhoneId: "Technical ID",
+    whatsappFlowInbound: "1. The customer writes to the connected WhatsApp number.",
+    whatsappFlowInbox: "2. Novua creates the conversation and prioritizes it by value.",
+    whatsappFlowReply: "3. The team replies from Inbox and the customer receives it on their phone.",
+    whatsappNextConnected: "Next step: send a test message from another phone and reply from Inbox.",
+    whatsappNextDisconnected: "Next step: click Connect with Meta and authorize the customer's number.",
     dangerTitle: "Danger zone",
     dangerHelp: "Delete the workspace, configured channel, and all associated data.",
     dangerWarning: "This action is irreversible. Contacts, conversations, messages, and team access will be deleted.",
@@ -490,6 +526,15 @@ export default async function SettingsPage() {
   const workspaceLabel = context.company?.name ?? "Novua Inbox";
   const whatsappChannel = channels.find((channel) => channel.type === "whatsapp") ?? null;
   const whatsappConnected = Boolean(whatsappChannel?.is_active);
+  const whatsappChannelConfig =
+    whatsappChannel?.config && typeof whatsappChannel.config === "object"
+      ? whatsappChannel.config
+      : null;
+  const whatsappDisplayNumber =
+    typeof whatsappChannelConfig?.display_phone_number === "string" &&
+    whatsappChannelConfig.display_phone_number.trim()
+      ? whatsappChannelConfig.display_phone_number.trim()
+      : null;
   const settingsText =
     lang === "pt"
       ? {
@@ -575,23 +620,82 @@ export default async function SettingsPage() {
             lost: "Perdidas",
           };
 
+  const openConversations = team.reduce((sum, member) => sum + member.openConversations, 0);
+  const configuredRevenue = businessSetup.leadTypes.reduce(
+    (sum, item) => sum + item.estimatedValue,
+    0,
+  );
+  const activeUserCount = team.length;
+  const syncLabel =
+    lang === "en" ? "A few seconds ago" : lang === "pt" ? "Há alguns segundos" : "Hace unos segundos";
+  const channelStatusLabel = whatsappConnected
+    ? lang === "en"
+      ? "Operational"
+      : lang === "pt"
+        ? "Operacional"
+        : "Operativo"
+    : lang === "en"
+      ? "Pending"
+      : lang === "pt"
+        ? "Pendente"
+        : "Pendiente";
+  const settingsMetrics = [
+    {
+      value: configuredRevenue > 0 ? `€${configuredRevenue}` : "—",
+      label:
+        lang === "en"
+          ? "Configured value"
+          : lang === "pt"
+            ? "Valor configurado"
+            : "Valor configurado",
+    },
+    {
+      value: `${activeUserCount}/${seatLimit}`,
+      label: lang === "en" ? "Active users" : lang === "pt" ? "Utilizadores ativos" : "Usuarios activos",
+    },
+    {
+      value: String(openConversations),
+      label:
+        lang === "en"
+          ? "Open conversations"
+          : lang === "pt"
+            ? "Conversas abertas"
+            : "Conversaciones abiertas",
+    },
+    {
+      value: whatsappConnected ? "WhatsApp" : "—",
+      label: lang === "en" ? "Active channel" : lang === "pt" ? "Canal ativo" : "Canal activo",
+    },
+  ];
+
   return (
-    <section className="page">
-      <div className="min-h-screen bg-gradient-to-br from-black via-[#061a14] to-[#0b2a20] text-white p-8 settings-modern">
+    <section className="page settings-page-reset">
+      <div className="settings-modern settings-dashboard">
         <AppNav
           showSetup={canSeeInternalSetup}
           showLocale={canSeeInternalSetup}
           userName={context.profile.full_name ?? context.user.email ?? null}
           userRole={context.profile.role}
         />
-        <div className="max-w-6xl mx-auto space-y-10">
-          <div>
-            <p className="text-green-400 text-sm mb-2">
+        <div className="settings-dashboard-inner">
+          <header className="settings-dashboard-header">
+            <div>
+              <p className="settings-kicker">
               {lang === "en" ? "NÓVUA · SETTINGS" : lang === "pt" ? "NÓVUA · CONFIGURAÇÕES" : "NÓVUA · CONFIGURACIÓN"}
-            </p>
-            <h1 className="text-3xl md:text-4xl font-semibold">{t("settings_title")}</h1>
-            <p className="text-gray-300 mt-2 max-w-xl">{t("settings_subtitle")}</p>
-          </div>
+              </p>
+              <h1>{t("settings_title")}</h1>
+              <p>{t("settings_subtitle")}</p>
+            </div>
+          </header>
+
+          <section className="settings-metric-grid" aria-label="Workspace status">
+            {settingsMetrics.map((metric) => (
+              <div key={metric.label} className="settings-metric-card">
+                <p>{metric.label}</p>
+                <strong>{metric.value}</strong>
+              </div>
+            ))}
+          </section>
 
           <article className={`card settings-hero ${whatsappConnected ? "settings-hero-connected" : "settings-hero-disconnected"}`.trim()}>
             <div className="settings-hero-content">
@@ -630,7 +734,7 @@ export default async function SettingsPage() {
             </article>
           ) : null}
 
-          <div className="grid cols-2" style={{ marginTop: 12 }}>
+          <div className="settings-main-grid">
             {canManageTeam ? (
               <BusinessSetupForm
                 initialValue={businessSetup}
@@ -748,7 +852,10 @@ export default async function SettingsPage() {
             </article>
           </div>
 
-          <article className="card" id="whatsapp-setup">
+          <article
+            className={`card settings-channel-card ${whatsappConnected ? "settings-channel-connected" : "settings-channel-pending"}`.trim()}
+            id="whatsapp-setup"
+          >
             <p className="label">{settingsText.channelTitle}</p>
             <p className="subtitle" style={{ marginBottom: 12 }}>
               {settingsText.channelHelp}
@@ -761,6 +868,41 @@ export default async function SettingsPage() {
                 </span>
               </div>
             ) : null}
+            <div className={`whatsapp-setup-overview ${whatsappConnected ? "whatsapp-setup-ready" : "whatsapp-setup-pending"}`.trim()}>
+              <div className="whatsapp-setup-header">
+                <div>
+                  <p className="label">{copy.whatsappHowTitle}</p>
+                  <p className="whatsapp-setup-copy">
+                    {whatsappConnected ? copy.whatsappHowConnected : copy.whatsappHowDisconnected}
+                  </p>
+                </div>
+                <span className={`badge ${whatsappConnected ? "status-active" : "status-no-response"}`}>
+                  {whatsappConnected ? t("settings_active") : t("settings_disconnected")}
+                </span>
+              </div>
+
+              {whatsappConnected ? (
+                <div className="whatsapp-setup-meta">
+                  <div>
+                    <span>{copy.whatsappNumber}</span>
+                    <strong>{whatsappDisplayNumber ?? "-"}</strong>
+                  </div>
+                  <div>
+                    <span>{lang === "en" ? "Last sync" : lang === "pt" ? "Última sincronização" : "Última sincronización"}</span>
+                    <strong>{syncLabel}</strong>
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="whatsapp-flow-list">
+                <p>{copy.whatsappFlowInbound}</p>
+                <p>{copy.whatsappFlowInbox}</p>
+                <p>{copy.whatsappFlowReply}</p>
+              </div>
+              <p className="whatsapp-next-step">
+                {whatsappConnected ? channelStatusLabel : copy.whatsappNextDisconnected}
+              </p>
+            </div>
             {canManageTeam ? (
               <>
                 {embeddedSignupConfig.enabled ? (
@@ -781,26 +923,28 @@ export default async function SettingsPage() {
                     fallbackHelp={copy.embeddedFallbackHelp}
                   />
                 ) : null}
-                <div style={{ marginTop: embeddedSignupConfig.enabled ? 18 : 0 }}>
-                  <SetupRequestButton
-                    idleLabel={copy.requestWhatsAppSetup}
-                    updateLabel={copy.updateWhatsAppSetup}
-                    requestedLabel={copy.setupRequested}
-                    requestedNote={copy.setupRequestedNote}
-                    numberLabel={copy.setupNumberLabel}
-                    numberPlaceholder={copy.setupNumberPlaceholder}
-                    metaVerifiedLabel={copy.setupMetaVerifiedLabel}
-                    metaVerifiedYes={copy.setupMetaVerifiedYes}
-                    metaVerifiedNo={copy.setupMetaVerifiedNo}
-                    notesLabel={copy.setupNotesLabel}
-                    notesPlaceholder={copy.setupNotesPlaceholder}
-                    phoneRequiredError={copy.setupPhoneRequired}
-                    requestErrorLabel={copy.requestError}
-                    inProgressLabel={copy.setupInProgress}
-                    existingStatus={whatsappSetupRequest?.status ?? null}
-                    existingNotes={whatsappSetupRequest?.notes ?? null}
-                  />
-                </div>
+                {!embeddedSignupConfig.enabled ? (
+                  <div>
+                    <SetupRequestButton
+                      idleLabel={copy.requestWhatsAppSetup}
+                      updateLabel={copy.updateWhatsAppSetup}
+                      requestedLabel={copy.setupRequested}
+                      requestedNote={copy.setupRequestedNote}
+                      numberLabel={copy.setupNumberLabel}
+                      numberPlaceholder={copy.setupNumberPlaceholder}
+                      metaVerifiedLabel={copy.setupMetaVerifiedLabel}
+                      metaVerifiedYes={copy.setupMetaVerifiedYes}
+                      metaVerifiedNo={copy.setupMetaVerifiedNo}
+                      notesLabel={copy.setupNotesLabel}
+                      notesPlaceholder={copy.setupNotesPlaceholder}
+                      phoneRequiredError={copy.setupPhoneRequired}
+                      requestErrorLabel={copy.requestError}
+                      inProgressLabel={copy.setupInProgress}
+                      existingStatus={whatsappSetupRequest?.status ?? null}
+                      existingNotes={whatsappSetupRequest?.notes ?? null}
+                    />
+                  </div>
+                ) : null}
               </>
             ) : (
               <div className="setup-state">

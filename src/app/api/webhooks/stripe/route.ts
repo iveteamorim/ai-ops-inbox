@@ -18,6 +18,44 @@ type CompanyRow = {
   config?: Record<string, unknown> | null;
 };
 
+function cleanString(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function paymentLinkIdFromUrl(value: string | undefined) {
+  if (!value) return null;
+
+  try {
+    const url = new URL(value);
+    const pathPart = url.pathname.split("/").filter(Boolean).pop();
+    return pathPart?.startsWith("plink_") ? pathPart : null;
+  } catch {
+    return value.startsWith("plink_") ? value : null;
+  }
+}
+
+function getPlanFromCheckoutSession(session: Stripe.Checkout.Session) {
+  const metadataPlan = cleanString(session.metadata?.plan);
+  if (metadataPlan === "starter" || metadataPlan === "growth" || metadataPlan === "pro") {
+    return metadataPlan;
+  }
+
+  const paymentLink =
+    typeof session.payment_link === "string"
+      ? session.payment_link
+      : session.payment_link?.id ?? null;
+
+  const paymentLinkPlanMap = new Map<string, "starter" | "growth" | "pro">(
+    [
+      [process.env.STRIPE_STARTER_PAYMENT_LINK_ID || paymentLinkIdFromUrl(process.env.STRIPE_STARTER_PAYMENT_LINK_URL), "starter"],
+      [process.env.STRIPE_GROWTH_PAYMENT_LINK_ID || paymentLinkIdFromUrl(process.env.STRIPE_GROWTH_PAYMENT_LINK_URL), "growth"],
+      [process.env.STRIPE_PRO_PAYMENT_LINK_ID || paymentLinkIdFromUrl(process.env.STRIPE_PRO_PAYMENT_LINK_URL), "pro"],
+    ].filter((entry): entry is [string, "starter" | "growth" | "pro"] => Boolean(entry[0])),
+  );
+
+  return paymentLink ? paymentLinkPlanMap.get(paymentLink) ?? process.env.NOVUA_PAID_PLAN ?? "growth" : process.env.NOVUA_PAID_PLAN ?? "growth";
+}
+
 async function getCompanyById(companyId: string) {
   const admin = createAdminClient();
   const { data: company, error } = await admin
@@ -57,6 +95,7 @@ async function updateCompanyBillingState(
     stripeSubscriptionId?: string | null;
     stripePaymentStatus?: string | null;
     stripeSubscriptionStatus?: string | null;
+    stripePlan?: string | null;
   },
 ) {
   const admin = createAdminClient();
@@ -102,11 +141,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const paidPlan = process.env.NOVUA_PAID_PLAN || "growth";
+  const defaultPaidPlan = process.env.NOVUA_PAID_PLAN || "growth";
 
   if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
     const session = event.data.object as Stripe.Checkout.Session;
     const companyId = typeof session.client_reference_id === "string" ? session.client_reference_id : "";
+    const paidPlan = getPlanFromCheckoutSession(session);
 
     if (!companyId) {
       return NextResponse.json({ ok: true, skipped: "missing_client_reference_id" });
@@ -119,6 +159,7 @@ export async function POST(request: Request) {
       stripeSubscriptionId: typeof session.subscription === "string" ? session.subscription : null,
       stripePaymentStatus: session.payment_status,
       stripeSubscriptionStatus: session.payment_status === "paid" ? "active" : null,
+      stripePlan: paidPlan,
     });
 
     if (error) {
@@ -150,8 +191,9 @@ export async function POST(request: Request) {
     }
 
     const paymentFailed = event.type === "invoice.payment_failed";
+    const currentPlan = cleanString(company.config?.stripePlan) || defaultPaidPlan;
     const { error } = await updateCompanyBillingState(company.id, {
-      plan: paymentFailed ? "trial" : paidPlan,
+      plan: paymentFailed ? "trial" : currentPlan,
       stripeCustomerId: customerId,
       stripeSubscriptionId: subscriptionId,
       stripePaymentStatus: paymentFailed ? "failed" : "paid",
@@ -177,9 +219,10 @@ export async function POST(request: Request) {
 
     const activeStatuses = new Set(["active", "trialing"]);
     const shouldKeepPaidPlan = activeStatuses.has(subscription.status);
+    const currentPlan = cleanString(company.config?.stripePlan) || defaultPaidPlan;
 
     const { error } = await updateCompanyBillingState(company.id, {
-      plan: shouldKeepPaidPlan ? paidPlan : "trial",
+      plan: shouldKeepPaidPlan ? currentPlan : "trial",
       stripeCustomerId: customerId,
       stripeSubscriptionId: subscription.id,
       stripeSubscriptionStatus: subscription.status,

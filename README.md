@@ -279,7 +279,28 @@ Optional:
 
 - OPENAI_API_KEY  
 - WHATSAPP_VERIFY_TOKEN  
+- WHATSAPP_APP_SECRET  
+- WHATSAPP_ACCESS_TOKEN  
 - INSTAGRAM_VERIFY_TOKEN  
+- STRIPE_SECRET_KEY  
+- STRIPE_WEBHOOK_SECRET  
+- STRIPE_STARTER_PAYMENT_LINK_URL  
+- STRIPE_GROWTH_PAYMENT_LINK_URL  
+- STRIPE_PRO_PAYMENT_LINK_URL  
+- STRIPE_STARTER_PAYMENT_LINK_ID  
+- STRIPE_GROWTH_PAYMENT_LINK_ID  
+- STRIPE_PRO_PAYMENT_LINK_ID  
+
+WhatsApp Embedded Signup:
+
+- NEXT_PUBLIC_ENABLE_WHATSAPP_EMBEDDED_SIGNUP=true  
+- NEXT_PUBLIC_META_APP_ID  
+- NEXT_PUBLIC_WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID  
+- NEXT_PUBLIC_META_API_VERSION  
+
+With those values configured, workspace owners/admins can connect WhatsApp from `/settings#whatsapp-setup` without an internal setup step.
+
+Stripe Payment Links should include a success redirect back to `/settings#whatsapp-setup` so customers can connect WhatsApp immediately after payment. The app appends `client_reference_id=<company_id>` and `prefilled_email=<user_email>` to each plan link.
 
 ---
 
