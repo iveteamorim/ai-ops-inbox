@@ -3293,3 +3293,233 @@ a {
     text-align: left;
   }
 }
+
+/* Settings refresh v2: cleaner hierarchy and premium-neutral surface */
+.settings-dashboard {
+  background:
+    radial-gradient(1100px 500px at 85% -12%, rgba(45, 240, 189, 0.12), transparent 65%),
+    radial-gradient(900px 440px at -10% 12%, rgba(116, 255, 226, 0.08), transparent 70%),
+    #061713;
+}
+
+.settings-dashboard-inner {
+  max-width: 1280px;
+  gap: 18px;
+}
+
+.settings-dashboard .card {
+  border: 1px solid rgba(167, 243, 208, 0.14);
+  background: linear-gradient(180deg, rgba(8, 28, 23, 0.9), rgba(7, 24, 20, 0.85));
+  box-shadow: 0 18px 48px rgba(1, 8, 6, 0.35);
+}
+
+.settings-dashboard-header h1 {
+  font-size: clamp(2.4rem, 3.6vw, 3.3rem);
+  line-height: 1.04;
+  max-width: 900px;
+}
+
+.settings-dashboard-header p:not(.settings-kicker) {
+  max-width: 760px;
+  color: rgba(226, 239, 235, 0.75);
+}
+
+.settings-dashboard .settings-kicker {
+  margin-bottom: 10px;
+  font-size: 0.72rem;
+}
+
+.settings-metric-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.settings-metric-card {
+  min-height: 162px;
+  border-radius: 16px;
+  padding: 18px 18px 16px;
+  background: rgba(7, 32, 26, 0.82);
+}
+
+.settings-metric-card strong {
+  margin-top: 14px;
+  font-size: clamp(1.5rem, 2.2vw, 2rem);
+}
+
+.settings-metric-card p {
+  margin-top: 8px;
+  font-size: 0.86rem;
+}
+
+.settings-dashboard .settings-main-grid {
+  align-items: start;
+  gap: 16px;
+}
+
+.settings-dashboard .settings-hero {
+  display: block;
+  border-color: rgba(45, 240, 189, 0.24);
+  background: linear-gradient(140deg, rgba(14, 58, 47, 0.74), rgba(7, 29, 23, 0.9));
+}
+
+.settings-dashboard .settings-hero-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.settings-dashboard .settings-hero-title {
+  font-size: 1.08rem;
+  letter-spacing: 0;
+  margin-bottom: 8px;
+}
+
+.settings-dashboard .settings-hero-copy {
+  max-width: 700px;
+  font-size: 0.95rem;
+}
+
+.settings-channel-card {
+  border-color: rgba(45, 240, 189, 0.3);
+}
+
+.settings-dashboard .whatsapp-setup-overview {
+  border: 1px solid rgba(167, 243, 208, 0.16);
+  border-radius: 14px;
+  background: rgba(4, 22, 17, 0.66);
+}
+
+.settings-dashboard .preview-row,
+.settings-dashboard .setup-state,
+.settings-dashboard .agent-settings-note,
+.settings-dashboard .team-member-card,
+.settings-dashboard .lead-type-row,
+.settings-dashboard .settings-lead-card,
+.settings-dashboard .request-state,
+.settings-dashboard details {
+  border-color: rgba(167, 243, 208, 0.14);
+  background: rgba(9, 32, 26, 0.62);
+}
+
+.settings-dashboard .button,
+.settings-dashboard button.button {
+  border-radius: 11px;
+  background: linear-gradient(135deg, #2df0bd, #8fffe2);
+  color: #072119;
+  font-weight: 700;
+}
+
+.settings-dashboard .button:hover,
+.settings-dashboard button.button:hover {
+  transform: translateY(-1px);
+  filter: saturate(1.06);
+}
+
+.settings-dashboard .label {
+  letter-spacing: 0.12em;
+}
+
+.settings-dashboard .subtitle,
+.settings-dashboard .note {
+  line-height: 1.5;
+}
+
+@media (max-width: 1100px) {
+  .settings-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .settings-dashboard {
+    padding: 12px;
+  }
+
+  .settings-dashboard-inner {
+    gap: 12px;
+    padding: 0;
+  }
+
+  .settings-metric-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .settings-dashboard-header h1 {
+    font-size: clamp(1.75rem, 7.2vw, 2.05rem);
+    line-height: 1.08;
+  }
+
+  .settings-dashboard-header p:not(.settings-kicker) {
+    font-size: 0.92rem;
+  }
+
+  .settings-dashboard .card {
+    padding: 14px;
+    border-radius: 12px;
+  }
+
+  .settings-metric-card {
+    min-height: 132px;
+    padding: 14px;
+    border-radius: 12px;
+  }
+
+  .settings-metric-card strong {
+    margin-top: 10px;
+    font-size: 1.4rem;
+  }
+
+  .settings-metric-card p {
+    margin-top: 6px;
+    font-size: 0.82rem;
+  }
+
+  .settings-metric-status,
+  .settings-dashboard .badge {
+    padding: 4px 10px;
+    font-size: 0.72rem;
+  }
+
+  .settings-dashboard .settings-hero-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .settings-dashboard .settings-hero-copy {
+    font-size: 0.9rem;
+  }
+
+  .settings-dashboard .settings-main-grid {
+    gap: 12px;
+  }
+
+  .settings-dashboard .preview-row {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .settings-dashboard .button,
+  .settings-dashboard button.button {
+    min-height: 40px;
+    padding: 0 14px;
+    font-size: 0.86rem;
+    border-radius: 10px;
+  }
+
+  .settings-dashboard input:not([type="checkbox"]),
+  .settings-dashboard select,
+  .settings-dashboard textarea,
+  .settings-dashboard .input {
+    min-height: 40px;
+    font-size: 0.9rem;
+    padding: 9px 11px;
+  }
+
+  .settings-dashboard .whatsapp-setup-overview {
+    padding: 12px;
+    border-radius: 12px;
+  }
+}
