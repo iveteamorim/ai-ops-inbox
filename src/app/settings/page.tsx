@@ -8,6 +8,7 @@ import { SetupRequestButton } from "@/components/SetupRequestButton";
 import { TeamMembersList } from "@/components/TeamMembersList";
 import { WhatsAppEmbeddedSignupCard } from "@/components/WhatsAppEmbeddedSignupCard";
 import { WorkspaceDangerZone } from "@/components/WorkspaceDangerZone";
+import { BadgeDollarSign, MessageSquareText, Users, Wifi } from "lucide-react";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/config";
@@ -644,6 +645,7 @@ export default async function SettingsPage() {
   const settingsMetrics = [
     {
       kind: "revenue",
+      icon: <BadgeDollarSign size={20} strokeWidth={2} />,
       value: configuredRevenue > 0 ? `€${configuredRevenue}` : "—",
       label:
         lang === "en"
@@ -655,12 +657,14 @@ export default async function SettingsPage() {
     },
     {
       kind: "users",
+      icon: <Users size={20} strokeWidth={2} />,
       value: `${activeUserCount}/${seatLimit}`,
       label: lang === "en" ? "Active users" : lang === "pt" ? "Utilizadores ativos" : "Usuarios activos",
       status: activeLabel,
     },
     {
       kind: "conversations",
+      icon: <MessageSquareText size={20} strokeWidth={2} />,
       value: String(openConversations),
       label:
         lang === "en"
@@ -672,6 +676,7 @@ export default async function SettingsPage() {
     },
     {
       kind: "channel",
+      icon: <Wifi size={20} strokeWidth={2} />,
       value: whatsappConnected ? "WhatsApp" : "—",
       label: lang === "en" ? "Active channel" : lang === "pt" ? "Canal ativo" : "Canal activo",
       status: whatsappConnected ? activeLabel : channelStatusLabel,
@@ -706,7 +711,7 @@ export default async function SettingsPage() {
                 data-metric={metric.kind}
               >
                 <div className="settings-metric-top">
-                  <span className="settings-metric-icon" aria-hidden="true" />
+                  <span className="settings-metric-icon" aria-hidden="true">{metric.icon}</span>
                   <span className="settings-metric-status">{metric.status}</span>
                 </div>
                 <div>
