@@ -35,13 +35,6 @@ export default function LoginPage() {
     }
   }, [t]);
 
-  function fillDemoCredentials() {
-    setEmail(DEMO_EMAIL);
-    setPassword(DEMO_PASSWORD);
-    setError(null);
-    setMessage(t("login_demo_prefilled"));
-  }
-
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
