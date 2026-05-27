@@ -91,17 +91,18 @@ export default function NovuaLanding() {
   ];
 
   const fadeUp = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: 0, y: 18 },
     show: {
       opacity: 1,
-      transition: { duration: 0.5, ease: "easeOut" as const },
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" as const },
     },
   };
 
   const stagger = {
     hidden: {},
     show: {
-      transition: { staggerChildren: 0.05 },
+      transition: { staggerChildren: 0.08 },
     },
   };
 
@@ -117,48 +118,79 @@ export default function NovuaLanding() {
   return (
     <main className="min-h-screen bg-[#07110E] text-white -m-4 md:-m-6">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-[-10%] top-[-5%] h-[40rem] w-[40rem] rounded-full bg-white/5 blur-3xl" />
+        <div className="absolute left-[-8%] top-0 h-[32rem] w-[32rem] rounded-full bg-green-500/10 blur-3xl" />
+        <div className="absolute right-[-4%] top-24 h-[28rem] w-[28rem] rounded-full bg-emerald-400/8 blur-3xl" />
       </div>
 
-      <div className="relative mx-auto max-w-6xl px-4 pt-8 pb-20 sm:px-6 sm:pt-12 lg:px-8 lg:pt-16">
-        <div className="mb-16 flex items-center justify-between">
-          <div className="text-lg font-semibold text-white">Novua</div>
-          <div className="flex items-center gap-2">
-            <LocaleMenu />
-            <Link
-              href="/login"
-              className="rounded-lg px-4 py-2 text-sm text-zinc-300 hover:text-white transition"
-            >
-              {t("cta_signin")}
-            </Link>
-          </div>
+      <div className="relative mx-auto max-w-7xl px-4 pt-6 pb-14 sm:px-6 sm:pt-10 lg:px-8 lg:pt-14">
+        <div className="mb-8 flex items-center justify-end gap-3 sm:mb-10">
+          <LocaleMenu />
+          
+          <Link
+            href="/login"
+            className="rounded-full border border-white/12 bg-white/[0.02] px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:border-white/25 hover:bg-white/[0.06]"
+          >
+            {t("cta_signin")}
+          </Link>
         </div>
+        <section className="grid items-start gap-10 lg:grid-cols-[0.95fr_1.2fr] lg:gap-14">
+          <div className="max-w-xl">
+            <p className="mb-3 text-xs uppercase tracking-[0.16em] text-green-400 sm:text-sm sm:tracking-[0.24em]">
+              {t("landing_brand_kicker")}
+            </p>
 
-        <section className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
-          <div>
-            <h1 className="text-5xl font-semibold leading-tight text-white sm:text-6xl lg:text-7xl">
+            <h1 className="text-4xl font-semibold leading-[1.02] text-white sm:text-5xl lg:text-6xl lg:leading-[0.95]">
               {t("landing_title")}
             </h1>
 
-            <p className="mt-6 text-lg leading-relaxed text-zinc-400 sm:text-xl max-w-lg">
+            <p className="mt-5 text-base leading-7 text-zinc-300 sm:mt-6 sm:text-lg sm:leading-8">
               {t("landing_subtitle")}
             </p>
 
-            <div className="mt-8 flex items-center gap-3">
+            <p className="mt-5 text-lg font-semibold leading-7 text-yellow-400 sm:mt-6 sm:text-xl sm:leading-8">
+              {t("landing_hero_highlight")}
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+             
               <Link
                 href="/signup"
-                className="rounded-lg bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-zinc-100"
+                className="rounded-2xl border border-white/10 px-6 py-3 text-base font-semibold text-white transition duration-300 hover:border-white/25 hover:bg-white/[0.06]"
               >
                 {t("landing_cta_free")}
               </Link>
-              <p className="text-sm text-zinc-500">{t("landing_no_card")}</p>
+              <span className="text-sm text-zinc-400">{t("landing_hero_tagline")}</span>
+            </div>
+            <p className="mt-3 text-sm text-zinc-500">{t("landing_no_card")}</p>
+
+            <div className="mt-8 flex flex-wrap gap-x-5 gap-y-3 text-sm text-zinc-400 sm:mt-10 sm:gap-x-6">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-green-400">↓ 42%</span>
+                <span>{t("landing_response_time").toLowerCase()}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-green-400">↑ 28%</span>
+                <span>{t("landing_converted").toLowerCase()}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-green-400">{t("landing_visibility_metric")}</span>
+                <span>{t("landing_panel_2_title").toLowerCase()}</span>
+              </div>
             </div>
           </div>
 
           <div className="relative">
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-sm">
-              <div className="grid gap-4">
-                <div className="space-y-3">
+            <div className="absolute inset-0 rounded-[28px] bg-green-500/10 blur-3xl" />
+
+            <div className="relative overflow-hidden rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-4 shadow-[0_0_60px_rgba(16,185,129,0.08)] sm:rounded-[28px] sm:p-6 lg:p-8">
+              <div className="mb-6 flex items-center justify-end gap-3">
+                <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-400">
+                  {t("nav_inbox")}
+                </div>
+              </div>
+
+              <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
+                <div className="space-y-4">
                   {conversations.map((conversation, index) => {
                     const isActive = index === activeIndex;
                     return (
@@ -167,59 +199,227 @@ export default function NovuaLanding() {
                         layout
                         transition={{ duration: 0.35 }}
                         className={[
-                          "rounded-xl border p-3 transition-all duration-300 sm:p-4",
+                          "rounded-2xl border p-4 transition-all duration-500 sm:p-5",
                           isActive
-                            ? "border-white/20 bg-white/[0.08]"
-                            : "border-white/5 bg-white/[0.02] opacity-60",
+                            ? "scale-[1.01] border-green-400/40 bg-[#132922] shadow-[0_0_35px_rgba(52,211,153,0.12)]"
+                            : "border-white/5 bg-[#10211C] opacity-75",
                         ].join(" ")}
                       >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex-1">
-                            <p className="font-medium text-white text-sm">{conversation.name}</p>
-                            <p className="mt-1 text-xs text-zinc-400 line-clamp-2">{conversation.message}</p>
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="text-xl font-semibold text-white sm:text-2xl">{conversation.name}</p>
+                              <span className="text-xs text-zinc-500">{conversation.time}</span>
+                            </div>
+                            <p className="mt-2 text-base text-zinc-300 sm:text-lg">{conversation.message}</p>
                           </div>
-                          <span className="text-xs text-zinc-500 flex-shrink-0">{conversation.time}</span>
+
+                          <span className={`rounded-full border px-3 py-1 text-sm ${conversation.statusClass}`}>
+                            {conversation.status}
+                          </span>
+                        </div>
+
+                        <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-3 text-sm text-zinc-400">
+                          <span>{t("landing_mockup_value_label")}</span>
+                          <span className="font-semibold text-white">{conversation.value}</span>
                         </div>
                       </motion.div>
                     );
                   })}
                 </div>
 
-                <div className="text-sm text-zinc-400">
-                  <p>Smart prioritization by business value, not arrival order.</p>
+                <div className="flex min-h-[300px] flex-col justify-between rounded-2xl border border-white/5 bg-[#0C1210] p-4 sm:min-h-[360px] sm:p-5">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.18em] text-zinc-400">{panel.title}</p>
+
+                    <AnimatePresence mode="wait">
+                      <motion.p
+                        key={panel.metric}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        transition={{ duration: 0.3 }}
+                        className={`mt-4 text-4xl font-bold sm:text-5xl ${panel.metricClass}`}
+                      >
+                        {panel.metric}
+                      </motion.p>
+                    </AnimatePresence>
+
+                    <div className="mt-5 h-2 w-full overflow-hidden rounded-full bg-white/10">
+                      <motion.div
+                        key={panel.progress}
+                        initial={{ width: 0 }}
+                        animate={{ width: panel.progress }}
+                        transition={{ duration: 0.55 }}
+                        className="h-full rounded-full bg-gradient-to-r from-green-400 via-lime-300 to-yellow-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-8">
+                    <p className="text-xs uppercase tracking-[0.18em] text-zinc-400">{t("landing_panel_action_label")}</p>
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={panel.action}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <p className="mt-3 text-xl font-semibold text-white sm:text-2xl">{panel.action}</p>
+                        <p className="mt-3 text-base leading-7 text-zinc-400">{panel.helper}</p>
+                        <p className="mt-5 text-sm font-medium text-emerald-300">{t("landing_value_at_risk")}</p>
+                      </motion.div>
+                    </AnimatePresence>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="my-24 text-center">
-          <h2 className="text-4xl font-semibold text-white sm:text-5xl lg:text-6xl max-w-3xl mx-auto">
+        <motion.section
+          className="py-16 text-center sm:py-20"
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.6 }}
+        >
+          <p className="mx-auto mb-4 max-w-3xl text-sm uppercase tracking-[0.3em] text-green-300/80">
+            {t("landing_mockup_footer")}
+          </p>
+          <p className="mx-auto max-w-4xl text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
+            {t("landing_positioning_line_1")} {t("landing_positioning_line_2")}
+          </p>
+        </motion.section>
+
+        <motion.section
+          className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3"
+          variants={stagger}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.08, margin: "0px 0px -8% 0px" }}
+        >
+          {problemCards.map((card) => (
+            <motion.div
+              key={card.label}
+              className="rounded-[28px] border border-white/5 bg-[linear-gradient(180deg,rgba(12,27,22,0.98),rgba(10,20,18,0.96))] p-6"
+              variants={fadeUp}
+            >
+              <p className="mb-4 text-sm uppercase tracking-[0.18em] text-green-300/90">{card.label}</p>
+              <h3 className="text-2xl font-bold leading-tight text-white">{card.title}</h3>
+
+              {card.rows ? (
+                <div className="mt-6 space-y-4 text-base text-zinc-200">
+                  {card.rows.map(([label, icon]) => (
+                    <div key={label} className="flex items-center justify-between gap-4 border-b border-white/10 pb-3 last:border-b-0 last:pb-0">
+                      <span>{label}</span>
+                      <span>{icon}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : card.number ? (
+                <>
+                  <p className="mt-6 text-6xl font-bold text-yellow-400">{card.number}</p>
+                  <p className="mt-2 text-base leading-7 text-zinc-300">{card.text}</p>
+                </>
+              ) : (
+                <p className="mt-4 text-base leading-7 text-zinc-300">{card.text}</p>
+              )}
+            </motion.div>
+          ))}
+        </motion.section>
+
+        <motion.section
+          className="mt-8 rounded-[28px] border border-white/5 bg-[linear-gradient(180deg,rgba(12,27,22,0.98),rgba(10,20,18,0.96))] p-6 sm:p-8"
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.4 }}
+        >
+          <p className="mb-3 text-sm uppercase tracking-[0.18em] text-green-300/90">{t("landing_onboarding_eyebrow")}</p>
+          <h2 className="text-3xl font-bold leading-tight text-white sm:text-4xl">
+            {t("landing_connect_business_title")}
+          </h2>
+          <p className="mt-5 max-w-5xl text-base leading-7 text-zinc-300 sm:text-lg">
+            {t("landing_onboarding_subtitle")}
+          </p>
+          <p className="mt-4 max-w-5xl text-base font-semibold leading-7 text-yellow-400 sm:text-lg">
+            {t("landing_onboarding_goal")}
+          </p>
+
+          <div className="mt-7 rounded-2xl border border-yellow-700/50 bg-[#17140E] p-5">
+            <p className="text-xl font-semibold text-yellow-300">{t("landing_onboarding_note_title")}</p>
+            <p className="mt-3 text-base leading-7 text-zinc-300">
+              {t("landing_onboarding_note_text")}
+            </p>
+          </div>
+
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Link
+              href="/signup"
+              className="rounded-2xl bg-green-500 px-7 py-3.5 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.25)] transition duration-300 hover:scale-[1.02] hover:bg-green-400"
+            >
+              {t("landing_cta_free")}
+            </Link>
+            <p className="text-sm text-zinc-400">{t("landing_onboarding_tagline")}</p>
+          </div>
+        </motion.section>
+
+        <motion.section
+          className="py-16 text-center sm:py-20"
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.6 }}
+        >
+          <h2 className="mx-auto max-w-4xl text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
             {t("landing_final_title")}
           </h2>
-        </section>
-
-        <div className="text-center">
-          <Link
-            href="/signup"
-            className="inline-block rounded-lg bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-zinc-100"
+          <motion.div
+            className="mt-8 inline-block"
+            animate={{
+              boxShadow: [
+                "0 0 30px rgba(34,197,94,0.18)",
+                "0 0 40px rgba(34,197,94,0.32)",
+                "0 0 30px rgba(34,197,94,0.18)",
+              ],
+            }}
+            transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
           >
-            {t("landing_cta_free")}
-          </Link>
-        </div>
+            <Link
+              href="/signup"
+              className="rounded-2xl bg-green-500 px-8 py-4 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.25)] transition duration-300 hover:scale-[1.02] hover:bg-green-400"
+            >
+              {t("landing_cta_free")}
+            </Link>
+          </motion.div>
+        </motion.section>
       </div>
-      <footer className="border-t border-white/10 mt-32">
-        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center justify-between gap-4 text-xs text-zinc-500 sm:flex-row">
-            <div>© 2026 Novua Digital</div>
-            <div className="flex items-center gap-6">
-              <Link href="/privacy" className="hover:text-zinc-300 transition">Privacy</Link>
-              <Link href="/terms" className="hover:text-zinc-300 transition">Terms</Link>
-              <a href="mailto:contact@novua.digital" className="hover:text-zinc-300 transition">Contact</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <footer className="border-t border-white/5 mt-24">
+  <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-8 text-sm text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      © 2026 Novua Digital
+    </div>
+
+    <div className="flex items-center gap-6">
+      <Link href="/privacy" className="hover:text-white transition">
+        Privacy
+      </Link>
+
+      <Link href="/terms" className="hover:text-white transition">
+        Terms
+      </Link>
+
+      <a
+        href="mailto:contact@novua.digital"
+        className="hover:text-white transition"
+      >
+        Contact
+      </a>
+    </div>
+  </div>
+</footer>
     </main>
   );
 }
