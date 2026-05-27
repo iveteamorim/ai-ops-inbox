@@ -183,10 +183,8 @@ export function BusinessSetupForm({ initialValue, labels, showInternalTools = fa
         />
       </section>
 
-      <section className="setup-panel settings-business-section">
-        <p className="label settings-business-section-title">
-          {labels.leadTypesBlock}
-        </p>
+      <details className="setup-panel settings-business-section" open>
+        <summary className="label settings-business-section-title">{labels.leadTypesBlock}</summary>
         <p className="subtitle settings-business-section-copy">
           {labels.leadTypes}
         </p>
@@ -235,7 +233,7 @@ export function BusinessSetupForm({ initialValue, labels, showInternalTools = fa
             {labels.addLeadType}
           </button>
         </div>
-      </section>
+      </details>
 
       {message ? <p className="note settings-business-feedback">{message}</p> : null}
       {error ? <p className="warn settings-business-feedback">{error}</p> : null}

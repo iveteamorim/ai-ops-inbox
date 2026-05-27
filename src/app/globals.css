@@ -3586,6 +3586,46 @@ a {
   color: rgba(226, 232, 240, 0.74) !important;
 }
 
+.settings-v3 .settings-business-card {
+  padding: 14px !important;
+}
+
+.settings-v3 .settings-business-help {
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.settings-v3 .settings-business-section {
+  padding: 10px;
+}
+
+.settings-v3 .lead-types-list {
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.settings-v3 .lead-type-row,
+.settings-v3 .settings-lead-card {
+  padding: 8px;
+  gap: 8px;
+  border-radius: 10px;
+}
+
+.settings-v3 .settings-lead-card-field {
+  gap: 4px;
+}
+
+.settings-v3 .settings-lead-card-field .label {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em !important;
+}
+
+.settings-v3 .settings-business-actions {
+  margin-top: 8px;
+  gap: 8px;
+}
+
 .settings-v3 .nav-links a.active,
 .settings-v3 .nav-links a[aria-current="page"] {
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.9), rgba(34, 197, 94, 0.92)) !important;
