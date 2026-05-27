@@ -3669,3 +3669,18 @@ a {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* Final neutral override for Settings (remove green surfaces) */
+.settings-v3 .settings-business-section,
+.settings-v3 .team-member-card,
+.settings-v3 .settings-inline-form,
+.settings-v3 .setup-panel,
+.settings-v3 .lead-type-row,
+.settings-v3 .settings-lead-card,
+.settings-v3 .request-state,
+.settings-v3 .whatsapp-setup-overview,
+.settings-v3 .agent-settings-note,
+.settings-v3 .preview-row {
+  background: rgba(20, 26, 35, 0.88) !important;
+  border-color: rgba(100, 116, 139, 0.26) !important;
+}
