@@ -318,23 +318,13 @@ export default function NovuaLanding() {
           whileInView="show"
           viewport={{ once: true, amount: 0.6 }}
         >
-          <h2 className="mx-auto max-w-4xl text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
+          <h2 className="mx-auto max-w-4xl text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
             {t("landing_final_title")}
           </h2>
-          <motion.div
-            className="mt-8 inline-block"
-            animate={{
-              boxShadow: [
-                "0 0 30px rgba(34,197,94,0.18)",
-                "0 0 40px rgba(34,197,94,0.32)",
-                "0 0 30px rgba(34,197,94,0.18)",
-              ],
-            }}
-            transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-          >
+          <motion.div className="mt-8 inline-block">
             <Link
               href="/signup"
-              className="rounded-2xl bg-green-500 px-8 py-4 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.25)] transition duration-300 hover:scale-[1.02] hover:bg-green-400"
+              className="inline-flex items-center justify-center rounded-2xl bg-[#16d39a] px-8 py-3.5 text-lg font-semibold text-[#041d16] shadow-[0_14px_34px_rgba(24,211,154,0.28)] transition duration-300 hover:bg-[#23dfaa]"
             >
               {t("landing_cta_free")}
             </Link>
