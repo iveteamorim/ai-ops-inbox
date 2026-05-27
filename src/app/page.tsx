@@ -135,15 +135,15 @@ export default function NovuaLanding() {
         </div>
         <section className="grid items-start gap-10 lg:grid-cols-[0.95fr_1.2fr] lg:gap-14">
           <div className="max-w-xl">
-            <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500 sm:text-xs">
+            <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.22em] text-zinc-500 sm:text-xs">
               {t("landing_brand_kicker")}
             </p>
 
-            <h1 className="text-4xl font-semibold leading-[1.05] text-zinc-100 sm:text-5xl lg:text-[3.4rem] lg:leading-[1.02]">
+            <h1 className="text-4xl font-semibold leading-[1.04] text-zinc-100 sm:text-5xl lg:text-[3.35rem] lg:leading-[1.01]">
               {t("landing_title")}
             </h1>
 
-            <p className="mt-5 max-w-[58ch] text-[1.02rem] leading-7 text-zinc-400 sm:mt-6 sm:text-[1.08rem] sm:leading-8">
+            <p className="mt-5 max-w-[58ch] text-[1.02rem] leading-7 text-zinc-300/85 sm:mt-6 sm:text-[1.08rem] sm:leading-8">
               {t("landing_subtitle")}
             </p>
 
@@ -151,13 +151,11 @@ export default function NovuaLanding() {
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link
                 href="/signup"
-                className="rounded-xl border border-zinc-700 bg-zinc-100 px-6 py-3 text-base font-semibold text-zinc-950 transition duration-300 hover:bg-white"
+                className="inline-flex items-center justify-center rounded-xl border border-white/35 bg-white px-7 py-3.5 text-base font-semibold text-zinc-900 shadow-[0_10px_28px_rgba(255,255,255,0.16)] transition duration-300 hover:bg-zinc-100"
               >
                 {t("landing_cta_free")}
               </Link>
-              <span className="text-sm text-zinc-500">{t("landing_hero_tagline")}</span>
             </div>
-            <p className="mt-3 text-sm text-zinc-600">{t("landing_no_card")}</p>
 
           </div>
 
