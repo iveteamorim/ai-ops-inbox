@@ -62,7 +62,7 @@ export function WorkspaceDangerZone({
   return (
     <article className="card" style={{ marginTop: 12 }}>
       <details>
-        <summary className="label" style={{ color: "var(--danger)", cursor: "pointer" }}>{title}</summary>
+        <summary className="label" style={{ color: "#f87171", fontWeight: 700, cursor: "pointer" }}>{title}</summary>
         <p className="subtitle" style={{ marginTop: 8, marginBottom: 8 }}>{help}</p>
         <p className="note" style={{ marginBottom: 12 }}>{warning}</p>
         <label className="label" htmlFor="workspace-delete-confirmation">

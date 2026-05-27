@@ -998,30 +998,32 @@ export default async function SettingsPage() {
             </>
           ) : (
             <article className="card">
-              <p className="label">
-                {lang === "en" ? "System feedback" : lang === "pt" ? "Feedback do sistema" : "Feedback del sistema"}
-              </p>
-              <p className="subtitle" style={{ marginTop: 8 }}>
-                {lang === "en"
-                  ? "Help us improve Novua. What isn’t working or what should change?"
-                  : lang === "pt"
-                    ? "Ajude-nos a melhorar a Novua. O que não está a funcionar ou o que gostaria de mudar?"
-                    : "Ayúdanos a mejorar Novua. ¿Qué no está funcionando o qué te gustaría cambiar?"}
-              </p>
-              <input
-                className="input"
-                placeholder={
-                  lang === "en"
-                    ? "Write your feedback here..."
+              <details>
+                <summary className="label" style={{ cursor: "pointer" }}>
+                  {lang === "en" ? "System feedback" : lang === "pt" ? "Feedback do sistema" : "Feedback del sistema"}
+                </summary>
+                <p className="subtitle" style={{ marginTop: 8 }}>
+                  {lang === "en"
+                    ? "Help us improve Novua. What isn’t working or what should change?"
                     : lang === "pt"
-                      ? "Escreva o seu feedback aqui..."
-                      : "Escribe tu feedback aquí..."
-                }
-                disabled
-              />
-              <button className="button" type="button" disabled>
-                {lang === "en" ? "Send feedback" : lang === "pt" ? "Enviar feedback" : "Enviar feedback"}
-              </button>
+                      ? "Ajude-nos a melhorar a Novua. O que não está a funcionar ou o que gostaria de mudar?"
+                      : "Ayúdanos a mejorar Novua. ¿Qué no está funcionando o qué te gustaría cambiar?"}
+                </p>
+                <input
+                  className="input"
+                  placeholder={
+                    lang === "en"
+                      ? "Write your feedback here..."
+                      : lang === "pt"
+                        ? "Escreva o seu feedback aqui..."
+                        : "Escribe tu feedback aquí..."
+                  }
+                  disabled
+                />
+                <button className="button" type="button" disabled>
+                  {lang === "en" ? "Send feedback" : lang === "pt" ? "Enviar feedback" : "Enviar feedback"}
+                </button>
+              </details>
             </article>
           )}
 
