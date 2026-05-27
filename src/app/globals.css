@@ -64,9 +64,14 @@ a {
 .nav {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
-  margin-bottom: 24px;
+  margin: 0 auto 24px;
+  padding: 14px 16px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 14, 24, 0.84);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .nav-links,
@@ -88,12 +93,21 @@ a {
 
 .nav a {
   text-decoration: none;
-  color: var(--text);
-  background: rgba(16, 35, 32, 0.8);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 8px 12px;
-  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 11px 18px;
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1;
+}
+
+.nav a.active,
+.nav a[aria-current="page"] {
+  background: linear-gradient(135deg, rgba(226, 232, 240, 0.96), rgba(203, 213, 225, 0.95));
+  color: #0f172a;
+  border-color: rgba(148, 163, 184, 0.52);
 }
 
 /* Modern settings overrides */
@@ -3644,22 +3658,7 @@ a {
   gap: 6px;
 }
 
-.settings-v3 .nav-links a.active,
-.settings-v3 .nav-links a[aria-current="page"] {
-  background: linear-gradient(135deg, rgba(226, 232, 240, 0.95), rgba(203, 213, 225, 0.95)) !important;
-  color: #0f172a !important;
-  border-color: rgba(148, 163, 184, 0.45) !important;
-}
-
-.settings-v3 .nav,
-.settings-v3 .nav-links a,
-.settings-v3 .mini-button,
-.settings-v3 .locale-menu-trigger,
-.settings-v3 .locale-menu button {
-  background-color: rgba(17, 24, 39, 0.86) !important;
-  border-color: rgba(100, 116, 139, 0.32) !important;
-  color: #e5e7eb !important;
-}
+/* keep nav/menu styling consistent with global AppNav across all pages */
 
 .settings-v3 a {
   color: #cbd5e1;
