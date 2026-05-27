@@ -3118,8 +3118,8 @@ a {
 
 .settings-dashboard .nav {
   width: min(980px, 100%);
-  margin: 0 auto 44px;
-  padding: 14px 16px;
+  margin: 0 auto 56px;
+  padding: 10px 12px;
   border-radius: 20px;
   border-color: rgba(255, 255, 255, 0.11);
   background: rgba(9, 16, 14, 0.9);
@@ -3135,10 +3135,10 @@ a {
 .settings-dashboard .nav-links a {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 18px;
-  padding: 13px 28px;
+  padding: 10px 18px;
   background: rgba(255, 255, 255, 0.035);
   color: rgba(255, 255, 255, 0.72);
-  font-size: 1rem;
+  font-size: 0.93rem;
   font-weight: 650;
   line-height: 1;
 }
@@ -3178,7 +3178,7 @@ a {
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.035);
   color: #f8faf5;
-  padding: 12px 18px;
+  padding: 9px 14px;
 }
 
 .settings-dashboard-header {
