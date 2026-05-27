@@ -183,7 +183,7 @@ export function BusinessSetupForm({ initialValue, labels, showInternalTools = fa
         />
       </section>
 
-      <details className="setup-panel settings-business-section" open>
+      <details className="setup-panel settings-business-section">
         <summary className="label settings-business-section-title">{labels.leadTypesBlock}</summary>
         <p className="subtitle settings-business-section-copy">
           {labels.leadTypes}
