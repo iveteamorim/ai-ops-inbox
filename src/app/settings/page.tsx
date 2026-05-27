@@ -734,28 +734,6 @@ export default async function SettingsPage() {
             ))}
           </section>
 
-          <article className={`card settings-hero ${whatsappConnected ? "settings-hero-connected" : "settings-hero-disconnected"}`.trim()}>
-            <div className="settings-hero-content">
-              <div>
-                <p className="settings-hero-title">
-                  {whatsappConnected ? settingsText.heroConnected : settingsText.heroDisconnected}
-                </p>
-                <p className="settings-hero-copy">
-                  {whatsappConnected
-                    ? settingsText.heroConnectedCopy
-                    : settingsText.heroDisconnectedCopy}
-                </p>
-              </div>
-              {canManageTeam ? (
-                <div className="settings-hero-action">
-                  <a className="button" href="#whatsapp-setup">
-                    {whatsappConnected ? settingsText.heroConnectedAction : settingsText.heroDisconnectedAction}
-                  </a>
-                </div>
-              ) : null}
-            </div>
-          </article>
-
           {settingsLoadError ? (
             <article className="card">
               <p className="label">
