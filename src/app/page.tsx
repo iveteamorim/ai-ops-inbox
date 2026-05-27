@@ -134,16 +134,17 @@ export default function NovuaLanding() {
           </Link>
         </div>
         <section className="grid items-start gap-10 lg:grid-cols-[0.95fr_1.2fr] lg:gap-14">
-          <div className="max-w-xl">
-            <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.22em] text-zinc-500 sm:text-xs">
+          <div className="max-w-2xl">
+            <p className="mb-7 inline-flex items-center gap-3 rounded-full border border-emerald-400/25 bg-emerald-400/8 px-6 py-3 text-3xl font-medium text-emerald-300">
+              <span className="h-3 w-3 rounded-full bg-emerald-400" />
               {t("landing_brand_kicker")}
             </p>
 
-            <h1 className="text-4xl font-semibold leading-[1.04] text-zinc-100 sm:text-5xl lg:text-[3.35rem] lg:leading-[1.01]">
+            <h1 className="max-w-[12ch] text-6xl font-semibold leading-[0.96] text-zinc-100 sm:text-7xl lg:text-[7.2rem]">
               {t("landing_title")}
             </h1>
 
-            <p className="mt-5 max-w-[58ch] text-[1.02rem] leading-7 text-zinc-300/85 sm:mt-6 sm:text-[1.08rem] sm:leading-8">
+            <p className="mt-8 max-w-[26ch] text-2xl leading-[1.45] text-zinc-400 sm:text-[2.55rem]">
               {t("landing_subtitle")}
             </p>
 
@@ -151,7 +152,7 @@ export default function NovuaLanding() {
             <div className="mt-10 flex">
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center rounded-3xl bg-[#18D39A] px-14 py-5 text-[2rem] font-semibold text-[#06241B] shadow-[0_24px_70px_rgba(24,211,154,0.34)] transition duration-300 hover:bg-[#28e0aa]"
+                className="inline-flex items-center justify-center rounded-[26px] bg-[#16d39a] px-14 py-6 text-[2.7rem] font-semibold text-[#041d16] shadow-[0_24px_70px_rgba(24,211,154,0.34)] transition duration-300 hover:bg-[#23dfaa]"
               >
                 {t("landing_cta_free")}
               </Link>
