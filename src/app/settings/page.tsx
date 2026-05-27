@@ -747,6 +747,7 @@ export default async function SettingsPage() {
                     ? "Alguns dados do workspace ainda não puderam ser carregados. As ações principais continuam disponíveis."
                     : "Algunos datos del workspace todavía no se han podido cargar. Las acciones principales siguen disponibles."}
               </p>
+              </details>
             </article>
           ) : null}
 
@@ -1021,7 +1022,6 @@ export default async function SettingsPage() {
               <button className="button" type="button" disabled>
                 {lang === "en" ? "Send feedback" : lang === "pt" ? "Enviar feedback" : "Enviar feedback"}
               </button>
-              </details>
             </article>
           )}
 
