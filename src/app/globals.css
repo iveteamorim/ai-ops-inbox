@@ -3532,7 +3532,7 @@ a {
 
 .settings-v3 .settings-hero {
   display: block !important;
-  border-color: rgba(94, 234, 212, 0.2) !important;
+  border-color: rgba(100, 116, 139, 0.24) !important;
   background: linear-gradient(135deg, rgba(19, 30, 41, 0.94), rgba(12, 20, 30, 0.95)) !important;
 }
 
@@ -3566,14 +3566,14 @@ a {
 .settings-v3 .button,
 .settings-v3 button.button {
   border-radius: 10px !important;
-  background: linear-gradient(135deg, #34d399, #10b981) !important;
-  color: #031b16 !important;
-  border-color: rgba(52, 211, 153, 0.58) !important;
+  background: linear-gradient(135deg, #e5e7eb, #cbd5e1) !important;
+  color: #0f172a !important;
+  border-color: rgba(148, 163, 184, 0.5) !important;
 }
 
 .settings-v3 .button:hover,
 .settings-v3 button.button:hover {
-  background: linear-gradient(135deg, #6ee7b7, #34d399) !important;
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0) !important;
 }
 
 .settings-v3 .label {
@@ -3628,21 +3628,21 @@ a {
 
 .settings-v3 .nav-links a.active,
 .settings-v3 .nav-links a[aria-current="page"] {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.9), rgba(34, 197, 94, 0.92)) !important;
-  color: #052e25 !important;
-  border-color: rgba(16, 185, 129, 0.45) !important;
+  background: linear-gradient(135deg, rgba(226, 232, 240, 0.95), rgba(203, 213, 225, 0.95)) !important;
+  color: #0f172a !important;
+  border-color: rgba(148, 163, 184, 0.45) !important;
 }
 
 .settings-v3 a {
-  color: #6ee7b7;
+  color: #cbd5e1;
 }
 
 .settings-v3 input:focus,
 .settings-v3 select:focus,
 .settings-v3 textarea:focus,
 .settings-v3 .input:focus {
-  border-color: rgba(16, 185, 129, 0.8) !important;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
+  border-color: rgba(148, 163, 184, 0.8) !important;
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.2) !important;
 }
 
 @media (max-width: 1100px) {
