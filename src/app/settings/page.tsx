@@ -738,6 +738,79 @@ export default async function SettingsPage() {
             </article>
           ) : null}
 
+          <article
+            className={`card settings-channel-card ${whatsappConnected ? "settings-channel-connected" : "settings-channel-pending"}`.trim()}
+            id="whatsapp-setup"
+          >
+            <p className="label">{settingsText.channelTitle}</p>
+            <p className="subtitle" style={{ marginBottom: 12 }}>
+              {settingsText.channelHelp}
+            </p>
+            {whatsappChannel ? (
+              <div className="preview-row" style={{ marginBottom: 12 }}>
+                <span>{formatChannel(whatsappChannel.type, t)}</span>
+                <span className={`badge ${whatsappChannel.is_active ? "status-active" : "status-no-response"}`}>
+                  {whatsappChannel.is_active ? t("settings_active") : t("settings_disconnected")}
+                </span>
+              </div>
+            ) : null}
+            {whatsappConnected ? (
+              <div className="preview-row" style={{ marginBottom: 12 }}>
+                <span>{copy.whatsappNumber}</span>
+                <span>{whatsappDisplayNumber ?? "-"}</span>
+              </div>
+            ) : null}
+            {canManageTeam ? (
+              <>
+                {embeddedSignupConfig.enabled ? (
+                  <WhatsAppEmbeddedSignupCard
+                    appId={embeddedSignupConfig.appId}
+                    configId={embeddedSignupConfig.configId}
+                    apiVersion={embeddedSignupConfig.apiVersion}
+                    isConnected={whatsappConnected}
+                    connectLabel={copy.embeddedConnectAction}
+                    reconnectLabel={copy.embeddedReconnectAction}
+                    readyLabel={copy.embeddedSdkPreparing}
+                    loadingLabel={copy.embeddedSdkLoading}
+                    launchErrorLabel={copy.embeddedConnectError}
+                    saveErrorLabel={copy.embeddedSaveError}
+                    connectedLabel={copy.embeddedConnectSuccess}
+                    helperLabel={copy.embeddedConnectHelp}
+                    fallbackLabel={copy.embeddedFallbackTitle}
+                    fallbackHelp={copy.embeddedFallbackHelp}
+                  />
+                ) : null}
+                {!embeddedSignupConfig.enabled ? (
+                  <div>
+                    <SetupRequestButton
+                      idleLabel={copy.requestWhatsAppSetup}
+                      updateLabel={copy.updateWhatsAppSetup}
+                      requestedLabel={copy.setupRequested}
+                      requestedNote={copy.setupRequestedNote}
+                      numberLabel={copy.setupNumberLabel}
+                      numberPlaceholder={copy.setupNumberPlaceholder}
+                      metaVerifiedLabel={copy.setupMetaVerifiedLabel}
+                      metaVerifiedYes={copy.setupMetaVerifiedYes}
+                      metaVerifiedNo={copy.setupMetaVerifiedNo}
+                      notesLabel={copy.setupNotesLabel}
+                      notesPlaceholder={copy.setupNotesPlaceholder}
+                      phoneRequiredError={copy.setupPhoneRequired}
+                      requestErrorLabel={copy.requestError}
+                      inProgressLabel={copy.setupInProgress}
+                      existingStatus={whatsappSetupRequest?.status ?? null}
+                      existingNotes={whatsappSetupRequest?.notes ?? null}
+                    />
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <div className="setup-state">
+                <p className="note">{copy.channelUsage}</p>
+                <p className="note">{copy.channelsNote}</p>
+              </div>
+            )}
+          </article>
+
           <div className="settings-main-grid">
             {canManageTeam ? (
               <BusinessSetupForm
@@ -855,79 +928,6 @@ export default async function SettingsPage() {
               ) : null}
             </article>
           </div>
-
-          <article
-            className={`card settings-channel-card ${whatsappConnected ? "settings-channel-connected" : "settings-channel-pending"}`.trim()}
-            id="whatsapp-setup"
-          >
-            <p className="label">{settingsText.channelTitle}</p>
-            <p className="subtitle" style={{ marginBottom: 12 }}>
-              {settingsText.channelHelp}
-            </p>
-            {whatsappChannel ? (
-              <div className="preview-row" style={{ marginBottom: 12 }}>
-                <span>{formatChannel(whatsappChannel.type, t)}</span>
-                <span className={`badge ${whatsappChannel.is_active ? "status-active" : "status-no-response"}`}>
-                  {whatsappChannel.is_active ? t("settings_active") : t("settings_disconnected")}
-                </span>
-              </div>
-            ) : null}
-            {whatsappConnected ? (
-              <div className="preview-row" style={{ marginBottom: 12 }}>
-                <span>{copy.whatsappNumber}</span>
-                <span>{whatsappDisplayNumber ?? "-"}</span>
-              </div>
-            ) : null}
-            {canManageTeam ? (
-              <>
-                {embeddedSignupConfig.enabled ? (
-                  <WhatsAppEmbeddedSignupCard
-                    appId={embeddedSignupConfig.appId}
-                    configId={embeddedSignupConfig.configId}
-                    apiVersion={embeddedSignupConfig.apiVersion}
-                    isConnected={whatsappConnected}
-                    connectLabel={copy.embeddedConnectAction}
-                    reconnectLabel={copy.embeddedReconnectAction}
-                    readyLabel={copy.embeddedSdkPreparing}
-                    loadingLabel={copy.embeddedSdkLoading}
-                    launchErrorLabel={copy.embeddedConnectError}
-                    saveErrorLabel={copy.embeddedSaveError}
-                    connectedLabel={copy.embeddedConnectSuccess}
-                    helperLabel={copy.embeddedConnectHelp}
-                    fallbackLabel={copy.embeddedFallbackTitle}
-                    fallbackHelp={copy.embeddedFallbackHelp}
-                  />
-                ) : null}
-                {!embeddedSignupConfig.enabled ? (
-                  <div>
-                    <SetupRequestButton
-                      idleLabel={copy.requestWhatsAppSetup}
-                      updateLabel={copy.updateWhatsAppSetup}
-                      requestedLabel={copy.setupRequested}
-                      requestedNote={copy.setupRequestedNote}
-                      numberLabel={copy.setupNumberLabel}
-                      numberPlaceholder={copy.setupNumberPlaceholder}
-                      metaVerifiedLabel={copy.setupMetaVerifiedLabel}
-                      metaVerifiedYes={copy.setupMetaVerifiedYes}
-                      metaVerifiedNo={copy.setupMetaVerifiedNo}
-                      notesLabel={copy.setupNotesLabel}
-                      notesPlaceholder={copy.setupNotesPlaceholder}
-                      phoneRequiredError={copy.setupPhoneRequired}
-                      requestErrorLabel={copy.requestError}
-                      inProgressLabel={copy.setupInProgress}
-                      existingStatus={whatsappSetupRequest?.status ?? null}
-                      existingNotes={whatsappSetupRequest?.notes ?? null}
-                    />
-                  </div>
-                ) : null}
-              </>
-            ) : (
-              <div className="setup-state">
-                <p className="note">{copy.channelUsage}</p>
-                <p className="note">{copy.channelsNote}</p>
-              </div>
-            )}
-          </article>
 
           {showCustomerFeedback ? (
             <>
