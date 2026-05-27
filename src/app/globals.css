@@ -3520,7 +3520,7 @@ a {
 
 .settings-v3 .settings-dashboard-inner {
   max-width: 1180px !important;
-  gap: 18px !important;
+  gap: 14px !important;
 }
 
 .settings-v3 .card {
@@ -3528,6 +3528,7 @@ a {
   background: linear-gradient(180deg, rgba(17, 21, 29, 0.96), rgba(12, 16, 23, 0.94)) !important;
   border-radius: 12px !important;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.34) !important;
+  padding: 16px !important;
 }
 
 .settings-v3 .settings-hero {
@@ -3543,13 +3544,13 @@ a {
 
 .settings-v3 .settings-main-grid {
   grid-template-columns: 1fr !important;
-  gap: 14px !important;
+  gap: 12px !important;
 }
 
 .settings-v3 .settings-metric-card {
-  min-height: 140px !important;
+  min-height: 124px !important;
   border-radius: 12px !important;
-  padding: 14px !important;
+  padding: 12px !important;
   background: linear-gradient(180deg, rgba(24, 30, 39, 0.94), rgba(17, 22, 30, 0.92)) !important;
   border: 1px solid rgba(100, 116, 139, 0.24) !important;
 }
@@ -3578,6 +3579,8 @@ a {
   background: linear-gradient(135deg, #e5e7eb, #cbd5e1) !important;
   color: #0f172a !important;
   border-color: rgba(148, 163, 184, 0.5) !important;
+  min-height: 42px !important;
+  font-weight: 600 !important;
 }
 
 .settings-v3 .button:hover,
@@ -3586,13 +3589,15 @@ a {
 }
 
 .settings-v3 .label {
-  letter-spacing: 0.08em !important;
+  letter-spacing: 0.05em !important;
   color: #cbd5e1 !important;
+  font-size: 0.76rem !important;
 }
 
 .settings-v3 .subtitle,
 .settings-v3 .note {
   color: rgba(229, 231, 235, 0.78) !important;
+  line-height: 1.45 !important;
 }
 
 .settings-v3 .settings-kicker {
@@ -3635,8 +3640,8 @@ a {
 }
 
 .settings-v3 .settings-business-actions {
-  margin-top: 8px;
-  gap: 8px;
+  margin-top: 6px;
+  gap: 6px;
 }
 
 .settings-v3 .nav-links a.active,
