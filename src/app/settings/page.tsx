@@ -813,32 +813,41 @@ export default async function SettingsPage() {
 
           <div className="settings-main-grid">
             {canManageTeam ? (
-              <BusinessSetupForm
-                initialValue={businessSetup}
-                showInternalTools={canSeeInternalSetup}
-                labels={{
-                  title: copy.businessSetupTitle,
-                  help: copy.businessSetupHelp,
-                  businessName: copy.businessSetupName,
-                  leadTypesBlock: copy.businessSetupLeadTypesBlock,
-                  leadTypes: copy.businessSetupLeadTypes,
-                  addLeadType: copy.businessSetupAddLeadType,
-                  leadTypeName: copy.businessSetupLeadTypeName,
-                  estimatedValue: copy.businessSetupEstimatedValue,
-                  removeLeadType: copy.businessSetupRemoveLeadType,
-                  save: copy.businessSetupSave,
-                  saving: copy.businessSetupSaving,
-                  backfill: copy.businessSetupBackfill,
-                  backfilling: copy.businessSetupBackfilling,
-                  backfillSuccess: copy.businessSetupBackfillSuccess,
-                  reseedDemo: copy.businessSetupReseedDemo,
-                  reseedingDemo: copy.businessSetupReseedingDemo,
-                  reseedDemoSuccess: copy.businessSetupReseedDemoSuccess,
-                  reseedDemoConfirm: copy.businessSetupReseedDemoConfirm,
-                  success: copy.businessSetupSuccess,
-                  error: copy.businessSetupError,
-                }}
-              />
+              <article className="card">
+                <details>
+                  <summary className="label" style={{ cursor: "pointer" }}>
+                    {copy.businessSetupTitle}
+                  </summary>
+                  <div style={{ marginTop: 10 }}>
+                    <BusinessSetupForm
+                      initialValue={businessSetup}
+                      showInternalTools={canSeeInternalSetup}
+                      labels={{
+                        title: copy.businessSetupTitle,
+                        help: copy.businessSetupHelp,
+                        businessName: copy.businessSetupName,
+                        leadTypesBlock: copy.businessSetupLeadTypesBlock,
+                        leadTypes: copy.businessSetupLeadTypes,
+                        addLeadType: copy.businessSetupAddLeadType,
+                        leadTypeName: copy.businessSetupLeadTypeName,
+                        estimatedValue: copy.businessSetupEstimatedValue,
+                        removeLeadType: copy.businessSetupRemoveLeadType,
+                        save: copy.businessSetupSave,
+                        saving: copy.businessSetupSaving,
+                        backfill: copy.businessSetupBackfill,
+                        backfilling: copy.businessSetupBackfilling,
+                        backfillSuccess: copy.businessSetupBackfillSuccess,
+                        reseedDemo: copy.businessSetupReseedDemo,
+                        reseedingDemo: copy.businessSetupReseedingDemo,
+                        reseedDemoSuccess: copy.businessSetupReseedDemoSuccess,
+                        reseedDemoConfirm: copy.businessSetupReseedDemoConfirm,
+                        success: copy.businessSetupSuccess,
+                        error: copy.businessSetupError,
+                      }}
+                    />
+                  </div>
+                </details>
+              </article>
             ) : (
               <article className="card">
                 <p className="label">{copy.accountTitle}</p>
@@ -865,67 +874,73 @@ export default async function SettingsPage() {
             )}
 
             <article className="card">
-              <p className="label">{settingsText.teamTitle}</p>
-              {team.length === 0 ? (
-                <p className="subtitle">{copy.noTeamMembers}</p>
-              ) : (
-                <TeamMembersList
-                  members={team}
-                  currentUserId={context.user.id}
-                  currentUserRole={context.profile.role}
-                  activeLabel={t("settings_active")}
-                  ownerLabel={copy.inviteOwner}
-                  adminLabel={copy.inviteAdmin}
-                  agentLabel={copy.inviteAgent}
-                  unnamedLabel={settingsText.unnamedUser}
-                  detailLabel={settingsText.detail}
-                  openLabel={settingsText.open}
-                  noReplyLabel={settingsText.noReply}
-                  wonLabel={settingsText.won}
-                  lostLabel={settingsText.lost}
-                  reassignPlaceholder={copy.reassignPlaceholder}
-                  reassignLabel={copy.reassignAction}
-                  reassigningLabel={copy.reassigningAction}
-                  reassignSuccess={copy.reassignSuccess}
-                  reassignError={copy.reassignError}
-                  removeLabel={copy.removeUser}
-                  removingLabel={copy.removingUser}
-                  removeSuccess={copy.removeUserSuccess}
-                  removeError={copy.removeUserError}
-                />
-              )}
-              {canManageTeam ? (
-                <div style={{ marginTop: 12 }}>
-                  <InviteUserForm
-                    title={copy.inviteTitle}
-                    seatsNote={seatsNote}
-                    emailLabel={copy.inviteEmail}
-                    submitLabel={copy.inviteUser}
-                    pendingLabel={copy.invitePending}
-                    successLabel={copy.inviteSuccess}
-                    adminLabel={copy.inviteAdmin}
-                    agentLabel={copy.inviteAgent}
-                    errorGeneric={copy.inviteError}
-                    seatLimitError={copy.seatLimitError}
-                  />
+              <details>
+                <summary className="label" style={{ cursor: "pointer" }}>
+                  {settingsText.teamTitle}
+                </summary>
+                <div style={{ marginTop: 10 }}>
+                  {team.length === 0 ? (
+                    <p className="subtitle">{copy.noTeamMembers}</p>
+                  ) : (
+                    <TeamMembersList
+                      members={team}
+                      currentUserId={context.user.id}
+                      currentUserRole={context.profile.role}
+                      activeLabel={t("settings_active")}
+                      ownerLabel={copy.inviteOwner}
+                      adminLabel={copy.inviteAdmin}
+                      agentLabel={copy.inviteAgent}
+                      unnamedLabel={settingsText.unnamedUser}
+                      detailLabel={settingsText.detail}
+                      openLabel={settingsText.open}
+                      noReplyLabel={settingsText.noReply}
+                      wonLabel={settingsText.won}
+                      lostLabel={settingsText.lost}
+                      reassignPlaceholder={copy.reassignPlaceholder}
+                      reassignLabel={copy.reassignAction}
+                      reassigningLabel={copy.reassigningAction}
+                      reassignSuccess={copy.reassignSuccess}
+                      reassignError={copy.reassignError}
+                      removeLabel={copy.removeUser}
+                      removingLabel={copy.removingUser}
+                      removeSuccess={copy.removeUserSuccess}
+                      removeError={copy.removeUserError}
+                    />
+                  )}
+                  {canManageTeam ? (
+                    <div style={{ marginTop: 12 }}>
+                      <InviteUserForm
+                        title={copy.inviteTitle}
+                        seatsNote={seatsNote}
+                        emailLabel={copy.inviteEmail}
+                        submitLabel={copy.inviteUser}
+                        pendingLabel={copy.invitePending}
+                        successLabel={copy.inviteSuccess}
+                        adminLabel={copy.inviteAdmin}
+                        agentLabel={copy.inviteAgent}
+                        errorGeneric={copy.inviteError}
+                        seatLimitError={copy.seatLimitError}
+                      />
+                    </div>
+                  ) : null}
+                  {canManageTeam && pendingInvites.length > 0 ? (
+                    <PendingInvitesList
+                      invites={pendingInvites}
+                      title={copy.pendingInvites}
+                      ownerLabel={copy.inviteOwner}
+                      adminLabel={copy.inviteAdmin}
+                      agentLabel={copy.inviteAgent}
+                      resendLabel={copy.resendInvite}
+                      cancelLabel={copy.cancelInvite}
+                      sendingLabel={copy.resendPending}
+                      cancellingLabel={copy.cancelPending}
+                      successResent={copy.inviteResent}
+                      successCancelled={copy.inviteCancelled}
+                      errorGeneric={copy.inviteError}
+                    />
+                  ) : null}
                 </div>
-              ) : null}
-              {canManageTeam && pendingInvites.length > 0 ? (
-                <PendingInvitesList
-                  invites={pendingInvites}
-                  title={copy.pendingInvites}
-                  ownerLabel={copy.inviteOwner}
-                  adminLabel={copy.inviteAdmin}
-                  agentLabel={copy.inviteAgent}
-                  resendLabel={copy.resendInvite}
-                  cancelLabel={copy.cancelInvite}
-                  sendingLabel={copy.resendPending}
-                  cancellingLabel={copy.cancelPending}
-                  successResent={copy.inviteResent}
-                  successCancelled={copy.inviteCancelled}
-                  errorGeneric={copy.inviteError}
-                />
-              ) : null}
+              </details>
             </article>
           </div>
 
