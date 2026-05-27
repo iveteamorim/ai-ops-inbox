@@ -836,15 +836,15 @@ export const dictionary = {
     landing_cta_text:
       "Activate Novua Inbox, prioritize higher-value leads and reduce losses from day one.",
     landing_onboarding_eyebrow: "Onboarding",
-    landing_onboarding_title: "Guided onboarding to activate your real channel",
+    landing_onboarding_title: "We activate your real channel with your team",
     landing_onboarding_subtitle:
-      "We configure Novua with you so you do not miss real opportunities.",
+      "We configure Novua around your current workflow so your team prioritizes the right conversation from day one.",
     landing_onboarding_goal:
-      "Your team already replies. The problem is what they reply to.",
-    landing_onboarding_note_title: "Real channel with guided onboarding.",
+      "Your team already replies. The issue is prioritization.",
+    landing_onboarding_note_title: "Real channel activation with guided onboarding.",
     landing_onboarding_note_text:
       "Core product is self-serve. Real channel activation and final testing happen with you.",
-    landing_onboarding_tagline: "Guided onboarding · WhatsApp first",
+    landing_onboarding_tagline: "WhatsApp-first onboarding",
     landing_onboarding_cta: "Request demo",
     landing_onboarding_view: "View example",
     landing_how_eyebrow: "How it works",
