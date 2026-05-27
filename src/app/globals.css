@@ -3684,3 +3684,16 @@ a {
   background: rgba(20, 26, 35, 0.88) !important;
   border-color: rgba(100, 116, 139, 0.26) !important;
 }
+
+.settings-v3 details,
+.settings-v3 details[open],
+.settings-v3 .team-member-stats,
+.settings-v3 .team-member-stats-grid,
+.settings-v3 .setup-panel[open] {
+  background: transparent !important;
+  border-color: rgba(100, 116, 139, 0.26) !important;
+}
+
+.settings-v3 summary {
+  color: #d1d5db !important;
+}
