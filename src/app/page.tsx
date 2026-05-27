@@ -134,25 +134,25 @@ export default function NovuaLanding() {
           </Link>
         </div>
         <section className="grid items-start gap-10 lg:grid-cols-[0.95fr_1.2fr] lg:gap-14">
-          <div className="max-w-2xl">
-            <p className="mb-7 inline-flex items-center gap-3 rounded-full border border-emerald-400/25 bg-emerald-400/8 px-6 py-3 text-3xl font-medium text-emerald-300">
-              <span className="h-3 w-3 rounded-full bg-emerald-400" />
+          <div className="max-w-xl">
+            <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/8 px-4 py-2 text-base font-medium text-emerald-300">
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
               {t("landing_brand_kicker")}
             </p>
 
-            <h1 className="max-w-[12ch] text-5xl font-semibold leading-[0.98] text-zinc-100 sm:text-6xl lg:text-[5.2rem]">
+            <h1 className="max-w-[12ch] text-4xl font-semibold leading-[1.02] text-zinc-100 sm:text-5xl lg:text-[4.5rem]">
               {t("landing_title")}
             </h1>
 
-            <p className="mt-8 max-w-[26ch] text-2xl leading-[1.45] text-zinc-400 sm:text-[2.55rem]">
+            <p className="mt-6 max-w-[34ch] text-base leading-8 text-zinc-400 sm:text-lg">
               {t("landing_subtitle")}
             </p>
 
 
-            <div className="mt-10 flex">
+            <div className="mt-8 flex">
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center rounded-[26px] bg-[#16d39a] px-14 py-6 text-[2.7rem] font-semibold text-[#041d16] shadow-[0_24px_70px_rgba(24,211,154,0.34)] transition duration-300 hover:bg-[#23dfaa]"
+                className="inline-flex items-center justify-center rounded-2xl bg-[#16d39a] px-8 py-3.5 text-lg font-semibold text-[#041d16] shadow-[0_14px_34px_rgba(24,211,154,0.28)] transition duration-300 hover:bg-[#23dfaa]"
               >
                 {t("landing_cta_free")}
               </Link>
