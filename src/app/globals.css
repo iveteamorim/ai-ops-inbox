@@ -3646,6 +3646,16 @@ a {
   border-color: rgba(148, 163, 184, 0.45) !important;
 }
 
+.settings-v3 .nav,
+.settings-v3 .nav-links a,
+.settings-v3 .mini-button,
+.settings-v3 .locale-menu-trigger,
+.settings-v3 .locale-menu button {
+  background-color: rgba(17, 24, 39, 0.86) !important;
+  border-color: rgba(100, 116, 139, 0.32) !important;
+  color: #e5e7eb !important;
+}
+
 .settings-v3 a {
   color: #cbd5e1;
 }
