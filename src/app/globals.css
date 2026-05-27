@@ -3527,10 +3527,7 @@ a {
 
 /* Final lock layer to avoid legacy overrides */
 .settings-v3.settings-dashboard {
-  background:
-    radial-gradient(980px 380px at 90% -10%, rgba(148, 163, 184, 0.08), transparent 66%),
-    radial-gradient(820px 340px at -8% 12%, rgba(100, 116, 139, 0.07), transparent 72%),
-    #080b10 !important;
+  background: transparent !important;
 }
 
 .settings-v3 .settings-dashboard-inner {
@@ -3539,8 +3536,8 @@ a {
 }
 
 .settings-v3 .card {
-  border: 1px solid rgba(100, 116, 139, 0.22) !important;
-  background: linear-gradient(180deg, rgba(17, 21, 29, 0.96), rgba(12, 16, 23, 0.94)) !important;
+  border: 1px solid var(--line) !important;
+  background: var(--card) !important;
   border-radius: 12px !important;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.34) !important;
   padding: 16px !important;
@@ -3548,8 +3545,8 @@ a {
 
 .settings-v3 .settings-hero {
   display: block !important;
-  border-color: rgba(100, 116, 139, 0.24) !important;
-  background: linear-gradient(135deg, rgba(19, 30, 41, 0.94), rgba(12, 20, 30, 0.95)) !important;
+  border-color: var(--line) !important;
+  background: var(--card) !important;
 }
 
 .settings-v3 .settings-metric-grid {
@@ -3566,8 +3563,8 @@ a {
   min-height: 124px !important;
   border-radius: 12px !important;
   padding: 12px !important;
-  background: linear-gradient(180deg, rgba(24, 30, 39, 0.94), rgba(17, 22, 30, 0.92)) !important;
-  border: 1px solid rgba(100, 116, 139, 0.24) !important;
+  background: rgba(16, 28, 26, 0.78) !important;
+  border: 1px solid var(--line) !important;
 }
 
 .settings-v3 .settings-metric-status {
@@ -3591,16 +3588,16 @@ a {
 .settings-v3 .button,
 .settings-v3 button.button {
   border-radius: 10px !important;
-  background: linear-gradient(135deg, #e5e7eb, #cbd5e1) !important;
-  color: #0f172a !important;
-  border-color: rgba(148, 163, 184, 0.5) !important;
+  background: #22c55e !important;
+  color: #062113 !important;
+  border-color: rgba(34, 197, 94, 0.55) !important;
   min-height: 42px !important;
   font-weight: 600 !important;
 }
 
 .settings-v3 .button:hover,
 .settings-v3 button.button:hover {
-  background: linear-gradient(135deg, #f8fafc, #e2e8f0) !important;
+  background: #34d399 !important;
 }
 
 .settings-v3 .label {
@@ -3696,8 +3693,8 @@ a {
 .settings-v3 .whatsapp-setup-overview,
 .settings-v3 .agent-settings-note,
 .settings-v3 .preview-row {
-  background: rgba(20, 26, 35, 0.88) !important;
-  border-color: rgba(100, 116, 139, 0.26) !important;
+  background: rgba(11, 22, 21, 0.9) !important;
+  border-color: var(--line) !important;
 }
 
 .settings-v3 details,
