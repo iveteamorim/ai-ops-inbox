@@ -135,48 +135,30 @@ export default function NovuaLanding() {
         </div>
         <section className="grid items-start gap-10 lg:grid-cols-[0.95fr_1.2fr] lg:gap-14">
           <div className="max-w-xl">
-            <p className="mb-3 text-xs uppercase tracking-[0.16em] text-green-400 sm:text-sm sm:tracking-[0.24em]">
+            <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500 sm:text-xs">
               {t("landing_brand_kicker")}
             </p>
 
-            <h1 className="text-4xl font-semibold leading-[1.02] text-white sm:text-5xl lg:text-6xl lg:leading-[0.95]">
+            <h1 className="text-4xl font-semibold leading-[1.05] text-zinc-100 sm:text-5xl lg:text-[3.4rem] lg:leading-[1.02]">
               {t("landing_title")}
             </h1>
 
-            <p className="mt-5 text-base leading-7 text-zinc-300 sm:mt-6 sm:text-lg sm:leading-8">
+            <p className="mt-5 max-w-[58ch] text-[1.02rem] leading-7 text-zinc-400 sm:mt-6 sm:text-[1.08rem] sm:leading-8">
               {t("landing_subtitle")}
             </p>
 
-            <p className="mt-5 text-lg font-semibold leading-7 text-yellow-400 sm:mt-6 sm:text-xl sm:leading-8">
-              {t("landing_hero_highlight")}
-            </p>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-             
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link
                 href="/signup"
-                className="rounded-2xl border border-white/10 px-6 py-3 text-base font-semibold text-white transition duration-300 hover:border-white/25 hover:bg-white/[0.06]"
+                className="rounded-xl border border-zinc-700 bg-zinc-100 px-6 py-3 text-base font-semibold text-zinc-950 transition duration-300 hover:bg-white"
               >
                 {t("landing_cta_free")}
               </Link>
-              <span className="text-sm text-zinc-400">{t("landing_hero_tagline")}</span>
+              <span className="text-sm text-zinc-500">{t("landing_hero_tagline")}</span>
             </div>
-            <p className="mt-3 text-sm text-zinc-500">{t("landing_no_card")}</p>
+            <p className="mt-3 text-sm text-zinc-600">{t("landing_no_card")}</p>
 
-            <div className="mt-8 flex flex-wrap gap-x-5 gap-y-3 text-sm text-zinc-400 sm:mt-10 sm:gap-x-6">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-green-400">↓ 42%</span>
-                <span>{t("landing_response_time").toLowerCase()}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-green-400">↑ 28%</span>
-                <span>{t("landing_converted").toLowerCase()}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-green-400">{t("landing_visibility_metric")}</span>
-                <span>{t("landing_panel_2_title").toLowerCase()}</span>
-              </div>
-            </div>
           </div>
 
           <div className="relative">
