@@ -61,33 +61,35 @@ export function WorkspaceDangerZone({
 
   return (
     <article className="card" style={{ marginTop: 12 }}>
-      <p className="label" style={{ color: "var(--danger)" }}>{title}</p>
-      <p className="subtitle" style={{ marginBottom: 8 }}>{help}</p>
-      <p className="note" style={{ marginBottom: 12 }}>{warning}</p>
-      <label className="label" htmlFor="workspace-delete-confirmation">
-        {confirmationLabel}
-      </label>
-      <input
-        id="workspace-delete-confirmation"
-        className="input"
-        type="text"
-        value={confirmation}
-        onChange={(event) => setConfirmation(event.target.value)}
-        placeholder={confirmationPlaceholder}
-        autoComplete="off"
-      />
-      <div className="actions" style={{ marginTop: 12 }}>
-        <button
-          className="mini-button mini-danger"
-          type="button"
-          disabled={isPending || !canDelete}
-          onClick={handleDelete}
-        >
-          {isPending ? deletingLabel : deleteLabel}
-        </button>
-      </div>
-      {message ? <p className="note">{message}</p> : null}
-      {error ? <p className="note">{error}</p> : null}
+      <details>
+        <summary className="label" style={{ color: "var(--danger)", cursor: "pointer" }}>{title}</summary>
+        <p className="subtitle" style={{ marginTop: 8, marginBottom: 8 }}>{help}</p>
+        <p className="note" style={{ marginBottom: 12 }}>{warning}</p>
+        <label className="label" htmlFor="workspace-delete-confirmation">
+          {confirmationLabel}
+        </label>
+        <input
+          id="workspace-delete-confirmation"
+          className="input"
+          type="text"
+          value={confirmation}
+          onChange={(event) => setConfirmation(event.target.value)}
+          placeholder={confirmationPlaceholder}
+          autoComplete="off"
+        />
+        <div className="actions" style={{ marginTop: 12 }}>
+          <button
+            className="mini-button mini-danger"
+            type="button"
+            disabled={isPending || !canDelete}
+            onClick={handleDelete}
+          >
+            {isPending ? deletingLabel : deleteLabel}
+          </button>
+        </div>
+        {message ? <p className="note">{message}</p> : null}
+        {error ? <p className="note">{error}</p> : null}
+      </details>
     </article>
   );
 }

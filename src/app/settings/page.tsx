@@ -736,9 +736,10 @@ export default async function SettingsPage() {
 
           {settingsLoadError ? (
             <article className="card">
-              <p className="label">
+              <details>
+              <summary className="label" style={{ cursor: "pointer" }}>
                 {lang === "en" ? "Settings loaded with limits" : lang === "pt" ? "Configurações carregadas com limitações" : "Configuración cargada con limitaciones"}
-              </p>
+              </summary>
               <p className="subtitle" style={{ marginBottom: 0 }}>
                 {lang === "en"
                   ? "Some workspace data could not be loaded yet. Core actions remain available."
@@ -999,7 +1000,7 @@ export default async function SettingsPage() {
               <p className="label">
                 {lang === "en" ? "System feedback" : lang === "pt" ? "Feedback do sistema" : "Feedback del sistema"}
               </p>
-              <p className="subtitle">
+              <p className="subtitle" style={{ marginTop: 8 }}>
                 {lang === "en"
                   ? "Help us improve Novua. What isn’t working or what should change?"
                   : lang === "pt"
@@ -1020,6 +1021,7 @@ export default async function SettingsPage() {
               <button className="button" type="button" disabled>
                 {lang === "en" ? "Send feedback" : lang === "pt" ? "Enviar feedback" : "Enviar feedback"}
               </button>
+              </details>
             </article>
           )}
 
