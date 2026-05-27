@@ -3513,9 +3513,9 @@ a {
 /* Final lock layer to avoid legacy overrides */
 .settings-v3.settings-dashboard {
   background:
-    radial-gradient(980px 380px at 90% -10%, rgba(16, 185, 129, 0.09), transparent 66%),
-    radial-gradient(820px 340px at -8% 12%, rgba(5, 150, 105, 0.08), transparent 72%),
-    #090d12 !important;
+    radial-gradient(980px 380px at 90% -10%, rgba(148, 163, 184, 0.08), transparent 66%),
+    radial-gradient(820px 340px at -8% 12%, rgba(100, 116, 139, 0.07), transparent 72%),
+    #080b10 !important;
 }
 
 .settings-v3 .settings-dashboard-inner {
@@ -3524,16 +3524,16 @@ a {
 }
 
 .settings-v3 .card {
-  border: 1px solid rgba(113, 128, 150, 0.2) !important;
-  background: linear-gradient(180deg, rgba(16, 20, 28, 0.95), rgba(11, 15, 22, 0.92)) !important;
+  border: 1px solid rgba(100, 116, 139, 0.22) !important;
+  background: linear-gradient(180deg, rgba(17, 21, 29, 0.96), rgba(12, 16, 23, 0.94)) !important;
   border-radius: 12px !important;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.34) !important;
 }
 
 .settings-v3 .settings-hero {
   display: block !important;
-  border-color: rgba(16, 185, 129, 0.35) !important;
-  background: linear-gradient(135deg, rgba(8, 47, 38, 0.92), rgba(10, 25, 21, 0.95)) !important;
+  border-color: rgba(94, 234, 212, 0.2) !important;
+  background: linear-gradient(135deg, rgba(19, 30, 41, 0.94), rgba(12, 20, 30, 0.95)) !important;
 }
 
 .settings-v3 .settings-metric-grid {
@@ -3555,30 +3555,30 @@ a {
 }
 
 .settings-v3 .settings-metric-status {
-  background: rgba(16, 185, 129, 0.16) !important;
-  color: #a7f3d0 !important;
+  background: rgba(148, 163, 184, 0.16) !important;
+  color: #d1d5db !important;
 }
 
 .settings-v3 .settings-channel-card {
-  border-color: rgba(16, 185, 129, 0.35) !important;
+  border-color: rgba(94, 234, 212, 0.2) !important;
 }
 
 .settings-v3 .button,
 .settings-v3 button.button {
   border-radius: 10px !important;
-  background: #10b981 !important;
-  color: #052e25 !important;
-  border-color: rgba(16, 185, 129, 0.65) !important;
+  background: linear-gradient(135deg, #34d399, #10b981) !important;
+  color: #031b16 !important;
+  border-color: rgba(52, 211, 153, 0.58) !important;
 }
 
 .settings-v3 .button:hover,
 .settings-v3 button.button:hover {
-  background: #22c55e !important;
+  background: linear-gradient(135deg, #6ee7b7, #34d399) !important;
 }
 
 .settings-v3 .label {
   letter-spacing: 0.08em !important;
-  color: #9ae6c6 !important;
+  color: #cbd5e1 !important;
 }
 
 .settings-v3 .subtitle,
