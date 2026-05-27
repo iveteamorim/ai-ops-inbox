@@ -684,13 +684,13 @@ export default async function SettingsPage() {
 
   return (
     <section className="page settings-page-reset">
+      <AppNav
+        showSetup={canSeeInternalSetup}
+        showLocale={canSeeInternalSetup}
+        userName={context.profile.full_name ?? context.user.email ?? null}
+        userRole={context.profile.role}
+      />
       <div className="settings-modern settings-dashboard settings-v3">
-        <AppNav
-          showSetup={canSeeInternalSetup}
-          showLocale={canSeeInternalSetup}
-          userName={context.profile.full_name ?? context.user.email ?? null}
-          userRole={context.profile.role}
-        />
         <div className="settings-dashboard-inner">
           <header className="settings-dashboard-header">
             <div>
