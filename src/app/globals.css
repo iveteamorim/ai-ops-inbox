@@ -3550,8 +3550,8 @@ a {
   min-height: 140px !important;
   border-radius: 12px !important;
   padding: 14px !important;
-  background: rgba(16, 21, 29, 0.9) !important;
-  border: 1px solid rgba(107, 114, 128, 0.22) !important;
+  background: linear-gradient(180deg, rgba(24, 30, 39, 0.94), rgba(17, 22, 30, 0.92)) !important;
+  border: 1px solid rgba(100, 116, 139, 0.24) !important;
 }
 
 .settings-v3 .settings-metric-status {
@@ -3560,7 +3560,7 @@ a {
 }
 
 .settings-v3 .settings-channel-card {
-  border-color: rgba(94, 234, 212, 0.2) !important;
+  border-color: rgba(100, 116, 139, 0.24) !important;
 }
 
 .settings-v3 .button,
