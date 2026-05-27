@@ -3513,9 +3513,9 @@ a {
 /* Final lock layer to avoid legacy overrides */
 .settings-v3.settings-dashboard {
   background:
-    radial-gradient(1000px 420px at 92% -8%, rgba(16, 185, 129, 0.1), transparent 66%),
-    radial-gradient(860px 380px at -8% 10%, rgba(16, 185, 129, 0.08), transparent 70%),
-    #0b1118 !important;
+    radial-gradient(980px 380px at 90% -10%, rgba(16, 185, 129, 0.09), transparent 66%),
+    radial-gradient(820px 340px at -8% 12%, rgba(5, 150, 105, 0.08), transparent 72%),
+    #090d12 !important;
 }
 
 .settings-v3 .settings-dashboard-inner {
@@ -3524,10 +3524,10 @@ a {
 }
 
 .settings-v3 .card {
-  border: 1px solid rgba(148, 163, 184, 0.2) !important;
-  background: linear-gradient(180deg, rgba(15, 23, 34, 0.94), rgba(10, 16, 24, 0.9)) !important;
+  border: 1px solid rgba(113, 128, 150, 0.2) !important;
+  background: linear-gradient(180deg, rgba(16, 20, 28, 0.95), rgba(11, 15, 22, 0.92)) !important;
   border-radius: 12px !important;
-  box-shadow: 0 10px 30px rgba(2, 6, 14, 0.35) !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.34) !important;
 }
 
 .settings-v3 .settings-hero {
@@ -3550,8 +3550,8 @@ a {
   min-height: 140px !important;
   border-radius: 12px !important;
   padding: 14px !important;
-  background: rgba(15, 23, 34, 0.88) !important;
-  border: 1px solid rgba(148, 163, 184, 0.18) !important;
+  background: rgba(16, 21, 29, 0.9) !important;
+  border: 1px solid rgba(107, 114, 128, 0.22) !important;
 }
 
 .settings-v3 .settings-metric-status {
@@ -3578,12 +3578,12 @@ a {
 
 .settings-v3 .label {
   letter-spacing: 0.08em !important;
-  color: #6ee7b7 !important;
+  color: #9ae6c6 !important;
 }
 
 .settings-v3 .subtitle,
 .settings-v3 .note {
-  color: rgba(226, 232, 240, 0.74) !important;
+  color: rgba(229, 231, 235, 0.78) !important;
 }
 
 .settings-v3 .settings-business-card {
