@@ -312,42 +312,6 @@ export default function NovuaLanding() {
         </motion.section>
 
         <motion.section
-          className="mt-8 rounded-[28px] border border-white/5 bg-[linear-gradient(180deg,rgba(12,27,22,0.98),rgba(10,20,18,0.96))] p-6 sm:p-8"
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.4 }}
-        >
-          <p className="mb-3 text-sm uppercase tracking-[0.18em] text-green-300/90">{t("landing_onboarding_eyebrow")}</p>
-          <h2 className="text-3xl font-bold leading-tight text-white sm:text-4xl">
-            {t("landing_connect_business_title")}
-          </h2>
-          <p className="mt-5 max-w-5xl text-base leading-7 text-zinc-300 sm:text-lg">
-            {t("landing_onboarding_subtitle")}
-          </p>
-          <p className="mt-4 max-w-5xl text-base font-semibold leading-7 text-yellow-400 sm:text-lg">
-            {t("landing_onboarding_goal")}
-          </p>
-
-          <div className="mt-7 rounded-2xl border border-yellow-700/50 bg-[#17140E] p-5">
-            <p className="text-xl font-semibold text-yellow-300">{t("landing_onboarding_note_title")}</p>
-            <p className="mt-3 text-base leading-7 text-zinc-300">
-              {t("landing_onboarding_note_text")}
-            </p>
-          </div>
-
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Link
-              href="/signup"
-              className="rounded-2xl bg-green-500 px-7 py-3.5 text-base font-semibold text-black shadow-[0_0_30px_rgba(34,197,94,0.25)] transition duration-300 hover:scale-[1.02] hover:bg-green-400"
-            >
-              {t("landing_cta_free")}
-            </Link>
-            <p className="text-sm text-zinc-400">{t("landing_onboarding_tagline")}</p>
-          </div>
-        </motion.section>
-
-        <motion.section
           className="py-16 text-center sm:py-20"
           variants={fadeUp}
           initial="hidden"
