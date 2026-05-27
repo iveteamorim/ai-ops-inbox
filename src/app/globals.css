@@ -3559,6 +3559,15 @@ a {
   color: #d1d5db !important;
 }
 
+.settings-v3 .badge,
+.settings-v3 .status-active,
+.settings-v3 .status-no-response {
+  background: rgba(51, 65, 85, 0.58) !important;
+  color: #e5e7eb !important;
+  border: 1px solid rgba(100, 116, 139, 0.35) !important;
+  box-shadow: none !important;
+}
+
 .settings-v3 .settings-channel-card {
   border-color: rgba(100, 116, 139, 0.24) !important;
 }
@@ -3584,6 +3593,10 @@ a {
 .settings-v3 .subtitle,
 .settings-v3 .note {
   color: rgba(229, 231, 235, 0.78) !important;
+}
+
+.settings-v3 .settings-kicker {
+  color: #cbd5e1 !important;
 }
 
 .settings-v3 .settings-business-card {
