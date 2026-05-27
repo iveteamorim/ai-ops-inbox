@@ -140,7 +140,7 @@ export default function NovuaLanding() {
               {t("landing_brand_kicker")}
             </p>
 
-            <h1 className="max-w-[12ch] text-6xl font-semibold leading-[0.96] text-zinc-100 sm:text-7xl lg:text-[7.2rem]">
+            <h1 className="max-w-[12ch] text-5xl font-semibold leading-[0.98] text-zinc-100 sm:text-6xl lg:text-[5.2rem]">
               {t("landing_title")}
             </h1>
 
