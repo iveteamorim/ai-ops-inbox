@@ -148,10 +148,10 @@ export default function NovuaLanding() {
             </p>
 
 
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="mt-10 flex">
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center rounded-xl border border-white/35 bg-white px-7 py-3.5 text-base font-semibold text-zinc-900 shadow-[0_10px_28px_rgba(255,255,255,0.16)] transition duration-300 hover:bg-zinc-100"
+                className="inline-flex items-center justify-center rounded-3xl bg-[#18D39A] px-14 py-5 text-[2rem] font-semibold text-[#06241B] shadow-[0_24px_70px_rgba(24,211,154,0.34)] transition duration-300 hover:bg-[#28e0aa]"
               >
                 {t("landing_cta_free")}
               </Link>
