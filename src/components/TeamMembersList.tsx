@@ -67,6 +67,14 @@ export function TeamMembersList({
     return agentLabel;
   }
 
+  function memberDisplayName(member: TeamMemberView) {
+    const name = member.full_name?.trim();
+    if (name) return name;
+    const email = member.email?.trim();
+    if (email) return email;
+    return unnamedLabel;
+  }
+
   function canRemove(member: TeamMemberView) {
     return currentUserRole === "owner" && member.id !== currentUserId && member.role !== "owner";
   }
@@ -150,7 +158,7 @@ export function TeamMembersList({
           <div key={member.id} className="team-member-row team-member-card">
             <div className="team-member-main">
               <div className="team-member-heading">
-                <strong>{member.full_name ?? unnamedLabel}</strong>
+                <strong>{memberDisplayName(member)}</strong>
               </div>
               <div className="team-member-summary">
                 <span>{formatRoleLabel(member.role)}</span>
@@ -187,7 +195,7 @@ export function TeamMembersList({
                     <option value="">{reassignPlaceholder}</option>
                     {reassignOptions.map((candidate) => (
                       <option key={candidate.id} value={candidate.id}>
-                        {candidate.full_name ?? unnamedLabel}
+                        {memberDisplayName(candidate)}
                       </option>
                     ))}
                   </select>
