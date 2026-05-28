@@ -641,6 +641,28 @@ export default async function SettingsPage() {
         : "Pendiente";
   const activeLabel =
     lang === "en" ? "Active" : lang === "pt" ? "Ativo" : "Activo";
+  const channelStepLabel = whatsappConnected
+    ? lang === "en"
+      ? "Step 1 completed"
+      : lang === "pt"
+        ? "Passo 1 concluído"
+        : "Paso 1 completado"
+    : lang === "en"
+      ? "Step 1 of 1"
+      : lang === "pt"
+        ? "Passo 1 de 1"
+        : "Paso 1 de 1";
+  const channelStepCopy = whatsappConnected
+    ? lang === "en"
+      ? "Your channel is ready. You can continue with value and team setup."
+      : lang === "pt"
+        ? "Canal pronto. Pode continuar com valor e equipa."
+        : "Canal listo. Ya puedes continuar con valor y equipo."
+    : lang === "en"
+      ? "Connect WhatsApp to start receiving real conversations."
+      : lang === "pt"
+        ? "Conecte o WhatsApp para começar a receber conversas reais."
+        : "Conecta WhatsApp para empezar a recibir conversaciones reales.";
   const settingsMetrics = [
     {
       kind: "revenue",
@@ -742,9 +764,10 @@ export default async function SettingsPage() {
             className={`card settings-channel-card ${whatsappConnected ? "settings-channel-connected" : "settings-channel-pending"}`.trim()}
             id="whatsapp-setup"
           >
+            <p className="note" style={{ marginTop: 0, marginBottom: 4 }}>{channelStepLabel}</p>
             <p className="label">{settingsText.channelTitle}</p>
             <p className="subtitle" style={{ marginBottom: 12 }}>
-              {settingsText.channelHelp}
+              {channelStepCopy}
             </p>
             {whatsappChannel ? (
               <div className="preview-row" style={{ marginBottom: 12 }}>
@@ -816,7 +839,7 @@ export default async function SettingsPage() {
               <article className="card">
                 <details>
                   <summary className="label" style={{ cursor: "pointer" }} aria-label="Toggle business setup section">
-                    {copy.businessSetupTitle}
+                    {copy.businessSetupTitle} {lang === "en" ? "(step 2)" : lang === "pt" ? "(passo 2)" : "(paso 2)"}
                   </summary>
                   <div style={{ marginTop: 10 }}>
                     <BusinessSetupForm
@@ -876,7 +899,7 @@ export default async function SettingsPage() {
             <article className="card">
               <details>
                 <summary className="label" style={{ cursor: "pointer" }} aria-label="Toggle response team section">
-                  {settingsText.teamTitle}
+                  {settingsText.teamTitle} {lang === "en" ? "(step 3)" : lang === "pt" ? "(passo 3)" : "(paso 3)"}
                 </summary>
                 <div style={{ marginTop: 10 }}>
                   {team.length === 0 ? (
