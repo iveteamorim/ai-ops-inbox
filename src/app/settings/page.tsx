@@ -619,28 +619,6 @@ export default async function SettingsPage() {
             won: "Ganadas",
             lost: "Perdidas",
           };
-
-  const openConversations = team.reduce((sum, member) => sum + member.openConversations, 0);
-  const configuredRevenue = businessSetup.leadTypes.reduce(
-    (sum, item) => sum + item.estimatedValue,
-    0,
-  );
-  const activeUserCount = team.length;
-  const syncLabel =
-    lang === "en" ? "A few seconds ago" : lang === "pt" ? "Há alguns segundos" : "Hace unos segundos";
-  const channelStatusLabel = whatsappConnected
-    ? lang === "en"
-      ? "Operational"
-      : lang === "pt"
-        ? "Operacional"
-        : "Operativo"
-    : lang === "en"
-      ? "Pending"
-      : lang === "pt"
-        ? "Pendente"
-        : "Pendiente";
-  const activeLabel =
-    lang === "en" ? "Active" : lang === "pt" ? "Ativo" : "Activo";
   const channelStepLabel = whatsappConnected
     ? lang === "en"
       ? "Step 1 completed"
@@ -663,46 +641,6 @@ export default async function SettingsPage() {
       : lang === "pt"
         ? "Conecte o WhatsApp para começar a receber conversas reais."
         : "Conecta WhatsApp para empezar a recibir conversaciones reales.";
-  const settingsMetrics = [
-    {
-      kind: "revenue",
-      icon: "€",
-      value: configuredRevenue > 0 ? `€${configuredRevenue}` : "—",
-      label:
-        lang === "en"
-          ? "Revenue at risk"
-          : lang === "pt"
-            ? "Receita em risco"
-            : "Revenue en riesgo",
-      status: activeLabel,
-    },
-    {
-      kind: "users",
-      icon: "👥",
-      value: `${activeUserCount}/${seatLimit}`,
-      label: lang === "en" ? "Active users" : lang === "pt" ? "Utilizadores ativos" : "Usuarios activos",
-      status: activeLabel,
-    },
-    {
-      kind: "conversations",
-      icon: "💬",
-      value: String(openConversations),
-      label:
-        lang === "en"
-          ? "Open conversations"
-          : lang === "pt"
-            ? "Conversas abertas"
-            : "Conversaciones abiertas",
-      status: activeLabel,
-    },
-    {
-      kind: "channel",
-      icon: "📶",
-      value: whatsappConnected ? "WhatsApp" : "—",
-      label: lang === "en" ? "Active channel" : lang === "pt" ? "Canal ativo" : "Canal activo",
-      status: whatsappConnected ? activeLabel : channelStatusLabel,
-    },
-  ];
 
   return (
     <section className="page settings-page-reset">
@@ -723,25 +661,6 @@ export default async function SettingsPage() {
               <p>{t("settings_subtitle")}</p>
             </div>
           </header>
-
-          <section className="settings-metric-grid" aria-label="Workspace status">
-            {settingsMetrics.map((metric) => (
-              <div
-                key={metric.label}
-                className="settings-metric-card"
-                data-metric={metric.kind}
-              >
-                <div className="settings-metric-top">
-                  <span className="settings-metric-icon" aria-hidden="true">{metric.icon}</span>
-                  <span className="settings-metric-status">{metric.status}</span>
-                </div>
-                <div>
-                  <strong>{metric.value}</strong>
-                  <p>{metric.label}</p>
-                </div>
-              </div>
-            ))}
-          </section>
 
           {settingsLoadError ? (
             <article className="card">
@@ -1061,3 +980,4 @@ export default async function SettingsPage() {
     </section>
   );
 }
+
