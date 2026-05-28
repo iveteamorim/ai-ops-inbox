@@ -258,7 +258,7 @@ npm install
 
 npm run dev
 
-http://localhost:3000
+Open your browser at localhost:3000
 
 ---
 
