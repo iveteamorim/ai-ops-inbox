@@ -111,6 +111,17 @@ a {
   border-color: rgba(16, 185, 129, 0.5);
 }
 
+.nav a:focus-visible,
+.button:focus-visible,
+.mini-button:focus-visible,
+summary:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid rgba(203, 213, 225, 0.95);
+  outline-offset: 2px;
+}
+
 /* Modern settings overrides */
 .settings-modern .card {
   border-radius: 18px;
@@ -3592,7 +3603,7 @@ a {
 
 .settings-v3 .subtitle,
 .settings-v3 .note {
-  color: rgba(229, 231, 235, 0.78) !important;
+  color: rgba(229, 231, 235, 0.86) !important;
   line-height: 1.45 !important;
 }
 
@@ -3691,5 +3702,5 @@ a {
 }
 
 .settings-v3 summary {
-  color: #d1d5db !important;
+  color: #e5e7eb !important;
 }

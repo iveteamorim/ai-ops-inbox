@@ -724,7 +724,7 @@ export default async function SettingsPage() {
           {settingsLoadError ? (
             <article className="card">
               <details>
-              <summary className="label" style={{ cursor: "pointer" }}>
+              <summary className="label" style={{ cursor: "pointer" }} aria-label="Toggle settings load details">
                 {lang === "en" ? "Settings loaded with limits" : lang === "pt" ? "Configurações carregadas com limitações" : "Configuración cargada con limitaciones"}
               </summary>
               <p className="subtitle" style={{ marginBottom: 0 }}>
@@ -815,7 +815,7 @@ export default async function SettingsPage() {
             {canManageTeam ? (
               <article className="card">
                 <details>
-                  <summary className="label" style={{ cursor: "pointer" }}>
+                  <summary className="label" style={{ cursor: "pointer" }} aria-label="Toggle business setup section">
                     {copy.businessSetupTitle}
                   </summary>
                   <div style={{ marginTop: 10 }}>
@@ -875,7 +875,7 @@ export default async function SettingsPage() {
 
             <article className="card">
               <details>
-                <summary className="label" style={{ cursor: "pointer" }}>
+                <summary className="label" style={{ cursor: "pointer" }} aria-label="Toggle response team section">
                   {settingsText.teamTitle}
                 </summary>
                 <div style={{ marginTop: 10 }}>
@@ -978,7 +978,7 @@ export default async function SettingsPage() {
           ) : (
             <article className="card">
               <details>
-                <summary className="label" style={{ cursor: "pointer" }}>
+                <summary className="label" style={{ cursor: "pointer" }} aria-label="Toggle system feedback section">
                   {lang === "en" ? "System feedback" : lang === "pt" ? "Feedback do sistema" : "Feedback del sistema"}
                 </summary>
                 <p className="subtitle" style={{ marginTop: 8 }}>
