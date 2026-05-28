@@ -888,21 +888,30 @@ export default async function SettingsPage() {
 
           {showCustomerFeedback ? (
             <>
-              <PilotFeedbackForm
-                labels={{
-                  title: copy.pilotFeedbackTitle,
-                  help: copy.pilotFeedbackHelp,
-                  category: copy.pilotFeedbackCategory,
-                  message: copy.pilotFeedbackMessage,
-                  submit: copy.pilotFeedbackSubmit,
-                  submitting: copy.pilotFeedbackSubmitting,
-                  success: copy.pilotFeedbackSuccess,
-                  error: copy.pilotFeedbackError,
-                  bug: copy.pilotFeedbackBug,
-                  feedback: copy.pilotFeedbackGeneral,
-                  featureRequest: copy.pilotFeedbackFeature,
-                }}
-              />
+              <article className="card">
+                <details>
+                  <summary className="label" style={{ cursor: "pointer" }} aria-label="Toggle report issue section">
+                    {copy.pilotFeedbackTitle}
+                  </summary>
+                  <div style={{ marginTop: 10 }}>
+                    <PilotFeedbackForm
+                      labels={{
+                        title: copy.pilotFeedbackTitle,
+                        help: copy.pilotFeedbackHelp,
+                        category: copy.pilotFeedbackCategory,
+                        message: copy.pilotFeedbackMessage,
+                        submit: copy.pilotFeedbackSubmit,
+                        submitting: copy.pilotFeedbackSubmitting,
+                        success: copy.pilotFeedbackSuccess,
+                        error: copy.pilotFeedbackError,
+                        bug: copy.pilotFeedbackBug,
+                        feedback: copy.pilotFeedbackGeneral,
+                        featureRequest: copy.pilotFeedbackFeature,
+                      }}
+                    />
+                  </div>
+                </details>
+              </article>
               <PilotFeedbackHistory
                 items={feedbackHistory}
                 labels={{
