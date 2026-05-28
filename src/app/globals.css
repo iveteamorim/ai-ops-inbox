@@ -1956,6 +1956,14 @@ textarea:focus-visible {
   cursor: pointer;
   color: var(--muted);
   font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 160ms ease;
+}
+
+.team-member-stats summary:hover {
+  color: #d1d5db;
 }
 
 .team-member-stats-grid {
@@ -1977,6 +1985,7 @@ textarea:focus-visible {
   gap: 16px;
   padding: 14px 0;
   border-bottom: 1px solid var(--line);
+  transition: background 160ms ease, border-color 160ms ease;
 }
 
 .team-member-card {
@@ -3077,6 +3086,21 @@ textarea:focus-visible {
 .settings-dashboard details {
   border-color: rgba(255, 255, 255, 0.1);
   background: rgba(0, 0, 0, 0.22);
+  transition: background-color 180ms ease, border-color 180ms ease;
+}
+
+.settings-dashboard summary {
+  transition: color 150ms ease;
+}
+
+.settings-dashboard summary:hover {
+  color: #e5e7eb;
+}
+
+.settings-dashboard details[open] {
+  background: rgba(15, 23, 42, 0.18);
+  border: 1px solid rgba(100, 116, 139, 0.22);
+  padding: 8px 10px;
 }
 
 .settings-dashboard input:not([type="checkbox"]),
