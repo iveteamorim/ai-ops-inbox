@@ -57,7 +57,7 @@ Repo: https://github.com/iveteamorim/ai-ops-inbox
 <img src="https://raw.githubusercontent.com/iveteamorim/ai-ops-inbox/main/public/screenshots/inbox-demo-current.png" width="100%" />
 
 ---
-## 🧩 Example
+##  Example
 
 A clinic receives multiple WhatsApp inquiries per day.
 
@@ -77,7 +77,7 @@ With Novua:
 
 ---
 
-## 🧠 AI usage & decision model
+##  AI usage & decision model
 
 Novua does not rely purely on AI to make decisions.
 
@@ -95,7 +95,7 @@ This ensures reliability in multi-agent environments where incorrect AI outputs 
 
 ---
 
-## ⚖️ Key decisions & trade-offs
+##  Key decisions & trade-offs
 
 **Not a CRM**  
 The system intentionally avoids becoming a full CRM.  
@@ -138,7 +138,7 @@ The system prioritizes consistency over instant visual updates.
 
 ---
 
-## 🧩 Product model
+##  Product model
 
 ### Inbox
 
@@ -204,7 +204,7 @@ Defines:
 
 ---
 
-## 👥 Roles
+##  Roles
 
 **Owner**  
 - manages workspace  
@@ -223,7 +223,7 @@ Defines:
 
 ---
 
-## 🚧 What is still early
+##  What is still early
 
 - full production hardening  
 - webhook retry and idempotency maturity  
@@ -233,7 +233,7 @@ Defines:
 
 ---
 
-## 🧱 Tech stack
+##  Tech stack
 
 - Next.js (App Router)  
 - React 19  
@@ -243,7 +243,7 @@ Defines:
 
 ---
 
-## ⚙️ Local setup
+##  Local setup
 
 ### Requirements
 
@@ -262,7 +262,7 @@ http://localhost:3000
 
 ---
 
-## 🔐 Environment variables
+##  Environment variables
 
 Required:
 
@@ -302,7 +302,7 @@ Stripe Payment Links should include a success redirect back to `/settings#whatsa
 
 ---
 
-## 📁 Project structure
+##  Project structure
 
 - src/app → routes & API  
 - src/components → UI  
@@ -312,7 +312,7 @@ Stripe Payment Links should include a success redirect back to `/settings#whatsa
 
 ---
 
-## 🧠 Operational behavior worth knowing
+##  Operational behavior worth knowing
 
 **Assignment visibility**  
 A conversation is only considered assigned after a real reply.
@@ -323,7 +323,7 @@ A conversation is only considered assigned after a real reply.
 
 ---
 
-## 🎯 What this repo is
+##  What this repo is
 
 - a serious product demo  
 - a pilot-ready system  
@@ -338,7 +338,7 @@ A conversation is only considered assigned after a real reply.
 
 ---
 
-## 🧨 Bottom line
+##  Bottom line
 
 The key question is not:
 
