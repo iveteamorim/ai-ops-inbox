@@ -3587,7 +3587,7 @@ textarea:focus-visible {
 
 .settings-v3 .settings-dashboard-inner {
   max-width: 1180px !important;
-  gap: 14px !important;
+  gap: 10px !important;
 }
 
 .settings-v3 .card {
@@ -3611,7 +3611,7 @@ textarea:focus-visible {
 
 .settings-v3 .settings-main-grid {
   grid-template-columns: 1fr !important;
-  gap: 12px !important;
+  gap: 10px !important;
 }
 
 .settings-v3 .settings-metric-card {
@@ -3638,6 +3638,8 @@ textarea:focus-visible {
 
 .settings-v3 .settings-channel-card {
   border-color: rgba(100, 116, 139, 0.24) !important;
+  margin-top: 2px;
+  margin-bottom: 10px;
 }
 
 .settings-v3 .button,
