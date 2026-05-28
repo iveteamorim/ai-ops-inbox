@@ -1709,6 +1709,7 @@ textarea:focus-visible {
   border: 1px dashed var(--line);
   border-radius: 12px;
   padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .empty-state h3 {
@@ -1720,6 +1721,41 @@ textarea:focus-visible {
   color: var(--muted);
   font-size: 0.92rem;
   line-height: 1.5;
+}
+
+.state-loading,
+.state-empty,
+.state-error,
+.state-success {
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.state-loading {
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  background: rgba(51, 65, 85, 0.2);
+  color: #cbd5e1;
+}
+
+.state-empty {
+  border: 1px dashed rgba(148, 163, 184, 0.35);
+  background: rgba(30, 41, 59, 0.2);
+  color: #cbd5e1;
+}
+
+.state-error,
+.warn {
+  border: 1px solid rgba(248, 113, 113, 0.42);
+  background: rgba(127, 29, 29, 0.18);
+  color: #fecaca;
+}
+
+.state-success {
+  border: 1px solid rgba(74, 222, 128, 0.36);
+  background: rgba(20, 83, 45, 0.22);
+  color: #bbf7d0;
 }
 
 .demo-notice {
