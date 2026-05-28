@@ -912,19 +912,28 @@ export default async function SettingsPage() {
                   </div>
                 </details>
               </article>
-              <PilotFeedbackHistory
-                items={feedbackHistory}
-                labels={{
-                  title: copy.pilotFeedbackHistoryTitle,
-                  empty: copy.pilotFeedbackHistoryEmpty,
-                  status: copy.pilotFeedbackHistoryStatus,
-                  page: copy.pilotFeedbackHistoryPage,
-                  reply: copy.pilotFeedbackHistoryReply,
-                  new: copy.pilotFeedbackStatusNew,
-                  reviewed: copy.pilotFeedbackStatusReviewed,
-                  closed: copy.pilotFeedbackStatusClosed,
-                }}
-              />
+              <article className="card">
+                <details>
+                  <summary className="label" style={{ cursor: "pointer" }} aria-label="Toggle feedback history section">
+                    {copy.pilotFeedbackHistoryTitle}
+                  </summary>
+                  <div style={{ marginTop: 10 }}>
+                    <PilotFeedbackHistory
+                      items={feedbackHistory}
+                      labels={{
+                        title: copy.pilotFeedbackHistoryTitle,
+                        empty: copy.pilotFeedbackHistoryEmpty,
+                        status: copy.pilotFeedbackHistoryStatus,
+                        page: copy.pilotFeedbackHistoryPage,
+                        reply: copy.pilotFeedbackHistoryReply,
+                        new: copy.pilotFeedbackStatusNew,
+                        reviewed: copy.pilotFeedbackStatusReviewed,
+                        closed: copy.pilotFeedbackStatusClosed,
+                      }}
+                    />
+                  </div>
+                </details>
+              </article>
             </>
           ) : (
             <article className="card">
