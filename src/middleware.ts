@@ -74,6 +74,10 @@ export async function middleware(request: NextRequest) {
 
   applyLanguageCookie(request, response);
 
+  if (isPublicPath(pathname)) {
+    return response;
+  }
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 

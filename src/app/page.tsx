@@ -116,43 +116,43 @@ export default function NovuaLanding() {
   const panel = rightPanelStates[activeIndex];
 
   return (
-    <main className="min-h-screen bg-[#07110E] text-white -m-4 md:-m-6">
+    <main className="min-h-screen bg-[#07110E] text-white -m-4 overflow-hidden md:-m-6">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-[-8%] top-0 h-[32rem] w-[32rem] rounded-full bg-green-500/10 blur-3xl" />
         <div className="absolute right-[-4%] top-24 h-[28rem] w-[28rem] rounded-full bg-emerald-400/8 blur-3xl" />
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-4 pt-6 pb-14 sm:px-6 sm:pt-10 lg:px-8 lg:pt-14">
-        <div className="mb-8 flex items-center justify-end gap-3 sm:mb-10">
+      <div className="relative mx-auto max-w-7xl px-4 pt-4 pb-12 sm:px-6 sm:pt-10 lg:px-8 lg:pt-14">
+        <div className="mb-6 flex items-center justify-end gap-2 sm:mb-10 sm:gap-3">
           <LocaleMenu />
           
           <Link
             href="/login"
-            className="rounded-full border border-white/12 bg-white/[0.02] px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:border-white/25 hover:bg-white/[0.06]"
+            className="rounded-full border border-white/12 bg-white/[0.02] px-4 py-2 text-sm font-semibold text-white transition duration-300 hover:border-white/25 hover:bg-white/[0.06] sm:px-5"
           >
             {t("cta_signin")}
           </Link>
         </div>
-        <section className="grid items-start gap-10 lg:grid-cols-[0.95fr_1.2fr] lg:gap-14">
+        <section className="grid items-start gap-8 lg:grid-cols-[0.95fr_1.2fr] lg:gap-14">
           <div className="max-w-xl">
-            <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/8 px-4 py-2 text-base font-medium text-emerald-300">
+            <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/8 px-3 py-1.5 text-sm font-medium text-emerald-300 sm:mb-5 sm:px-4 sm:py-2 sm:text-base">
               <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
               {t("landing_brand_kicker")}
             </p>
 
-            <h1 className="max-w-[12ch] text-4xl font-semibold leading-[1.02] text-zinc-100 sm:text-5xl lg:text-[4.5rem]">
+            <h1 className="max-w-[13ch] text-[2.65rem] font-semibold leading-[1.02] text-zinc-100 sm:text-5xl lg:text-[4.5rem]">
               {t("landing_title")}
             </h1>
 
-            <p className="mt-6 max-w-[34ch] text-base leading-8 text-zinc-400 sm:text-lg">
+            <p className="mt-5 max-w-[34ch] text-base leading-7 text-zinc-400 sm:mt-6 sm:text-lg sm:leading-8">
               {t("landing_subtitle")}
             </p>
 
 
-            <div className="mt-8 flex">
+            <div className="mt-7 flex sm:mt-8">
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center rounded-2xl bg-[#16d39a] px-8 py-3.5 text-lg font-semibold text-[#041d16] shadow-[0_14px_34px_rgba(24,211,154,0.28)] transition duration-300 hover:bg-[#23dfaa]"
+                className="inline-flex w-full items-center justify-center rounded-2xl bg-[#16d39a] px-7 py-3.5 text-base font-semibold text-[#041d16] shadow-[0_14px_34px_rgba(24,211,154,0.28)] transition duration-300 hover:bg-[#23dfaa] sm:w-auto sm:px-8 sm:text-lg"
               >
                 {t("landing_cta_free")}
               </Link>
@@ -163,15 +163,15 @@ export default function NovuaLanding() {
           <div className="relative">
             <div className="absolute inset-0 rounded-[28px] bg-green-500/10 blur-3xl" />
 
-            <div className="relative overflow-hidden rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-4 shadow-[0_0_60px_rgba(16,185,129,0.08)] sm:rounded-[28px] sm:p-6 lg:p-8">
-              <div className="mb-6 flex items-center justify-end gap-3">
+            <div className="relative overflow-hidden rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-3 shadow-[0_0_60px_rgba(16,185,129,0.08)] sm:rounded-[28px] sm:p-6 lg:p-8">
+              <div className="mb-4 flex items-center justify-end gap-3 sm:mb-6">
                 <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-400">
                   {t("nav_inbox")}
                 </div>
               </div>
 
-              <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
-                <div className="space-y-4">
+              <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr] xl:gap-5">
+                <div className="space-y-3 sm:space-y-4">
                   {conversations.map((conversation, index) => {
                     const isActive = index === activeIndex;
                     return (
@@ -180,27 +180,27 @@ export default function NovuaLanding() {
                         layout
                         transition={{ duration: 0.35 }}
                         className={[
-                          "rounded-2xl border p-4 transition-all duration-500 sm:p-5",
+                          "rounded-2xl border p-3 transition-all duration-500 sm:p-5",
                           isActive
                             ? "scale-[1.01] border-green-400/40 bg-[#132922] shadow-[0_0_35px_rgba(52,211,153,0.12)]"
                             : "border-white/5 bg-[#10211C] opacity-75",
                         ].join(" ")}
                       >
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="text-xl font-semibold text-white sm:text-2xl">{conversation.name}</p>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-lg font-semibold text-white sm:text-2xl">{conversation.name}</p>
                               <span className="text-xs text-zinc-500">{conversation.time}</span>
                             </div>
-                            <p className="mt-2 text-base text-zinc-300 sm:text-lg">{conversation.message}</p>
+                            <p className="mt-2 text-sm leading-6 text-zinc-300 sm:text-lg sm:leading-normal">{conversation.message}</p>
                           </div>
 
-                          <span className={`rounded-full border px-3 py-1 text-sm ${conversation.statusClass}`}>
+                          <span className={`w-fit rounded-full border px-2.5 py-1 text-xs font-semibold sm:px-3 sm:text-sm ${conversation.statusClass}`}>
                             {conversation.status}
                           </span>
                         </div>
 
-                        <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-3 text-sm text-zinc-400">
+                        <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-3 text-xs text-zinc-400 sm:mt-5 sm:text-sm">
                           <span>{t("landing_mockup_value_label")}</span>
                           <span className="font-semibold text-white">{conversation.value}</span>
                         </div>
@@ -209,7 +209,7 @@ export default function NovuaLanding() {
                   })}
                 </div>
 
-                <div className="flex min-h-[300px] flex-col justify-between rounded-2xl border border-white/5 bg-[#0C1210] p-4 sm:min-h-[360px] sm:p-5">
+                <div className="flex min-h-[250px] flex-col justify-between rounded-2xl border border-white/5 bg-[#0C1210] p-4 sm:min-h-[320px] sm:p-5 xl:min-h-[360px]">
                   <div>
                     <p className="text-xs uppercase tracking-[0.18em] text-zinc-400">{panel.title}</p>
 
@@ -220,7 +220,7 @@ export default function NovuaLanding() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -8 }}
                         transition={{ duration: 0.3 }}
-                        className={`mt-4 text-4xl font-bold sm:text-5xl ${panel.metricClass}`}
+                        className={`mt-3 text-3xl font-bold sm:mt-4 sm:text-5xl ${panel.metricClass}`}
                       >
                         {panel.metric}
                       </motion.p>
@@ -237,7 +237,7 @@ export default function NovuaLanding() {
                     </div>
                   </div>
 
-                  <div className="mt-8">
+                  <div className="mt-6 sm:mt-8">
                     <p className="text-xs uppercase tracking-[0.18em] text-zinc-400">{t("landing_panel_action_label")}</p>
                     <AnimatePresence mode="wait">
                       <motion.div
@@ -247,8 +247,8 @@ export default function NovuaLanding() {
                         exit={{ opacity: 0, y: -8 }}
                         transition={{ duration: 0.3 }}
                       >
-                        <p className="mt-3 text-xl font-semibold text-white sm:text-2xl">{panel.action}</p>
-                        <p className="mt-3 text-base leading-7 text-zinc-400">{panel.helper}</p>
+                        <p className="mt-3 text-lg font-semibold text-white sm:text-2xl">{panel.action}</p>
+                        <p className="mt-3 text-sm leading-6 text-zinc-400 sm:text-base sm:leading-7">{panel.helper}</p>
                         <p className="mt-5 text-sm font-medium text-emerald-300">{t("landing_value_at_risk")}</p>
                       </motion.div>
                     </AnimatePresence>
@@ -260,7 +260,7 @@ export default function NovuaLanding() {
         </section>
 
         <motion.section
-          className="py-16 text-center sm:py-20"
+          className="py-12 text-center sm:py-20"
           variants={fadeUp}
           initial="hidden"
           whileInView="show"
@@ -269,7 +269,7 @@ export default function NovuaLanding() {
           <p className="mx-auto mb-4 max-w-3xl text-sm uppercase tracking-[0.3em] text-green-300/80">
             {t("landing_mockup_footer")}
           </p>
-          <p className="mx-auto max-w-4xl text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
+          <p className="mx-auto max-w-4xl text-2xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
             {t("landing_positioning_line_1")} {t("landing_positioning_line_2")}
           </p>
         </motion.section>
@@ -284,11 +284,11 @@ export default function NovuaLanding() {
           {problemCards.map((card) => (
             <motion.div
               key={card.label}
-              className="rounded-[28px] border border-white/5 bg-[linear-gradient(180deg,rgba(12,27,22,0.98),rgba(10,20,18,0.96))] p-6"
+              className="rounded-[22px] border border-white/5 bg-[linear-gradient(180deg,rgba(12,27,22,0.98),rgba(10,20,18,0.96))] p-5 sm:rounded-[28px] sm:p-6"
               variants={fadeUp}
             >
               <p className="mb-4 text-sm uppercase tracking-[0.18em] text-green-300/90">{card.label}</p>
-              <h3 className="text-2xl font-bold leading-tight text-white">{card.title}</h3>
+              <h3 className="text-xl font-bold leading-tight text-white sm:text-2xl">{card.title}</h3>
 
               {card.rows ? (
                 <div className="mt-6 space-y-4 text-base text-zinc-200">
@@ -312,32 +312,32 @@ export default function NovuaLanding() {
         </motion.section>
 
         <motion.section
-          className="py-16 text-center sm:py-20"
+          className="py-12 text-center sm:py-20"
           variants={fadeUp}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.6 }}
         >
-          <h2 className="mx-auto max-w-4xl text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
+          <h2 className="mx-auto max-w-4xl text-2xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
             {t("landing_final_title")}
           </h2>
           <motion.div className="mt-8 inline-block">
             <Link
               href="/signup"
-              className="inline-flex items-center justify-center rounded-2xl bg-[#16d39a] px-8 py-3.5 text-lg font-semibold text-[#041d16] shadow-[0_14px_34px_rgba(24,211,154,0.28)] transition duration-300 hover:bg-[#23dfaa]"
+              className="inline-flex w-full items-center justify-center rounded-2xl bg-[#16d39a] px-8 py-3.5 text-base font-semibold text-[#041d16] shadow-[0_14px_34px_rgba(24,211,154,0.28)] transition duration-300 hover:bg-[#23dfaa] sm:w-auto sm:text-lg"
             >
               {t("landing_cta_free")}
             </Link>
           </motion.div>
         </motion.section>
       </div>
-      <footer className="border-t border-white/5 mt-24">
-  <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-8 text-sm text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
+      <footer className="border-t border-white/5 mt-16 sm:mt-24">
+  <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-zinc-500 sm:flex-row sm:items-center sm:justify-between sm:px-6">
     <div>
       © 2026 Novua Digital
     </div>
 
-    <div className="flex items-center gap-6">
+    <div className="flex flex-wrap items-center gap-4 sm:gap-6">
       <Link href="/privacy" className="hover:text-white transition">
         Privacy
       </Link>

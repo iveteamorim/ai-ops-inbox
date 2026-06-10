@@ -70,8 +70,6 @@ export function TeamMembersList({
   function memberDisplayName(member: TeamMemberView) {
     const name = member.full_name?.trim();
     if (name) return name;
-    const email = member.email?.trim();
-    if (email) return email;
     return unnamedLabel;
   }
 
