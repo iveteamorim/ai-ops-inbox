@@ -359,4 +359,4 @@ Copyright (c) 2026 Ivete de Amorim. All rights reserved.
 No permission is granted to use, copy, modify, redistribute, sell, or offer
 this software as a commercial service without prior written permission from the
 author. Commercial licensing is available on request via
-`iveteamorim@gmail.com`.
+`iveteamorin@gmail.com`.
