@@ -2284,6 +2284,56 @@ textarea:focus-visible {
   background: rgba(22, 101, 52, 0.5);
 }
 
+.landing-page .mini-button {
+  border-color: rgba(155, 124, 242, 0.38);
+  background: rgba(122, 108, 240, 0.14);
+  color: #ede9fe;
+}
+
+.landing-page .mini-button:hover {
+  border-color: rgba(196, 181, 253, 0.55);
+  background: rgba(122, 108, 240, 0.24);
+}
+
+.landing-page .lang-pill {
+  border-color: rgba(155, 124, 242, 0.28);
+  background: rgba(122, 108, 240, 0.1);
+  color: #e9e4ff;
+}
+
+.landing-page .lang-pill.is-active {
+  border-color: rgba(196, 181, 253, 0.75);
+  background: rgba(122, 108, 240, 0.45);
+  color: #f5f3ff;
+}
+
+.landing-page .lang-pill:hover {
+  border-color: rgba(155, 124, 242, 0.45);
+  background: rgba(122, 108, 240, 0.18);
+}
+
+.landing-page .prefs-panel {
+  border-color: rgba(155, 124, 242, 0.24);
+  background: rgba(12, 10, 24, 0.98);
+  box-shadow: 0 16px 36px rgba(58, 40, 120, 0.35);
+}
+
+.landing-page a:not([class*="rounded-2xl"]) {
+  color: #ddd6fe;
+}
+
+.landing-page a:not([class*="rounded-2xl"]):hover {
+  color: #ffffff;
+}
+
+.landing-page a[class*="rounded-2xl"] {
+  color: #ffffff !important;
+}
+
+.landing-page a[class*="rounded-2xl"]:hover {
+  color: #ffffff !important;
+}
+
 .prefs-menu {
   position: relative;
 }
