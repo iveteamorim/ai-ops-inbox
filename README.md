@@ -46,7 +46,6 @@ It is an operating layer that answers one question:
 
 ##  Live
 
-One-click demo: https://app.novua.digital/demo  
 Landing: https://app.novua.digital  
 Repo: https://github.com/iveteamorim/ai-ops-inbox
 
