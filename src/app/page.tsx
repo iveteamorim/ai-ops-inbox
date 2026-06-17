@@ -30,8 +30,8 @@ export default function NovuaLanding() {
       time: t("landing_conversation_2_time"),
     },
     {
-      id: "joao",
-      name: "Joao",
+      id: "david",
+      name: "David",
       message: t("landing_mockup_msg_3"),
       status: t("landing_mockup_status_active"),
       statusClass: "border-blue-500/30 bg-blue-500/10 text-blue-400",
@@ -172,8 +172,8 @@ export default function NovuaLanding() {
 
               <div className="grid gap-2.5 xl:grid-cols-[1.1fr_0.9fr] xl:gap-3">
                 <div className="space-y-1.5 sm:space-y-2">
-                  {conversations.slice(0, 2).map((conversation, index) => {
-                    const isActive = index === Math.min(activeIndex, 1);
+                  {conversations.map((conversation, index) => {
+                    const isActive = index === activeIndex;
                     return (
                       <motion.div
                         key={conversation.id}
