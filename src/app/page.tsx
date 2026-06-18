@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { LandingCtaLink } from "@/components/LandingCtaLink";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 import { LocaleMenu } from "@/components/i18n/LocaleMenu";
 
@@ -150,13 +151,8 @@ export default function NovuaLanding() {
             </p>
 
 
-            <div className="mt-7 flex sm:mt-9">
-              <Link
-                href="/signup"
-                className="inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-[#7a6cf0] to-[#9b7cf2] px-7 py-3 text-base font-semibold !text-white shadow-[0_14px_34px_rgba(122,108,240,0.28)] transition duration-300 hover:from-[#8a7cf2] hover:to-[#ab8cf8] sm:w-auto sm:px-8"
-              >
-                {t("landing_cta_free")}
-              </Link>
+            <div className="mt-7 sm:mt-9">
+              <LandingCtaLink className="w-full sm:w-auto" />
             </div>
 
           </div>
@@ -324,13 +320,8 @@ export default function NovuaLanding() {
           <h2 className="mx-auto max-w-4xl text-2xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
             {t("landing_final_title")}
           </h2>
-          <motion.div className="mt-8 inline-block">
-            <Link
-              href="/signup"
-              className="inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-[#7a6cf0] to-[#9b7cf2] px-8 py-3.5 text-base font-semibold !text-white shadow-[0_14px_34px_rgba(122,108,240,0.28)] transition duration-300 hover:from-[#8a7cf2] hover:to-[#ab8cf8] sm:w-auto sm:text-lg"
-            >
-              {t("landing_cta_free")}
-            </Link>
+          <motion.div className="mt-8 flex justify-center px-1 sm:px-0">
+            <LandingCtaLink className="w-full max-w-md sm:w-auto sm:max-w-none" />
           </motion.div>
         </motion.section>
       </div>

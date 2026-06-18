@@ -2318,20 +2318,50 @@ textarea:focus-visible {
   box-shadow: 0 16px 36px rgba(58, 40, 120, 0.35);
 }
 
-.landing-page a:not([class*="rounded-2xl"]) {
+.landing-page a:not(.landing-cta) {
   color: #ddd6fe;
 }
 
-.landing-page a:not([class*="rounded-2xl"]):hover {
+.landing-page a:not(.landing-cta):hover {
   color: #ffffff;
 }
 
-.landing-page a[class*="rounded-2xl"] {
+.landing-page .landing-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  padding: 14px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
   color: #ffffff !important;
+  background: linear-gradient(90deg, #7a6cf0 0%, #9b7cf2 100%);
+  box-shadow: 0 14px 34px rgba(122, 108, 240, 0.28);
+  transition:
+    background 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
 }
 
-.landing-page a[class*="rounded-2xl"]:hover {
+.landing-page .landing-cta:hover {
   color: #ffffff !important;
+  background: linear-gradient(90deg, #8a7cf2 0%, #ab8cf8 100%);
+  box-shadow: 0 18px 40px rgba(122, 108, 240, 0.34);
+  transform: translateY(-1px);
+}
+
+.landing-page .landing-cta:focus-visible {
+  outline: 2px solid rgba(196, 181, 253, 0.85);
+  outline-offset: 3px;
+}
+
+@media (min-width: 640px) {
+  .landing-page .landing-cta {
+    font-size: 1.05rem;
+    padding: 15px 34px;
+  }
 }
 
 /* Auth pages: purple theme (login, signup, reset-password, accept-invite) */
