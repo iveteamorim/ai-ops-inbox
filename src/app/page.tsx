@@ -86,7 +86,6 @@ export default function NovuaLanding() {
     {
       label: t("landing_revenue_label"),
       title: t("landing_revenue_title"),
-      number: "8",
       text: t("landing_mockup_unanswered_high_value"),
     },
   ];
@@ -298,11 +297,6 @@ export default function NovuaLanding() {
                     </div>
                   ))}
                 </div>
-              ) : card.number ? (
-                <>
-                  <p className="mt-6 text-6xl font-bold text-[#9b7cf2]">{card.number}</p>
-                  <p className="mt-2 text-base leading-7 text-zinc-300">{card.text}</p>
-                </>
               ) : (
                 <p className="mt-4 text-base leading-7 text-zinc-300">{card.text}</p>
               )}

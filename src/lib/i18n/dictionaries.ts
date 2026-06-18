@@ -56,7 +56,8 @@ export const dictionary = {
     landing_revenue_title: "Convierte tu inbox en un sistema de decisión",
     landing_revenue_label: "Decisión",
     landing_mockup_revenue_at_risk: "Prioridad visible",
-    landing_mockup_unanswered_high_value: "Conversaciones prioritarias visibles",
+    landing_mockup_unanswered_high_value:
+      "Las conversaciones prioritarias quedan visibles para todo el equipo: valor, urgencia y siguiente acción.",
     landing_mockup_url: "app.novua.digital/inbox",
     landing_mockup_msg_1: "¿Tenéis mesa para 8 el viernes?",
     landing_mockup_msg_2: "¿Cuánto cuesta la limpieza facial?",
@@ -431,7 +432,8 @@ export const dictionary = {
     landing_revenue_title: "Transforme seu inbox em um sistema de decisão",
     landing_revenue_label: "Decisão",
     landing_mockup_revenue_at_risk: "Prioridade visível",
-    landing_mockup_unanswered_high_value: "conversas prioritárias visíveis",
+    landing_mockup_unanswered_high_value:
+      "As conversas prioritárias ficam visíveis para toda a equipe: valor, urgência e próxima ação.",
     landing_mockup_url: "app.novua.digital/inbox",
     landing_mockup_msg_1: "Têm mesa para 8 na sexta?",
     landing_mockup_msg_2: "Quanto custa a limpeza facial?",
@@ -805,7 +807,8 @@ export const dictionary = {
     landing_revenue_title: "Turn your inbox into a decision system",
     landing_revenue_label: "Decision",
     landing_mockup_revenue_at_risk: "Visible priority",
-    landing_mockup_unanswered_high_value: "priority conversations made visible",
+    landing_mockup_unanswered_high_value:
+      "Priority conversations stay visible for the whole team: value, urgency, and next action.",
     landing_mockup_url: "app.novua.digital/inbox",
     landing_mockup_msg_1: "Table for 8 on Friday?",
     landing_mockup_msg_2: "How much is the facial treatment?",
