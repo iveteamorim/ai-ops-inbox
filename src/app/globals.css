@@ -4030,12 +4030,28 @@ textarea:focus-visible {
 }
 
 .settings-v3 .badge,
-.settings-v3 .status-active,
 .settings-v3 .status-no-response {
   background: rgba(51, 65, 85, 0.58) !important;
   color: #e5e7eb !important;
   border: 1px solid rgba(100, 116, 139, 0.35) !important;
   box-shadow: none !important;
+}
+
+.settings-v3 .badge.status-active,
+.settings-v3 .status-active {
+  border-color: rgba(52, 211, 153, 0.42) !important;
+  background: rgba(52, 211, 153, 0.16) !important;
+  color: #a7f3d0 !important;
+}
+
+.settings-v3 .settings-channel-card.settings-channel-connected {
+  border-color: rgba(52, 211, 153, 0.32) !important;
+  box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.1), 0 24px 70px rgba(16, 185, 129, 0.1) !important;
+}
+
+.settings-v3 .settings-channel-tile-connected {
+  border-color: rgba(52, 211, 153, 0.28) !important;
+  background: rgba(52, 211, 153, 0.06) !important;
 }
 
 .settings-v3 .settings-channel-card {

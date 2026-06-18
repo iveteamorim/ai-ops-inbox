@@ -74,7 +74,12 @@ export function ChannelsOverview({
             <Link
               key={type}
               href={`#${channelSettingsAnchor(type)}`}
-              className="settings-channel-tile settings-channel-tile-link"
+              className={[
+                "settings-channel-tile settings-channel-tile-link",
+                isConnected ? "settings-channel-tile-connected" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
             >
               <div className="settings-channel-tile-head">
                 <ChannelBadge label={formatChannel(type)} channel={type} />
