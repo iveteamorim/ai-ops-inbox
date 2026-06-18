@@ -16,6 +16,8 @@ type Labels = {
   endpoint: string;
   token: string;
   embed: string;
+  testUrl: string;
+  testUrlHelp: string;
   copy: string;
   copied: string;
   help: string;
@@ -40,6 +42,7 @@ type Props = {
   isActive: boolean;
   token: string | null;
   endpoint: string;
+  testUrl: string | null;
   embed: string | null;
   canManage: boolean;
   googleFormsBackup: GoogleFormsBackupConfig | null;
@@ -68,6 +71,7 @@ export function FormChannelSetup({
   isActive,
   token,
   endpoint,
+  testUrl,
   embed,
   canManage,
   googleFormsBackup,
@@ -215,6 +219,27 @@ export function FormChannelSetup({
               </button>
             </div>
           </div>
+
+          {testUrl ? (
+            <div className="settings-copy-field">
+              <label className="label" htmlFor="form-test-url">
+                {labels.testUrl}
+              </label>
+              <p className="note" style={{ marginBottom: 8 }}>
+                {labels.testUrlHelp}
+              </p>
+              <div className="settings-copy-row">
+                <input id="form-test-url" className="input" readOnly value={testUrl} />
+                <button
+                  type="button"
+                  className="button-copy"
+                  onClick={() => handleCopy("testUrl", testUrl)}
+                >
+                  {copiedField === "testUrl" ? labels.copied : labels.copy}
+                </button>
+              </div>
+            </div>
+          ) : null}
 
           {liveEmbed ? (
             <div className="settings-copy-field">

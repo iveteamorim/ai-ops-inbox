@@ -789,6 +789,7 @@ export default async function SettingsPage() {
   const formToken =
     formChannel?.is_active && formChannel.external_account_id ? formChannel.external_account_id : null;
   const formEndpoint = `${appUrl}/api/leads/form`;
+  const formTestUrl = formToken ? `${appUrl}/diagnostico?token=${encodeURIComponent(formToken)}` : null;
   const formEmbed = formToken ? buildFormEmbedSnippet(appUrl, formToken) : null;
   const googleFormsBackup = parseGoogleFormsBackupConfig(formChannel?.config ?? null);
   const formChannelSetupCopy =
@@ -803,6 +804,9 @@ export default async function SettingsPage() {
           endpoint: "Endpoint",
           token: "Token público",
           embed: "Código para colar no site",
+          testUrl: "URL de teste deste workspace",
+          testUrlHelp:
+            "Os envios desta URL entram no teu inbox. /diagnostico sem token pode ir para outro workspace.",
           copy: "Copiar",
           copied: "Copiado",
           help: "Ativa o canal web, copia o snippet e cola-o na página de contacto do teu site.",
@@ -833,6 +837,9 @@ export default async function SettingsPage() {
             endpoint: "Endpoint",
             token: "Public token",
             embed: "Embed code for your site",
+            testUrl: "Test URL for this workspace",
+            testUrlHelp:
+              "Submissions from this URL land in your inbox. /diagnostico without a token may route elsewhere.",
             copy: "Copy",
             copied: "Copied",
             help: "Activate the web channel, copy the snippet, and paste it on your contact page.",
@@ -862,6 +869,9 @@ export default async function SettingsPage() {
             endpoint: "Endpoint",
             token: "Token público",
             embed: "Código para pegar en la web",
+            testUrl: "URL de prueba de este workspace",
+            testUrlHelp:
+              "Los envíos desde esta URL entran en tu inbox. /diagnostico sin token puede ir a otro workspace.",
             copy: "Copiar",
             copied: "Copiado",
             help: "Activa el canal web, copia el snippet y pégalo en la página de contacto de tu sitio.",
@@ -1034,6 +1044,7 @@ export default async function SettingsPage() {
             isActive={Boolean(formChannel?.is_active && formToken)}
             token={formToken}
             endpoint={formEndpoint}
+            testUrl={formTestUrl}
             embed={formEmbed}
             canManage={canManageTeam}
             googleFormsBackup={googleFormsBackup}

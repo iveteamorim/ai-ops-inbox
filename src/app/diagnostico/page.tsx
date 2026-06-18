@@ -27,7 +27,14 @@ const copy = {
   },
 };
 
-export default function DiagnosticoPage() {
+export default async function DiagnosticoPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ token?: string }>;
+}) {
+  const params = await searchParams;
+  const token = typeof params.token === "string" ? params.token.trim() : undefined;
+
   return (
     <main className="diagnostico-page min-h-screen bg-[#07101f] text-white">
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
@@ -46,7 +53,7 @@ export default function DiagnosticoPage() {
         </ul>
 
         <div className="diagnostico-card">
-          <NovuaLeadForm labels={copy.form} />
+          <NovuaLeadForm token={token} labels={copy.form} />
           <p className="diagnostico-privacy">{copy.privacy}</p>
         </div>
 
