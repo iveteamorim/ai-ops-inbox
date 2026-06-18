@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MarketingNav } from "@/components/MarketingNav";
+import { AuthPageShell } from "@/components/AuthPageShell";
 import { PasswordField } from "@/components/PasswordField";
 import { createPublicAuthClient } from "@/lib/supabase/public-auth-client";
 import { useI18n } from "@/components/i18n/LanguageProvider";
@@ -116,21 +116,15 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <section className="page">
-      <MarketingNav
-        showSections={false}
-        showLocale={false}
-        showSignIn={false}
-        showStartFree={false}
-        showBackToLanding
-      />
-      <header className="header">
-        <div>
-          <h1 className="title">{t("reset_password_title")}</h1>
-          <p className="subtitle">{t("reset_password_subtitle")}</p>
-        </div>
-      </header>
-
+    <AuthPageShell
+      title={t("reset_password_title")}
+      subtitle={t("reset_password_subtitle")}
+      nav={{
+        showSignIn: false,
+        showStartFree: false,
+        showBackToLanding: true,
+      }}
+    >
       <form className="card form" onSubmit={handleSubmit}>
         {status === "booting" ? <p className="subtitle">{t("reset_password_verifying")}</p> : null}
         {status === "ready" ? (
@@ -154,6 +148,6 @@ export default function ResetPasswordPage() {
         {status === "done" ? <p className="subtitle">{t("reset_password_done")}</p> : null}
         {error ? <p className="warn">{error}</p> : null}
       </form>
-    </section>
+    </AuthPageShell>
   );
 }

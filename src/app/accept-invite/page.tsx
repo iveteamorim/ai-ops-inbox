@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MarketingNav } from "@/components/MarketingNav";
+import { AuthPageShell } from "@/components/AuthPageShell";
 import { PasswordField } from "@/components/PasswordField";
 import { createPublicAuthClient } from "@/lib/supabase/public-auth-client";
 import { useI18n } from "@/components/i18n/LanguageProvider";
@@ -140,21 +140,15 @@ export default function AcceptInvitePage() {
   }
 
   return (
-    <section className="page">
-      <MarketingNav
-        showSections={false}
-        showLocale={false}
-        showSignIn={false}
-        showStartFree={false}
-        showBackToLanding
-      />
-      <header className="header">
-        <div>
-          <h1 className="title">{t("accept_invite_title")}</h1>
-          <p className="subtitle">{t("accept_invite_subtitle")}</p>
-        </div>
-      </header>
-
+    <AuthPageShell
+      title={t("accept_invite_title")}
+      subtitle={t("accept_invite_subtitle")}
+      nav={{
+        showSignIn: false,
+        showStartFree: false,
+        showBackToLanding: true,
+      }}
+    >
       <form className="card form" onSubmit={handleSubmit}>
         {status === "booting" ? <p className="subtitle">{t("accept_invite_verifying")}</p> : null}
         {status === "ready" ? (
@@ -178,6 +172,6 @@ export default function AcceptInvitePage() {
         {status === "done" ? <p className="subtitle">{t("accept_invite_done")}</p> : null}
         {error ? <p className="warn">{error}</p> : null}
       </form>
-    </section>
+    </AuthPageShell>
   );
 }

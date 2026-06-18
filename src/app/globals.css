@@ -2334,6 +2334,73 @@ textarea:focus-visible {
   color: #ffffff !important;
 }
 
+/* Auth pages: purple theme (login, signup, reset-password, accept-invite) */
+.auth-page .subtitle {
+  color: #a1a1aa;
+}
+
+.auth-page .nav {
+  border-color: rgba(155, 124, 242, 0.2);
+  background: rgba(12, 10, 24, 0.88);
+}
+
+.auth-page .nav a.active,
+.auth-page .nav a[aria-current="page"] {
+  background: linear-gradient(135deg, #7a6cf0, #9b7cf2);
+  color: #ffffff;
+  border-color: rgba(155, 124, 242, 0.5);
+}
+
+.auth-page .card {
+  background: rgba(16, 14, 28, 0.88);
+  border-color: rgba(155, 124, 242, 0.18);
+  box-shadow: 0 20px 55px rgba(58, 40, 120, 0.22);
+}
+
+.auth-page .label {
+  color: #a1a1aa;
+}
+
+.auth-page .input {
+  background: rgba(10, 12, 20, 0.92);
+  border-color: rgba(155, 124, 242, 0.16);
+  color: #f4f4f5;
+}
+
+.auth-page .input:focus-visible {
+  outline-color: rgba(155, 124, 242, 0.65);
+}
+
+.auth-page .password-toggle {
+  color: #a1a1aa;
+}
+
+.auth-page .button {
+  background: linear-gradient(120deg, #7a6cf0 0%, #9b7cf2 100%);
+  color: #ffffff;
+  box-shadow: 0 14px 34px rgba(122, 108, 240, 0.28);
+}
+
+.auth-page .button:hover:not(:disabled) {
+  background: linear-gradient(120deg, #8a7cf2 0%, #ab8cf8 100%);
+}
+
+.auth-page .action-link {
+  color: #c4b5fd;
+}
+
+.auth-page .action-link:hover {
+  color: #ede9fe;
+}
+
+.auth-page a {
+  color: #ddd6fe;
+}
+
+.auth-page a:hover {
+  color: #ffffff;
+}
+
 .prefs-menu {
   position: relative;
 }

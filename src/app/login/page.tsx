@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { MarketingNav } from "@/components/MarketingNav";
+import { AuthPageShell } from "@/components/AuthPageShell";
 import { PasswordField } from "@/components/PasswordField";
 import { createClient } from "@/lib/supabase/client";
 import { createPublicAuthClient } from "@/lib/supabase/public-auth-client";
@@ -103,23 +103,16 @@ export default function LoginPage() {
   }
 
   return (
-    <section className="page">
-      <MarketingNav
-        showSections={false}
-        showSignIn={false}
-        showStartFree={false}
-        showBackToLanding
-      />
-      <header className="header">
-        <div>
-          <h1 className="title">{t("login_title")}</h1>
-          <p className="subtitle">{t("login_subtitle")}</p>
-        </div>
-      </header>
-
+    <AuthPageShell
+      title={t("login_title")}
+      subtitle={t("login_subtitle")}
+      nav={{
+        showSignIn: false,
+        showStartFree: false,
+        showBackToLanding: true,
+      }}
+    >
       <form className="card form" onSubmit={handleSubmit}>
-    
-
         <label className="label" htmlFor="email">{t("form_email")}</label>
         <input id="email" className="input" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
 
@@ -146,6 +139,6 @@ export default function LoginPage() {
           {t("login_no_account")} <Link href="/signup">{t("nav_start_free")}</Link>
         </p>
       </form>
-    </section>
+    </AuthPageShell>
   );
 }

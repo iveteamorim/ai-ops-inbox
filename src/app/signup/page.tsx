@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { MarketingNav } from "@/components/MarketingNav";
+import { AuthPageShell } from "@/components/AuthPageShell";
 import { PasswordField } from "@/components/PasswordField";
 import { createClient } from "@/lib/supabase/client";
 import { trialEndsAtIso } from "@/lib/trial";
@@ -70,20 +70,14 @@ export default function SignupPage() {
   }
 
   return (
-    <section className="page">
-      <MarketingNav
-        showSections={false}
-        showLocale={false}
-        showStartFree={false}
-        showBackToLanding
-      />
-      <header className="header">
-        <div>
-          <h1 className="title">{t("signup_title")}</h1>
-          <p className="subtitle">{t("signup_subtitle")}</p>
-        </div>
-      </header>
-
+    <AuthPageShell
+      title={t("signup_title")}
+      subtitle={t("signup_subtitle")}
+      nav={{
+        showStartFree: false,
+        showBackToLanding: true,
+      }}
+    >
       <form className="card form" onSubmit={handleSubmit}>
         <label className="label" htmlFor="company">{t("form_company")}</label>
         <input id="company" className="input" type="text" required value={company} onChange={(e) => setCompany(e.target.value)} />
@@ -106,6 +100,6 @@ export default function SignupPage() {
           {t("signup_have_account")} <Link href="/login">{t("nav_signin")}</Link>
         </p>
       </form>
-    </section>
+    </AuthPageShell>
   );
 }
