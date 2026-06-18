@@ -27,6 +27,7 @@ type InboxConversation = {
 
 type InboxDecisionViewProps = {
   conversations: InboxConversation[];
+  channelOptions: { channel: ChannelType; label: string }[];
   riskAmountLabel: string;
   activeAmountLabel: string;
   highValueAmountLabel: string;
@@ -43,6 +44,7 @@ type InboxDecisionViewProps = {
     filterChannelAll: string;
     channel: string;
     emptyState: string;
+    emptyChannelState: string;
     temporalState: string;
     owner: string;
     nextAction: string;
@@ -58,6 +60,7 @@ type InboxDecisionViewProps = {
 
 export function InboxDecisionView({
   conversations,
+  channelOptions,
   riskAmountLabel,
   activeAmountLabel,
   highValueAmountLabel,
@@ -68,10 +71,6 @@ export function InboxDecisionView({
   const [selectedId, setSelectedId] = useState(initialId);
   const [activeFilter, setActiveFilter] = useState<"all" | "risk" | "assigned" | "new">("all");
   const [activeChannelFilter, setActiveChannelFilter] = useState<"all" | ChannelType>("all");
-  const availableChannels = useMemo(() => {
-    const unique = new Set(conversations.map((item) => item.channel));
-    return Array.from(unique);
-  }, [conversations]);
   const filteredConversations = useMemo(() => {
     let items = conversations;
     if (activeFilter === "risk") items = items.filter((item) => item.status === "no_response");
@@ -81,10 +80,19 @@ export function InboxDecisionView({
     if (activeChannelFilter === "all") return items;
     return items.filter((item) => item.channel === activeChannelFilter);
   }, [activeChannelFilter, activeFilter, conversations]);
+  const activeChannelLabel =
+    activeChannelFilter === "all"
+      ? labels.filterChannelAll
+      : (channelOptions.find((option) => option.channel === activeChannelFilter)?.label ??
+        activeChannelFilter);
+  const emptyListMessage =
+    activeChannelFilter === "all"
+      ? labels.emptyState
+      : labels.emptyChannelState.replace("{channel}", activeChannelLabel);
   const selected = useMemo(() => {
-    const selectable = filteredConversations.length > 0 ? filteredConversations : conversations;
-    return selectable.find((item) => item.id === selectedId) ?? selectable[0];
-  }, [conversations, filteredConversations, selectedId]);
+    if (filteredConversations.length === 0) return null;
+    return filteredConversations.find((item) => item.id === selectedId) ?? filteredConversations[0];
+  }, [filteredConversations, selectedId]);
 
   useEffect(() => {
     if (filteredConversations.length === 0) return;
@@ -93,7 +101,7 @@ export function InboxDecisionView({
     }
   }, [filteredConversations, selectedId]);
 
-  if (!selected) {
+  if (conversations.length === 0) {
     return (
       <main className="min-h-screen bg-[#07110E] text-white -m-6">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -168,44 +176,39 @@ export function InboxDecisionView({
               </button>
             </div>
 
-            {availableChannels.length > 1 ? (
-              <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-gray-400">
-                <span className="mr-1 text-xs uppercase tracking-[0.14em] text-gray-500">{labels.channel}</span>
+            <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-gray-400">
+              <span className="mr-1 text-xs uppercase tracking-[0.14em] text-gray-500">{labels.channel}</span>
+              <button
+                type="button"
+                onClick={() => setActiveChannelFilter("all")}
+                className={`rounded-full border px-3 py-1 transition ${
+                  activeChannelFilter === "all"
+                    ? "border-white/30 bg-white/10 text-white"
+                    : "border-white/10 bg-white/5"
+                }`}
+              >
+                {labels.filterChannelAll}
+              </button>
+              {channelOptions.map((option) => (
                 <button
+                  key={option.channel}
                   type="button"
-                  onClick={() => setActiveChannelFilter("all")}
+                  onClick={() => setActiveChannelFilter(option.channel)}
                   className={`rounded-full border px-3 py-1 transition ${
-                    activeChannelFilter === "all"
+                    activeChannelFilter === option.channel
                       ? "border-white/30 bg-white/10 text-white"
                       : "border-white/10 bg-white/5"
                   }`}
                 >
-                  {labels.filterChannelAll}
+                  {option.label}
                 </button>
-                {availableChannels.map((channel) => {
-                  const label = conversations.find((item) => item.channel === channel)?.channelLabel ?? channel;
-                  return (
-                    <button
-                      key={channel}
-                      type="button"
-                      onClick={() => setActiveChannelFilter(channel)}
-                      className={`rounded-full border px-3 py-1 transition ${
-                        activeChannelFilter === channel
-                          ? "border-white/30 bg-white/10 text-white"
-                          : "border-white/10 bg-white/5"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
-              </div>
-            ) : null}
+              ))}
+            </div>
 
             <div className="space-y-4">
               {filteredConversations.length === 0 ? (
                 <div className="rounded-2xl border border-white/5 bg-[#10211C] p-5 text-gray-300">
-                  {labels.emptyState}
+                  {emptyListMessage}
                 </div>
               ) : null}
 
@@ -278,6 +281,12 @@ export function InboxDecisionView({
           <aside className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-5 sm:p-6 lg:h-[640px] lg:overflow-y-auto">
             <p className="text-xs uppercase tracking-[0.18em] text-gray-400">{labels.decisionLayer}</p>
 
+            {!selected ? (
+              <div className="mt-5 rounded-2xl border border-white/5 bg-[#101B18] p-5 text-gray-300">
+                {emptyListMessage}
+              </div>
+            ) : (
+              <>
             <div className="mt-5 rounded-2xl border border-white/5 bg-[#101B18] p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -334,6 +343,8 @@ export function InboxDecisionView({
               <p className="text-xs uppercase tracking-[0.18em] text-gray-400">{labels.productPrinciple}</p>
               <p className="mt-3 text-lg font-semibold text-white">{labels.decisionCopy}</p>
             </div>
+              </>
+            )}
           </aside>
         </div>
       </div>

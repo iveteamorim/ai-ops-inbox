@@ -1,9 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { ChannelType } from "@/lib/messaging/channel-types";
 import { triageConversation, type ServiceType } from "@/lib/triage/triage-conversation";
 
 type DemoContactSeed = {
   name: string;
   phone: string;
+  email?: string;
+  channel: ChannelType;
   message: string;
   hoursAgo: number;
   status: "new" | "active" | "no_response" | "won" | "lost";
@@ -16,7 +19,7 @@ type DemoMessageInsert = {
   conversation_id: string;
   direction: "inbound" | "outbound";
   sender_type: "customer" | "agent";
-  channel: "whatsapp";
+  channel: ChannelType;
   text: string;
   raw_payload: Record<string, unknown>;
   created_at: string;
@@ -28,6 +31,9 @@ export const DEMO_SEED_PHONES = [
   "+34600000012",
   "+34600000013",
   "+34600000014",
+  "+34600000015",
+  "+34600000016",
+  "+34600000017",
 ] as const;
 
 export function buildDemoConversationSeeds(serviceCatalog: ServiceType[]): DemoContactSeed[] {
@@ -39,6 +45,7 @@ export function buildDemoConversationSeeds(serviceCatalog: ServiceType[]): DemoC
     {
       name: "Emma Hot Lead",
       phone: "+34600000010",
+      channel: "whatsapp",
       message: `Hi, I want to book a ${primary.toLowerCase()} this week.`,
       hoursAgo: 26,
       status: "no_response",
@@ -46,6 +53,7 @@ export function buildDemoConversationSeeds(serviceCatalog: ServiceType[]): DemoC
     {
       name: "Mia Info Lead",
       phone: "+34600000011",
+      channel: "whatsapp",
       message: `Can you send me more information about ${secondary.toLowerCase()}?`,
       hoursAgo: 2,
       status: "new",
@@ -53,6 +61,7 @@ export function buildDemoConversationSeeds(serviceCatalog: ServiceType[]): DemoC
     {
       name: "Olivia Follow-up",
       phone: "+34600000012",
+      channel: "whatsapp",
       message: `I asked yesterday about ${tertiary.toLowerCase()}, any update?`,
       hoursAgo: 28,
       status: "no_response",
@@ -60,6 +69,7 @@ export function buildDemoConversationSeeds(serviceCatalog: ServiceType[]): DemoC
     {
       name: "Sofia Availability",
       phone: "+34600000013",
+      channel: "whatsapp",
       message: `Do you have availability tomorrow for a ${primary.toLowerCase()}?`,
       hoursAgo: 6,
       status: "active",
@@ -69,11 +79,39 @@ export function buildDemoConversationSeeds(serviceCatalog: ServiceType[]): DemoC
     {
       name: "Lucas Converted",
       phone: "+34600000014",
+      channel: "whatsapp",
       message: `I want to confirm the ${primary.toLowerCase()} booking for Friday.`,
       hoursAgo: 24,
       status: "won",
       replyOffsetHours: 20,
       replyText: "Confirmed. Your premium treatment booking is scheduled and we will send the final details shortly.",
+    },
+    {
+      name: "Laura Instagram",
+      phone: "+34600000015",
+      channel: "instagram",
+      message: `Vi vuestro reel del ${primary.toLowerCase()} y quiero reservar esta semana.`,
+      hoursAgo: 30,
+      status: "no_response",
+    },
+    {
+      name: "Carlos Email",
+      phone: "+34600000016",
+      email: "carlos.demo@example.com",
+      channel: "email",
+      message: `Hola, ¿podéis enviarme precios y disponibilidad para ${secondary.toLowerCase()}?`,
+      hoursAgo: 4,
+      status: "new",
+    },
+    {
+      name: "Web Lead",
+      phone: "+34600000017",
+      channel: "form",
+      message: `Solicitud desde formulario web: interesado en ${primary.toLowerCase()} para el fin de semana.`,
+      hoursAgo: 8,
+      status: "active",
+      replyOffsetHours: 3,
+      replyText: "Gracias por escribirnos. Revisamos disponibilidad y te respondemos en breve.",
     },
   ];
 }
@@ -124,6 +162,7 @@ export async function seedDemoConversations(params: {
         company_id: companyId,
         name: seed.name,
         phone: seed.phone,
+        email: seed.email ?? null,
       })
       .select("id")
       .single<{ id: string }>();
@@ -138,7 +177,7 @@ export async function seedDemoConversations(params: {
         company_id: companyId,
         contact_id: contact.id,
         assigned_to: outboundAt && assignedToUserId ? assignedToUserId : null,
-        channel: "whatsapp",
+        channel: seed.channel,
         status: seed.status,
         lead_type: triage.leadType,
         estimated_value: triage.estimatedValue,
@@ -180,7 +219,7 @@ export async function seedDemoConversations(params: {
         conversation_id: conversation.id,
         direction: "inbound",
         sender_type: "customer",
-        channel: "whatsapp",
+        channel: seed.channel,
         text: seed.message,
         raw_payload: { source: "demo_seed" },
         created_at: inboundAt,
@@ -193,7 +232,7 @@ export async function seedDemoConversations(params: {
         conversation_id: conversation.id,
         direction: "outbound",
         sender_type: "agent",
-        channel: "whatsapp",
+        channel: seed.channel,
         text: seed.replyText ?? triage.suggestedResponse,
         raw_payload: { source: "demo_seed" },
         created_at: outboundAt,

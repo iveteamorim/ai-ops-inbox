@@ -14,6 +14,7 @@ import {
   getTeamMembers,
 } from "@/lib/app-data";
 import { type DecisionType } from "@/lib/conversation-decision";
+import { CHANNEL_TYPES } from "@/lib/messaging/channel-types";
 import { canManageInternalWorkspace, getWorkspaceMode } from "@/lib/internal-access";
 
 function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
@@ -226,6 +227,7 @@ export default async function InboxPage() {
           filterChannelAll: "Todos",
           channel: t("inbox_channel"),
           emptyState: "Ainda não há conversas.",
+          emptyChannelState: t("inbox_empty_channel"),
           temporalState: "Estado temporal",
           owner: "Responsável",
           nextAction: "Próxima ação",
@@ -250,6 +252,7 @@ export default async function InboxPage() {
             filterChannelAll: "All",
             channel: t("inbox_channel"),
             emptyState: "No conversations yet.",
+            emptyChannelState: t("inbox_empty_channel"),
             temporalState: "Status timing",
             owner: "Owner",
             nextAction: "Next action",
@@ -273,6 +276,7 @@ export default async function InboxPage() {
             filterChannelAll: "Todos",
             channel: t("inbox_channel"),
             emptyState: "No hay conversaciones todavía.",
+            emptyChannelState: t("inbox_empty_channel"),
             temporalState: "Estado temporal",
             owner: "Responsable",
             nextAction: "Siguiente acción",
@@ -397,6 +401,11 @@ export default async function InboxPage() {
     };
   });
 
+  const channelOptions = CHANNEL_TYPES.map((channel) => ({
+    channel,
+    label: formatChannel(channel, t),
+  }));
+
   return (
     <section className="page">
       <AutoRefresh intervalMs={12000} />
@@ -409,6 +418,7 @@ export default async function InboxPage() {
       />
       <InboxDecisionView
         conversations={conversations}
+        channelOptions={channelOptions}
         riskAmountLabel={format(riskAmount)}
         activeAmountLabel={format(activeAmount)}
         highValueAmountLabel={format(highValueAmount)}
