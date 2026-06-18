@@ -2335,17 +2335,27 @@ textarea:focus-visible {
 }
 
 /* Auth pages: purple theme (login, signup, reset-password, accept-invite) */
-.auth-page .subtitle {
-  color: #a1a1aa;
+.auth-page-layout {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 88px 20px 40px;
 }
 
 .auth-page .auth-back-link {
+  position: absolute;
+  top: 24px;
+  left: 20px;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 40px;
   height: 40px;
-  margin-bottom: 16px;
+  margin-bottom: 0;
   border: 0;
   background: transparent;
   color: #ddd6fe;
@@ -2365,20 +2375,67 @@ textarea:focus-visible {
   border-radius: 8px;
 }
 
-.auth-page .card {
-  background: rgba(16, 14, 28, 0.88);
-  border-color: rgba(155, 124, 242, 0.18);
-  box-shadow: 0 20px 55px rgba(58, 40, 120, 0.22);
+.auth-page .auth-panel {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 24px;
+  border: 1px solid rgba(155, 124, 242, 0.22);
+  background: linear-gradient(180deg, rgba(20, 18, 34, 0.96) 0%, rgba(10, 12, 20, 0.94) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 28px 80px rgba(0, 0, 0, 0.42),
+    0 0 70px rgba(122, 108, 240, 0.1);
+  backdrop-filter: blur(18px);
+  padding: 32px 28px 28px;
+}
+
+.auth-page .auth-panel-header {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.auth-page .auth-panel-kicker {
+  margin: 0 0 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #c4b5fd;
+}
+
+.auth-page .auth-panel-title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: #fafafa;
+}
+
+.auth-page .auth-panel-subtitle {
+  margin: 8px 0 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: #a1a1aa;
+}
+
+.auth-page .auth-panel-body .form {
+  max-width: none;
+  margin: 0;
 }
 
 .auth-page .label {
   color: #a1a1aa;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
 }
 
 .auth-page .input {
-  background: rgba(10, 12, 20, 0.92);
+  background: rgba(8, 10, 18, 0.92);
   border-color: rgba(155, 124, 242, 0.16);
+  border-radius: 12px;
   color: #f4f4f5;
+  padding: 12px 14px;
+  margin-bottom: 12px;
 }
 
 .auth-page .input:focus-visible {
@@ -2390,6 +2447,10 @@ textarea:focus-visible {
 }
 
 .auth-page .button {
+  width: 100%;
+  margin-top: 4px;
+  border-radius: 12px;
+  min-height: 46px;
   background: linear-gradient(120deg, #7a6cf0 0%, #9b7cf2 100%);
   color: #ffffff;
   box-shadow: 0 14px 34px rgba(122, 108, 240, 0.28);
@@ -2400,11 +2461,30 @@ textarea:focus-visible {
 }
 
 .auth-page .action-link {
+  width: 100%;
+  margin-top: 14px;
+  text-align: center;
   color: #c4b5fd;
 }
 
 .auth-page .action-link:hover {
   color: #ede9fe;
+}
+
+.auth-page .form > p:last-child {
+  margin-top: 20px;
+  margin-bottom: 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #a1a1aa;
+}
+
+.auth-page .form .subtitle {
+  margin: 0 0 16px;
+  text-align: center;
+  color: #a1a1aa;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 .auth-page a {

@@ -21,22 +21,24 @@ export function AuthPageShell({ title, subtitle, children }: Props) {
         <div className="absolute left-[34%] top-[42%] h-[20rem] w-[20rem] rounded-full bg-[#cf87d8]/6 blur-3xl" />
       </div>
 
-      <div className="page relative mx-auto max-w-2xl px-4 py-6 sm:px-6">
-        <Link
-          href="/"
-          className="auth-back-link"
-          aria-label={t("nav_landing")}
-          title={t("nav_landing")}
-        >
-          ←
-        </Link>
-        <header className="header">
-          <div>
-            <h1 className="title">{title}</h1>
-            <p className="subtitle">{subtitle}</p>
-          </div>
-        </header>
-        {children}
+      <Link
+        href="/"
+        className="auth-back-link"
+        aria-label={t("nav_landing")}
+        title={t("nav_landing")}
+      >
+        ←
+      </Link>
+
+      <div className="auth-page-layout">
+        <div className="auth-panel">
+          <header className="auth-panel-header">
+            <p className="auth-panel-kicker">Novua</p>
+            <h1 className="auth-panel-title">{title}</h1>
+            <p className="auth-panel-subtitle">{subtitle}</p>
+          </header>
+          <div className="auth-panel-body">{children}</div>
+        </div>
       </div>
     </section>
   );

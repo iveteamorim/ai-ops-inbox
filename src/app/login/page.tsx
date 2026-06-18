@@ -107,7 +107,7 @@ export default function LoginPage() {
       title={t("login_title")}
       subtitle={t("login_subtitle")}
     >
-      <form className="card form" onSubmit={handleSubmit}>
+      <form className="form" onSubmit={handleSubmit}>
         <label className="label" htmlFor="email">{t("form_email")}</label>
         <input id="email" className="input" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
 

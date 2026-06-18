@@ -144,7 +144,7 @@ export default function AcceptInvitePage() {
       title={t("accept_invite_title")}
       subtitle={t("accept_invite_subtitle")}
     >
-      <form className="card form" onSubmit={handleSubmit}>
+      <form className="form" onSubmit={handleSubmit}>
         {status === "booting" ? <p className="subtitle">{t("accept_invite_verifying")}</p> : null}
         {status === "ready" ? (
           <>

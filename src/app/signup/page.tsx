@@ -74,7 +74,7 @@ export default function SignupPage() {
       title={t("signup_title")}
       subtitle={t("signup_subtitle")}
     >
-      <form className="card form" onSubmit={handleSubmit}>
+      <form className="form" onSubmit={handleSubmit}>
         <label className="label" htmlFor="company">{t("form_company")}</label>
         <input id="company" className="input" type="text" required value={company} onChange={(e) => setCompany(e.target.value)} />
 

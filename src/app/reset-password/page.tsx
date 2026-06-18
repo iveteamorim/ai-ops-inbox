@@ -120,7 +120,7 @@ export default function ResetPasswordPage() {
       title={t("reset_password_title")}
       subtitle={t("reset_password_subtitle")}
     >
-      <form className="card form" onSubmit={handleSubmit}>
+      <form className="form" onSubmit={handleSubmit}>
         {status === "booting" ? <p className="subtitle">{t("reset_password_verifying")}</p> : null}
         {status === "ready" ? (
           <>
