@@ -8,6 +8,9 @@ import { SetupRequestButton } from "@/components/SetupRequestButton";
 import { TeamMembersList } from "@/components/TeamMembersList";
 import { ChannelsOverview } from "@/components/settings/ChannelsOverview";
 import { ChannelSetupPlaceholder } from "@/components/settings/ChannelSetupPlaceholder";
+import { FormChannelSetup } from "@/components/settings/FormChannelSetup";
+import { getPublicAppUrl } from "@/lib/app-url";
+import { buildFormEmbedSnippet } from "@/lib/messaging/form";
 import { WhatsAppEmbeddedSignupCard } from "@/components/WhatsAppEmbeddedSignupCard";
 import { WorkspaceDangerZone } from "@/components/WorkspaceDangerZone";
 import { cookies, headers } from "next/headers";
@@ -779,6 +782,65 @@ export default async function SettingsPage() {
             },
           };
 
+  const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
+  const protocol = headerStore.get("x-forwarded-proto") ?? "https";
+  const appUrl = host ? `${protocol}://${host}` : getPublicAppUrl();
+  const formToken =
+    formChannel?.is_active && formChannel.external_account_id ? formChannel.external_account_id : null;
+  const formEndpoint = `${appUrl}/api/leads/form`;
+  const formEmbed = formToken ? buildFormEmbedSnippet(appUrl, formToken) : null;
+  const formChannelSetupCopy =
+    lang === "pt"
+      ? {
+          title: pendingChannelSetupCopy.form.title,
+          description: pendingChannelSetupCopy.form.description,
+          connected: channelsOverviewCopy.connected,
+          disconnected: channelsOverviewCopy.comingSoon,
+          activate: "Ativar formulário web",
+          regenerate: "Gerar novo token",
+          endpoint: "Endpoint",
+          token: "Token público",
+          embed: "Código para colar no site",
+          copy: "Copiar",
+          copied: "Copiado",
+          help: "Ativa o canal web, copia o snippet e cola-o na página de contacto do teu site.",
+          agentNote: "Só owners e admins podem ativar o formulário web.",
+          error: "Não foi possível ativar o formulário web.",
+        }
+      : lang === "en"
+        ? {
+            title: pendingChannelSetupCopy.form.title,
+            description: pendingChannelSetupCopy.form.description,
+            connected: channelsOverviewCopy.connected,
+            disconnected: channelsOverviewCopy.comingSoon,
+            activate: "Activate web form",
+            regenerate: "Generate new token",
+            endpoint: "Endpoint",
+            token: "Public token",
+            embed: "Embed code for your site",
+            copy: "Copy",
+            copied: "Copied",
+            help: "Activate the web channel, copy the snippet, and paste it on your contact page.",
+            agentNote: "Only owners and admins can activate the web form.",
+            error: "Could not activate the web form.",
+          }
+        : {
+            title: pendingChannelSetupCopy.form.title,
+            description: pendingChannelSetupCopy.form.description,
+            connected: channelsOverviewCopy.connected,
+            disconnected: channelsOverviewCopy.comingSoon,
+            activate: "Activar formulario web",
+            regenerate: "Generar nuevo token",
+            endpoint: "Endpoint",
+            token: "Token público",
+            embed: "Código para pegar en la web",
+            copy: "Copiar",
+            copied: "Copiado",
+            help: "Activa el canal web, copia el snippet y pégalo en la página de contacto de tu sitio.",
+            agentNote: "Solo owners y admins pueden activar el formulario web.",
+            error: "No se pudo activar el formulario web.",
+          };
+
   return (
     <section className="page settings-page-reset">
       <AppNav
@@ -926,15 +988,14 @@ export default async function SettingsPage() {
             pendingLabel={channelsOverviewCopy.comingSoon}
           />
 
-          <ChannelSetupPlaceholder
-            channel="form"
+          <FormChannelSetup
             label={formatChannel("form", t)}
-            title={pendingChannelSetupCopy.form.title}
-            description={pendingChannelSetupCopy.form.description}
-            comingSoon={channelsOverviewCopy.comingSoon}
-            isConnected={Boolean(formChannel?.is_active)}
-            connectedLabel={channelsOverviewCopy.connected}
-            pendingLabel={channelsOverviewCopy.comingSoon}
+            isActive={Boolean(formChannel?.is_active && formToken)}
+            token={formToken}
+            endpoint={formEndpoint}
+            embed={formEmbed}
+            canManage={canManageTeam}
+            labels={formChannelSetupCopy}
           />
 
           <div className="settings-main-grid">

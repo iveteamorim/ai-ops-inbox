@@ -3376,6 +3376,41 @@ textarea:focus-visible {
   scroll-margin-top: 96px;
 }
 
+.settings-form-channel-fields {
+  display: grid;
+  gap: 14px;
+}
+
+.settings-copy-field .label {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.settings-copy-row {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+
+.settings-copy-row-stack {
+  grid-template-columns: 1fr;
+}
+
+.settings-copy-row .button-copy {
+  min-height: 42px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+  padding: 0 14px;
+  font-weight: 600;
+}
+
+.settings-copy-row .button-copy:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .settings-channel-tile-head {
   display: flex;
   align-items: center;
