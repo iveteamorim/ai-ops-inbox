@@ -18,6 +18,7 @@ const PUBLIC_PATHS = [
   "/api/webhooks/instagram",
   "/api/webhooks/stripe",
   "/api/leads/form",
+  "/diagnostico",
 ];
 const INTERNAL_BYPASS = ["/_next", "/favicon.ico"];
 
