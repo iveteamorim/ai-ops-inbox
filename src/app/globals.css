@@ -2517,6 +2517,59 @@ textarea:focus-visible {
   line-height: 1.5;
 }
 
+.auth-setup-notice {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  border-radius: 14px;
+  background: rgba(120, 53, 15, 0.18);
+}
+
+.auth-setup-notice-title {
+  margin: 0 0 8px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #fde68a;
+}
+
+.auth-setup-notice-copy {
+  margin: 0 0 10px;
+  color: #fcd34d;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.auth-setup-notice-steps {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  color: #fde68a;
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.auth-setup-notice-demo {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.auth-setup-notice-demo p {
+  margin: 0;
+  color: #fcd34d;
+  font-size: 0.86rem;
+}
+
+.auth-setup-notice-demo code,
+.auth-setup-notice code {
+  display: block;
+  width: fit-content;
+  border-radius: 8px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.28);
+  color: #fff7ed;
+  font-size: 0.82rem;
+}
+
 .auth-page a {
   color: #ddd6fe;
 }

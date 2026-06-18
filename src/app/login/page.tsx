@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthPageShell } from "@/components/AuthPageShell";
+import { AuthSetupNotice } from "@/components/AuthSetupNotice";
 import { PasswordField } from "@/components/PasswordField";
 import { createClient } from "@/lib/supabase/client";
 import { createPublicAuthClient } from "@/lib/supabase/public-auth-client";
@@ -45,8 +46,8 @@ export default function LoginPage() {
       const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
       const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-      if (!url || !anonKey) {
-        setError("Auth is not configured. Add Supabase env vars.");
+      if (!url || !anonKey || url.includes("YOUR-PROJECT")) {
+        setError(t("login_local_setup_body"));
         return;
       }
 
@@ -108,6 +109,7 @@ export default function LoginPage() {
       subtitle={t("login_subtitle")}
     >
       <form className="form" onSubmit={handleSubmit}>
+        <AuthSetupNotice />
         <label className="label" htmlFor="email">{t("form_email")}</label>
         <input id="email" className="input" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
 
