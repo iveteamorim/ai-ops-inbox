@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ChannelType } from "@/lib/messaging/channel-types";
-import { CHANNEL_TYPES } from "@/lib/messaging/channel-types";
+import { CHANNEL_TYPES, channelSettingsAnchor } from "@/lib/messaging/channel-types";
 import { ChannelBadge } from "@/components/ChannelBadge";
 
 type ChannelRow = {
@@ -71,7 +71,11 @@ export function ChannelsOverview({
                 : comingSoon;
 
           return (
-            <div key={type} className="settings-channel-tile">
+            <Link
+              key={type}
+              href={`#${channelSettingsAnchor(type)}`}
+              className="settings-channel-tile settings-channel-tile-link"
+            >
               <div className="settings-channel-tile-head">
                 <ChannelBadge label={formatChannel(type)} channel={type} />
                 <span
@@ -86,14 +90,8 @@ export function ChannelsOverview({
                 </span>
               </div>
               <p className="settings-channel-tile-copy">{tiles[type].description}</p>
-              {type === "whatsapp" ? (
-                <Link href="#whatsapp-setup" className="action-link">
-                  {configure}
-                </Link>
-              ) : (
-                <p className="settings-channel-tile-note">{comingSoon}</p>
-              )}
-            </div>
+              <span className="action-link">{configure}</span>
+            </Link>
           );
         })}
       </div>

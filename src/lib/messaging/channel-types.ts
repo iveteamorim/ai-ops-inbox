@@ -18,6 +18,10 @@ export function formatChannelLabel(
   return t("conversation_channel_form");
 }
 
+export function channelSettingsAnchor(channel: ChannelType): string {
+  return `${channel}-setup`;
+}
+
 export function channelBadgeClass(channel: ChannelType): string {
   switch (channel) {
     case "whatsapp":

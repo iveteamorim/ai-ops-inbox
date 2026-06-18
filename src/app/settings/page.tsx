@@ -7,6 +7,7 @@ import { PilotFeedbackHistory } from "@/components/PilotFeedbackHistory";
 import { SetupRequestButton } from "@/components/SetupRequestButton";
 import { TeamMembersList } from "@/components/TeamMembersList";
 import { ChannelsOverview } from "@/components/settings/ChannelsOverview";
+import { ChannelSetupPlaceholder } from "@/components/settings/ChannelSetupPlaceholder";
 import { WhatsAppEmbeddedSignupCard } from "@/components/WhatsAppEmbeddedSignupCard";
 import { WorkspaceDangerZone } from "@/components/WorkspaceDangerZone";
 import { cookies, headers } from "next/headers";
@@ -527,6 +528,9 @@ export default async function SettingsPage() {
   const roleLabel = formatRoleLabel(lang, context.profile.role);
   const workspaceLabel = context.company?.name ?? "Novua Inbox";
   const whatsappChannel = channels.find((channel) => channel.type === "whatsapp") ?? null;
+  const instagramChannel = channels.find((channel) => channel.type === "instagram") ?? null;
+  const emailChannel = channels.find((channel) => channel.type === "email") ?? null;
+  const formChannel = channels.find((channel) => channel.type === "form") ?? null;
   const whatsappConnected = Boolean(whatsappChannel?.is_active);
   const whatsappChannelConfig =
     whatsappChannel?.config && typeof whatsappChannel.config === "object"
@@ -729,6 +733,52 @@ export default async function SettingsPage() {
             } satisfies Record<ChannelType, { label: string; description: string }>,
           };
 
+  const pendingChannelSetupCopy =
+    lang === "pt"
+      ? {
+          instagram: {
+            title: "Conectar Instagram",
+            description: "Recebe DMs e respostas do Instagram no mesmo inbox da Novua.",
+          },
+          email: {
+            title: "Conectar email",
+            description: "Centraliza email recebido e respostas num inbox partilhado.",
+          },
+          form: {
+            title: "Conectar web",
+            description: "Encaminha leads de formulário e chat do site para a Novua.",
+          },
+        }
+      : lang === "en"
+        ? {
+            instagram: {
+              title: "Connect Instagram",
+              description: "Receive Instagram DMs and replies in the same Novua inbox.",
+            },
+            email: {
+              title: "Connect email",
+              description: "Centralize inbound email and threaded replies in one shared inbox.",
+            },
+            form: {
+              title: "Connect web",
+              description: "Route website form and chat leads into Novua.",
+            },
+          }
+        : {
+            instagram: {
+              title: "Conectar Instagram",
+              description: "Recibe DMs y respuestas de Instagram en el mismo inbox de Novua.",
+            },
+            email: {
+              title: "Conectar email",
+              description: "Centraliza el email entrante y las respuestas en un inbox compartido.",
+            },
+            form: {
+              title: "Conectar web",
+              description: "Enruta leads de formulario y chat web hacia Novua.",
+            },
+          };
+
   return (
     <section className="page settings-page-reset">
       <AppNav
@@ -781,7 +831,7 @@ export default async function SettingsPage() {
           />
 
           <article
-            className={`card settings-channel-card ${whatsappConnected ? "settings-channel-connected" : "settings-channel-pending"}`.trim()}
+            className={`card settings-channel-card settings-channel-setup-anchor ${whatsappConnected ? "settings-channel-connected" : "settings-channel-pending"}`.trim()}
             id="whatsapp-setup"
           >
             <p className="note" style={{ marginTop: 0, marginBottom: 4 }}>{channelStepLabel}</p>
@@ -853,6 +903,39 @@ export default async function SettingsPage() {
               </div>
             )}
           </article>
+
+          <ChannelSetupPlaceholder
+            channel="instagram"
+            label={formatChannel("instagram", t)}
+            title={pendingChannelSetupCopy.instagram.title}
+            description={pendingChannelSetupCopy.instagram.description}
+            comingSoon={channelsOverviewCopy.comingSoon}
+            isConnected={Boolean(instagramChannel?.is_active)}
+            connectedLabel={channelsOverviewCopy.connected}
+            pendingLabel={channelsOverviewCopy.comingSoon}
+          />
+
+          <ChannelSetupPlaceholder
+            channel="email"
+            label={formatChannel("email", t)}
+            title={pendingChannelSetupCopy.email.title}
+            description={pendingChannelSetupCopy.email.description}
+            comingSoon={channelsOverviewCopy.comingSoon}
+            isConnected={Boolean(emailChannel?.is_active)}
+            connectedLabel={channelsOverviewCopy.connected}
+            pendingLabel={channelsOverviewCopy.comingSoon}
+          />
+
+          <ChannelSetupPlaceholder
+            channel="form"
+            label={formatChannel("form", t)}
+            title={pendingChannelSetupCopy.form.title}
+            description={pendingChannelSetupCopy.form.description}
+            comingSoon={channelsOverviewCopy.comingSoon}
+            isConnected={Boolean(formChannel?.is_active)}
+            connectedLabel={channelsOverviewCopy.connected}
+            pendingLabel={channelsOverviewCopy.comingSoon}
+          />
 
           <div className="settings-main-grid">
             {canManageTeam ? (
