@@ -1,7 +1,7 @@
 import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
 import { getPublicAppUrl } from "@/lib/app-url";
-import { buildFormEmbedSnippet } from "@/lib/messaging/form";
+import { buildFormEmbedSnippet, buildFormPublicUrl } from "@/lib/messaging/form";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { enforceSameOrigin } from "@/lib/security/request-origin";
@@ -58,6 +58,7 @@ export async function GET(request: Request) {
     ok: true,
     active: Boolean(channel?.is_active && token),
     token,
+    website_link: token ? buildFormPublicUrl(appUrl, token) : null,
     endpoint: `${appUrl}/api/leads/form`,
     embed: token ? buildFormEmbedSnippet(appUrl, token) : null,
   });
@@ -146,6 +147,7 @@ export async function POST(request: Request) {
   return NextResponse.json({
     ok: true,
     token,
+    website_link: buildFormPublicUrl(appUrl, token),
     endpoint: `${appUrl}/api/leads/form`,
     embed: buildFormEmbedSnippet(appUrl, token),
   });

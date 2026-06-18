@@ -10,7 +10,7 @@ import { ChannelsOverview } from "@/components/settings/ChannelsOverview";
 import { ChannelSetupPlaceholder } from "@/components/settings/ChannelSetupPlaceholder";
 import { FormChannelSetup } from "@/components/settings/FormChannelSetup";
 import { getPublicAppUrl } from "@/lib/app-url";
-import { buildFormEmbedSnippet } from "@/lib/messaging/form";
+import { buildFormEmbedSnippet, buildFormPublicUrl } from "@/lib/messaging/form";
 import { parseGoogleFormsBackupConfig } from "@/lib/messaging/google-forms-backup";
 import { WhatsAppEmbeddedSignupCard } from "@/components/WhatsAppEmbeddedSignupCard";
 import { WorkspaceDangerZone } from "@/components/WorkspaceDangerZone";
@@ -789,7 +789,7 @@ export default async function SettingsPage() {
   const formToken =
     formChannel?.is_active && formChannel.external_account_id ? formChannel.external_account_id : null;
   const formEndpoint = `${appUrl}/api/leads/form`;
-  const formTestUrl = formToken ? `${appUrl}/diagnostico?token=${encodeURIComponent(formToken)}` : null;
+  const formWebsiteLink = formToken ? buildFormPublicUrl(appUrl, formToken) : null;
   const formEmbed = formToken ? buildFormEmbedSnippet(appUrl, formToken) : null;
   const googleFormsBackup = parseGoogleFormsBackupConfig(formChannel?.config ?? null);
   const formChannelSetupCopy =
@@ -800,16 +800,20 @@ export default async function SettingsPage() {
           connected: channelsOverviewCopy.connected,
           disconnected: channelsOverviewCopy.comingSoon,
           activate: "Ativar formulário web",
-          regenerate: "Gerar novo token",
-          endpoint: "Endpoint",
-          token: "Token público",
-          embed: "Código para colar no site",
-          testUrl: "URL de teste deste workspace",
-          testUrlHelp:
-            "Os envios desta URL entram no teu inbox. /diagnostico sem token pode ir para outro workspace.",
+          regenerate: "Gerar novo link",
+          websiteLink: "Link para a tua web",
+          websiteLinkHelp: "Cola este link no botão Contacto, Reservar ou Solicitar diagnóstico.",
+          step1: "Ativa o canal web.",
+          step2: "Copia o link abaixo.",
+          step3: "Cola no botão de contacto do teu site. Os leads entram no inbox.",
+          openForm: "Abrir formulário",
+          advanced: "Opções avançadas (API, embed, cópia Google Forms)",
+          endpoint: "Endpoint API",
+          token: "Token técnico",
+          embed: "Código embed",
           copy: "Copiar",
           copied: "Copiado",
-          help: "Ativa o canal web, copia o snippet e cola-o na página de contacto do teu site.",
+          help: "Um clique para ativar. Depois só copias um link para o teu site.",
           agentNote: "Só owners e admins podem ativar o formulário web.",
           error: "Não foi possível ativar o formulário web.",
           backupTitle: "Cópia de segurança externa",
@@ -833,16 +837,20 @@ export default async function SettingsPage() {
             connected: channelsOverviewCopy.connected,
             disconnected: channelsOverviewCopy.comingSoon,
             activate: "Activate web form",
-            regenerate: "Generate new token",
-            endpoint: "Endpoint",
-            token: "Public token",
-            embed: "Embed code for your site",
-            testUrl: "Test URL for this workspace",
-            testUrlHelp:
-              "Submissions from this URL land in your inbox. /diagnostico without a token may route elsewhere.",
+            regenerate: "Generate new link",
+            websiteLink: "Link for your website",
+            websiteLinkHelp: "Paste this link on your Contact, Book, or Request diagnosis button.",
+            step1: "Activate the web channel.",
+            step2: "Copy the link below.",
+            step3: "Paste it on your site's contact button. Leads land in your inbox.",
+            openForm: "Open form",
+            advanced: "Advanced options (API, embed, Google Forms backup)",
+            endpoint: "API endpoint",
+            token: "Technical token",
+            embed: "Embed code",
             copy: "Copy",
             copied: "Copied",
-            help: "Activate the web channel, copy the snippet, and paste it on your contact page.",
+            help: "One click to activate. Then copy one link for your website.",
             agentNote: "Only owners and admins can activate the web form.",
             error: "Could not activate the web form.",
             backupTitle: "External backup copy",
@@ -865,16 +873,20 @@ export default async function SettingsPage() {
             connected: channelsOverviewCopy.connected,
             disconnected: channelsOverviewCopy.comingSoon,
             activate: "Activar formulario web",
-            regenerate: "Generar nuevo token",
-            endpoint: "Endpoint",
-            token: "Token público",
-            embed: "Código para pegar en la web",
-            testUrl: "URL de prueba de este workspace",
-            testUrlHelp:
-              "Los envíos desde esta URL entran en tu inbox. /diagnostico sin token puede ir a otro workspace.",
+            regenerate: "Generar nuevo enlace",
+            websiteLink: "Enlace para tu web",
+            websiteLinkHelp: 'Pega este enlace en el botón Contacto, Reservar o "Solicitar diagnóstico".',
+            step1: "Activa el canal web.",
+            step2: "Copia el enlace de abajo.",
+            step3: "Pégalo en el botón de contacto de tu sitio. Los leads entran al inbox.",
+            openForm: "Abrir formulario",
+            advanced: "Opciones avanzadas (API, embed, copia Google Forms)",
+            endpoint: "Endpoint API",
+            token: "Token técnico",
+            embed: "Código embed",
             copy: "Copiar",
             copied: "Copiado",
-            help: "Activa el canal web, copia el snippet y pégalo en la página de contacto de tu sitio.",
+            help: "Un clic para activar. Luego solo copias un enlace para tu web.",
             agentNote: "Solo owners y admins pueden activar el formulario web.",
             error: "No se pudo activar el formulario web.",
             backupTitle: "Copia de seguridad externa",
@@ -1042,9 +1054,9 @@ export default async function SettingsPage() {
           <FormChannelSetup
             label={formatChannel("form", t)}
             isActive={Boolean(formChannel?.is_active && formToken)}
+            websiteLink={formWebsiteLink}
             token={formToken}
             endpoint={formEndpoint}
-            testUrl={formTestUrl}
             embed={formEmbed}
             canManage={canManageTeam}
             googleFormsBackup={googleFormsBackup}

@@ -13,11 +13,16 @@ type Labels = {
   disconnected: string;
   activate: string;
   regenerate: string;
+  websiteLink: string;
+  websiteLinkHelp: string;
+  step1: string;
+  step2: string;
+  step3: string;
+  openForm: string;
+  advanced: string;
   endpoint: string;
   token: string;
   embed: string;
-  testUrl: string;
-  testUrlHelp: string;
   copy: string;
   copied: string;
   help: string;
@@ -40,9 +45,9 @@ type Labels = {
 type Props = {
   label: string;
   isActive: boolean;
-  token: string | null;
+  websiteLink: string | null;
   endpoint: string;
-  testUrl: string | null;
+  token: string | null;
   embed: string | null;
   canManage: boolean;
   googleFormsBackup: GoogleFormsBackupConfig | null;
@@ -69,9 +74,9 @@ async function copyText(value: string) {
 export function FormChannelSetup({
   label,
   isActive,
-  token,
+  websiteLink,
   endpoint,
-  testUrl,
+  token,
   embed,
   canManage,
   googleFormsBackup,
@@ -84,6 +89,7 @@ export function FormChannelSetup({
   const [backupSaved, setBackupSaved] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [liveToken, setLiveToken] = useState(token);
+  const [liveWebsiteLink, setLiveWebsiteLink] = useState(websiteLink);
   const [liveEmbed, setLiveEmbed] = useState(embed);
   const [liveActive, setLiveActive] = useState(isActive);
   const [backupActionUrl, setBackupActionUrl] = useState(googleFormsBackup?.action_url ?? "");
@@ -103,6 +109,7 @@ export function FormChannelSetup({
     const data = (await response.json().catch(() => ({}))) as {
       ok?: boolean;
       token?: string;
+      website_link?: string;
       embed?: string;
       error?: string;
     };
@@ -113,6 +120,7 @@ export function FormChannelSetup({
     }
 
     setLiveToken(data.token);
+    setLiveWebsiteLink(data.website_link ?? null);
     setLiveEmbed(data.embed ?? null);
     setLiveActive(true);
     startTransition(() => router.refresh());
@@ -169,9 +177,12 @@ export function FormChannelSetup({
       <p className="subtitle" style={{ marginBottom: 12 }}>
         {labels.description}
       </p>
-      <p className="note" style={{ marginBottom: 16 }}>
-        {labels.help}
-      </p>
+
+      {!liveActive ? (
+        <p className="note" style={{ marginBottom: 16 }}>
+          {labels.help}
+        </p>
+      ) : null}
 
       {canManage ? (
         <div style={{ marginBottom: 16 }}>
@@ -186,156 +197,175 @@ export function FormChannelSetup({
         </p>
       )}
 
-      {liveActive && liveToken ? (
-        <div className="settings-form-channel-fields">
-          <div className="settings-copy-field">
-            <label className="label" htmlFor="form-endpoint">
-              {labels.endpoint}
+      {liveActive && liveWebsiteLink && liveToken ? (
+        <div className="settings-form-simple">
+          <ol className="settings-form-steps">
+            <li>{labels.step1}</li>
+            <li>{labels.step2}</li>
+            <li>{labels.step3}</li>
+          </ol>
+
+          <div className="settings-form-hero">
+            <label className="label" htmlFor="form-website-link">
+              {labels.websiteLink}
             </label>
-            <div className="settings-copy-row">
-              <input id="form-endpoint" className="input" readOnly value={endpoint} />
-              <button
-                type="button"
-                className="button-copy"
-                onClick={() => handleCopy("endpoint", endpoint)}
-              >
-                {copiedField === "endpoint" ? labels.copied : labels.copy}
-              </button>
-            </div>
-          </div>
-
-          <div className="settings-copy-field">
-            <label className="label" htmlFor="form-token">
-              {labels.token}
-            </label>
-            <div className="settings-copy-row">
-              <input id="form-token" className="input" readOnly value={liveToken} />
-              <button
-                type="button"
-                className="button-copy"
-                onClick={() => handleCopy("token", liveToken)}
-              >
-                {copiedField === "token" ? labels.copied : labels.copy}
-              </button>
-            </div>
-          </div>
-
-          {testUrl ? (
-            <div className="settings-copy-field">
-              <label className="label" htmlFor="form-test-url">
-                {labels.testUrl}
-              </label>
-              <p className="note" style={{ marginBottom: 8 }}>
-                {labels.testUrlHelp}
-              </p>
-              <div className="settings-copy-row">
-                <input id="form-test-url" className="input" readOnly value={testUrl} />
-                <button
-                  type="button"
-                  className="button-copy"
-                  onClick={() => handleCopy("testUrl", testUrl)}
-                >
-                  {copiedField === "testUrl" ? labels.copied : labels.copy}
-                </button>
-              </div>
-            </div>
-          ) : null}
-
-          {liveEmbed ? (
-            <div className="settings-copy-field">
-              <label className="label" htmlFor="form-embed">
-                {labels.embed}
-              </label>
-              <div className="settings-copy-row settings-copy-row-stack">
-                <textarea id="form-embed" className="input" readOnly rows={12} value={liveEmbed} />
-                <button
-                  type="button"
-                  className="button-copy"
-                  onClick={() => handleCopy("embed", liveEmbed)}
-                >
-                  {copiedField === "embed" ? labels.copied : labels.copy}
-                </button>
-              </div>
-            </div>
-          ) : null}
-
-          <div className="settings-form-backup">
-            <p className="label">{labels.backupTitle}</p>
-            <p className="note" style={{ marginBottom: 12 }}>
-              {labels.backupHelp}
+            <p className="note" style={{ marginBottom: 10 }}>
+              {labels.websiteLinkHelp}
             </p>
-            {backupEnabled && googleFormsBackup ? (
-              <p className="note" style={{ marginBottom: 12 }}>
-                {labels.backupActive}
-              </p>
-            ) : null}
-            <label className="settings-checkbox-row">
-              <input
-                type="checkbox"
-                checked={backupEnabled}
-                onChange={(event) => setBackupEnabled(event.target.checked)}
-              />
-              <span>{labels.backupProvider}</span>
-            </label>
-            {backupEnabled ? (
-              <div className="settings-form-channel-fields" style={{ marginTop: 12 }}>
-                <label className="novua-lead-form-field">
-                  <span className="label">{labels.backupActionUrl}</span>
-                  <input
-                    className="input"
-                    value={backupActionUrl}
-                    onChange={(event) => setBackupActionUrl(event.target.value)}
-                    placeholder="https://docs.google.com/forms/d/e/.../viewform"
-                  />
-                </label>
-                <label className="novua-lead-form-field">
-                  <span className="label">{labels.backupEntryName}</span>
-                  <input
-                    className="input"
-                    value={backupEntryName}
-                    onChange={(event) => setBackupEntryName(event.target.value)}
-                    placeholder="entry.123456789"
-                  />
-                </label>
-                <label className="novua-lead-form-field">
-                  <span className="label">{labels.backupEntryEmail}</span>
-                  <input
-                    className="input"
-                    value={backupEntryEmail}
-                    onChange={(event) => setBackupEntryEmail(event.target.value)}
-                    placeholder="entry.987654321"
-                  />
-                </label>
-                <label className="novua-lead-form-field">
-                  <span className="label">{labels.backupEntryPhone}</span>
-                  <input
-                    className="input"
-                    value={backupEntryPhone}
-                    onChange={(event) => setBackupEntryPhone(event.target.value)}
-                    placeholder="entry.111222333"
-                  />
-                </label>
-                <label className="novua-lead-form-field">
-                  <span className="label">{labels.backupEntryMessage}</span>
-                  <input
-                    className="input"
-                    value={backupEntryMessage}
-                    onChange={(event) => setBackupEntryMessage(event.target.value)}
-                    placeholder="entry.444555666"
-                  />
-                </label>
-              </div>
-            ) : null}
-            {canManage ? (
-              <div style={{ marginTop: 12 }}>
-                <button className="button" type="button" onClick={handleSaveBackup}>
-                  {labels.backupSave}
-                </button>
-                {backupSaved ? <p className="note">{labels.backupSaved}</p> : null}
-                {backupError ? <p className="note">{backupError}</p> : null}
-              </div>
-            ) : null}
+            <div className="settings-copy-row">
+              <input id="form-website-link" className="input" readOnly value={liveWebsiteLink} />
+              <button
+                type="button"
+                className="button-copy"
+                onClick={() => handleCopy("websiteLink", liveWebsiteLink)}
+              >
+                {copiedField === "websiteLink" ? labels.copied : labels.copy}
+              </button>
+            </div>
+            <a
+              href={liveWebsiteLink}
+              target="_blank"
+              rel="noreferrer"
+              className="settings-form-open-link"
+            >
+              {labels.openForm}
+            </a>
           </div>
+
+          <details className="settings-form-advanced">
+            <summary className="label" style={{ cursor: "pointer" }}>
+              {labels.advanced}
+            </summary>
+            <div className="settings-form-channel-fields" style={{ marginTop: 12 }}>
+              <div className="settings-copy-field">
+                <label className="label" htmlFor="form-endpoint">
+                  {labels.endpoint}
+                </label>
+                <div className="settings-copy-row">
+                  <input id="form-endpoint" className="input" readOnly value={endpoint} />
+                  <button
+                    type="button"
+                    className="button-copy"
+                    onClick={() => handleCopy("endpoint", endpoint)}
+                  >
+                    {copiedField === "endpoint" ? labels.copied : labels.copy}
+                  </button>
+                </div>
+              </div>
+
+              <div className="settings-copy-field">
+                <label className="label" htmlFor="form-token">
+                  {labels.token}
+                </label>
+                <div className="settings-copy-row">
+                  <input id="form-token" className="input" readOnly value={liveToken} />
+                  <button
+                    type="button"
+                    className="button-copy"
+                    onClick={() => handleCopy("token", liveToken)}
+                  >
+                    {copiedField === "token" ? labels.copied : labels.copy}
+                  </button>
+                </div>
+              </div>
+
+              {liveEmbed ? (
+                <div className="settings-copy-field">
+                  <label className="label" htmlFor="form-embed">
+                    {labels.embed}
+                  </label>
+                  <div className="settings-copy-row settings-copy-row-stack">
+                    <textarea id="form-embed" className="input" readOnly rows={10} value={liveEmbed} />
+                    <button
+                      type="button"
+                      className="button-copy"
+                      onClick={() => handleCopy("embed", liveEmbed)}
+                    >
+                      {copiedField === "embed" ? labels.copied : labels.copy}
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="settings-form-backup">
+                <p className="label">{labels.backupTitle}</p>
+                <p className="note" style={{ marginBottom: 12 }}>
+                  {labels.backupHelp}
+                </p>
+                {backupEnabled && googleFormsBackup ? (
+                  <p className="note" style={{ marginBottom: 12 }}>
+                    {labels.backupActive}
+                  </p>
+                ) : null}
+                <label className="settings-checkbox-row">
+                  <input
+                    type="checkbox"
+                    checked={backupEnabled}
+                    onChange={(event) => setBackupEnabled(event.target.checked)}
+                  />
+                  <span>{labels.backupProvider}</span>
+                </label>
+                {backupEnabled ? (
+                  <div className="settings-form-channel-fields" style={{ marginTop: 12 }}>
+                    <label className="novua-lead-form-field">
+                      <span className="label">{labels.backupActionUrl}</span>
+                      <input
+                        className="input"
+                        value={backupActionUrl}
+                        onChange={(event) => setBackupActionUrl(event.target.value)}
+                        placeholder="https://docs.google.com/forms/d/e/.../viewform"
+                      />
+                    </label>
+                    <label className="novua-lead-form-field">
+                      <span className="label">{labels.backupEntryName}</span>
+                      <input
+                        className="input"
+                        value={backupEntryName}
+                        onChange={(event) => setBackupEntryName(event.target.value)}
+                        placeholder="entry.123456789"
+                      />
+                    </label>
+                    <label className="novua-lead-form-field">
+                      <span className="label">{labels.backupEntryEmail}</span>
+                      <input
+                        className="input"
+                        value={backupEntryEmail}
+                        onChange={(event) => setBackupEntryEmail(event.target.value)}
+                        placeholder="entry.987654321"
+                      />
+                    </label>
+                    <label className="novua-lead-form-field">
+                      <span className="label">{labels.backupEntryPhone}</span>
+                      <input
+                        className="input"
+                        value={backupEntryPhone}
+                        onChange={(event) => setBackupEntryPhone(event.target.value)}
+                        placeholder="entry.111222333"
+                      />
+                    </label>
+                    <label className="novua-lead-form-field">
+                      <span className="label">{labels.backupEntryMessage}</span>
+                      <input
+                        className="input"
+                        value={backupEntryMessage}
+                        onChange={(event) => setBackupEntryMessage(event.target.value)}
+                        placeholder="entry.444555666"
+                      />
+                    </label>
+                  </div>
+                ) : null}
+                {canManage ? (
+                  <div style={{ marginTop: 12 }}>
+                    <button className="button" type="button" onClick={handleSaveBackup}>
+                      {labels.backupSave}
+                    </button>
+                    {backupSaved ? <p className="note">{labels.backupSaved}</p> : null}
+                    {backupError ? <p className="note">{backupError}</p> : null}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </details>
         </div>
       ) : null}
     </article>

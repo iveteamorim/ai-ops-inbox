@@ -49,6 +49,10 @@ export function normalizeFormLead(body: FormLeadPayload) {
   };
 }
 
+export function buildFormPublicUrl(appUrl: string, token: string) {
+  return `${appUrl}/f/${encodeURIComponent(token)}`;
+}
+
 export function buildFormEmbedSnippet(appUrl: string, token: string) {
   const endpoint = `${appUrl}/api/leads/form`;
 

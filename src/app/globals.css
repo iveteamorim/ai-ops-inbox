@@ -3425,6 +3425,51 @@ textarea:focus-visible {
   font-size: 0.92rem;
 }
 
+.settings-form-simple {
+  display: grid;
+  gap: 16px;
+}
+
+.settings-form-steps {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: rgba(226, 232, 240, 0.82);
+  line-height: 1.7;
+}
+
+.settings-form-hero {
+  border: 1px solid rgba(52, 211, 153, 0.22);
+  border-radius: 16px;
+  background: rgba(52, 211, 153, 0.06);
+  padding: 16px;
+}
+
+.settings-form-open-link {
+  display: inline-flex;
+  margin-top: 12px;
+  color: #a7f3d0;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.settings-form-open-link:hover {
+  color: #d1fae5;
+  text-decoration: underline;
+}
+
+.settings-form-advanced {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 14px;
+}
+
+.settings-form-advanced summary {
+  list-style: none;
+}
+
+.settings-form-advanced summary::-webkit-details-marker {
+  display: none;
+}
+
 .settings-channel-tile-head {
   display: flex;
   align-items: center;
