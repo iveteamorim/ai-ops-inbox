@@ -11,6 +11,7 @@ import { ChannelSetupPlaceholder } from "@/components/settings/ChannelSetupPlace
 import { FormChannelSetup } from "@/components/settings/FormChannelSetup";
 import { getPublicAppUrl } from "@/lib/app-url";
 import { buildFormEmbedSnippet } from "@/lib/messaging/form";
+import { parseGoogleFormsBackupConfig } from "@/lib/messaging/google-forms-backup";
 import { WhatsAppEmbeddedSignupCard } from "@/components/WhatsAppEmbeddedSignupCard";
 import { WorkspaceDangerZone } from "@/components/WorkspaceDangerZone";
 import { cookies, headers } from "next/headers";
@@ -789,6 +790,7 @@ export default async function SettingsPage() {
     formChannel?.is_active && formChannel.external_account_id ? formChannel.external_account_id : null;
   const formEndpoint = `${appUrl}/api/leads/form`;
   const formEmbed = formToken ? buildFormEmbedSnippet(appUrl, formToken) : null;
+  const googleFormsBackup = parseGoogleFormsBackupConfig(formChannel?.config ?? null);
   const formChannelSetupCopy =
     lang === "pt"
       ? {
@@ -806,6 +808,19 @@ export default async function SettingsPage() {
           help: "Ativa o canal web, copia o snippet e cola-o na página de contacto do teu site.",
           agentNote: "Só owners e admins podem ativar o formulário web.",
           error: "Não foi possível ativar o formulário web.",
+          backupTitle: "Cópia de segurança externa",
+          backupHelp:
+            "Cada workspace pode enviar uma cópia para o Google Forms (ou outro destino no futuro). Assim manténs o histórico fora da Novua se um dia deixares de usar o inbox.",
+          backupActionUrl: "URL do Google Form (viewform ou formResponse)",
+          backupEntryName: "Campo entry do nome",
+          backupEntryEmail: "Campo entry do email",
+          backupEntryPhone: "Campo entry do telefone",
+          backupEntryMessage: "Campo entry da mensagem",
+          backupSave: "Guardar cópia de segurança",
+          backupSaved: "Cópia de segurança guardada.",
+          backupError: "Não foi possível guardar a cópia de segurança.",
+          backupActive: "Cópia externa ativa para este workspace.",
+          backupProvider: "Google Forms",
         }
       : lang === "en"
         ? {
@@ -823,6 +838,19 @@ export default async function SettingsPage() {
             help: "Activate the web channel, copy the snippet, and paste it on your contact page.",
             agentNote: "Only owners and admins can activate the web form.",
             error: "Could not activate the web form.",
+            backupTitle: "External backup copy",
+            backupHelp:
+              "Each workspace can forward a copy to its own Google Form. You keep history outside Novua if you ever stop using the inbox.",
+            backupActionUrl: "Google Form URL (viewform or formResponse)",
+            backupEntryName: "Name entry field",
+            backupEntryEmail: "Email entry field",
+            backupEntryPhone: "Phone entry field",
+            backupEntryMessage: "Message entry field",
+            backupSave: "Save backup copy",
+            backupSaved: "Backup copy saved.",
+            backupError: "Could not save the backup copy.",
+            backupActive: "External backup is active for this workspace.",
+            backupProvider: "Google Forms",
           }
         : {
             title: pendingChannelSetupCopy.form.title,
@@ -839,6 +867,19 @@ export default async function SettingsPage() {
             help: "Activa el canal web, copia el snippet y pégalo en la página de contacto de tu sitio.",
             agentNote: "Solo owners y admins pueden activar el formulario web.",
             error: "No se pudo activar el formulario web.",
+            backupTitle: "Copia de seguridad externa",
+            backupHelp:
+              "Cada workspace puede enviar una copia a su propio Google Forms. Así conservas el histórico fuera de Novua si algún día dejas de usar el inbox.",
+            backupActionUrl: "URL de Google Forms (viewform o formResponse)",
+            backupEntryName: "Campo entry del nombre",
+            backupEntryEmail: "Campo entry del email",
+            backupEntryPhone: "Campo entry del teléfono",
+            backupEntryMessage: "Campo entry del mensaje",
+            backupSave: "Guardar copia de seguridad",
+            backupSaved: "Copia de seguridad guardada.",
+            backupError: "No se pudo guardar la copia de seguridad.",
+            backupActive: "Copia externa activa para este workspace.",
+            backupProvider: "Google Forms",
           };
 
   return (
@@ -995,6 +1036,7 @@ export default async function SettingsPage() {
             endpoint={formEndpoint}
             embed={formEmbed}
             canManage={canManageTeam}
+            googleFormsBackup={googleFormsBackup}
             labels={formChannelSetupCopy}
           />
 

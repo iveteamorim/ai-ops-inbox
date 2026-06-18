@@ -3,10 +3,12 @@ import { randomUUID } from "crypto";
 import type { WhatsAppInboundMessage } from "@/lib/messaging/whatsapp";
 import type { InstagramInboundMessage } from "@/lib/messaging/instagram";
 import { getLeadTypesFromBusinessConfig } from "@/lib/revenue/classify";
+import { forwardLeadToGoogleForms, resolveGoogleFormsBackup } from "@/lib/messaging/google-forms-backup";
 import { triageConversation, type ServiceType } from "@/lib/triage/triage-conversation";
 
 type CompanyChannel = {
   company_id: string;
+  config?: Record<string, unknown> | null;
 };
 
 type CompanyRow = {
@@ -331,10 +333,10 @@ async function findOrCreateFormContact(
 export async function persistFormLead(
   supabase: SupabaseClient,
   lead: FormLeadInput,
-): Promise<{ saved: boolean; reason?: string; conversationId?: string }> {
+): Promise<{ saved: boolean; reason?: string; conversationId?: string; googleFormsForwarded?: boolean }> {
   const { data: channel } = await supabase
     .from("channels")
-    .select("company_id")
+    .select("company_id, config")
     .eq("type", "form")
     .eq("external_account_id", lead.token)
     .eq("is_active", true)
@@ -506,5 +508,23 @@ export async function persistFormLead(
     throw new Error(`Failed to update webhook event: ${webhookUpdateError.message}`);
   }
 
-  return { saved: true, conversationId };
+  let googleFormsForwarded = false;
+  const googleFormsBackup = resolveGoogleFormsBackup(channel.config);
+  if (googleFormsBackup) {
+    const forwardResult = await forwardLeadToGoogleForms(googleFormsBackup, {
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone,
+      message: lead.message,
+    });
+    googleFormsForwarded = forwardResult.forwarded;
+    if (!forwardResult.forwarded) {
+      console.warn("google_forms_backup_forward_failed", {
+        companyId,
+        error: forwardResult.error ?? "unknown_error",
+      });
+    }
+  }
+
+  return { saved: true, conversationId, googleFormsForwarded };
 }

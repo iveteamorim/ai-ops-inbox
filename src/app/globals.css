@@ -3411,6 +3411,20 @@ textarea:focus-visible {
   background: rgba(255, 255, 255, 0.1);
 }
 
+.settings-form-backup {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.settings-checkbox-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(226, 232, 240, 0.86);
+  font-size: 0.92rem;
+}
+
 .settings-channel-tile-head {
   display: flex;
   align-items: center;
