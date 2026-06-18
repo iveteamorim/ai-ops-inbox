@@ -106,11 +106,6 @@ export default function LoginPage() {
     <AuthPageShell
       title={t("login_title")}
       subtitle={t("login_subtitle")}
-      nav={{
-        showSignIn: false,
-        showStartFree: false,
-        showBackToLanding: true,
-      }}
     >
       <form className="card form" onSubmit={handleSubmit}>
         <label className="label" htmlFor="email">{t("form_email")}</label>

@@ -73,10 +73,6 @@ export default function SignupPage() {
     <AuthPageShell
       title={t("signup_title")}
       subtitle={t("signup_subtitle")}
-      nav={{
-        showStartFree: false,
-        showBackToLanding: true,
-      }}
     >
       <form className="card form" onSubmit={handleSubmit}>
         <label className="label" htmlFor="company">{t("form_company")}</label>

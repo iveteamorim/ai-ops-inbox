@@ -1,18 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import type { ReactNode } from "react";
-import { MarketingNav } from "@/components/MarketingNav";
-
-type MarketingNavProps = React.ComponentProps<typeof MarketingNav>;
+import { useI18n } from "@/components/i18n/LanguageProvider";
 
 type Props = {
   title: string;
   subtitle: string;
   children: ReactNode;
-  nav?: MarketingNavProps;
 };
 
-export function AuthPageShell({ title, subtitle, children, nav }: Props) {
+export function AuthPageShell({ title, subtitle, children }: Props) {
+  const { t } = useI18n();
+
   return (
     <section className="auth-page landing-page relative min-h-screen overflow-hidden bg-[#06080f] text-white -m-4 md:-m-6">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -22,7 +22,14 @@ export function AuthPageShell({ title, subtitle, children, nav }: Props) {
       </div>
 
       <div className="page relative mx-auto max-w-2xl px-4 py-6 sm:px-6">
-        <MarketingNav showSections={false} showLocale={false} {...nav} />
+        <Link
+          href="/"
+          className="auth-back-link"
+          aria-label={t("nav_landing")}
+          title={t("nav_landing")}
+        >
+          ←
+        </Link>
         <header className="header">
           <div>
             <h1 className="title">{title}</h1>

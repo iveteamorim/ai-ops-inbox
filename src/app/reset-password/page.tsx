@@ -119,11 +119,6 @@ export default function ResetPasswordPage() {
     <AuthPageShell
       title={t("reset_password_title")}
       subtitle={t("reset_password_subtitle")}
-      nav={{
-        showSignIn: false,
-        showStartFree: false,
-        showBackToLanding: true,
-      }}
     >
       <form className="card form" onSubmit={handleSubmit}>
         {status === "booting" ? <p className="subtitle">{t("reset_password_verifying")}</p> : null}

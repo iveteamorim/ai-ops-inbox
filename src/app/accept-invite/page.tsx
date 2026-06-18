@@ -143,11 +143,6 @@ export default function AcceptInvitePage() {
     <AuthPageShell
       title={t("accept_invite_title")}
       subtitle={t("accept_invite_subtitle")}
-      nav={{
-        showSignIn: false,
-        showStartFree: false,
-        showBackToLanding: true,
-      }}
     >
       <form className="card form" onSubmit={handleSubmit}>
         {status === "booting" ? <p className="subtitle">{t("accept_invite_verifying")}</p> : null}
