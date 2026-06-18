@@ -3,12 +3,16 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import type { ChannelType } from "@/lib/messaging/channel-types";
+import { ChannelBadge } from "@/components/ChannelBadge";
 
 type InboxConversation = {
   id: string;
   status: "new" | "active" | "won" | "lost" | "no_response";
   name: string;
   message: string;
+  channel: ChannelType;
+  channelLabel: string;
   state: string;
   stateClass: string;
   value: string;
@@ -36,6 +40,8 @@ type InboxDecisionViewProps = {
     filterRisk: string;
     filterAssigned: string;
     filterNew: string;
+    filterChannelAll: string;
+    channel: string;
     emptyState: string;
     temporalState: string;
     owner: string;
@@ -61,12 +67,20 @@ export function InboxDecisionView({
   const initialId = conversations[0]?.id ?? "";
   const [selectedId, setSelectedId] = useState(initialId);
   const [activeFilter, setActiveFilter] = useState<"all" | "risk" | "assigned" | "new">("all");
+  const [activeChannelFilter, setActiveChannelFilter] = useState<"all" | ChannelType>("all");
+  const availableChannels = useMemo(() => {
+    const unique = new Set(conversations.map((item) => item.channel));
+    return Array.from(unique);
+  }, [conversations]);
   const filteredConversations = useMemo(() => {
-    if (activeFilter === "all") return conversations;
-    if (activeFilter === "risk") return conversations.filter((item) => item.status === "no_response");
-    if (activeFilter === "assigned") return conversations.filter((item) => item.isAssigned);
-    return conversations.filter((item) => item.status === "new");
-  }, [activeFilter, conversations]);
+    let items = conversations;
+    if (activeFilter === "risk") items = items.filter((item) => item.status === "no_response");
+    else if (activeFilter === "assigned") items = items.filter((item) => item.isAssigned);
+    else if (activeFilter === "new") items = items.filter((item) => item.status === "new");
+
+    if (activeChannelFilter === "all") return items;
+    return items.filter((item) => item.channel === activeChannelFilter);
+  }, [activeChannelFilter, activeFilter, conversations]);
   const selected = useMemo(() => {
     const selectable = filteredConversations.length > 0 ? filteredConversations : conversations;
     return selectable.find((item) => item.id === selectedId) ?? selectable[0];
@@ -154,6 +168,40 @@ export function InboxDecisionView({
               </button>
             </div>
 
+            {availableChannels.length > 1 ? (
+              <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                <span className="mr-1 text-xs uppercase tracking-[0.14em] text-gray-500">{labels.channel}</span>
+                <button
+                  type="button"
+                  onClick={() => setActiveChannelFilter("all")}
+                  className={`rounded-full border px-3 py-1 transition ${
+                    activeChannelFilter === "all"
+                      ? "border-white/30 bg-white/10 text-white"
+                      : "border-white/10 bg-white/5"
+                  }`}
+                >
+                  {labels.filterChannelAll}
+                </button>
+                {availableChannels.map((channel) => {
+                  const label = conversations.find((item) => item.channel === channel)?.channelLabel ?? channel;
+                  return (
+                    <button
+                      key={channel}
+                      type="button"
+                      onClick={() => setActiveChannelFilter(channel)}
+                      className={`rounded-full border px-3 py-1 transition ${
+                        activeChannelFilter === channel
+                          ? "border-white/30 bg-white/10 text-white"
+                          : "border-white/10 bg-white/5"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : null}
+
             <div className="space-y-4">
               {filteredConversations.length === 0 ? (
                 <div className="rounded-2xl border border-white/5 bg-[#10211C] p-5 text-gray-300">
@@ -187,6 +235,7 @@ export function InboxDecisionView({
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
                           <p className="text-xl font-semibold text-white">{conversation.name}</p>
+                          <ChannelBadge label={conversation.channelLabel} channel={conversation.channel} />
                           <span className={`rounded-full border px-3 py-1 text-xs ${conversation.stateClass}`}>
                             {conversation.state}
                           </span>
@@ -232,7 +281,10 @@ export function InboxDecisionView({
             <div className="mt-5 rounded-2xl border border-white/5 bg-[#101B18] p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-2xl font-semibold text-white">{selected.name}</p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-2xl font-semibold text-white">{selected.name}</p>
+                    <ChannelBadge label={selected.channelLabel} channel={selected.channel} />
+                  </div>
                   <p className="mt-2 text-sm text-gray-400">{selected.delay}</p>
                 </div>
                 <span className={`rounded-full border px-3 py-1 text-sm ${selected.stateClass}`}>{selected.state}</span>

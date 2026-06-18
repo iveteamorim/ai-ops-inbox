@@ -6,6 +6,7 @@ import { PilotFeedbackForm } from "@/components/PilotFeedbackForm";
 import { PilotFeedbackHistory } from "@/components/PilotFeedbackHistory";
 import { SetupRequestButton } from "@/components/SetupRequestButton";
 import { TeamMembersList } from "@/components/TeamMembersList";
+import { ChannelsOverview } from "@/components/settings/ChannelsOverview";
 import { WhatsAppEmbeddedSignupCard } from "@/components/WhatsAppEmbeddedSignupCard";
 import { WorkspaceDangerZone } from "@/components/WorkspaceDangerZone";
 import { cookies, headers } from "next/headers";
@@ -13,6 +14,7 @@ import { redirect } from "next/navigation";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
 import { formatChannel, getAppContext, getBusinessSetup, getSettingsData } from "@/lib/app-data";
+import type { ChannelType } from "@/lib/messaging/channel-types";
 import { canManageInternalWorkspace, canSeeCustomerFeedback, getWorkspaceMode } from "@/lib/internal-access";
 import { getWhatsAppEmbeddedSignupRuntimeConfig } from "@/lib/whatsapp-embedded-signup";
 
@@ -642,6 +644,91 @@ export default async function SettingsPage() {
         ? "Conecte o WhatsApp para começar a receber conversas reais."
         : "Conecta WhatsApp para empezar a recibir conversaciones reales.";
 
+  const channelsOverviewCopy =
+    lang === "pt"
+      ? {
+          title: "Canais do workspace",
+          subtitle: "WhatsApp, Instagram, email e web no mesmo inbox operacional.",
+          connected: "Conectado",
+          pending: "Pendente",
+          disconnected: "Desconectado",
+          comingSoon: "Em breve",
+          configure: "Configurar",
+          tiles: {
+            whatsapp: {
+              label: "WhatsApp",
+              description: "Recebe e responde mensagens do número conectado.",
+            },
+            instagram: {
+              label: "Instagram",
+              description: "DMs e respostas do Instagram no mesmo inbox.",
+            },
+            email: {
+              label: "Email",
+              description: "Inbox partilhado para email recebido e respostas.",
+            },
+            form: {
+              label: "Web",
+              description: "Leads de formulário e chat do site dentro da Novua.",
+            },
+          } satisfies Record<ChannelType, { label: string; description: string }>,
+        }
+      : lang === "en"
+        ? {
+            title: "Workspace channels",
+            subtitle: "WhatsApp, Instagram, email, and web in one operational inbox.",
+            connected: "Connected",
+            pending: "Pending",
+            disconnected: "Disconnected",
+            comingSoon: "Coming soon",
+            configure: "Configure",
+            tiles: {
+              whatsapp: {
+                label: "WhatsApp",
+                description: "Receive and reply from the connected number.",
+              },
+              instagram: {
+                label: "Instagram",
+                description: "Instagram DMs and replies in the same inbox.",
+              },
+              email: {
+                label: "Email",
+                description: "Shared inbox for inbound email and threaded replies.",
+              },
+              form: {
+                label: "Web",
+                description: "Website form and chat leads routed into Novua.",
+              },
+            } satisfies Record<ChannelType, { label: string; description: string }>,
+          }
+        : {
+            title: "Canales del workspace",
+            subtitle: "WhatsApp, Instagram, email y web en el mismo inbox operativo.",
+            connected: "Conectado",
+            pending: "Pendiente",
+            disconnected: "Desconectado",
+            comingSoon: "Próximamente",
+            configure: "Configurar",
+            tiles: {
+              whatsapp: {
+                label: "WhatsApp",
+                description: "Recibe y responde desde el número conectado.",
+              },
+              instagram: {
+                label: "Instagram",
+                description: "DMs y respuestas de Instagram en el mismo inbox.",
+              },
+              email: {
+                label: "Email",
+                description: "Inbox compartido para email entrante y respuestas.",
+              },
+              form: {
+                label: "Web",
+                description: "Leads de formulario y chat web dentro de Novua.",
+              },
+            } satisfies Record<ChannelType, { label: string; description: string }>,
+          };
+
   return (
     <section className="page settings-page-reset">
       <AppNav
@@ -678,6 +765,20 @@ export default async function SettingsPage() {
               </details>
             </article>
           ) : null}
+
+          <ChannelsOverview
+            channels={channels}
+            setupRequests={setupRequests}
+            title={channelsOverviewCopy.title}
+            subtitle={channelsOverviewCopy.subtitle}
+            connected={channelsOverviewCopy.connected}
+            pending={channelsOverviewCopy.pending}
+            disconnected={channelsOverviewCopy.disconnected}
+            comingSoon={channelsOverviewCopy.comingSoon}
+            configure={channelsOverviewCopy.configure}
+            tiles={channelsOverviewCopy.tiles}
+            formatChannel={(channel) => formatChannel(channel, t)}
+          />
 
           <article
             className={`card settings-channel-card ${whatsappConnected ? "settings-channel-connected" : "settings-channel-pending"}`.trim()}

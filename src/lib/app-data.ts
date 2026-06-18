@@ -7,6 +7,8 @@ import { triageConversation, type ServiceType, type TriageResult } from "@/lib/t
 import { getDecisionType, type DecisionType } from "@/lib/conversation-decision";
 import type { Lang } from "@/lib/i18n/config";
 import { ensureUserWorkspace } from "@/lib/workspace-bootstrap";
+import type { ChannelType } from "@/lib/messaging/channel-types";
+import { formatChannelLabel } from "@/lib/messaging/channel-types";
 
 type ProfileRow = {
   id: string;
@@ -30,7 +32,7 @@ type ConversationRow = {
   unit: string | null;
   lead_type: string | null;
   is_complex: boolean;
-  channel: "whatsapp" | "instagram" | "email" | "form";
+  channel: ChannelType;
   status: "new" | "active" | "won" | "lost" | "no_response";
   last_message_at: string | null;
   last_inbound_at: string | null;
@@ -74,7 +76,7 @@ type ChannelRow = {
 
 type SetupRequestRow = {
   id: string;
-  channel: "whatsapp" | "instagram" | "email" | "form";
+  channel: ChannelType;
   status: "requested" | "in_progress" | "completed" | "cancelled";
   notes: string | null;
   created_at: string;
@@ -120,7 +122,7 @@ export type PendingInviteView = {
 
 export type SetupRequestView = {
   id: string;
-  channel: "whatsapp" | "instagram" | "email" | "form";
+  channel: ChannelType;
   status: "requested" | "in_progress" | "completed" | "cancelled";
   createdAt: string;
   companyName: string;
@@ -221,7 +223,7 @@ export type ConversationView = {
   unit: string | null;
   leadType: string | null;
   isComplex: boolean;
-  channel: "whatsapp" | "instagram" | "email" | "form";
+  channel: ChannelType;
   status: ConversationRow["status"];
   decisionType: DecisionType;
   assignedToId: string | null;
@@ -348,11 +350,8 @@ function normalizePriority(priority: ConversationRow["ai_priority"]): "high" | "
   return "medium";
 }
 
-export function formatChannel(channel: ConversationView["channel"], t: (key: DictionaryKey) => string) {
-  if (channel === "whatsapp") return "WhatsApp";
-  if (channel === "instagram") return "Instagram";
-  if (channel === "email") return "Email";
-  return t("conversation_channel_form");
+export function formatChannel(channel: ChannelType, t: (key: DictionaryKey) => string) {
+  return formatChannelLabel(channel, t);
 }
 
 export function formatStatus(status: ConversationView["status"], t: (key: DictionaryKey) => string) {
@@ -889,7 +888,7 @@ export async function getSetupRequestsAdminView() {
     id: string;
     company_id: string;
     user_id: string;
-    channel: "whatsapp" | "instagram" | "email" | "form";
+    channel: ChannelType;
     status: "requested" | "in_progress" | "completed" | "cancelled";
     notes: string | null;
     created_at: string;

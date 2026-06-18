@@ -6,6 +6,7 @@ import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
 import {
+  formatChannel,
   formatRelativeTime,
   formatStatus,
   getAppContext,
@@ -222,6 +223,8 @@ export default async function InboxPage() {
           filterRisk: "Em risco",
           filterAssigned: "Atribuídas",
           filterNew: "Novas",
+          filterChannelAll: "Todos",
+          channel: t("inbox_channel"),
           emptyState: "Ainda não há conversas.",
           temporalState: "Estado temporal",
           owner: "Responsável",
@@ -244,6 +247,8 @@ export default async function InboxPage() {
             filterRisk: "At risk",
             filterAssigned: "Assigned",
             filterNew: "New",
+            filterChannelAll: "All",
+            channel: t("inbox_channel"),
             emptyState: "No conversations yet.",
             temporalState: "Status timing",
             owner: "Owner",
@@ -265,6 +270,8 @@ export default async function InboxPage() {
             filterRisk: "En riesgo",
             filterAssigned: "Asignadas",
             filterNew: "Nuevas",
+            filterChannelAll: "Todos",
+            channel: t("inbox_channel"),
             emptyState: "No hay conversaciones todavía.",
             temporalState: "Estado temporal",
             owner: "Responsable",
@@ -375,6 +382,8 @@ export default async function InboxPage() {
       status: row.status,
       name: row.contactName || t("inbox_unknown_contact"),
       message: row.lastMessageText || t("inbox_no_messages"),
+      channel: row.channel,
+      channelLabel: formatChannel(row.channel, t),
       state: statusLabel,
       stateClass: stateClassFor(row.status),
       value: format(row.estimatedValue),
