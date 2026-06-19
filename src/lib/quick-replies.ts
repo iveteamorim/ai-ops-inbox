@@ -1,3 +1,5 @@
+import { detectCustomerLanguage } from "@/lib/reply-suggestions";
+
 type CompanyConfig = Record<string, unknown> | null | undefined;
 
 export type QuickReply = {
@@ -108,6 +110,20 @@ const KEYWORD_SYNONYM_GROUPS = [
     "where",
     "directions",
   ],
+  [
+    "bono",
+    "bonos",
+    "sesion",
+    "sesiones",
+    "sessao",
+    "sessoes",
+    "pack",
+    "packs",
+    "voucher",
+    "vouchers",
+    "bundle",
+    "bundles",
+  ],
   ["consulta", "consultas", "cita", "citas", "visita", "visitas", "appointment", "booking", "reserva", "book"],
 ] as const;
 
@@ -123,6 +139,72 @@ const ENGLISH_PHRASE_GROUPS: Array<{ phrases: string[]; groupIndex: number }> = 
     groupIndex: 3,
   },
   { phrases: ["where are you", "where is", "how do i get", "how to get there", "your address"], groupIndex: 4 },
+];
+
+const SPANISH_PHRASE_GROUPS: Array<{ phrases: string[]; groupIndex: number }> = [
+  {
+    phrases: [
+      "precio de",
+      "precio del",
+      "precio la",
+      "precio los",
+      "precio las",
+      "cuanto cuesta",
+      "cuanto vale",
+      "queria saber el precio",
+      "saber el precio",
+      "coste de",
+      "costo de",
+    ],
+    groupIndex: 0,
+  },
+  {
+    phrases: ["mas informacion", "más informacion", "informacion sobre", "saber mas", "queria saber", "me gustaria saber"],
+    groupIndex: 1,
+  },
+  {
+    phrases: ["que servicios", "que productos", "que tratamientos", "que ofrecen"],
+    groupIndex: 2,
+  },
+  {
+    phrases: ["que horario", "a que hora", "cuando abren", "horario de"],
+    groupIndex: 3,
+  },
+  {
+    phrases: ["donde estais", "donde estan", "donde quedais", "como llegar"],
+    groupIndex: 4,
+  },
+  {
+    phrases: ["bono sesiones", "bono de sesiones", "pack sesiones", "bonos sesiones"],
+    groupIndex: 5,
+  },
+];
+
+const PORTUGUESE_PHRASE_GROUPS: Array<{ phrases: string[]; groupIndex: number }> = [
+  {
+    phrases: ["preco de", "preco do", "preco da", "quanto custa", "quanto vale", "queria saber o preco"],
+    groupIndex: 0,
+  },
+  {
+    phrases: ["mais informacao", "informacao sobre", "queria saber", "gostaria de saber"],
+    groupIndex: 1,
+  },
+  {
+    phrases: ["que servicos", "que produtos", "que tratamentos"],
+    groupIndex: 2,
+  },
+  {
+    phrases: ["que horario", "a que horas", "quando abrem"],
+    groupIndex: 3,
+  },
+  {
+    phrases: ["onde ficam", "onde estao", "como chegar"],
+    groupIndex: 4,
+  },
+  {
+    phrases: ["bono sessoes", "bono de sessoes", "pack sessoes"],
+    groupIndex: 5,
+  },
 ];
 
 function normalizeText(value: string) {
@@ -156,7 +238,7 @@ function expandKeyword(keyword: string) {
 function getMessagePhraseSignals(normalizedMessage: string) {
   const signals = new Set<string>();
 
-  for (const entry of ENGLISH_PHRASE_GROUPS) {
+  for (const entry of [...ENGLISH_PHRASE_GROUPS, ...SPANISH_PHRASE_GROUPS, ...PORTUGUESE_PHRASE_GROUPS]) {
     const matched = entry.phrases.some((phrase) => normalizedMessage.includes(normalizeText(phrase)));
     if (!matched) continue;
 
@@ -261,6 +343,14 @@ export function matchQuickReply(message: string, replies: QuickReply[]): QuickRe
   return bestScore > 0 ? best : null;
 }
 
+export function resolveQuickReplyMatch(message: string, configuredReplies: QuickReply[]): QuickReply | null {
+  const configuredMatch = matchQuickReply(message, configuredReplies);
+  if (configuredMatch) return configuredMatch;
+
+  const lang = detectCustomerLanguage(message);
+  return matchQuickReply(message, getDefaultQuickReplyStarters(lang));
+}
+
 export function formatQuickRepliesForPrompt(replies: QuickReply[]) {
   if (replies.length === 0) return "No approved quick replies configured.";
 
@@ -288,6 +378,12 @@ export function getDefaultQuickReplyStarters(lang: string): QuickReply[] {
         title: "Consultation price",
         keywords: "price,pricing,cost,fee,quote,how much,rate,charge",
         text: "The first consultation is €50. I can explain what is included and help you book.",
+      },
+      {
+        id: "pricing-session-pack",
+        title: "Session pack price",
+        keywords: "session pack,sessions,pack,voucher,bono,price,pricing,cost,how much",
+        text: "Our session pack is €180 for 5 sessions. I can explain what is included and help you choose the best option.",
       },
       {
         id: "services-info",
@@ -319,6 +415,12 @@ export function getDefaultQuickReplyStarters(lang: string): QuickReply[] {
         text: "La primera consulta cuesta 50€. Puedo explicarte qué incluye y ayudarte a reservar.",
       },
       {
+        id: "pricing-session-pack",
+        title: "Precio bono sesiones",
+        keywords: "bono,bonos,sesiones,pack,precio,precios,cuanto,costo,tarifa",
+        text: "El bono de sesiones cuesta 180€ por 5 sesiones. Puedo explicarte qué incluye y ayudarte a elegir la mejor opción.",
+      },
+      {
         id: "services-info",
         title: "Servicios e información",
         keywords: "servicio,servicios,producto,productos,info,informacion,tratamiento,tratamientos",
@@ -340,12 +442,18 @@ export function getDefaultQuickReplyStarters(lang: string): QuickReply[] {
       keywords: "horario,horarios,abre,abren,aberto,fecha,hours,open,schedule",
       text: "Abrimos de segunda a sexta, das 9h às 19h. Sábados das 9h às 13h. Domingo fechado.",
     },
-    {
-      id: "pricing-consultation",
-      title: "Preço consulta",
-      keywords: "preco,precio,price,custo,costo,valor,quanto,cuanto,tarifa",
-      text: "A primeira consulta custa 50€. Posso explicar o que está incluído e ajudar a marcar.",
-    },
+      {
+        id: "pricing-consultation",
+        title: "Preço consulta",
+        keywords: "preco,precio,price,custo,costo,valor,quanto,cuanto,tarifa",
+        text: "A primeira consulta custa 50€. Posso explicar o que está incluído e ajudar a marcar.",
+      },
+      {
+        id: "pricing-session-pack",
+        title: "Preço bono sessões",
+        keywords: "bono,bonos,sessoes,sessao,pack,preco,precos,quanto,custo,tarifa",
+        text: "O bono de sessões custa 180€ por 5 sessões. Posso explicar o que está incluído e ajudar a escolher a melhor opção.",
+      },
     {
       id: "services-info",
       title: "Serviços e informação",

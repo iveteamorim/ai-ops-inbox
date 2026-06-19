@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { enforceSameOrigin } from "@/lib/security/request-origin";
-import { getQuickReplies, matchQuickReply, formatQuickRepliesForPrompt } from "@/lib/quick-replies";
+import { getQuickReplies, resolveQuickReplyMatch, formatQuickRepliesForPrompt } from "@/lib/quick-replies";
 import { getWorkspaceMember } from "@/lib/workspace-access";
 
 type PostBody = {
@@ -151,7 +151,7 @@ export async function POST(request: Request) {
     .maybeSingle<{ config: Record<string, unknown> | null }>();
 
   const quickReplies = getQuickReplies(companyRow).replies;
-  const matchedQuickReply = matchQuickReply(latestCustomerMessage, quickReplies);
+  const matchedQuickReply = resolveQuickReplyMatch(latestCustomerMessage, quickReplies);
 
   if (matchedQuickReply) {
     return NextResponse.json({ ok: true, suggestion: matchedQuickReply.text, source: "quick_reply" });

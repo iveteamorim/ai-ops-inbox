@@ -9,7 +9,8 @@ import { useI18n } from "@/components/i18n/LanguageProvider";
 import { getDecisionType } from "@/lib/conversation-decision";
 import type { ConversationView, MessageView } from "@/lib/app-data";
 import type { QuickReply } from "@/lib/quick-replies";
-import { matchQuickReply } from "@/lib/quick-replies";
+import { buildFallbackReplySuggestion } from "@/lib/reply-suggestions";
+import { resolveQuickReplyMatch } from "@/lib/quick-replies";
 
 type Props = {
   conversation: ConversationView;
@@ -177,39 +178,21 @@ export function ConversationWorkspace({
   }, [messages]);
 
   const matchedQuickReply = useMemo(
-    () => matchQuickReply(latestCustomerMessage, quickReplies),
+    () => resolveQuickReplyMatch(latestCustomerMessage, quickReplies),
     [latestCustomerMessage, quickReplies],
   );
 
-  // AI Suggestion
   const aiSuggestion = useMemo(() => {
     if (matchedQuickReply) {
       return matchedQuickReply.text;
     }
 
-    const leadType = (conversation.leadType ?? "").toLowerCase();
-
-    if (conversation.estimatedValue === 0 || !conversation.leadType) {
-      if (lang === "pt") return "Obrigado por escrever. Pode contar-me um pouco mais sobre o que precisa?";
-      if (lang === "en") return "Thanks for reaching out. Can you share a bit more about what you need?";
-      return "Gracias por escribir. ¿Me puedes contar un poco más sobre lo que necesitas?";
-    }
-
-    if (
-      leadType.includes("visita") ||
-      leadType.includes("consulta") ||
-      leadType.includes("sesión") ||
-      leadType.includes("sesion")
-    ) {
-      if (lang === "pt") return "Posso ajudar com a primeira visita e rever a melhor disponibilidade para si.";
-      if (lang === "en") return "I can help with the first visit and check the best availability for you.";
-      return "Puedo ayudarte con la primera visita y revisar la mejor disponibilidad para ti.";
-    }
-
-    if (lang === "pt") return `Posso ajudar com ${conversation.leadType.toLowerCase()} e indicar o próximo passo.`;
-    if (lang === "en") return `I can help with ${conversation.leadType.toLowerCase()} and guide the next step.`;
-    return `Puedo ayudarte con ${conversation.leadType.toLowerCase()} y orientarte en el siguiente paso.`;
-  }, [conversation.estimatedValue, conversation.leadType, lang, matchedQuickReply]);
+    return buildFallbackReplySuggestion({
+      message: latestCustomerMessage,
+      leadType: conversation.leadType,
+      estimatedValue: conversation.estimatedValue,
+    });
+  }, [conversation.estimatedValue, conversation.leadType, latestCustomerMessage, matchedQuickReply]);
 
   const statusLabel = useMemo(() => {
     if (conversation.status === "new") return t("inbox_filter_new");
