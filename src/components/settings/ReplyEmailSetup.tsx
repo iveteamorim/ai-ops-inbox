@@ -18,12 +18,13 @@ type Labels = {
 };
 
 type Props = {
+  channel: "form" | "email";
   reply: EmailReplyConfigState | null;
   canManage: boolean;
   labels: Labels;
 };
 
-export function ReplyEmailSetup({ reply, canManage, labels }: Props) {
+export function ReplyEmailSetup({ channel, reply, canManage, labels }: Props) {
   const [email, setEmail] = useState(reply?.from_email ?? "");
   const [code, setCode] = useState("");
   const [pending, setPending] = useState(false);
@@ -41,7 +42,7 @@ export function ReplyEmailSetup({ reply, canManage, labels }: Props) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        channel: "form",
+        channel,
         action: "verify",
         email,
       }),
@@ -69,7 +70,7 @@ export function ReplyEmailSetup({ reply, canManage, labels }: Props) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        channel: "form",
+        channel,
         action: "confirm",
         email,
         code,

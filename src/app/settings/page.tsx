@@ -9,7 +9,7 @@ import { TeamMembersList } from "@/components/TeamMembersList";
 import { ChannelsOverview } from "@/components/settings/ChannelsOverview";
 import { ChannelSetupPlaceholder } from "@/components/settings/ChannelSetupPlaceholder";
 import { FormChannelSetup } from "@/components/settings/FormChannelSetup";
-import { ReplyEmailSetup } from "@/components/settings/ReplyEmailSetup";
+import { EmailChannelSetup } from "@/components/settings/EmailChannelSetup";
 import { getPublicAppUrl } from "@/lib/app-url";
 import { buildFormEmbedSnippet, buildFormPublicUrl } from "@/lib/messaging/form";
 import { parseEmailReplyConfigState } from "@/lib/messaging/email-reply-state";
@@ -802,13 +802,12 @@ export default async function SettingsPage() {
   const formEndpoint = `${appUrl}/api/leads/form`;
   const formWebsiteLink = formToken ? buildFormPublicUrl(appUrl, formToken) : null;
   const formEmbed = formToken ? buildFormEmbedSnippet(appUrl, formToken) : null;
-  const replyEmail = parseEmailReplyConfigState(formChannel?.config ?? null);
+  const formReply = parseEmailReplyConfigState(formChannel?.config ?? null);
+  const emailReply = parseEmailReplyConfigState(emailChannel?.config ?? null);
   const googleFormsBackup = parseGoogleFormsBackupConfig(formChannel?.config ?? null);
-  const replyEmailLabels =
+  const replyEmailFieldLabels =
     lang === "pt"
       ? {
-          title: "Email de resposta",
-          help: "Para responderes aos teus leads a partir do Inbox.",
           email: "O teu email",
           sendCode: "Confirmar",
           code: "Código",
@@ -821,8 +820,6 @@ export default async function SettingsPage() {
         }
       : lang === "en"
         ? {
-            title: "Reply email",
-            help: "Reply to your leads from the Inbox.",
             email: "Your email",
             sendCode: "Confirm",
             code: "Code",
@@ -834,8 +831,6 @@ export default async function SettingsPage() {
             invalidCode: "Invalid code.",
           }
         : {
-            title: "Email de respuesta",
-            help: "Para responder a tus leads desde el Inbox.",
             email: "Tu email",
             sendCode: "Confirmar",
             code: "Código",
@@ -846,6 +841,36 @@ export default async function SettingsPage() {
             error: "No se pudo enviar el código.",
             invalidCode: "Código inválido.",
           };
+  const formReplyLabels = {
+    title:
+      lang === "pt"
+        ? "Email para responder a formulários"
+        : lang === "en"
+          ? "Email to reply to form leads"
+          : "Email para responder a formularios",
+    help:
+      lang === "pt"
+        ? "Respostas aos leads do teu formulário web."
+        : lang === "en"
+          ? "Replies to leads from your web form."
+          : "Respuestas a leads de tu formulario web.",
+    ...replyEmailFieldLabels,
+  };
+  const emailReplyLabels = {
+    title:
+      lang === "pt"
+        ? "Email para responder a clientes de email"
+        : lang === "en"
+          ? "Email to reply to email clients"
+          : "Email para responder a clientes de email",
+    help:
+      lang === "pt"
+        ? "Respostas às conversas do canal email."
+        : lang === "en"
+          ? "Replies to conversations from the email channel."
+          : "Respuestas a conversaciones del canal email.",
+    ...replyEmailFieldLabels,
+  };
   const formChannelSetupCopy =
     lang === "pt"
       ? {
@@ -883,6 +908,7 @@ export default async function SettingsPage() {
           backupError: "Não foi possível guardar a cópia de segurança.",
           backupActive: "Cópia externa ativa para este workspace.",
           backupProvider: "Google Forms",
+          replyLabels: formReplyLabels,
         }
       : lang === "en"
         ? {
@@ -920,6 +946,7 @@ export default async function SettingsPage() {
             backupError: "Could not save the backup copy.",
             backupActive: "External backup is active for this workspace.",
             backupProvider: "Google Forms",
+            replyLabels: formReplyLabels,
           }
         : {
             title: pendingChannelSetupCopy.form.title,
@@ -956,6 +983,35 @@ export default async function SettingsPage() {
             backupError: "No se pudo guardar la copia de seguridad.",
             backupActive: "Copia externa activa para este workspace.",
             backupProvider: "Google Forms",
+            replyLabels: formReplyLabels,
+          };
+
+  const emailChannelSetupCopy =
+    lang === "pt"
+      ? {
+          title: pendingChannelSetupCopy.email.title,
+          description: "Escolhe o email para responderes a clientes de email.",
+          connected: channelsOverviewCopy.connected,
+          disconnected: channelsOverviewCopy.disconnected,
+          agentNote: "Só owners e admins podem configurar o canal email.",
+          replyLabels: emailReplyLabels,
+        }
+      : lang === "en"
+        ? {
+            title: pendingChannelSetupCopy.email.title,
+            description: "Pick the email to reply to email channel clients.",
+            connected: channelsOverviewCopy.connected,
+            disconnected: channelsOverviewCopy.disconnected,
+            agentNote: "Only owners and admins can configure the email channel.",
+            replyLabels: emailReplyLabels,
+          }
+        : {
+            title: pendingChannelSetupCopy.email.title,
+            description: "Elige el email para responder a clientes de email.",
+            connected: channelsOverviewCopy.connected,
+            disconnected: channelsOverviewCopy.disconnected,
+            agentNote: "Solo owners y admins pueden configurar el canal email.",
+            replyLabels: emailReplyLabels,
           };
 
   return (
@@ -1008,19 +1064,6 @@ export default async function SettingsPage() {
             tiles={channelsOverviewCopy.tiles}
             formatChannel={(channel) => formatChannel(channel, t)}
           />
-
-          <article
-            id="reply-email-setup"
-            className={`card settings-channel-card settings-reply-email-card ${
-              replyEmail?.verified ? "settings-channel-connected" : "settings-channel-pending"
-            }`.trim()}
-          >
-            <p className="label">{replyEmailLabels.title}</p>
-            <p className="subtitle" style={{ marginBottom: 12 }}>
-              {replyEmailLabels.help}
-            </p>
-            <ReplyEmailSetup reply={replyEmail} canManage={canManageTeam} labels={replyEmailLabels} />
-          </article>
 
           <article
             className={`card settings-channel-card settings-channel-setup-anchor ${whatsappConnected ? "settings-channel-connected" : "settings-channel-pending"}`.trim()}
@@ -1107,15 +1150,12 @@ export default async function SettingsPage() {
             pendingLabel={channelsOverviewCopy.comingSoon}
           />
 
-          <ChannelSetupPlaceholder
-            channel="email"
+          <EmailChannelSetup
             label={formatChannel("email", t)}
-            title={pendingChannelSetupCopy.email.title}
-            description={pendingChannelSetupCopy.email.description}
-            comingSoon={channelsOverviewCopy.comingSoon}
-            isConnected={Boolean(emailChannel?.is_active)}
-            connectedLabel={channelsOverviewCopy.connected}
-            pendingLabel={channelsOverviewCopy.comingSoon}
+            isActive={Boolean(emailReply?.verified)}
+            reply={emailReply}
+            canManage={canManageTeam}
+            labels={emailChannelSetupCopy}
           />
 
           <FormChannelSetup
@@ -1127,6 +1167,7 @@ export default async function SettingsPage() {
             embed={formEmbed}
             canManage={canManageTeam}
             googleFormsBackup={googleFormsBackup}
+            formReply={formReply}
             labels={formChannelSetupCopy}
           />
 

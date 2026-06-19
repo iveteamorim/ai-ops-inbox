@@ -3421,14 +3421,11 @@ textarea:focus-visible {
   display: grid;
   gap: 12px;
   max-width: 420px;
+  margin-top: 12px;
 }
 
 .settings-reply-email-confirmed {
   color: #86efac;
-}
-
-.settings-reply-email-card {
-  margin-bottom: 16px;
 }
 
 .settings-checkbox-row {

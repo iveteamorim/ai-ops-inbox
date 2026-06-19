@@ -8,15 +8,22 @@ type ChannelRow = {
 export async function resolveReplyConfigForConversation(
   admin: SupabaseClient,
   companyId: string,
-  _channel: "form" | "email",
+  channel: "form" | "email",
 ): Promise<EmailReplyConfigState | null> {
   const { data: channelRow } = await admin
     .from("channels")
-    .select("config")
+    .select("config, is_active")
     .eq("company_id", companyId)
-    .eq("type", "form")
-    .eq("is_active", true)
-    .maybeSingle<ChannelRow>();
+    .eq("type", channel)
+    .maybeSingle<ChannelRow & { is_active: boolean }>();
+
+  if (!channelRow?.is_active && channel === "form") {
+    return null;
+  }
+
+  if (!channelRow && channel === "email") {
+    return null;
+  }
 
   return parseEmailReplyConfigState(channelRow?.config ?? null);
 }
