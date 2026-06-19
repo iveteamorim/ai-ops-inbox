@@ -11,12 +11,96 @@ export type QuickRepliesView = {
   replies: QuickReply[];
 };
 
+const KEYWORD_SYNONYM_GROUPS = [
+  ["preco", "precio", "price", "pricing", "custo", "costo", "valor", "quanto", "cuanto", "tarifa", "tarifas"],
+  ["info", "informacao", "informacion", "information", "detalhe", "detalhes", "detalle", "detalles", "saber", "conocer"],
+  [
+    "servico",
+    "servicos",
+    "servicio",
+    "servicios",
+    "service",
+    "services",
+    "produto",
+    "produtos",
+    "producto",
+    "productos",
+    "product",
+    "products",
+    "tratamento",
+    "tratamentos",
+    "tratamiento",
+    "tratamientos",
+  ],
+  ["horario", "horarios", "abre", "abren", "aberto", "fecha", "fechado", "hours", "hour", "open", "opening", "schedule", "cierra", "cerrado"],
+  ["onde", "localizacao", "localizacion", "ubicacion", "address", "direccion", "direcao", "morada", "mapa", "location"],
+  ["consulta", "consultas", "cita", "citas", "visita", "visitas", "appointment", "booking", "reserva"],
+] as const;
+
 function normalizeText(value: string) {
   return value
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .trim();
+}
+
+function tokenize(value: string) {
+  return normalizeText(value)
+    .split(/[^a-z0-9]+/)
+    .filter((token) => token.length >= 2);
+}
+
+function expandKeyword(keyword: string) {
+  const normalized = normalizeText(keyword);
+  if (!normalized) return [];
+
+  const expanded = new Set<string>([normalized]);
+  for (const group of KEYWORD_SYNONYM_GROUPS) {
+    if (group.some((term) => normalized.includes(term) || term.includes(normalized))) {
+      group.forEach((term) => expanded.add(term));
+    }
+  }
+
+  return [...expanded];
+}
+
+function buildReplySignals(reply: QuickReply) {
+  const signals = new Set<string>();
+
+  for (const keyword of reply.keywords.split(",")) {
+    for (const expanded of expandKeyword(keyword)) {
+      signals.add(expanded);
+    }
+  }
+
+  for (const token of tokenize(reply.title)) {
+    signals.add(token);
+    for (const expanded of expandKeyword(token)) {
+      signals.add(expanded);
+    }
+  }
+
+  return [...signals];
+}
+
+function scoreReplyMatch(normalizedMessage: string, messageTokens: Set<string>, reply: QuickReply) {
+  const signals = buildReplySignals(reply);
+  if (signals.length === 0) return 0;
+
+  let score = 0;
+  for (const signal of signals) {
+    if (signal.length < 3) {
+      if (messageTokens.has(signal)) score += 2;
+      continue;
+    }
+
+    if (normalizedMessage.includes(signal)) {
+      score += Math.max(signal.length, 3);
+    }
+  }
+
+  return score;
 }
 
 function parseQuickReplyRow(value: unknown): QuickReply | null {
@@ -58,31 +142,19 @@ export function matchQuickReply(message: string, replies: QuickReply[]): QuickRe
   const normalizedMessage = normalizeText(message);
   if (!normalizedMessage || replies.length === 0) return null;
 
+  const messageTokens = new Set(tokenize(message));
   let best: QuickReply | null = null;
   let bestScore = 0;
 
   for (const reply of replies) {
-    const keywordList = reply.keywords
-      .split(",")
-      .map((keyword) => normalizeText(keyword))
-      .filter(Boolean);
-
-    if (keywordList.length === 0) continue;
-
-    let score = 0;
-    for (const keyword of keywordList) {
-      if (normalizedMessage.includes(keyword)) {
-        score += Math.max(keyword.length, 3);
-      }
-    }
-
+    const score = scoreReplyMatch(normalizedMessage, messageTokens, reply);
     if (score > bestScore) {
       best = reply;
       bestScore = score;
     }
   }
 
-  return best;
+  return bestScore > 0 ? best : null;
 }
 
 export function formatQuickRepliesForPrompt(replies: QuickReply[]) {
@@ -106,13 +178,19 @@ export const DEFAULT_QUICK_REPLY_STARTERS: QuickReply[] = [
   {
     id: "pricing-consultation",
     title: "Preço consulta",
-    keywords: "preco,preço,price,custo,valor,quanto,custa,cuanto",
+    keywords: "preco,precio,price,custo,costo,valor,quanto,cuanto,tarifa",
     text: "A primeira consulta custa 50€. Posso explicar o que está incluído e ajudar a marcar.",
+  },
+  {
+    id: "services-info",
+    title: "Serviços e informação",
+    keywords: "servico,servicio,produto,producto,info,informacao,informacion,tratamento,tratamiento",
+    text: "Temos vários serviços e tratamentos. Diz-me qual produto ou serviço te interessa e envio os detalhes.",
   },
   {
     id: "location",
     title: "Localização",
-    keywords: "onde,localizacao,localização,address,direccion,dirección,morada,mapa",
+    keywords: "onde,localizacao,localizacion,address,direccion,dirección,morada,mapa",
     text: "Estamos na Rua Exemplo 12, Lisboa. Há estacionamento na rua e paragem de metro a 3 minutos.",
   },
 ];
