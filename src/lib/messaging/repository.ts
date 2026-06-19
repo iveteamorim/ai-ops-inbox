@@ -289,6 +289,8 @@ async function findOrCreateFormContact(
   companyId: string,
   contact: { name: string; email: string | null; phone: string | null },
 ) {
+  let contactId: string | null = null;
+
   if (contact.email) {
     const { data: byEmail } = await supabase
       .from("contacts")
@@ -297,10 +299,10 @@ async function findOrCreateFormContact(
       .eq("email", contact.email)
       .maybeSingle<ContactRow>();
 
-    if (byEmail?.id) return byEmail.id;
+    if (byEmail?.id) contactId = byEmail.id;
   }
 
-  if (contact.phone) {
+  if (!contactId && contact.phone) {
     const { data: byPhone } = await supabase
       .from("contacts")
       .select("id")
@@ -308,7 +310,19 @@ async function findOrCreateFormContact(
       .eq("phone", contact.phone)
       .maybeSingle<ContactRow>();
 
-    if (byPhone?.id) return byPhone.id;
+    if (byPhone?.id) contactId = byPhone.id;
+  }
+
+  if (contactId) {
+    await supabase
+      .from("contacts")
+      .update({
+        name: contact.name,
+        email: contact.email,
+        phone: contact.phone,
+      })
+      .eq("id", contactId);
+    return contactId;
   }
 
   const { data: insertedContact, error: contactError } = await supabase

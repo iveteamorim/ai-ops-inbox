@@ -25,6 +25,7 @@ const INTERNAL_BYPASS = ["/_next", "/favicon.ico"];
 function isPublicPath(pathname: string): boolean {
   if (PUBLIC_PATHS.includes(pathname)) return true;
   if (pathname.startsWith("/f/")) return true;
+  if (pathname.startsWith("/form/")) return true;
   return false;
 }
 
