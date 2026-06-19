@@ -3417,10 +3417,18 @@ textarea:focus-visible {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.settings-form-reply {
-  margin-top: 20px;
-  padding-top: 18px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+.settings-reply-email-simple {
+  display: grid;
+  gap: 12px;
+  max-width: 420px;
+}
+
+.settings-reply-email-confirmed {
+  color: #86efac;
+}
+
+.settings-reply-email-card {
+  margin-bottom: 16px;
 }
 
 .settings-checkbox-row {

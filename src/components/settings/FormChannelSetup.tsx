@@ -5,8 +5,6 @@ import { useState, useTransition } from "react";
 import { ChannelBadge } from "@/components/ChannelBadge";
 import { channelSettingsAnchor } from "@/lib/messaging/channel-types";
 import type { GoogleFormsBackupConfig } from "@/lib/messaging/google-forms-backup";
-import type { EmailReplyConfigState } from "@/lib/messaging/email-reply-state";
-import { ReplyEmailSetup } from "@/components/settings/ReplyEmailSetup";
 
 type Labels = {
   title: string;
@@ -42,21 +40,6 @@ type Labels = {
   backupError: string;
   backupActive: string;
   backupProvider: string;
-  replyLabels: {
-    title: string;
-    help: string;
-    email: string;
-    name: string;
-    sendCode: string;
-    code: string;
-    confirm: string;
-    verified: string;
-    pending: string;
-    codeSent: string;
-    error: string;
-    invalidCode: string;
-    noDnsNote: string;
-  };
 };
 
 type Props = {
@@ -68,7 +51,6 @@ type Props = {
   embed: string | null;
   canManage: boolean;
   googleFormsBackup: GoogleFormsBackupConfig | null;
-  formReply: EmailReplyConfigState | null;
   labels: Labels;
 };
 
@@ -98,7 +80,6 @@ export function FormChannelSetup({
   embed,
   canManage,
   googleFormsBackup,
-  formReply,
   labels,
 }: Props) {
   const router = useRouter();
@@ -257,13 +238,6 @@ export function FormChannelSetup({
               {labels.openForm}
             </a>
           </div>
-
-          <ReplyEmailSetup
-            channel="form"
-            reply={formReply}
-            canManage={canManage}
-            labels={labels.replyLabels}
-          />
 
           <details className="settings-form-advanced">
             <summary className="label" style={{ cursor: "pointer" }}>

@@ -381,7 +381,7 @@ export function ConversationWorkspace({
           return;
         }
         if (payload?.error === "reply_email_not_configured") {
-          setError(lang === "en" ? "Confirm your reply email in Settings → Web or Email." : lang === "pt" ? "Confirma o email de resposta em Settings → Web ou Email." : "Confirma el email de respuesta en Settings → Web o Email.");
+          setError(lang === "en" ? "Confirm your reply email in Settings." : lang === "pt" ? "Confirma o email de resposta em Settings." : "Confirma el email de respuesta en Settings.");
           return;
         }
         if (payload?.error === "email_provider_not_configured") {

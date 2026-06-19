@@ -7,7 +7,6 @@ type Labels = {
   title: string;
   help: string;
   email: string;
-  name: string;
   sendCode: string;
   code: string;
   confirm: string;
@@ -16,19 +15,16 @@ type Labels = {
   codeSent: string;
   error: string;
   invalidCode: string;
-  noDnsNote: string;
 };
 
 type Props = {
-  channel: "form" | "email";
   reply: EmailReplyConfigState | null;
   canManage: boolean;
   labels: Labels;
 };
 
-export function ReplyEmailSetup({ channel, reply, canManage, labels }: Props) {
+export function ReplyEmailSetup({ reply, canManage, labels }: Props) {
   const [email, setEmail] = useState(reply?.from_email ?? "");
-  const [fromName, setFromName] = useState(reply?.from_name ?? "");
   const [code, setCode] = useState("");
   const [pending, setPending] = useState(false);
   const [verified, setVerified] = useState(Boolean(reply?.verified));
@@ -45,10 +41,9 @@ export function ReplyEmailSetup({ channel, reply, canManage, labels }: Props) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        channel,
+        channel: "form",
         action: "verify",
         email,
-        from_name: fromName,
       }),
     });
 
@@ -74,11 +69,10 @@ export function ReplyEmailSetup({ channel, reply, canManage, labels }: Props) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        channel,
+        channel: "form",
         action: "confirm",
         email,
         code,
-        from_name: fromName,
       }),
     });
 
@@ -96,82 +90,60 @@ export function ReplyEmailSetup({ channel, reply, canManage, labels }: Props) {
     setCode("");
   }
 
-  return (
-    <div className="settings-form-reply">
-      <p className="label">{labels.title}</p>
-      <p className="note" style={{ marginBottom: 12 }}>
-        {labels.help}
+  if (!canManage) {
+    return verified ? (
+      <p className="note">
+        {labels.verified}: <strong>{email}</strong>
       </p>
-      <p className="note" style={{ marginBottom: 12 }}>
-        {labels.noDnsNote}
-      </p>
+    ) : null;
+  }
 
+  return (
+    <div className="settings-reply-email-simple">
       {verified ? (
-        <p className="note" style={{ marginBottom: 12 }}>
+        <p className="note settings-reply-email-confirmed">
           {labels.verified}: <strong>{email}</strong>
         </p>
       ) : null}
 
-      {canManage ? (
-        <div className="settings-form-channel-fields">
+      <label className="novua-lead-form-field">
+        <span className="label">{labels.email}</span>
+        <input
+          className="input"
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder="hola@tuempresa.com"
+          disabled={busy}
+        />
+      </label>
+
+      {!pending ? (
+        <button className="button" type="button" onClick={handleSendCode} disabled={busy || !email.trim()}>
+          {labels.sendCode}
+        </button>
+      ) : (
+        <>
+          <p className="note">{labels.pending}</p>
           <label className="novua-lead-form-field">
-            <span className="label">{labels.email}</span>
+            <span className="label">{labels.code}</span>
             <input
               className="input"
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="hola@tuempresa.com"
+              value={code}
+              onChange={(event) => setCode(event.target.value)}
+              placeholder="123456"
+              inputMode="numeric"
               disabled={busy}
             />
           </label>
-          <label className="novua-lead-form-field">
-            <span className="label">{labels.name}</span>
-            <input
-              className="input"
-              value={fromName}
-              onChange={(event) => setFromName(event.target.value)}
-              placeholder="Tu empresa"
-              disabled={busy}
-            />
-          </label>
+          <button className="button" type="button" onClick={handleConfirm} disabled={busy || !code.trim()}>
+            {labels.confirm}
+          </button>
+        </>
+      )}
 
-          {!verified ? (
-            <button className="button" type="button" onClick={handleSendCode} disabled={busy || !email.trim()}>
-              {labels.sendCode}
-            </button>
-          ) : null}
-
-          {pending && !verified ? (
-            <>
-              <p className="note">{labels.pending}</p>
-              <label className="novua-lead-form-field">
-                <span className="label">{labels.code}</span>
-                <input
-                  className="input"
-                  value={code}
-                  onChange={(event) => setCode(event.target.value)}
-                  placeholder="123456"
-                  inputMode="numeric"
-                  disabled={busy}
-                />
-              </label>
-              <button className="button" type="button" onClick={handleConfirm} disabled={busy || !code.trim()}>
-                {labels.confirm}
-              </button>
-            </>
-          ) : null}
-
-          {verified ? (
-            <button className="button" type="button" onClick={handleSendCode} disabled={busy}>
-              {labels.sendCode}
-            </button>
-          ) : null}
-
-          {status ? <p className="note">{status}</p> : null}
-          {error ? <p className="note">{error}</p> : null}
-        </div>
-      ) : null}
+      {status ? <p className="note">{status}</p> : null}
+      {error ? <p className="note">{error}</p> : null}
     </div>
   );
 }

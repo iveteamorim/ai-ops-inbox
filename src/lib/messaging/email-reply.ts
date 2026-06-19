@@ -8,13 +8,13 @@ type ChannelRow = {
 export async function resolveReplyConfigForConversation(
   admin: SupabaseClient,
   companyId: string,
-  channel: "form" | "email",
+  _channel: "form" | "email",
 ): Promise<EmailReplyConfigState | null> {
   const { data: channelRow } = await admin
     .from("channels")
     .select("config")
     .eq("company_id", companyId)
-    .eq("type", channel)
+    .eq("type", "form")
     .eq("is_active", true)
     .maybeSingle<ChannelRow>();
 
