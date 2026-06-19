@@ -722,11 +722,11 @@ export default async function SettingsPage() {
             },
             email: {
               label: "Email",
-              description: "Inbox partilhado para email recebido e respostas.",
+              description: "Recebe leads por email e responde a partir do inbox.",
             },
             form: {
               label: "Web",
-              description: "Leads de formulário e chat do site dentro da Novua.",
+              description: "Leads do formulário do site dentro da Novua.",
             },
           } satisfies Record<ChannelType, { label: string; description: string }>,
         }
@@ -750,11 +750,11 @@ export default async function SettingsPage() {
               },
               email: {
                 label: "Email",
-                description: "Shared inbox for inbound email and threaded replies.",
+                description: "Receive email leads and reply from the inbox.",
               },
               form: {
                 label: "Web",
-                description: "Website form and chat leads routed into Novua.",
+                description: "Website form leads routed into Novua.",
               },
             } satisfies Record<ChannelType, { label: string; description: string }>,
           }
@@ -777,11 +777,11 @@ export default async function SettingsPage() {
               },
               email: {
                 label: "Email",
-                description: "Inbox compartido para email entrante y respuestas.",
+                description: "Recibe leads por email y responde desde el inbox.",
               },
               form: {
                 label: "Web",
-                description: "Leads de formulario y chat web dentro de Novua.",
+                description: "Leads del formulario web dentro de Novua.",
               },
             } satisfies Record<ChannelType, { label: string; description: string }>,
           };
@@ -1090,7 +1090,11 @@ export default async function SettingsPage() {
           ) : null}
 
           <ChannelsOverview
-            channels={channels}
+            channels={channels.map((channel) =>
+              channel.type === "email"
+                ? { ...channel, is_active: Boolean(emailReply?.verified) }
+                : channel,
+            )}
             setupRequests={setupRequests}
             title={channelsOverviewCopy.title}
             subtitle={channelsOverviewCopy.subtitle}
