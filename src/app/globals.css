@@ -4067,6 +4067,18 @@ textarea:focus-visible {
   gap: 10px !important;
 }
 
+.settings-v3 .settings-channel-focus,
+.settings-v3 .settings-channel-focus-panel {
+  margin-top: 12px;
+}
+
+.settings-v3 .settings-channel-focus-empty {
+  margin-top: 12px;
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.02);
+}
+
 .settings-v3 .settings-channel-stack,
 .settings-v3 .settings-section-stack {
   display: flex;

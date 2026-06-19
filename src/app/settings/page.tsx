@@ -7,9 +7,10 @@ import { PilotFeedbackForm } from "@/components/PilotFeedbackForm";
 import { PilotFeedbackHistory } from "@/components/PilotFeedbackHistory";
 import { SetupRequestButton } from "@/components/SetupRequestButton";
 import { TeamMembersList } from "@/components/TeamMembersList";
-import { ChannelsOverview } from "@/components/settings/ChannelsOverview";
-import { FormChannelSetup } from "@/components/settings/FormChannelSetup";
 import { EmailChannelSetup } from "@/components/settings/EmailChannelSetup";
+import { FormChannelSetup } from "@/components/settings/FormChannelSetup";
+import { ChannelsOverview } from "@/components/settings/ChannelsOverview";
+import { FocusedChannelSetup } from "@/components/settings/FocusedChannelSetup";
 import { getPublicAppUrl } from "@/lib/app-url";
 import { buildFormEmbedSnippet, buildFormPublicUrl } from "@/lib/messaging/form";
 import { parseEmailReplyConfigState } from "@/lib/messaging/email-reply-state";
@@ -1042,6 +1043,13 @@ export default async function SettingsPage() {
             replyLabels: emailReplyLabels,
           };
 
+  const channelFocusEmptyLabel =
+    lang === "pt"
+      ? "Escolhe um canal acima e clica em Configurar."
+      : lang === "en"
+        ? "Pick a channel above and click Configure."
+        : "Elige un canal arriba y pulsa Configurar.";
+
   return (
     <section className="page settings-page-reset">
       <AppNav
@@ -1097,7 +1105,8 @@ export default async function SettingsPage() {
             formatChannel={(channel) => formatChannel(channel, t)}
           />
 
-          <div className="settings-channel-stack">
+          <FocusedChannelSetup emptyLabel={channelFocusEmptyLabel}>
+            <FocusedChannelSetup.Panel channel="whatsapp">
             <article
               className={`card settings-channel-card settings-channel-setup-anchor ${whatsappConnected ? "settings-channel-connected" : "settings-channel-pending"}`.trim()}
               id="whatsapp-setup"
@@ -1163,7 +1172,9 @@ export default async function SettingsPage() {
                 <p className="note">{copy.channelsNote}</p>
               )}
             </article>
+            </FocusedChannelSetup.Panel>
 
+            <FocusedChannelSetup.Panel channel="instagram">
             <article
               className={`card settings-channel-card settings-channel-setup-anchor ${instagramConnected ? "settings-channel-connected" : "settings-channel-pending"}`.trim()}
               id="instagram-setup"
@@ -1213,7 +1224,9 @@ export default async function SettingsPage() {
                 <p className="note">{copy.channelsNote}</p>
               )}
             </article>
+            </FocusedChannelSetup.Panel>
 
+            <FocusedChannelSetup.Panel channel="email">
             <EmailChannelSetup
               label={formatChannel("email", t)}
               isActive={Boolean(emailReply?.verified)}
@@ -1221,7 +1234,9 @@ export default async function SettingsPage() {
               canManage={canManageTeam}
               labels={emailChannelSetupCopy}
             />
+            </FocusedChannelSetup.Panel>
 
+            <FocusedChannelSetup.Panel channel="form">
             <FormChannelSetup
               label={formatChannel("form", t)}
               isActive={Boolean(formChannel?.is_active && formToken)}
@@ -1234,7 +1249,8 @@ export default async function SettingsPage() {
               formReply={formReply}
               labels={formChannelSetupCopy}
             />
-          </div>
+            </FocusedChannelSetup.Panel>
+          </FocusedChannelSetup>
 
           <div className="settings-section-stack">
             {canManageTeam ? (
