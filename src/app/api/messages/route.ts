@@ -5,6 +5,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { enforceSameOrigin } from "@/lib/security/request-origin";
 import { getWorkspaceMember, type WorkspaceMember } from "@/lib/workspace-access";
 import { sendWhatsAppText } from "@/lib/messaging/whatsapp-send";
+import { sendInstagramText } from "@/lib/messaging/instagram-send";
 import { isEmailSendingConfigured, sendEmailText } from "@/lib/messaging/email-send";
 import {
   resolveEmailSubject,
@@ -196,6 +197,7 @@ export async function POST(request: Request) {
   }
 
   let whatsappSent = false;
+  let instagramSent = false;
   let emailSent = false;
   let deliveryStatus: "sent" | "failed" = "sent";
   let deliveryError: string | null = null;
@@ -248,6 +250,86 @@ export async function POST(request: Request) {
           delivery_status: "sent",
         })
         .eq("id", insertedMessage.id);
+    }
+  } else if (access.conversation.channel === "instagram") {
+    const { data: contact, error: contactError } = await authContext.admin
+      .from("contacts")
+      .select("external_ref")
+      .eq("id", access.conversation.contact_id)
+      .maybeSingle<{ external_ref: string | null }>();
+
+    if (contactError) {
+      return NextResponse.json({ ok: false, error: contactError.message }, { status: 500 });
+    }
+
+    const { data: channel, error: channelError } = await authContext.admin
+      .from("channels")
+      .select("external_account_id, config")
+      .eq("company_id", access.conversation.company_id)
+      .eq("type", "instagram")
+      .eq("is_active", true)
+      .maybeSingle<{ external_account_id: string | null; config: Record<string, unknown> | null }>();
+
+    if (channelError) {
+      return NextResponse.json({ ok: false, error: channelError.message }, { status: 500 });
+    }
+
+    if (!contact?.external_ref) {
+      return NextResponse.json({ ok: false, error: "contact_external_ref_missing" }, { status: 400 });
+    }
+
+    if (!channel?.external_account_id) {
+      return NextResponse.json({ ok: false, error: "instagram_channel_missing" }, { status: 400 });
+    }
+
+    const channelAccessToken =
+      channel.config && typeof channel.config.access_token === "string" ? channel.config.access_token : null;
+
+    try {
+      const instagramResult = await sendInstagramText({
+        instagramAccountId: channel.external_account_id,
+        to: contact.external_ref,
+        text,
+        accessToken: channelAccessToken,
+      });
+
+      instagramSent = true;
+
+      if (insertedMessage?.id) {
+        await authContext.admin
+          .from("messages")
+          .update({
+            external_id: instagramResult.messageId,
+            raw_payload: {
+              source: "api/messages",
+              provider: "instagram",
+              to: contact.external_ref,
+              response: instagramResult.raw,
+            },
+            delivery_status: "sent",
+          })
+          .eq("id", insertedMessage.id);
+      }
+    } catch (error) {
+      deliveryStatus = "failed";
+      deliveryError = error instanceof Error ? error.message : "instagram_send_failed";
+
+      if (insertedMessage?.id) {
+        await authContext.admin
+          .from("messages")
+          .update({
+            delivery_status: "failed",
+            raw_payload: {
+              source: "api/messages",
+              provider: "instagram",
+              to: contact.external_ref,
+              error: deliveryError,
+            },
+          })
+          .eq("id", insertedMessage.id);
+      }
+
+      return NextResponse.json({ ok: false, error: deliveryError }, { status: 502 });
     }
   } else if (access.conversation.channel === "form" || access.conversation.channel === "email") {
     const { data: contact, error: contactError } = await authContext.admin
@@ -357,5 +439,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: updateError.message }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true, queued: true, whatsappSent, emailSent, deliveryStatus });
+  return NextResponse.json({ ok: true, queued: true, whatsappSent, instagramSent, emailSent, deliveryStatus });
 }

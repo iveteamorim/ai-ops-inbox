@@ -66,7 +66,7 @@ export function ChannelsOverview({
             ? connected
             : isPending
               ? pending
-              : type === "whatsapp" || type === "form"
+              : type === "whatsapp" || type === "instagram" || type === "form"
                 ? disconnected
                 : comingSoon;
 

@@ -7,7 +7,6 @@ import { PilotFeedbackHistory } from "@/components/PilotFeedbackHistory";
 import { SetupRequestButton } from "@/components/SetupRequestButton";
 import { TeamMembersList } from "@/components/TeamMembersList";
 import { ChannelsOverview } from "@/components/settings/ChannelsOverview";
-import { ChannelSetupPlaceholder } from "@/components/settings/ChannelSetupPlaceholder";
 import { FormChannelSetup } from "@/components/settings/FormChannelSetup";
 import { EmailChannelSetup } from "@/components/settings/EmailChannelSetup";
 import { getPublicAppUrl } from "@/lib/app-url";
@@ -35,13 +34,22 @@ function getSetupCopy(lang: string) {
       channelsNote: "Configurado por Novua durante onboarding.",
       requestSetup: "Solicitar setup",
       requestWhatsAppSetup: "Solicitar setup de WhatsApp",
+      requestInstagramSetup: "Solicitar setup de Instagram",
       updateWhatsAppSetup: "Actualizar solicitud",
+      updateInstagramSetup: "Actualizar solicitud de Instagram",
       setupRequested: "Setup solicitado",
       setupInProgress: "Setup en curso",
       setupRequestedNote: "Estamos preparando contigo la conexión real de WhatsApp.",
+      setupInstagramRequestedNote: "Estamos preparando contigo la conexión real de Instagram con tu Meta Business.",
       setupPhoneRequired: "Es obligatorio indicar el número de WhatsApp.",
+      setupInstagramRequired: "Es obligatorio indicar el usuario de Instagram.",
       setupNumberLabel: "Número de WhatsApp",
       setupNumberPlaceholder: "+34 600 111 222",
+      setupInstagramHandleLabel: "Usuario de Instagram",
+      setupInstagramHandlePlaceholder: "@clinica",
+      instagramHandle: "Usuario conectado",
+      instagramChannelHelp:
+        "Conecta la cuenta de Instagram Business del cliente con su Meta. Novua activa el canal cuando la autorización esté lista.",
       setupMetaVerifiedLabel: "¿Tienes Meta Business verificado?",
       setupMetaVerifiedYes: "Sí",
       setupMetaVerifiedNo: "No",
@@ -177,13 +185,22 @@ function getSetupCopy(lang: string) {
       channelsNote: "Configurado pela Novua durante o onboarding.",
       requestSetup: "Solicitar setup",
       requestWhatsAppSetup: "Solicitar setup de WhatsApp",
+      requestInstagramSetup: "Solicitar setup de Instagram",
       updateWhatsAppSetup: "Atualizar solicitação",
+      updateInstagramSetup: "Atualizar solicitação de Instagram",
       setupRequested: "Setup solicitado",
       setupInProgress: "Setup em curso",
       setupRequestedNote: "Estamos preparando com você a conexão real do WhatsApp.",
+      setupInstagramRequestedNote: "Estamos preparando com você a conexão real do Instagram com a tua Meta Business.",
       setupPhoneRequired: "O número de WhatsApp é obrigatório.",
+      setupInstagramRequired: "O utilizador de Instagram é obrigatório.",
       setupNumberLabel: "Número de WhatsApp",
       setupNumberPlaceholder: "+351 912 345 678",
+      setupInstagramHandleLabel: "Utilizador de Instagram",
+      setupInstagramHandlePlaceholder: "@clinica",
+      instagramHandle: "Utilizador conectado",
+      instagramChannelHelp:
+        "Liga a conta Instagram Business do cliente à Meta dele. A Novua ativa o canal quando a autorização estiver pronta.",
       setupMetaVerifiedLabel: "Tem Meta Business verificado?",
       setupMetaVerifiedYes: "Sim",
       setupMetaVerifiedNo: "Não",
@@ -318,13 +335,22 @@ function getSetupCopy(lang: string) {
     channelsNote: "Configured by Novua during onboarding.",
     requestSetup: "Request setup",
     requestWhatsAppSetup: "Request WhatsApp setup",
+    requestInstagramSetup: "Request Instagram setup",
     updateWhatsAppSetup: "Update request",
+    updateInstagramSetup: "Update Instagram request",
     setupRequested: "Setup requested",
     setupInProgress: "Setup in progress",
     setupRequestedNote: "We are preparing the real WhatsApp connection with you.",
+    setupInstagramRequestedNote: "We are preparing the real Instagram connection with your Meta Business.",
     setupPhoneRequired: "WhatsApp phone is required.",
+    setupInstagramRequired: "Instagram handle is required.",
     setupNumberLabel: "WhatsApp number",
     setupNumberPlaceholder: "+1 415 555 0101",
+    setupInstagramHandleLabel: "Instagram handle",
+    setupInstagramHandlePlaceholder: "@clinic",
+    instagramHandle: "Connected handle",
+    instagramChannelHelp:
+      "Connect the client's Instagram Business account through their Meta. Novua activates the channel once authorization is ready.",
     setupMetaVerifiedLabel: "Is Meta Business verified?",
     setupMetaVerifiedYes: "Yes",
     setupMetaVerifiedNo: "No",
@@ -539,6 +565,7 @@ export default async function SettingsPage() {
   const hasWebhookSecrets = Boolean(process.env.WHATSAPP_VERIFY_TOKEN && process.env.WHATSAPP_APP_SECRET);
   const embeddedSignupConfig = getWhatsAppEmbeddedSignupRuntimeConfig();
   const whatsappSetupRequest = setupRequests.find((request) => request.channel === "whatsapp" && (request.status === "requested" || request.status === "in_progress"));
+  const instagramSetupRequest = setupRequests.find((request) => request.channel === "instagram" && (request.status === "requested" || request.status === "in_progress"));
   const businessSetup = getBusinessSetup(context.company);
   const roleLabel = formatRoleLabel(lang, context.profile.role);
   const workspaceLabel = context.company?.name ?? "Novua Inbox";
@@ -547,6 +574,7 @@ export default async function SettingsPage() {
   const emailChannel = channels.find((channel) => channel.type === "email") ?? null;
   const formChannel = channels.find((channel) => channel.type === "form") ?? null;
   const whatsappConnected = Boolean(whatsappChannel?.is_active);
+  const instagramConnected = Boolean(instagramChannel?.is_active);
   const whatsappChannelConfig =
     whatsappChannel?.config && typeof whatsappChannel.config === "object"
       ? whatsappChannel.config
@@ -556,6 +584,16 @@ export default async function SettingsPage() {
     whatsappChannelConfig.display_phone_number.trim()
       ? whatsappChannelConfig.display_phone_number.trim()
       : null;
+  const instagramChannelConfig =
+    instagramChannel?.config && typeof instagramChannel.config === "object"
+      ? instagramChannel.config
+      : null;
+  const instagramDisplayHandle =
+    typeof instagramChannelConfig?.instagram_handle === "string" && instagramChannelConfig.instagram_handle.trim()
+      ? instagramChannelConfig.instagram_handle.trim()
+      : typeof instagramChannelConfig?.username === "string" && instagramChannelConfig.username.trim()
+        ? instagramChannelConfig.username.trim()
+        : null;
   const settingsText =
     lang === "pt"
       ? {
@@ -1139,16 +1177,60 @@ export default async function SettingsPage() {
             )}
           </article>
 
-          <ChannelSetupPlaceholder
-            channel="instagram"
-            label={formatChannel("instagram", t)}
-            title={pendingChannelSetupCopy.instagram.title}
-            description={pendingChannelSetupCopy.instagram.description}
-            comingSoon={channelsOverviewCopy.comingSoon}
-            isConnected={Boolean(instagramChannel?.is_active)}
-            connectedLabel={channelsOverviewCopy.connected}
-            pendingLabel={channelsOverviewCopy.comingSoon}
-          />
+          <article
+            className={`card settings-channel-card settings-channel-setup-anchor ${instagramConnected ? "settings-channel-connected" : "settings-channel-pending"}`.trim()}
+            id="instagram-setup"
+          >
+            <p className="label">{pendingChannelSetupCopy.instagram.title}</p>
+            <p className="subtitle" style={{ marginBottom: 12 }}>
+              {pendingChannelSetupCopy.instagram.description}
+            </p>
+            {instagramChannel ? (
+              <div className="preview-row" style={{ marginBottom: 12 }}>
+                <span>{formatChannel(instagramChannel.type, t)}</span>
+                <span className={`badge ${instagramChannel.is_active ? "status-active" : "status-no-response"}`}>
+                  {instagramChannel.is_active ? t("settings_active") : t("settings_disconnected")}
+                </span>
+              </div>
+            ) : null}
+            {instagramConnected ? (
+              <div className="preview-row" style={{ marginBottom: 12 }}>
+                <span>{copy.instagramHandle}</span>
+                <span>{instagramDisplayHandle ?? "-"}</span>
+              </div>
+            ) : null}
+            {canManageTeam ? (
+              <>
+                <p className="note" style={{ marginBottom: 12 }}>
+                  {copy.instagramChannelHelp}
+                </p>
+                <SetupRequestButton
+                  channel="instagram"
+                  idleLabel={copy.requestInstagramSetup}
+                  updateLabel={copy.updateInstagramSetup}
+                  requestedLabel={copy.setupRequested}
+                  requestedNote={copy.setupInstagramRequestedNote}
+                  numberLabel={copy.setupInstagramHandleLabel}
+                  numberPlaceholder={copy.setupInstagramHandlePlaceholder}
+                  metaVerifiedLabel={copy.setupMetaVerifiedLabel}
+                  metaVerifiedYes={copy.setupMetaVerifiedYes}
+                  metaVerifiedNo={copy.setupMetaVerifiedNo}
+                  notesLabel={copy.setupNotesLabel}
+                  notesPlaceholder={copy.setupNotesPlaceholder}
+                  phoneRequiredError={copy.setupInstagramRequired}
+                  requestErrorLabel={copy.requestError}
+                  inProgressLabel={copy.setupInProgress}
+                  existingStatus={instagramSetupRequest?.status ?? null}
+                  existingNotes={instagramSetupRequest?.notes ?? null}
+                />
+              </>
+            ) : (
+              <div className="setup-state">
+                <p className="note">{copy.channelUsage}</p>
+                <p className="note">{copy.channelsNote}</p>
+              </div>
+            )}
+          </article>
 
           <EmailChannelSetup
             label={formatChannel("email", t)}

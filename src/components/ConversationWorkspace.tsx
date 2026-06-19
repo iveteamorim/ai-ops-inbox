@@ -388,6 +388,18 @@ export function ConversationWorkspace({
           setError(lang === "en" ? "Email sending is not configured yet on the server." : lang === "pt" ? "O envio de email ainda não está configurado no servidor." : "El envío de email aún no está configurado en el servidor.");
           return;
         }
+        if (payload?.error === "instagram_channel_missing") {
+          setError(lang === "en" ? "Instagram is not connected for this workspace yet." : lang === "pt" ? "O Instagram ainda não está ligado neste workspace." : "Instagram aún no está conectado en este workspace.");
+          return;
+        }
+        if (payload?.error === "contact_external_ref_missing") {
+          setError(lang === "en" ? "This Instagram contact cannot be replied to yet." : lang === "pt" ? "Ainda não é possível responder a este contacto do Instagram." : "Aún no se puede responder a este contacto de Instagram.");
+          return;
+        }
+        if (payload?.error === "instagram_access_token_not_configured") {
+          setError(lang === "en" ? "Instagram sending is not configured yet on the server." : lang === "pt" ? "O envio por Instagram ainda não está configurado no servidor." : "El envío por Instagram aún no está configurado en el servidor.");
+          return;
+        }
         setError(payload?.error ?? (lang === "en" ? "Failed to send message" : lang === "pt" ? "Não foi possível enviar a mensagem" : "No se pudo enviar el mensaje"));
         return;
       }

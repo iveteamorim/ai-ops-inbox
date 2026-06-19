@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { enforceSameOrigin } from "@/lib/security/request-origin";
+import { isChannelType } from "@/lib/messaging/channel-types";
 import { getWorkspaceMember } from "@/lib/workspace-access";
 
 export async function POST(request: Request) {
@@ -10,7 +11,7 @@ export async function POST(request: Request) {
   if (originError) return originError;
 
   const body = (await request.json().catch(() => ({}))) as { channel?: string; notes?: string };
-  const channel = body.channel === "email" || body.channel === "form" ? body.channel : "whatsapp";
+  const channel = typeof body.channel === "string" && isChannelType(body.channel) ? body.channel : "whatsapp";
   const notes = typeof body.notes === "string" ? body.notes.trim() : null;
 
   let supabase: Awaited<ReturnType<typeof createClient>>;
