@@ -60,11 +60,10 @@ export function WorkspaceDangerZone({
   }
 
   return (
-    <article className="card" style={{ marginTop: 12 }}>
-      <details>
-        <summary className="label" style={{ color: "#f87171", fontWeight: 700, cursor: "pointer" }}>{title}</summary>
-        <p className="subtitle" style={{ marginTop: 8, marginBottom: 8 }}>{help}</p>
-        <p className="note" style={{ marginBottom: 12 }}>{warning}</p>
+    <article className="card settings-section-card settings-danger-card">
+      <p className="label" style={{ color: "#f87171", fontWeight: 700 }}>{title}</p>
+      <p className="subtitle" style={{ marginTop: 8, marginBottom: 8 }}>{help}</p>
+      <p className="note" style={{ marginBottom: 12 }}>{warning}</p>
         <label className="label" htmlFor="workspace-delete-confirmation">
           {confirmationLabel}
         </label>
@@ -89,7 +88,6 @@ export function WorkspaceDangerZone({
         </div>
         {message ? <p className="note">{message}</p> : null}
         {error ? <p className="note">{error}</p> : null}
-      </details>
     </article>
   );
 }

@@ -1,4 +1,5 @@
 import { AppNav } from "@/components/AppNav";
+import { ChannelBadge } from "@/components/ChannelBadge";
 import { BusinessSetupForm } from "@/components/BusinessSetupForm";
 import { InviteUserForm } from "@/components/InviteUserForm";
 import { PendingInvitesList } from "@/components/PendingInvitesList";
@@ -594,7 +595,7 @@ export default async function SettingsPage() {
       : typeof instagramChannelConfig?.username === "string" && instagramChannelConfig.username.trim()
         ? instagramChannelConfig.username.trim()
         : null;
-  const settingsText =
+  const workspaceSettingsText =
     lang === "pt"
       ? {
           heroConnected: "WhatsApp conectado",
@@ -678,29 +679,6 @@ export default async function SettingsPage() {
             won: "Ganadas",
             lost: "Perdidas",
           };
-  const channelStepLabel = whatsappConnected
-    ? lang === "en"
-      ? "Step 1 completed"
-      : lang === "pt"
-        ? "Passo 1 concluído"
-        : "Paso 1 completado"
-    : lang === "en"
-      ? "Step 1 of 1"
-      : lang === "pt"
-        ? "Passo 1 de 1"
-        : "Paso 1 de 1";
-  const channelStepCopy = whatsappConnected
-    ? lang === "en"
-      ? "Your channel is ready. You can continue with value and team setup."
-      : lang === "pt"
-        ? "Canal pronto. Pode continuar com valor e equipa."
-        : "Canal listo. Ya puedes continuar con valor y equipo."
-    : lang === "en"
-      ? "Connect WhatsApp to start receiving real conversations."
-      : lang === "pt"
-        ? "Conecte o WhatsApp para começar a receber conversas reais."
-        : "Conecta WhatsApp para empezar a recibir conversaciones reales.";
-
   const channelsOverviewCopy =
     lang === "pt"
       ? {
@@ -789,6 +767,10 @@ export default async function SettingsPage() {
   const pendingChannelSetupCopy =
     lang === "pt"
       ? {
+          whatsapp: {
+            title: "Conectar WhatsApp",
+            description: "Recebe e responde mensagens do número conectado.",
+          },
           instagram: {
             title: "Conectar Instagram",
             description: "Recebe DMs e respostas do Instagram no mesmo inbox da Novua.",
@@ -804,6 +786,10 @@ export default async function SettingsPage() {
         }
       : lang === "en"
         ? {
+            whatsapp: {
+              title: "Connect WhatsApp",
+              description: "Receive and reply from the connected number.",
+            },
             instagram: {
               title: "Connect Instagram",
               description: "Receive Instagram DMs and replies in the same Novua inbox.",
@@ -818,6 +804,10 @@ export default async function SettingsPage() {
             },
           }
         : {
+            whatsapp: {
+              title: "Conectar WhatsApp",
+              description: "Recibe y responde desde el número conectado.",
+            },
             instagram: {
               title: "Conectar Instagram",
               description: "Recibe DMs y respuestas de Instagram en el mismo inbox de Novua.",
@@ -915,7 +905,7 @@ export default async function SettingsPage() {
           title: pendingChannelSetupCopy.form.title,
           description: pendingChannelSetupCopy.form.description,
           connected: channelsOverviewCopy.connected,
-          disconnected: channelsOverviewCopy.comingSoon,
+          disconnected: channelsOverviewCopy.disconnected,
           activate: "Ativar formulário web",
           regenerate: "Gerar novo link",
           websiteLink: "Link para a tua web",
@@ -953,7 +943,7 @@ export default async function SettingsPage() {
             title: pendingChannelSetupCopy.form.title,
             description: pendingChannelSetupCopy.form.description,
             connected: channelsOverviewCopy.connected,
-            disconnected: channelsOverviewCopy.comingSoon,
+            disconnected: channelsOverviewCopy.disconnected,
             activate: "Activate web form",
             regenerate: "Generate new link",
             websiteLink: "Link for your website",
@@ -990,7 +980,7 @@ export default async function SettingsPage() {
             title: pendingChannelSetupCopy.form.title,
             description: pendingChannelSetupCopy.form.description,
             connected: channelsOverviewCopy.connected,
-            disconnected: channelsOverviewCopy.comingSoon,
+            disconnected: channelsOverviewCopy.disconnected,
             activate: "Activar formulario web",
             regenerate: "Generar nuevo enlace",
             websiteLink: "Enlace para tu web",
@@ -1107,51 +1097,48 @@ export default async function SettingsPage() {
             formatChannel={(channel) => formatChannel(channel, t)}
           />
 
-          <article
-            className={`card settings-channel-card settings-channel-setup-anchor ${whatsappConnected ? "settings-channel-connected" : "settings-channel-pending"}`.trim()}
-            id="whatsapp-setup"
-          >
-            <p className="note" style={{ marginTop: 0, marginBottom: 4 }}>{channelStepLabel}</p>
-            <p className="label">{settingsText.channelTitle}</p>
-            <p className="subtitle" style={{ marginBottom: 12 }}>
-              {channelStepCopy}
-            </p>
-            {whatsappChannel ? (
+          <div className="settings-channel-stack">
+            <article
+              className={`card settings-channel-card settings-channel-setup-anchor ${whatsappConnected ? "settings-channel-connected" : "settings-channel-pending"}`.trim()}
+              id="whatsapp-setup"
+            >
               <div className="preview-row" style={{ marginBottom: 12 }}>
-                <span>{formatChannel(whatsappChannel.type, t)}</span>
-                <span className={`badge ${whatsappChannel.is_active ? "status-active" : "status-no-response"}`}>
-                  {whatsappChannel.is_active ? t("settings_active") : t("settings_disconnected")}
+                <ChannelBadge label={formatChannel("whatsapp", t)} channel="whatsapp" />
+                <span className={`badge ${whatsappConnected ? "status-active" : "status-no-response"}`}>
+                  {whatsappConnected ? t("settings_active") : t("settings_disconnected")}
                 </span>
               </div>
-            ) : null}
-            {whatsappConnected ? (
-              <div className="preview-row" style={{ marginBottom: 12 }}>
-                <span>{copy.whatsappNumber}</span>
-                <span>{whatsappDisplayNumber ?? "-"}</span>
-              </div>
-            ) : null}
-            {canManageTeam ? (
-              <>
-                {embeddedSignupConfig.enabled ? (
-                  <WhatsAppEmbeddedSignupCard
-                    appId={embeddedSignupConfig.appId}
-                    configId={embeddedSignupConfig.configId}
-                    apiVersion={embeddedSignupConfig.apiVersion}
-                    isConnected={whatsappConnected}
-                    connectLabel={copy.embeddedConnectAction}
-                    reconnectLabel={copy.embeddedReconnectAction}
-                    readyLabel={copy.embeddedSdkPreparing}
-                    loadingLabel={copy.embeddedSdkLoading}
-                    launchErrorLabel={copy.embeddedConnectError}
-                    saveErrorLabel={copy.embeddedSaveError}
-                    connectedLabel={copy.embeddedConnectSuccess}
-                    helperLabel={copy.embeddedConnectHelp}
-                    fallbackLabel={copy.embeddedFallbackTitle}
-                    fallbackHelp={copy.embeddedFallbackHelp}
-                  />
-                ) : null}
-                {!embeddedSignupConfig.enabled ? (
-                  <div>
+              <p className="label">{pendingChannelSetupCopy.whatsapp.title}</p>
+              <p className="subtitle" style={{ marginBottom: 12 }}>
+                {pendingChannelSetupCopy.whatsapp.description}
+              </p>
+              {whatsappConnected ? (
+                <div className="preview-row" style={{ marginBottom: 12 }}>
+                  <span>{copy.whatsappNumber}</span>
+                  <span>{whatsappDisplayNumber ?? "-"}</span>
+                </div>
+              ) : null}
+              {canManageTeam ? (
+                <>
+                  {embeddedSignupConfig.enabled ? (
+                    <WhatsAppEmbeddedSignupCard
+                      appId={embeddedSignupConfig.appId}
+                      configId={embeddedSignupConfig.configId}
+                      apiVersion={embeddedSignupConfig.apiVersion}
+                      isConnected={whatsappConnected}
+                      connectLabel={copy.embeddedConnectAction}
+                      reconnectLabel={copy.embeddedReconnectAction}
+                      readyLabel={copy.embeddedSdkPreparing}
+                      loadingLabel={copy.embeddedSdkLoading}
+                      launchErrorLabel={copy.embeddedConnectError}
+                      saveErrorLabel={copy.embeddedSaveError}
+                      connectedLabel={copy.embeddedConnectSuccess}
+                      helperLabel={copy.embeddedConnectHelp}
+                      fallbackLabel={copy.embeddedFallbackTitle}
+                      fallbackHelp={copy.embeddedFallbackHelp}
+                    />
+                  ) : null}
+                  {!embeddedSignupConfig.enabled ? (
                     <SetupRequestButton
                       idleLabel={copy.requestWhatsAppSetup}
                       updateLabel={copy.updateWhatsAppSetup}
@@ -1170,132 +1157,117 @@ export default async function SettingsPage() {
                       existingStatus={whatsappSetupRequest?.status ?? null}
                       existingNotes={whatsappSetupRequest?.notes ?? null}
                     />
-                  </div>
-                ) : null}
-              </>
-            ) : (
-              <div className="setup-state">
-                <p className="note">{copy.channelUsage}</p>
+                  ) : null}
+                </>
+              ) : (
                 <p className="note">{copy.channelsNote}</p>
-              </div>
-            )}
-          </article>
+              )}
+            </article>
 
-          <article
-            className={`card settings-channel-card settings-channel-setup-anchor ${instagramConnected ? "settings-channel-connected" : "settings-channel-pending"}`.trim()}
-            id="instagram-setup"
-          >
-            <p className="label">{pendingChannelSetupCopy.instagram.title}</p>
-            <p className="subtitle" style={{ marginBottom: 12 }}>
-              {pendingChannelSetupCopy.instagram.description}
-            </p>
-            {instagramChannel ? (
+            <article
+              className={`card settings-channel-card settings-channel-setup-anchor ${instagramConnected ? "settings-channel-connected" : "settings-channel-pending"}`.trim()}
+              id="instagram-setup"
+            >
               <div className="preview-row" style={{ marginBottom: 12 }}>
-                <span>{formatChannel(instagramChannel.type, t)}</span>
-                <span className={`badge ${instagramChannel.is_active ? "status-active" : "status-no-response"}`}>
-                  {instagramChannel.is_active ? t("settings_active") : t("settings_disconnected")}
+                <ChannelBadge label={formatChannel("instagram", t)} channel="instagram" />
+                <span className={`badge ${instagramConnected ? "status-active" : "status-no-response"}`}>
+                  {instagramConnected ? t("settings_active") : t("settings_disconnected")}
                 </span>
               </div>
-            ) : null}
-            {instagramConnected ? (
-              <div className="preview-row" style={{ marginBottom: 12 }}>
-                <span>{copy.instagramHandle}</span>
-                <span>{instagramDisplayHandle ?? "-"}</span>
-              </div>
-            ) : null}
-            {canManageTeam ? (
-              <>
-                <p className="note" style={{ marginBottom: 12 }}>
-                  {copy.instagramChannelHelp}
-                </p>
-                <SetupRequestButton
-                  channel="instagram"
-                  idleLabel={copy.requestInstagramSetup}
-                  updateLabel={copy.updateInstagramSetup}
-                  requestedLabel={copy.setupRequested}
-                  requestedNote={copy.setupInstagramRequestedNote}
-                  numberLabel={copy.setupInstagramHandleLabel}
-                  numberPlaceholder={copy.setupInstagramHandlePlaceholder}
-                  metaVerifiedLabel={copy.setupMetaVerifiedLabel}
-                  metaVerifiedYes={copy.setupMetaVerifiedYes}
-                  metaVerifiedNo={copy.setupMetaVerifiedNo}
-                  notesLabel={copy.setupNotesLabel}
-                  notesPlaceholder={copy.setupNotesPlaceholder}
-                  phoneRequiredError={copy.setupInstagramRequired}
-                  requestErrorLabel={copy.requestError}
-                  inProgressLabel={copy.setupInProgress}
-                  existingStatus={instagramSetupRequest?.status ?? null}
-                  existingNotes={instagramSetupRequest?.notes ?? null}
-                />
-              </>
-            ) : (
-              <div className="setup-state">
-                <p className="note">{copy.channelUsage}</p>
+              <p className="label">{pendingChannelSetupCopy.instagram.title}</p>
+              <p className="subtitle" style={{ marginBottom: 12 }}>
+                {pendingChannelSetupCopy.instagram.description}
+              </p>
+              {instagramConnected ? (
+                <div className="preview-row" style={{ marginBottom: 12 }}>
+                  <span>{copy.instagramHandle}</span>
+                  <span>{instagramDisplayHandle ?? "-"}</span>
+                </div>
+              ) : null}
+              {canManageTeam ? (
+                <>
+                  <p className="note" style={{ marginBottom: 12 }}>
+                    {copy.instagramChannelHelp}
+                  </p>
+                  <SetupRequestButton
+                    channel="instagram"
+                    idleLabel={copy.requestInstagramSetup}
+                    updateLabel={copy.updateInstagramSetup}
+                    requestedLabel={copy.setupRequested}
+                    requestedNote={copy.setupInstagramRequestedNote}
+                    numberLabel={copy.setupInstagramHandleLabel}
+                    numberPlaceholder={copy.setupInstagramHandlePlaceholder}
+                    metaVerifiedLabel={copy.setupMetaVerifiedLabel}
+                    metaVerifiedYes={copy.setupMetaVerifiedYes}
+                    metaVerifiedNo={copy.setupMetaVerifiedNo}
+                    notesLabel={copy.setupNotesLabel}
+                    notesPlaceholder={copy.setupNotesPlaceholder}
+                    phoneRequiredError={copy.setupInstagramRequired}
+                    requestErrorLabel={copy.requestError}
+                    inProgressLabel={copy.setupInProgress}
+                    existingStatus={instagramSetupRequest?.status ?? null}
+                    existingNotes={instagramSetupRequest?.notes ?? null}
+                  />
+                </>
+              ) : (
                 <p className="note">{copy.channelsNote}</p>
-              </div>
-            )}
-          </article>
+              )}
+            </article>
 
-          <EmailChannelSetup
-            label={formatChannel("email", t)}
-            isActive={Boolean(emailReply?.verified)}
-            reply={emailReply}
-            canManage={canManageTeam}
-            labels={emailChannelSetupCopy}
-          />
+            <EmailChannelSetup
+              label={formatChannel("email", t)}
+              isActive={Boolean(emailReply?.verified)}
+              reply={emailReply}
+              canManage={canManageTeam}
+              labels={emailChannelSetupCopy}
+            />
 
-          <FormChannelSetup
-            label={formatChannel("form", t)}
-            isActive={Boolean(formChannel?.is_active && formToken)}
-            websiteLink={formWebsiteLink}
-            token={formToken}
-            endpoint={formEndpoint}
-            embed={formEmbed}
-            canManage={canManageTeam}
-            googleFormsBackup={googleFormsBackup}
-            formReply={formReply}
-            labels={formChannelSetupCopy}
-          />
+            <FormChannelSetup
+              label={formatChannel("form", t)}
+              isActive={Boolean(formChannel?.is_active && formToken)}
+              websiteLink={formWebsiteLink}
+              token={formToken}
+              endpoint={formEndpoint}
+              embed={formEmbed}
+              canManage={canManageTeam}
+              googleFormsBackup={googleFormsBackup}
+              formReply={formReply}
+              labels={formChannelSetupCopy}
+            />
+          </div>
 
-          <div className="settings-main-grid">
+          <div className="settings-section-stack">
             {canManageTeam ? (
-              <article className="card">
-                <details>
-                  <summary className="label" style={{ cursor: "pointer" }} aria-label="Toggle business setup section">
-                    {copy.businessSetupTitle} {lang === "en" ? "(step 2)" : lang === "pt" ? "(passo 2)" : "(paso 2)"}
-                  </summary>
-                  <div style={{ marginTop: 10 }}>
-                    <BusinessSetupForm
-                      initialValue={businessSetup}
-                      showInternalTools={canSeeInternalSetup}
-                      labels={{
-                        title: copy.businessSetupTitle,
-                        help: copy.businessSetupHelp,
-                        businessName: copy.businessSetupName,
-                        leadTypesBlock: copy.businessSetupLeadTypesBlock,
-                        leadTypes: copy.businessSetupLeadTypes,
-                        addLeadType: copy.businessSetupAddLeadType,
-                        leadTypeName: copy.businessSetupLeadTypeName,
-                        estimatedValue: copy.businessSetupEstimatedValue,
-                        removeLeadType: copy.businessSetupRemoveLeadType,
-                        save: copy.businessSetupSave,
-                        saving: copy.businessSetupSaving,
-                        backfill: copy.businessSetupBackfill,
-                        backfilling: copy.businessSetupBackfilling,
-                        backfillSuccess: copy.businessSetupBackfillSuccess,
-                        reseedDemo: copy.businessSetupReseedDemo,
-                        reseedingDemo: copy.businessSetupReseedingDemo,
-                        reseedDemoSuccess: copy.businessSetupReseedDemoSuccess,
-                        reseedDemoConfirm: copy.businessSetupReseedDemoConfirm,
-                        success: copy.businessSetupSuccess,
-                        error: copy.businessSetupError,
-                      }}
-                    />
-                  </div>
-                </details>
+              <article className="card settings-section-card">
+                <BusinessSetupForm
+                  initialValue={businessSetup}
+                  showInternalTools={canSeeInternalSetup}
+                  labels={{
+                    title: `${copy.businessSetupTitle} ${lang === "en" ? "(step 2)" : lang === "pt" ? "(passo 2)" : "(paso 2)"}`,
+                    help: copy.businessSetupHelp,
+                    businessName: copy.businessSetupName,
+                    leadTypesBlock: copy.businessSetupLeadTypesBlock,
+                    leadTypes: copy.businessSetupLeadTypes,
+                    addLeadType: copy.businessSetupAddLeadType,
+                    leadTypeName: copy.businessSetupLeadTypeName,
+                    estimatedValue: copy.businessSetupEstimatedValue,
+                    removeLeadType: copy.businessSetupRemoveLeadType,
+                    save: copy.businessSetupSave,
+                    saving: copy.businessSetupSaving,
+                    backfill: copy.businessSetupBackfill,
+                    backfilling: copy.businessSetupBackfilling,
+                    backfillSuccess: copy.businessSetupBackfillSuccess,
+                    reseedDemo: copy.businessSetupReseedDemo,
+                    reseedingDemo: copy.businessSetupReseedingDemo,
+                    reseedDemoSuccess: copy.businessSetupReseedDemoSuccess,
+                    reseedDemoConfirm: copy.businessSetupReseedDemoConfirm,
+                    success: copy.businessSetupSuccess,
+                    error: copy.businessSetupError,
+                  }}
+                />
               </article>
             ) : (
-              <article className="card">
+              <article className="card settings-section-card">
                 <p className="label">{copy.accountTitle}</p>
                 <p className="subtitle" style={{ marginBottom: 12 }}>{copy.accountHelp}</p>
                 <div className="preview-row">
@@ -1319,132 +1291,111 @@ export default async function SettingsPage() {
               </article>
             )}
 
-            <article className="card">
-              <details>
-                <summary className="label" style={{ cursor: "pointer" }} aria-label="Toggle response team section">
-                  {settingsText.teamTitle} {lang === "en" ? "(step 3)" : lang === "pt" ? "(passo 3)" : "(paso 3)"}
-                </summary>
-                <div style={{ marginTop: 10 }}>
-                  {team.length === 0 ? (
-                    <p className="subtitle">{copy.noTeamMembers}</p>
-                  ) : (
-                    <TeamMembersList
-                      members={team}
-                      currentUserId={context.user.id}
-                      currentUserRole={context.profile.role}
-                      activeLabel={t("settings_active")}
-                      ownerLabel={copy.inviteOwner}
-                      adminLabel={copy.inviteAdmin}
-                      agentLabel={copy.inviteAgent}
-                      unnamedLabel={settingsText.unnamedUser}
-                      detailLabel={settingsText.detail}
-                      openLabel={settingsText.open}
-                      noReplyLabel={settingsText.noReply}
-                      wonLabel={settingsText.won}
-                      lostLabel={settingsText.lost}
-                      reassignPlaceholder={copy.reassignPlaceholder}
-                      reassignLabel={copy.reassignAction}
-                      reassigningLabel={copy.reassigningAction}
-                      reassignSuccess={copy.reassignSuccess}
-                      reassignError={copy.reassignError}
-                      removeLabel={copy.removeUser}
-                      removingLabel={copy.removingUser}
-                      removeSuccess={copy.removeUserSuccess}
-                      removeError={copy.removeUserError}
-                    />
-                  )}
-                  {canManageTeam ? (
-                    <div style={{ marginTop: 12 }}>
-                      <InviteUserForm
-                        title={copy.inviteTitle}
-                        seatsNote={seatsNote}
-                        emailLabel={copy.inviteEmail}
-                        submitLabel={copy.inviteUser}
-                        pendingLabel={copy.invitePending}
-                        successLabel={copy.inviteSuccess}
-                        adminLabel={copy.inviteAdmin}
-                        agentLabel={copy.inviteAgent}
-                        errorGeneric={copy.inviteError}
-                        seatLimitError={copy.seatLimitError}
-                      />
-                    </div>
-                  ) : null}
-                  {canManageTeam && pendingInvites.length > 0 ? (
-                    <PendingInvitesList
-                      invites={pendingInvites}
-                      title={copy.pendingInvites}
-                      ownerLabel={copy.inviteOwner}
-                      adminLabel={copy.inviteAdmin}
-                      agentLabel={copy.inviteAgent}
-                      resendLabel={copy.resendInvite}
-                      cancelLabel={copy.cancelInvite}
-                      sendingLabel={copy.resendPending}
-                      cancellingLabel={copy.cancelPending}
-                      successResent={copy.inviteResent}
-                      successCancelled={copy.inviteCancelled}
-                      errorGeneric={copy.inviteError}
-                    />
-                  ) : null}
+            <article className="card settings-section-card">
+              <p className="label">
+                {workspaceSettingsText.teamTitle} {lang === "en" ? "(step 3)" : lang === "pt" ? "(passo 3)" : "(paso 3)"}
+              </p>
+              {team.length === 0 ? (
+                <p className="subtitle">{copy.noTeamMembers}</p>
+              ) : (
+                <TeamMembersList
+                  members={team}
+                  currentUserId={context.user.id}
+                  currentUserRole={context.profile.role}
+                  activeLabel={t("settings_active")}
+                  ownerLabel={copy.inviteOwner}
+                  adminLabel={copy.inviteAdmin}
+                  agentLabel={copy.inviteAgent}
+                  unnamedLabel={workspaceSettingsText.unnamedUser}
+                  detailLabel={workspaceSettingsText.detail}
+                  openLabel={workspaceSettingsText.open}
+                  noReplyLabel={workspaceSettingsText.noReply}
+                  wonLabel={workspaceSettingsText.won}
+                  lostLabel={workspaceSettingsText.lost}
+                  reassignPlaceholder={copy.reassignPlaceholder}
+                  reassignLabel={copy.reassignAction}
+                  reassigningLabel={copy.reassigningAction}
+                  reassignSuccess={copy.reassignSuccess}
+                  reassignError={copy.reassignError}
+                  removeLabel={copy.removeUser}
+                  removingLabel={copy.removingUser}
+                  removeSuccess={copy.removeUserSuccess}
+                  removeError={copy.removeUserError}
+                />
+              )}
+              {canManageTeam ? (
+                <div style={{ marginTop: 12 }}>
+                  <InviteUserForm
+                    title={copy.inviteTitle}
+                    seatsNote={seatsNote}
+                    emailLabel={copy.inviteEmail}
+                    submitLabel={copy.inviteUser}
+                    pendingLabel={copy.invitePending}
+                    successLabel={copy.inviteSuccess}
+                    adminLabel={copy.inviteAdmin}
+                    agentLabel={copy.inviteAgent}
+                    errorGeneric={copy.inviteError}
+                    seatLimitError={copy.seatLimitError}
+                  />
                 </div>
-              </details>
+              ) : null}
+              {canManageTeam && pendingInvites.length > 0 ? (
+                <PendingInvitesList
+                  invites={pendingInvites}
+                  title={copy.pendingInvites}
+                  ownerLabel={copy.inviteOwner}
+                  adminLabel={copy.inviteAdmin}
+                  agentLabel={copy.inviteAgent}
+                  resendLabel={copy.resendInvite}
+                  cancelLabel={copy.cancelInvite}
+                  sendingLabel={copy.resendPending}
+                  cancellingLabel={copy.cancelPending}
+                  successResent={copy.inviteResent}
+                  successCancelled={copy.inviteCancelled}
+                  errorGeneric={copy.inviteError}
+                />
+              ) : null}
             </article>
-          </div>
 
-          {showCustomerFeedback ? (
-            <>
-              <article className="card">
-                <details>
-                  <summary className="label" style={{ cursor: "pointer" }} aria-label="Toggle report issue section">
-                    {copy.pilotFeedbackTitle}
-                  </summary>
-                  <div style={{ marginTop: 10 }}>
-                    <PilotFeedbackForm
-                      labels={{
-                        title: copy.pilotFeedbackTitle,
-                        help: copy.pilotFeedbackHelp,
-                        category: copy.pilotFeedbackCategory,
-                        message: copy.pilotFeedbackMessage,
-                        submit: copy.pilotFeedbackSubmit,
-                        submitting: copy.pilotFeedbackSubmitting,
-                        success: copy.pilotFeedbackSuccess,
-                        error: copy.pilotFeedbackError,
-                        bug: copy.pilotFeedbackBug,
-                        feedback: copy.pilotFeedbackGeneral,
-                        featureRequest: copy.pilotFeedbackFeature,
-                      }}
-                    />
-                  </div>
-                </details>
+            {showCustomerFeedback ? (
+              <article className="card settings-section-card">
+                <p className="label">{copy.pilotFeedbackTitle}</p>
+                <PilotFeedbackForm
+                  labels={{
+                    title: "",
+                    help: copy.pilotFeedbackHelp,
+                    category: copy.pilotFeedbackCategory,
+                    message: copy.pilotFeedbackMessage,
+                    submit: copy.pilotFeedbackSubmit,
+                    submitting: copy.pilotFeedbackSubmitting,
+                    success: copy.pilotFeedbackSuccess,
+                    error: copy.pilotFeedbackError,
+                    bug: copy.pilotFeedbackBug,
+                    feedback: copy.pilotFeedbackGeneral,
+                    featureRequest: copy.pilotFeedbackFeature,
+                  }}
+                />
+                <div style={{ marginTop: 16 }}>
+                  <PilotFeedbackHistory
+                    items={feedbackHistory}
+                    labels={{
+                      title: copy.pilotFeedbackHistoryTitle,
+                      empty: copy.pilotFeedbackHistoryEmpty,
+                      status: copy.pilotFeedbackHistoryStatus,
+                      page: copy.pilotFeedbackHistoryPage,
+                      reply: copy.pilotFeedbackHistoryReply,
+                      new: copy.pilotFeedbackStatusNew,
+                      reviewed: copy.pilotFeedbackStatusReviewed,
+                      closed: copy.pilotFeedbackStatusClosed,
+                    }}
+                  />
+                </div>
               </article>
-              <article className="card">
-                <details>
-                  <summary className="label" style={{ cursor: "pointer" }} aria-label="Toggle feedback history section">
-                    {copy.pilotFeedbackHistoryTitle}
-                  </summary>
-                  <div style={{ marginTop: 10 }}>
-                    <PilotFeedbackHistory
-                      items={feedbackHistory}
-                      labels={{
-                        title: copy.pilotFeedbackHistoryTitle,
-                        empty: copy.pilotFeedbackHistoryEmpty,
-                        status: copy.pilotFeedbackHistoryStatus,
-                        page: copy.pilotFeedbackHistoryPage,
-                        reply: copy.pilotFeedbackHistoryReply,
-                        new: copy.pilotFeedbackStatusNew,
-                        reviewed: copy.pilotFeedbackStatusReviewed,
-                        closed: copy.pilotFeedbackStatusClosed,
-                      }}
-                    />
-                  </div>
-                </details>
-              </article>
-            </>
-          ) : (
-            <article className="card">
-              <details>
-                <summary className="label" style={{ cursor: "pointer" }} aria-label="Toggle system feedback section">
+            ) : (
+              <article className="card settings-section-card">
+                <p className="label">
                   {lang === "en" ? "System feedback" : lang === "pt" ? "Feedback do sistema" : "Feedback del sistema"}
-                </summary>
+                </p>
                 <p className="subtitle" style={{ marginTop: 8 }}>
                   {lang === "en"
                     ? "Help us improve Novua. What isn’t working or what should change?"
@@ -1463,27 +1414,27 @@ export default async function SettingsPage() {
                   }
                   disabled
                 />
-                <button className="button" type="button" disabled>
+                <button className="button" type="button" disabled style={{ marginTop: 10 }}>
                   {lang === "en" ? "Send feedback" : lang === "pt" ? "Enviar feedback" : "Enviar feedback"}
                 </button>
-              </details>
-            </article>
-          )}
+              </article>
+            )}
 
-          {context.profile.role === "owner" ? (
-            <WorkspaceDangerZone
-              title={copy.dangerTitle}
-              help={copy.dangerHelp}
-              warning={copy.dangerWarning}
-              confirmationLabel={copy.dangerConfirmationLabel}
-              confirmationPlaceholder={workspaceLabel}
-              deleteLabel={copy.dangerDeleteLabel}
-              deletingLabel={copy.dangerDeletingLabel}
-              successRedirectingLabel={copy.dangerDeletedLabel}
-              errorLabel={copy.dangerError}
-              workspaceName={workspaceLabel}
-            />
-          ) : null}
+            {context.profile.role === "owner" ? (
+              <WorkspaceDangerZone
+                title={copy.dangerTitle}
+                help={copy.dangerHelp}
+                warning={copy.dangerWarning}
+                confirmationLabel={copy.dangerConfirmationLabel}
+                confirmationPlaceholder={workspaceLabel}
+                deleteLabel={copy.dangerDeleteLabel}
+                deletingLabel={copy.dangerDeletingLabel}
+                successRedirectingLabel={copy.dangerDeletedLabel}
+                errorLabel={copy.dangerError}
+                workspaceName={workspaceLabel}
+              />
+            ) : null}
+          </div>
 
           {canSeeInternalSetup ? (
             <article className="card" style={{ marginTop: 12 }}>

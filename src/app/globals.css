@@ -4067,6 +4067,22 @@ textarea:focus-visible {
   gap: 10px !important;
 }
 
+.settings-v3 .settings-channel-stack,
+.settings-v3 .settings-section-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.settings-v3 .settings-section-stack {
+  margin-top: 20px;
+}
+
+.settings-v3 .settings-section-card {
+  margin-top: 0 !important;
+}
+
 .settings-v3 .settings-main-grid {
   grid-template-columns: 1fr !important;
   gap: 10px !important;

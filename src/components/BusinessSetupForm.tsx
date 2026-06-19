@@ -165,7 +165,7 @@ export function BusinessSetupForm({ initialValue, labels, showInternalTools = fa
   }
 
   return (
-    <article className="card settings-business-card">
+    <div className="settings-business-card">
       <p className="label">{labels.title}</p>
       <p className="subtitle settings-business-help">
         {labels.help}
@@ -253,6 +253,6 @@ export function BusinessSetupForm({ initialValue, labels, showInternalTools = fa
           </>
         ) : null}
       </div>
-    </article>
+    </div>
   );
 }

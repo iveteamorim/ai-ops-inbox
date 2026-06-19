@@ -48,7 +48,7 @@ function formatStatus(value: UserPilotFeedbackView["status"], labels: Props["lab
 export function PilotFeedbackHistory({ items, labels }: Props) {
   const { lang } = useI18n();
   return (
-    <article className="card" style={{ marginTop: 12 }}>
+    <div className="pilot-feedback-history">
       <p className="label">{labels.title}</p>
       {items.length === 0 ? (
         <p className="subtitle">{labels.empty}</p>
@@ -77,6 +77,6 @@ export function PilotFeedbackHistory({ items, labels }: Props) {
           ))}
         </div>
       )}
-    </article>
+    </div>
   );
 }

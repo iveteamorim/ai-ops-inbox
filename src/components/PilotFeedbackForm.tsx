@@ -52,8 +52,8 @@ export function PilotFeedbackForm({ labels }: Props) {
   }
 
   return (
-    <article className="card" style={{ marginTop: 12 }}>
-      <p className="label">{labels.title}</p>
+    <div className="pilot-feedback-form">
+      {labels.title ? <p className="label">{labels.title}</p> : null}
       {labels.help ? <p className="subtitle" style={{ marginTop: 0 }}>{labels.help}</p> : null}
 
       <label className="sr-only" htmlFor="pilot-feedback-category">
@@ -89,6 +89,6 @@ export function PilotFeedbackForm({ labels }: Props) {
       </div>
 
       {result ? <p className={result.ok ? "subtitle" : "warn"} style={{ marginBottom: 0 }}>{result.text}</p> : null}
-    </article>
+    </div>
   );
 }
