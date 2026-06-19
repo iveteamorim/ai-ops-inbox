@@ -12,7 +12,7 @@ import { FormChannelSetup } from "@/components/settings/FormChannelSetup";
 import { EmailChannelSetup } from "@/components/settings/EmailChannelSetup";
 import { getPublicAppUrl } from "@/lib/app-url";
 import { buildFormEmbedSnippet, buildFormPublicUrl } from "@/lib/messaging/form";
-import { parseEmailReplyConfig } from "@/lib/messaging/email-config";
+import { parseEmailReplyConfigState } from "@/lib/messaging/email-reply-state";
 import { parseGoogleFormsBackupConfig } from "@/lib/messaging/google-forms-backup";
 import { WhatsAppEmbeddedSignupCard } from "@/components/WhatsAppEmbeddedSignupCard";
 import { WorkspaceDangerZone } from "@/components/WorkspaceDangerZone";
@@ -802,12 +802,57 @@ export default async function SettingsPage() {
   const formEndpoint = `${appUrl}/api/leads/form`;
   const formWebsiteLink = formToken ? buildFormPublicUrl(appUrl, formToken) : null;
   const formEmbed = formToken ? buildFormEmbedSnippet(appUrl, formToken) : null;
-  const formReply = parseEmailReplyConfig(formChannel?.config ?? null);
-  const emailReply = parseEmailReplyConfig(emailChannel?.config ?? null);
-  const emailInboundAddress =
-    emailChannel?.is_active && emailChannel.external_account_id ? emailChannel.external_account_id : null;
-  const emailWebhookUrl = `${appUrl}/api/webhooks/email`;
+  const formReply = parseEmailReplyConfigState(formChannel?.config ?? null);
+  const emailReply = parseEmailReplyConfigState(emailChannel?.config ?? null);
   const googleFormsBackup = parseGoogleFormsBackupConfig(formChannel?.config ?? null);
+  const replyEmailLabels =
+    lang === "pt"
+      ? {
+          title: "Email de resposta",
+          help: "Escolhe o email da tua empresa. As respostas aos leads saem com o nome do teu negócio.",
+          email: "O teu email",
+          name: "Nome da empresa (opcional)",
+          sendCode: "Enviar código de confirmação",
+          code: "Código recebido",
+          confirm: "Confirmar email",
+          verified: "Email confirmado",
+          pending: "Enviamos um código para o teu email. Cola-o aqui para confirmar.",
+          codeSent: "Código enviado. Verifica o teu email.",
+          error: "Não foi possível enviar o código.",
+          invalidCode: "Código inválido ou expirado.",
+          noDnsNote: "Sem DNS nem configuração técnica. Só confirmas o email e respondes no Inbox.",
+        }
+      : lang === "en"
+        ? {
+            title: "Reply email",
+            help: "Pick your business email. Lead replies are sent with your company name.",
+            email: "Your email",
+            name: "Business name (optional)",
+            sendCode: "Send confirmation code",
+            code: "Code received",
+            confirm: "Confirm email",
+            verified: "Email confirmed",
+            pending: "We sent a code to your email. Paste it here to confirm.",
+            codeSent: "Code sent. Check your inbox.",
+            error: "Could not send the code.",
+            invalidCode: "Invalid or expired code.",
+            noDnsNote: "No DNS or technical setup. Just confirm your email and reply from Inbox.",
+          }
+        : {
+            title: "Email de respuesta",
+            help: "Elige el email de tu empresa. Las respuestas a leads salen con el nombre de tu negocio.",
+            email: "Tu email",
+            name: "Nombre de la empresa (opcional)",
+            sendCode: "Enviar código de confirmación",
+            code: "Código recibido",
+            confirm: "Confirmar email",
+            verified: "Email confirmado",
+            pending: "Te enviamos un código a tu email. Pégalo aquí para confirmar.",
+            codeSent: "Código enviado. Revisa tu bandeja.",
+            error: "No se pudo enviar el código.",
+            invalidCode: "Código inválido o caducado.",
+            noDnsNote: "Sin DNS ni configuración técnica. Solo confirmas el email y respondes en el Inbox.",
+          };
   const formChannelSetupCopy =
     lang === "pt"
       ? {
@@ -845,14 +890,7 @@ export default async function SettingsPage() {
           backupError: "Não foi possível guardar a cópia de segurança.",
           backupActive: "Cópia externa ativa para este workspace.",
           backupProvider: "Google Forms",
-          replyTitle: "Email de resposta",
-          replyHelp: "Quando respondes a um lead do formulário, a resposta é enviada para o email que ele deixou.",
-          replyFromEmail: "Enviar de",
-          replyFromName: "Nome do remetente",
-          replyToEmail: "Reply-To (opcional)",
-          replySave: "Guardar email de resposta",
-          replySaved: "Email de resposta guardado.",
-          replyError: "Não foi possível guardar o email de resposta.",
+          replyLabels: replyEmailLabels,
         }
       : lang === "en"
         ? {
@@ -890,14 +928,7 @@ export default async function SettingsPage() {
             backupError: "Could not save the backup copy.",
             backupActive: "External backup is active for this workspace.",
             backupProvider: "Google Forms",
-            replyTitle: "Reply email",
-            replyHelp: "When you reply to a web form lead, Novua sends the answer to the email they left.",
-            replyFromEmail: "Send from",
-            replyFromName: "Sender name",
-            replyToEmail: "Reply-To (optional)",
-            replySave: "Save reply email",
-            replySaved: "Reply email saved.",
-            replyError: "Could not save reply email.",
+            replyLabels: replyEmailLabels,
           }
         : {
             title: pendingChannelSetupCopy.form.title,
@@ -934,77 +965,34 @@ export default async function SettingsPage() {
             backupError: "No se pudo guardar la copia de seguridad.",
             backupActive: "Copia externa activa para este workspace.",
             backupProvider: "Google Forms",
-            replyTitle: "Email de respuesta",
-            replyHelp: "Cuando respondes a un lead del formulario, la respuesta se envía al email que dejó.",
-            replyFromEmail: "Enviar desde",
-            replyFromName: "Nombre del remitente",
-            replyToEmail: "Reply-To (opcional)",
-            replySave: "Guardar email de respuesta",
-            replySaved: "Email de respuesta guardado.",
-            replyError: "No se pudo guardar el email de respuesta.",
+            replyLabels: replyEmailLabels,
           };
   const emailChannelSetupCopy =
     lang === "pt"
       ? {
           title: pendingChannelSetupCopy.email.title,
-          description: pendingChannelSetupCopy.email.description,
+          description: "Confirma o teu email e responde a leads sem configurar DNS.",
           connected: channelsOverviewCopy.connected,
           disconnected: channelsOverviewCopy.comingSoon,
-          activate: "Ativar email",
-          inboundAddress: "Email de entrada",
-          inboundHelp: "Endereço para onde os clientes escrevem (ex.: info@tuempresa.com).",
-          replyFromEmail: "Enviar de",
-          replyFromName: "Nome do remetente",
-          replyToEmail: "Reply-To (opcional)",
-          webhookUrl: "Webhook de entrada",
-          webhookHelp: "Configura este URL no Resend para receber emails no inbox.",
-          copy: "Copiar",
-          copied: "Copiado",
-          save: "Guardar email",
-          saved: "Canal email guardado.",
-          error: "Não foi possível guardar o canal email.",
           agentNote: "Só owners e admins podem configurar o canal email.",
+          replyLabels: replyEmailLabels,
         }
       : lang === "en"
         ? {
             title: pendingChannelSetupCopy.email.title,
-            description: pendingChannelSetupCopy.email.description,
+            description: "Confirm your email and reply to leads with no DNS setup.",
             connected: channelsOverviewCopy.connected,
             disconnected: channelsOverviewCopy.comingSoon,
-            activate: "Activate email",
-            inboundAddress: "Inbound address",
-            inboundHelp: "Address where customers write to you (e.g. info@yourcompany.com).",
-            replyFromEmail: "Send from",
-            replyFromName: "Sender name",
-            replyToEmail: "Reply-To (optional)",
-            webhookUrl: "Inbound webhook",
-            webhookHelp: "Configure this URL in Resend to receive emails in your inbox.",
-            copy: "Copy",
-            copied: "Copied",
-            save: "Save email channel",
-            saved: "Email channel saved.",
-            error: "Could not save the email channel.",
             agentNote: "Only owners and admins can configure the email channel.",
+            replyLabels: replyEmailLabels,
           }
         : {
             title: pendingChannelSetupCopy.email.title,
-            description: pendingChannelSetupCopy.email.description,
+            description: "Confirma tu email y responde a leads sin configurar DNS.",
             connected: channelsOverviewCopy.connected,
             disconnected: channelsOverviewCopy.comingSoon,
-            activate: "Activar email",
-            inboundAddress: "Email de entrada",
-            inboundHelp: "Dirección a la que escriben tus clientes (ej. info@tuempresa.com).",
-            replyFromEmail: "Enviar desde",
-            replyFromName: "Nombre del remitente",
-            replyToEmail: "Reply-To (opcional)",
-            webhookUrl: "Webhook de entrada",
-            webhookHelp: "Configura esta URL en Resend para recibir emails en el inbox.",
-            copy: "Copiar",
-            copied: "Copiado",
-            save: "Guardar email",
-            saved: "Canal email guardado.",
-            error: "No se pudo guardar el canal email.",
             agentNote: "Solo owners y admins pueden configurar el canal email.",
+            replyLabels: replyEmailLabels,
           };
 
   return (
@@ -1145,10 +1133,8 @@ export default async function SettingsPage() {
 
           <EmailChannelSetup
             label={formatChannel("email", t)}
-            isActive={Boolean(emailChannel?.is_active && emailInboundAddress)}
-            inboundAddress={emailInboundAddress}
+            isActive={Boolean(emailReply?.verified)}
             reply={emailReply}
-            webhookUrl={emailWebhookUrl}
             canManage={canManageTeam}
             labels={emailChannelSetupCopy}
           />

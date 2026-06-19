@@ -274,7 +274,7 @@ export async function POST(request: Request) {
       access.conversation.channel,
     );
 
-    if (!replyConfig) {
+    if (!replyConfig || !replyConfig.verified) {
       return NextResponse.json({ ok: false, error: "reply_email_not_configured" }, { status: 400 });
     }
 
@@ -299,6 +299,7 @@ export async function POST(request: Request) {
         text,
         replyConfig,
         inReplyTo,
+        usePlatformSender: true,
       });
 
       emailSent = true;

@@ -2,6 +2,7 @@ import {
   formatEmailFromHeader,
   type EmailReplyConfig,
 } from "@/lib/messaging/email-config";
+import { getPlatformFromEmail } from "@/lib/messaging/email-platform";
 
 type SendEmailInput = {
   to: string;
@@ -9,12 +10,26 @@ type SendEmailInput = {
   text: string;
   replyConfig: EmailReplyConfig;
   inReplyTo?: string | null;
+  usePlatformSender?: boolean;
 };
 
 type SendEmailResult = {
   messageId: string | null;
   raw: unknown;
 };
+
+function buildOutboundFromHeader(replyConfig: EmailReplyConfig, usePlatformSender: boolean) {
+  if (!usePlatformSender) {
+    return formatEmailFromHeader(replyConfig);
+  }
+
+  const displayName = replyConfig.from_name?.trim() || replyConfig.from_email.split("@")[0];
+  const platformFrom = getPlatformFromEmail();
+  const platformAddressMatch = platformFrom.match(/<([^>]+)>/);
+  const platformAddress = platformAddressMatch?.[1]?.trim() || platformFrom;
+
+  return `${displayName} <${platformAddress}>`;
+}
 
 export function isEmailSendingConfigured() {
   return Boolean(process.env.RESEND_API_KEY?.trim());
@@ -26,16 +41,16 @@ export async function sendEmailText(input: SendEmailInput): Promise<SendEmailRes
     throw new Error("email_provider_not_configured");
   }
 
+  const usePlatformSender = input.usePlatformSender !== false;
+  const replyTo = input.replyConfig.reply_to || input.replyConfig.from_email;
+
   const payload: Record<string, unknown> = {
-    from: formatEmailFromHeader(input.replyConfig),
+    from: buildOutboundFromHeader(input.replyConfig, usePlatformSender),
     to: [input.to],
     subject: input.subject,
     text: input.text,
+    reply_to: replyTo,
   };
-
-  if (input.replyConfig.reply_to) {
-    payload.reply_to = input.replyConfig.reply_to;
-  }
 
   if (input.inReplyTo) {
     payload.headers = {
@@ -69,6 +84,39 @@ export async function sendEmailText(input: SendEmailInput): Promise<SendEmailRes
     messageId: typeof raw === "object" && raw && "id" in raw ? String(raw.id) : null,
     raw,
   };
+}
+
+export async function sendVerificationEmail({
+  to,
+  code,
+  businessName,
+}: {
+  to: string;
+  code: string;
+  businessName: string | null;
+}) {
+  const label = businessName?.trim() || "Novua";
+  return sendEmailText({
+    to,
+    subject: `${code} — confirma tu email en Novua`,
+    text: [
+      `Hola${businessName ? ` ${businessName}` : ""},`,
+      "",
+      `Tu código de confirmación en Novua es: ${code}`,
+      "",
+      "Introdúcelo en Settings para activar las respuestas por email a tus leads.",
+      "",
+      "Si no solicitaste esto, ignora este mensaje.",
+      "",
+      "— Novua",
+    ].join("\n"),
+    replyConfig: {
+      from_email: to,
+      from_name: label,
+      reply_to: null,
+    },
+    usePlatformSender: true,
+  });
 }
 
 export async function fetchInboundEmailBody(emailId: string) {

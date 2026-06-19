@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { parseEmailReplyConfig, type EmailReplyConfig } from "@/lib/messaging/email-config";
+import { parseEmailReplyConfigState, type EmailReplyConfigState } from "@/lib/messaging/email-reply-state";
 
 type ChannelRow = {
   config: Record<string, unknown> | null;
@@ -9,7 +9,7 @@ export async function resolveReplyConfigForConversation(
   admin: SupabaseClient,
   companyId: string,
   channel: "form" | "email",
-): Promise<EmailReplyConfig | null> {
+): Promise<EmailReplyConfigState | null> {
   const { data: channelRow } = await admin
     .from("channels")
     .select("config")
@@ -18,7 +18,7 @@ export async function resolveReplyConfigForConversation(
     .eq("is_active", true)
     .maybeSingle<ChannelRow>();
 
-  return parseEmailReplyConfig(channelRow?.config ?? null);
+  return parseEmailReplyConfigState(channelRow?.config ?? null);
 }
 
 export async function resolveEmailSubject(
