@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import type { ChannelType } from "@/lib/messaging/channel-types";
 import { ChannelBadge } from "@/components/ChannelBadge";
@@ -76,6 +76,8 @@ export function InboxDecisionView({
   const [selectedId, setSelectedId] = useState(initialId);
   const [activeFilter, setActiveFilter] = useState<"all" | "risk" | "assigned" | "new">("all");
   const [activeChannelFilter, setActiveChannelFilter] = useState<"all" | ChannelType>("all");
+  const [channelMenuOpen, setChannelMenuOpen] = useState(false);
+  const channelMenuRef = useRef<HTMLDivElement>(null);
   const filteredConversations = useMemo(() => {
     let items = conversations;
     if (activeFilter === "risk") items = items.filter((item) => item.status === "no_response");
@@ -105,6 +107,29 @@ export function InboxDecisionView({
       setSelectedId(filteredConversations[0].id);
     }
   }, [filteredConversations, selectedId]);
+
+  useEffect(() => {
+    if (!channelMenuOpen) return;
+
+    function handlePointerDown(event: MouseEvent) {
+      if (!channelMenuRef.current?.contains(event.target as Node)) {
+        setChannelMenuOpen(false);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setChannelMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [channelMenuOpen]);
 
   if (conversations.length === 0) {
     return (
@@ -181,34 +206,64 @@ export function InboxDecisionView({
               </div>
 
               <div className="flex items-center gap-2 text-sm text-gray-400">
-                <label
-                  htmlFor="inbox-channel-filter"
-                  className="text-xs uppercase tracking-[0.14em] text-gray-500"
-                >
-                  {labels.channel}
-                </label>
-                <div className="relative">
-                  <select
-                    id="inbox-channel-filter"
-                    value={activeChannelFilter}
-                    onChange={(event) =>
-                      setActiveChannelFilter(event.target.value as "all" | ChannelType)
-                    }
-                    className="appearance-none rounded-full border border-white/10 bg-white/5 py-1.5 pl-3 pr-8 text-sm text-gray-200 transition hover:border-white/20 focus:border-white/30 focus:outline-none"
+                <span className="text-xs uppercase tracking-[0.14em] text-gray-500">{labels.channel}</span>
+                <div className="relative" ref={channelMenuRef}>
+                  <button
+                    type="button"
+                    aria-haspopup="listbox"
+                    aria-expanded={channelMenuOpen}
+                    onClick={() => setChannelMenuOpen((open) => !open)}
+                    className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 py-1.5 pl-3 pr-3 text-sm text-gray-200 transition hover:border-white/20 focus:border-white/30 focus:outline-none"
                   >
-                    <option value="all">{labels.filterChannelAll}</option>
-                    {channelOptions.map((option) => (
-                      <option key={option.channel} value={option.channel}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                  <span
-                    aria-hidden="true"
-                    className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-gray-400"
-                  >
-                    ▼
-                  </span>
+                    <span>{activeChannelLabel}</span>
+                    <span aria-hidden="true" className="text-[10px] text-gray-400">
+                      ▼
+                    </span>
+                  </button>
+
+                  {channelMenuOpen ? (
+                    <div
+                      role="listbox"
+                      aria-label={labels.channel}
+                      className="absolute right-0 top-[calc(100%+8px)] z-20 min-w-[180px] overflow-hidden rounded-xl border border-white/10 bg-[#10211C] p-1 shadow-[0_16px_36px_rgba(0,0,0,0.35)]"
+                    >
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected={activeChannelFilter === "all"}
+                        onClick={() => {
+                          setActiveChannelFilter("all");
+                          setChannelMenuOpen(false);
+                        }}
+                        className={`block w-full rounded-lg px-3 py-2 text-left text-sm transition ${
+                          activeChannelFilter === "all"
+                            ? "bg-white/10 text-white"
+                            : "text-gray-200 hover:bg-white/5"
+                        }`}
+                      >
+                        {labels.filterChannelAll}
+                      </button>
+                      {channelOptions.map((option) => (
+                        <button
+                          key={option.channel}
+                          type="button"
+                          role="option"
+                          aria-selected={activeChannelFilter === option.channel}
+                          onClick={() => {
+                            setActiveChannelFilter(option.channel);
+                            setChannelMenuOpen(false);
+                          }}
+                          className={`block w-full rounded-lg px-3 py-2 text-left text-sm transition ${
+                            activeChannelFilter === option.channel
+                              ? "bg-white/10 text-white"
+                              : "text-gray-200 hover:bg-white/5"
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </div>
