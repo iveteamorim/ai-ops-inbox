@@ -58,6 +58,11 @@ type InboxDecisionViewProps = {
   };
 };
 
+const FILTER_PILL_INACTIVE =
+  "border-white/10 bg-white/5 text-gray-400 hover:border-white/20 hover:text-gray-300";
+const FILTER_PILL_ACTIVE = "border-white/30 bg-white/10 text-white";
+const FILTER_PILL_RISK_ACTIVE = "border-yellow-500/40 bg-yellow-500/15 text-yellow-200";
+
 export function InboxDecisionView({
   conversations,
   channelOptions,
@@ -140,7 +145,7 @@ export function InboxDecisionView({
                 type="button"
                 onClick={() => setActiveFilter("all")}
                 className={`rounded-full border px-3 py-1 transition ${
-                  activeFilter === "all" ? "border-white/30 bg-white/10 text-white" : "border-white/10 bg-white/5"
+                  activeFilter === "all" ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE
                 }`}
               >
                 {labels.filterAll}
@@ -149,9 +154,7 @@ export function InboxDecisionView({
                 type="button"
                 onClick={() => setActiveFilter("risk")}
                 className={`rounded-full border px-3 py-1 transition ${
-                  activeFilter === "risk"
-                    ? "border-yellow-500/40 bg-yellow-500/15 text-yellow-200"
-                    : "border-yellow-500/20 bg-yellow-500/5 text-yellow-300"
+                  activeFilter === "risk" ? FILTER_PILL_RISK_ACTIVE : FILTER_PILL_INACTIVE
                 }`}
               >
                 {labels.filterRisk}
@@ -160,7 +163,7 @@ export function InboxDecisionView({
                 type="button"
                 onClick={() => setActiveFilter("assigned")}
                 className={`rounded-full border px-3 py-1 transition ${
-                  activeFilter === "assigned" ? "border-white/30 bg-white/10 text-white" : "border-white/10 bg-white/5"
+                  activeFilter === "assigned" ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE
                 }`}
               >
                 {labels.filterAssigned}
@@ -169,7 +172,7 @@ export function InboxDecisionView({
                 type="button"
                 onClick={() => setActiveFilter("new")}
                 className={`rounded-full border px-3 py-1 transition ${
-                  activeFilter === "new" ? "border-white/30 bg-white/10 text-white" : "border-white/10 bg-white/5"
+                  activeFilter === "new" ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE
                 }`}
               >
                 {labels.filterNew}
@@ -182,9 +185,7 @@ export function InboxDecisionView({
                 type="button"
                 onClick={() => setActiveChannelFilter("all")}
                 className={`rounded-full border px-3 py-1 transition ${
-                  activeChannelFilter === "all"
-                    ? "border-white/30 bg-white/10 text-white"
-                    : "border-white/10 bg-white/5"
+                  activeChannelFilter === "all" ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE
                 }`}
               >
                 {labels.filterChannelAll}
@@ -195,9 +196,7 @@ export function InboxDecisionView({
                   type="button"
                   onClick={() => setActiveChannelFilter(option.channel)}
                   className={`rounded-full border px-3 py-1 transition ${
-                    activeChannelFilter === option.channel
-                      ? "border-white/30 bg-white/10 text-white"
-                      : "border-white/10 bg-white/5"
+                    activeChannelFilter === option.channel ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE
                   }`}
                 >
                   {option.label}
