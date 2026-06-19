@@ -24,7 +24,7 @@ export function getQuickRepliesFormCopy(lang: string) {
       help: "Store hours, prices, and repetitive answers. Your team inserts them with one click and Novua suggests them when a customer asks something similar.",
       replyTitle: "Short name",
       replyKeywords: "Keywords (comma-separated)",
-      replyKeywordsHelp: "E.g. hours, price, precio, info, service, product",
+      replyKeywordsHelp: "E.g. hours, price, cost, info, service, product, how much",
       replyText: "Approved reply",
       addReply: "+ Add reply",
       removeReply: "Remove",

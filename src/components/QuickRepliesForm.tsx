@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { DEFAULT_QUICK_REPLY_STARTERS, type QuickReply, type QuickRepliesView } from "@/lib/quick-replies";
+import { useI18n } from "@/components/i18n/LanguageProvider";
+import { getDefaultQuickReplyStarters, type QuickReply, type QuickRepliesView } from "@/lib/quick-replies";
 
 type Props = {
   initialValue: QuickRepliesView;
@@ -35,6 +36,7 @@ function createReply(): QuickReply {
 
 export function QuickRepliesForm({ initialValue, labels }: Props) {
   const router = useRouter();
+  const { lang } = useI18n();
   const [replies, setReplies] = useState<QuickReply[]>(
     initialValue.replies.length > 0 ? initialValue.replies : [],
   );
@@ -55,7 +57,7 @@ export function QuickRepliesForm({ initialValue, labels }: Props) {
   }
 
   function loadExamples() {
-    setReplies(DEFAULT_QUICK_REPLY_STARTERS.map((row) => ({ ...row })));
+    setReplies(getDefaultQuickReplyStarters(lang).map((row) => ({ ...row })));
   }
 
   function save() {
