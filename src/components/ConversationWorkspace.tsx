@@ -376,6 +376,18 @@ export function ConversationWorkspace({
           router.refresh();
           return;
         }
+        if (payload?.error === "contact_email_missing") {
+          setError(lang === "en" ? "This contact has no email address." : lang === "pt" ? "Este contacto não tem email." : "Este contacto no tiene email.");
+          return;
+        }
+        if (payload?.error === "reply_email_not_configured") {
+          setError(lang === "en" ? "Configure the reply email in Settings → Web or Email." : lang === "pt" ? "Configura o email de resposta em Settings → Web ou Email." : "Configura el email de respuesta en Settings → Web o Email.");
+          return;
+        }
+        if (payload?.error === "email_provider_not_configured") {
+          setError(lang === "en" ? "Email sending is not configured yet on the server." : lang === "pt" ? "O envio de email ainda não está configurado no servidor." : "El envío de email aún no está configurado en el servidor.");
+          return;
+        }
         setError(payload?.error ?? (lang === "en" ? "Failed to send message" : lang === "pt" ? "Não foi possível enviar a mensagem" : "No se pudo enviar el mensaje"));
         return;
       }

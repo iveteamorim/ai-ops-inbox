@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { ChannelBadge } from "@/components/ChannelBadge";
 import { channelSettingsAnchor } from "@/lib/messaging/channel-types";
 import type { GoogleFormsBackupConfig } from "@/lib/messaging/google-forms-backup";
+import type { EmailReplyConfig } from "@/lib/messaging/email-config";
 
 type Labels = {
   title: string;
@@ -40,6 +41,14 @@ type Labels = {
   backupError: string;
   backupActive: string;
   backupProvider: string;
+  replyTitle: string;
+  replyHelp: string;
+  replyFromEmail: string;
+  replyFromName: string;
+  replyToEmail: string;
+  replySave: string;
+  replySaved: string;
+  replyError: string;
 };
 
 type Props = {
@@ -51,6 +60,7 @@ type Props = {
   embed: string | null;
   canManage: boolean;
   googleFormsBackup: GoogleFormsBackupConfig | null;
+  formReply: EmailReplyConfig | null;
   labels: Labels;
 };
 
@@ -80,6 +90,7 @@ export function FormChannelSetup({
   embed,
   canManage,
   googleFormsBackup,
+  formReply,
   labels,
 }: Props) {
   const router = useRouter();
@@ -98,6 +109,11 @@ export function FormChannelSetup({
   const [backupEntryPhone, setBackupEntryPhone] = useState(googleFormsBackup?.fields.phone ?? "");
   const [backupEntryMessage, setBackupEntryMessage] = useState(googleFormsBackup?.fields.message ?? "");
   const [backupEnabled, setBackupEnabled] = useState(Boolean(googleFormsBackup));
+  const [replyFromEmail, setReplyFromEmail] = useState(formReply?.from_email ?? "");
+  const [replyFromName, setReplyFromName] = useState(formReply?.from_name ?? "");
+  const [replyToEmail, setReplyToEmail] = useState(formReply?.reply_to ?? "");
+  const [replyError, setReplyError] = useState<string | null>(null);
+  const [replySaved, setReplySaved] = useState(false);
 
   async function handleActivate(regenerate = false) {
     setError(null);
@@ -124,6 +140,30 @@ export function FormChannelSetup({
     setLiveWebsiteLink(data.website_link ?? null);
     setLiveEmbed(data.embed ?? null);
     setLiveActive(true);
+    startTransition(() => router.refresh());
+  }
+
+  async function handleSaveReply() {
+    setReplyError(null);
+    setReplySaved(false);
+
+    const response = await fetch("/api/channels/form/reply", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from_email: replyFromEmail,
+        from_name: replyFromName,
+        reply_to: replyToEmail,
+      }),
+    });
+
+    const data = (await response.json().catch(() => ({}))) as { ok?: boolean };
+    if (!response.ok || !data.ok) {
+      setReplyError(labels.replyError);
+      return;
+    }
+
+    setReplySaved(true);
     startTransition(() => router.refresh());
   }
 
@@ -237,6 +277,53 @@ export function FormChannelSetup({
             >
               {labels.openForm}
             </a>
+          </div>
+
+          <div className="settings-form-reply">
+            <p className="label">{labels.replyTitle}</p>
+            <p className="note" style={{ marginBottom: 12 }}>
+              {labels.replyHelp}
+            </p>
+            <div className="settings-form-channel-fields">
+              <label className="novua-lead-form-field">
+                <span className="label">{labels.replyFromEmail}</span>
+                <input
+                  className="input"
+                  type="email"
+                  value={replyFromEmail}
+                  onChange={(event) => setReplyFromEmail(event.target.value)}
+                  placeholder="hola@tuempresa.com"
+                />
+              </label>
+              <label className="novua-lead-form-field">
+                <span className="label">{labels.replyFromName}</span>
+                <input
+                  className="input"
+                  value={replyFromName}
+                  onChange={(event) => setReplyFromName(event.target.value)}
+                  placeholder="Tu empresa"
+                />
+              </label>
+              <label className="novua-lead-form-field">
+                <span className="label">{labels.replyToEmail}</span>
+                <input
+                  className="input"
+                  type="email"
+                  value={replyToEmail}
+                  onChange={(event) => setReplyToEmail(event.target.value)}
+                  placeholder="info@tuempresa.com"
+                />
+              </label>
+            </div>
+            {canManage ? (
+              <div style={{ marginTop: 12 }}>
+                <button className="button" type="button" onClick={handleSaveReply}>
+                  {labels.replySave}
+                </button>
+                {replySaved ? <p className="note">{labels.replySaved}</p> : null}
+                {replyError ? <p className="note">{replyError}</p> : null}
+              </div>
+            ) : null}
           </div>
 
           <details className="settings-form-advanced">

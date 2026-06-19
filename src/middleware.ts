@@ -17,6 +17,7 @@ const PUBLIC_PATHS = [
   "/api/webhooks/whatsapp",
   "/api/webhooks/instagram",
   "/api/webhooks/stripe",
+  "/api/webhooks/email",
   "/api/leads/form",
   "/diagnostico",
 ];

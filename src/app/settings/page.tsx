@@ -9,8 +9,10 @@ import { TeamMembersList } from "@/components/TeamMembersList";
 import { ChannelsOverview } from "@/components/settings/ChannelsOverview";
 import { ChannelSetupPlaceholder } from "@/components/settings/ChannelSetupPlaceholder";
 import { FormChannelSetup } from "@/components/settings/FormChannelSetup";
+import { EmailChannelSetup } from "@/components/settings/EmailChannelSetup";
 import { getPublicAppUrl } from "@/lib/app-url";
 import { buildFormEmbedSnippet, buildFormPublicUrl } from "@/lib/messaging/form";
+import { parseEmailReplyConfig } from "@/lib/messaging/email-config";
 import { parseGoogleFormsBackupConfig } from "@/lib/messaging/google-forms-backup";
 import { WhatsAppEmbeddedSignupCard } from "@/components/WhatsAppEmbeddedSignupCard";
 import { WorkspaceDangerZone } from "@/components/WorkspaceDangerZone";
@@ -800,6 +802,11 @@ export default async function SettingsPage() {
   const formEndpoint = `${appUrl}/api/leads/form`;
   const formWebsiteLink = formToken ? buildFormPublicUrl(appUrl, formToken) : null;
   const formEmbed = formToken ? buildFormEmbedSnippet(appUrl, formToken) : null;
+  const formReply = parseEmailReplyConfig(formChannel?.config ?? null);
+  const emailReply = parseEmailReplyConfig(emailChannel?.config ?? null);
+  const emailInboundAddress =
+    emailChannel?.is_active && emailChannel.external_account_id ? emailChannel.external_account_id : null;
+  const emailWebhookUrl = `${appUrl}/api/webhooks/email`;
   const googleFormsBackup = parseGoogleFormsBackupConfig(formChannel?.config ?? null);
   const formChannelSetupCopy =
     lang === "pt"
@@ -838,6 +845,14 @@ export default async function SettingsPage() {
           backupError: "Não foi possível guardar a cópia de segurança.",
           backupActive: "Cópia externa ativa para este workspace.",
           backupProvider: "Google Forms",
+          replyTitle: "Email de resposta",
+          replyHelp: "Quando respondes a um lead do formulário, a resposta é enviada para o email que ele deixou.",
+          replyFromEmail: "Enviar de",
+          replyFromName: "Nome do remetente",
+          replyToEmail: "Reply-To (opcional)",
+          replySave: "Guardar email de resposta",
+          replySaved: "Email de resposta guardado.",
+          replyError: "Não foi possível guardar o email de resposta.",
         }
       : lang === "en"
         ? {
@@ -875,6 +890,14 @@ export default async function SettingsPage() {
             backupError: "Could not save the backup copy.",
             backupActive: "External backup is active for this workspace.",
             backupProvider: "Google Forms",
+            replyTitle: "Reply email",
+            replyHelp: "When you reply to a web form lead, Novua sends the answer to the email they left.",
+            replyFromEmail: "Send from",
+            replyFromName: "Sender name",
+            replyToEmail: "Reply-To (optional)",
+            replySave: "Save reply email",
+            replySaved: "Reply email saved.",
+            replyError: "Could not save reply email.",
           }
         : {
             title: pendingChannelSetupCopy.form.title,
@@ -911,6 +934,77 @@ export default async function SettingsPage() {
             backupError: "No se pudo guardar la copia de seguridad.",
             backupActive: "Copia externa activa para este workspace.",
             backupProvider: "Google Forms",
+            replyTitle: "Email de respuesta",
+            replyHelp: "Cuando respondes a un lead del formulario, la respuesta se envía al email que dejó.",
+            replyFromEmail: "Enviar desde",
+            replyFromName: "Nombre del remitente",
+            replyToEmail: "Reply-To (opcional)",
+            replySave: "Guardar email de respuesta",
+            replySaved: "Email de respuesta guardado.",
+            replyError: "No se pudo guardar el email de respuesta.",
+          };
+  const emailChannelSetupCopy =
+    lang === "pt"
+      ? {
+          title: pendingChannelSetupCopy.email.title,
+          description: pendingChannelSetupCopy.email.description,
+          connected: channelsOverviewCopy.connected,
+          disconnected: channelsOverviewCopy.comingSoon,
+          activate: "Ativar email",
+          inboundAddress: "Email de entrada",
+          inboundHelp: "Endereço para onde os clientes escrevem (ex.: info@tuempresa.com).",
+          replyFromEmail: "Enviar de",
+          replyFromName: "Nome do remetente",
+          replyToEmail: "Reply-To (opcional)",
+          webhookUrl: "Webhook de entrada",
+          webhookHelp: "Configura este URL no Resend para receber emails no inbox.",
+          copy: "Copiar",
+          copied: "Copiado",
+          save: "Guardar email",
+          saved: "Canal email guardado.",
+          error: "Não foi possível guardar o canal email.",
+          agentNote: "Só owners e admins podem configurar o canal email.",
+        }
+      : lang === "en"
+        ? {
+            title: pendingChannelSetupCopy.email.title,
+            description: pendingChannelSetupCopy.email.description,
+            connected: channelsOverviewCopy.connected,
+            disconnected: channelsOverviewCopy.comingSoon,
+            activate: "Activate email",
+            inboundAddress: "Inbound address",
+            inboundHelp: "Address where customers write to you (e.g. info@yourcompany.com).",
+            replyFromEmail: "Send from",
+            replyFromName: "Sender name",
+            replyToEmail: "Reply-To (optional)",
+            webhookUrl: "Inbound webhook",
+            webhookHelp: "Configure this URL in Resend to receive emails in your inbox.",
+            copy: "Copy",
+            copied: "Copied",
+            save: "Save email channel",
+            saved: "Email channel saved.",
+            error: "Could not save the email channel.",
+            agentNote: "Only owners and admins can configure the email channel.",
+          }
+        : {
+            title: pendingChannelSetupCopy.email.title,
+            description: pendingChannelSetupCopy.email.description,
+            connected: channelsOverviewCopy.connected,
+            disconnected: channelsOverviewCopy.comingSoon,
+            activate: "Activar email",
+            inboundAddress: "Email de entrada",
+            inboundHelp: "Dirección a la que escriben tus clientes (ej. info@tuempresa.com).",
+            replyFromEmail: "Enviar desde",
+            replyFromName: "Nombre del remitente",
+            replyToEmail: "Reply-To (opcional)",
+            webhookUrl: "Webhook de entrada",
+            webhookHelp: "Configura esta URL en Resend para recibir emails en el inbox.",
+            copy: "Copiar",
+            copied: "Copiado",
+            save: "Guardar email",
+            saved: "Canal email guardado.",
+            error: "No se pudo guardar el canal email.",
+            agentNote: "Solo owners y admins pueden configurar el canal email.",
           };
 
   return (
@@ -1049,15 +1143,14 @@ export default async function SettingsPage() {
             pendingLabel={channelsOverviewCopy.comingSoon}
           />
 
-          <ChannelSetupPlaceholder
-            channel="email"
+          <EmailChannelSetup
             label={formatChannel("email", t)}
-            title={pendingChannelSetupCopy.email.title}
-            description={pendingChannelSetupCopy.email.description}
-            comingSoon={channelsOverviewCopy.comingSoon}
-            isConnected={Boolean(emailChannel?.is_active)}
-            connectedLabel={channelsOverviewCopy.connected}
-            pendingLabel={channelsOverviewCopy.comingSoon}
+            isActive={Boolean(emailChannel?.is_active && emailInboundAddress)}
+            inboundAddress={emailInboundAddress}
+            reply={emailReply}
+            webhookUrl={emailWebhookUrl}
+            canManage={canManageTeam}
+            labels={emailChannelSetupCopy}
           />
 
           <FormChannelSetup
@@ -1069,6 +1162,7 @@ export default async function SettingsPage() {
             embed={formEmbed}
             canManage={canManageTeam}
             googleFormsBackup={googleFormsBackup}
+            formReply={formReply}
             labels={formChannelSetupCopy}
           />
 

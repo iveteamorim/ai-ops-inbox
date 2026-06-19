@@ -5,6 +5,12 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { enforceSameOrigin } from "@/lib/security/request-origin";
 import { getWorkspaceMember, type WorkspaceMember } from "@/lib/workspace-access";
 import { sendWhatsAppText } from "@/lib/messaging/whatsapp-send";
+import { isEmailSendingConfigured, sendEmailText } from "@/lib/messaging/email-send";
+import {
+  resolveEmailSubject,
+  resolveInReplyToMessageId,
+  resolveReplyConfigForConversation,
+} from "@/lib/messaging/email-reply";
 
 type ConversationRow = {
   id: string;
@@ -190,6 +196,9 @@ export async function POST(request: Request) {
   }
 
   let whatsappSent = false;
+  let emailSent = false;
+  let deliveryStatus: "sent" | "failed" = "sent";
+  let deliveryError: string | null = null;
 
   if (access.conversation.channel === "whatsapp") {
     const { data: contact, error: contactError } = await authContext.admin
@@ -240,6 +249,98 @@ export async function POST(request: Request) {
         })
         .eq("id", insertedMessage.id);
     }
+  } else if (access.conversation.channel === "form" || access.conversation.channel === "email") {
+    const { data: contact, error: contactError } = await authContext.admin
+      .from("contacts")
+      .select("email, name")
+      .eq("id", access.conversation.contact_id)
+      .maybeSingle<{ email: string | null; name: string | null }>();
+
+    if (contactError) {
+      return NextResponse.json({ ok: false, error: contactError.message }, { status: 500 });
+    }
+
+    if (!contact?.email) {
+      return NextResponse.json({ ok: false, error: "contact_email_missing" }, { status: 400 });
+    }
+
+    if (!isEmailSendingConfigured()) {
+      return NextResponse.json({ ok: false, error: "email_provider_not_configured" }, { status: 503 });
+    }
+
+    const replyConfig = await resolveReplyConfigForConversation(
+      authContext.admin,
+      access.conversation.company_id,
+      access.conversation.channel,
+    );
+
+    if (!replyConfig) {
+      return NextResponse.json({ ok: false, error: "reply_email_not_configured" }, { status: 400 });
+    }
+
+    const subject = await resolveEmailSubject(
+      authContext.admin,
+      access.conversation.id,
+      access.conversation.company_id,
+      access.conversation.channel,
+      contact.name,
+    );
+
+    const inReplyTo = await resolveInReplyToMessageId(
+      authContext.admin,
+      access.conversation.id,
+      access.conversation.company_id,
+    );
+
+    try {
+      const emailResult = await sendEmailText({
+        to: contact.email,
+        subject,
+        text,
+        replyConfig,
+        inReplyTo,
+      });
+
+      emailSent = true;
+
+      if (insertedMessage?.id) {
+        await authContext.admin
+          .from("messages")
+          .update({
+            external_id: emailResult.messageId,
+            raw_payload: {
+              source: "api/messages",
+              provider: "resend",
+              to: contact.email,
+              subject,
+              response: emailResult.raw,
+            },
+            delivery_status: "sent",
+          })
+          .eq("id", insertedMessage.id);
+      }
+    } catch (error) {
+      deliveryStatus = "failed";
+      deliveryError = error instanceof Error ? error.message : "email_send_failed";
+
+      if (insertedMessage?.id) {
+        await authContext.admin
+          .from("messages")
+          .update({
+            delivery_status: "failed",
+            raw_payload: {
+              source: "api/messages",
+              provider: "resend",
+              to: contact.email,
+              subject,
+              error: deliveryError,
+            },
+          })
+          .eq("id", insertedMessage.id);
+      }
+
+      return NextResponse.json({ ok: false, error: deliveryError }, { status: 502 });
+    }
   }
 
   const { error: updateError } = await authContext.admin
@@ -255,5 +356,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: updateError.message }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true, queued: true, whatsappSent });
+  return NextResponse.json({ ok: true, queued: true, whatsappSent, emailSent, deliveryStatus });
 }
