@@ -1,3 +1,5 @@
+import { buildFallbackReplySuggestion, detectReplyIntent, type ReplyIntent } from "@/lib/reply-suggestions";
+
 export type ServiceType = {
   name: string;
   estimatedValue: number;
@@ -11,7 +13,7 @@ export type ConversationInput = {
   assignedUnit?: string | null;
 };
 
-export type TriageIntent = "pricing" | "booking" | "availability" | "general" | "other";
+export type TriageIntent = ReplyIntent;
 export type TriagePriority = "low" | "medium" | "high";
 export type TriageRiskStatus = "safe" | "watch" | "at_risk";
 export type TriageNextAction =
@@ -118,38 +120,6 @@ function scoreLeadType(message: string, service: ServiceType) {
   return score;
 }
 
-function detectIntent(message: string): TriageIntent {
-  const text = normalizeText(message);
-  if (!text) return "other";
-  if (["price", "pricing", "cost", "rate", "precio", "precios", "coste", "costo", "tarifa"].some((hint) => text.includes(hint))) return "pricing";
-  if (
-    [
-      "appointment",
-      "book",
-      "booking",
-      "confirm booking",
-      "reserve",
-      "reservar",
-      "reserva",
-      "agendar",
-      "quiero cita",
-      "confirmar cita",
-      "primera visita",
-      "quiero una visita",
-      "quiero una primera visita",
-      "quiero una sesion",
-      "quiero una sesión",
-    ].some((hint) => text.includes(hint))
-  ) {
-    return "booking";
-  }
-  if (["availability", "available", "opening", "open", "hours", "schedule", "tomorrow", "this week", "disponibilidad", "disponible", "hueco", "horario", "horarios", "manana", "esta semana", "abren", "abre", "cierra", "fecha", "cerrado"].some((hint) => text.includes(hint))) {
-    return "availability";
-  }
-  if (["hello", "hi", "information", "info", "help", "update", "hola", "informacion", "ayuda"].some((hint) => text.includes(hint))) return "general";
-  return "other";
-}
-
 function selectLeadType(message: string, serviceCatalog: ServiceType[]) {
   const cleanedCatalog = serviceCatalog.filter((item) => item.name.trim().length > 0);
   const fallbackUnknown =
@@ -222,32 +192,6 @@ function computeNextAction(params: {
   return "qualify_need";
 }
 
-function buildSuggestedResponse(params: {
-  intent: TriageIntent;
-  leadType: string;
-  estimatedValue: number;
-}): string {
-  const { intent, leadType, estimatedValue } = params;
-
-  if (intent === "pricing") {
-    return estimatedValue > 0
-      ? `Puedo ayudarte con el precio de ${leadType.toLowerCase()} y revisar la mejor disponibilidad para ti.`
-      : "Puedo ayudarte con la información que necesitas y orientarte en el siguiente paso.";
-  }
-
-  if (intent === "availability" || intent === "booking") {
-    return estimatedValue > 0
-      ? `Puedo revisar disponibilidad para ${leadType.toLowerCase()} y ayudarte a avanzar con la reserva.`
-      : "Puedo revisar disponibilidad contigo y ayudarte a concretar lo que necesitas.";
-  }
-
-  if (estimatedValue > 0) {
-    return `Puedo ayudarte a entender mejor ${leadType.toLowerCase()} y orientarte en el siguiente paso.`;
-  }
-
-  return "Gracias por escribir. ¿Me puedes contar un poco más sobre lo que necesitas para ayudarte mejor?";
-}
-
 function buildReasoningSummary(params: {
   intent: TriageIntent;
   leadType: string;
@@ -273,7 +217,7 @@ export function triageConversation(
   conversation: ConversationInput,
   serviceCatalog: ServiceType[],
 ): TriageResult {
-  const intent = detectIntent(conversation.lastCustomerMessage);
+  const intent = detectReplyIntent(conversation.lastCustomerMessage);
   const leadTypeMatch = selectLeadType(conversation.lastCustomerMessage, serviceCatalog);
   const estimatedValue = Number(leadTypeMatch.estimatedValue ?? 0);
   const priority = computePriority({
@@ -304,8 +248,8 @@ export function triageConversation(
     priority,
     riskStatus,
     nextAction,
-    suggestedResponse: buildSuggestedResponse({
-      intent,
+    suggestedResponse: buildFallbackReplySuggestion({
+      message: conversation.lastCustomerMessage,
       leadType: leadTypeMatch.name,
       estimatedValue,
     }),
