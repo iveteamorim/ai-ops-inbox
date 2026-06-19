@@ -6,6 +6,7 @@ import { detectCurrencyFromLocale } from "@/lib/i18n/currency";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
 import { getAppContext, getConversationDetail, getConversationViews } from "@/lib/app-data";
+import { getQuickReplies } from "@/lib/quick-replies";
 import { canManageInternalWorkspace, getWorkspaceMode } from "@/lib/internal-access";
 
 export default async function ConversationPage({ params }: { params: Promise<{ id: string }> }) {
@@ -30,6 +31,8 @@ export default async function ConversationPage({ params }: { params: Promise<{ i
   const workspaceMode = getWorkspaceMode(context.company, context.user.email);
   const canSeeInternalSetup = canManageInternalWorkspace(workspaceMode);
 
+  const quickReplies = getQuickReplies(context.company).replies;
+
   return (
     <section className="page">
       <AppNav
@@ -52,6 +55,7 @@ export default async function ConversationPage({ params }: { params: Promise<{ i
         initialMessages={detail.messages}
         currency={currency}
         unitOptions={unitOptions}
+        quickReplies={quickReplies}
       />
     </section>
   );

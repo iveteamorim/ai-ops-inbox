@@ -3102,6 +3102,77 @@ textarea:focus-visible {
   line-height: 1.5;
 }
 
+.conversation-ai-meta {
+  margin: 0 0 6px;
+  color: rgba(252, 211, 77, 0.78);
+  font-size: 0.82rem;
+}
+
+.conversation-quick-replies {
+  margin-bottom: 12px;
+}
+
+.conversation-quick-replies-label {
+  margin: 0 0 8px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.conversation-quick-replies-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.conversation-quick-reply-chip {
+  border: 1px solid rgba(52, 211, 153, 0.28);
+  background: rgba(52, 211, 153, 0.08);
+  color: #d1fae5;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.conversation-quick-reply-chip:hover,
+.conversation-quick-reply-chip-active {
+  border-color: rgba(52, 211, 153, 0.5);
+  background: rgba(52, 211, 153, 0.16);
+}
+
+.settings-quick-replies-list {
+  display: grid;
+  gap: 14px;
+}
+
+.settings-quick-reply-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.settings-quick-reply-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-bottom: 12px;
+}
+
+.settings-quick-reply-field {
+  display: grid;
+  gap: 6px;
+}
+
+.settings-quick-replies-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
 .conversation-composer-actions {
   margin-top: 12px;
 }

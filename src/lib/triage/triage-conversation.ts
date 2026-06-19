@@ -143,7 +143,7 @@ function detectIntent(message: string): TriageIntent {
   ) {
     return "booking";
   }
-  if (["availability", "available", "opening", "schedule", "tomorrow", "this week", "disponibilidad", "disponible", "hueco", "horario", "horarios", "manana", "esta semana"].some((hint) => text.includes(hint))) {
+  if (["availability", "available", "opening", "open", "hours", "schedule", "tomorrow", "this week", "disponibilidad", "disponible", "hueco", "horario", "horarios", "manana", "esta semana", "abren", "abre", "cierra", "fecha", "cerrado"].some((hint) => text.includes(hint))) {
     return "availability";
   }
   if (["hello", "hi", "information", "info", "help", "update", "hola", "informacion", "ayuda"].some((hint) => text.includes(hint))) return "general";

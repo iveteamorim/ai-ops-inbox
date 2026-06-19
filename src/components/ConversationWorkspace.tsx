@@ -8,12 +8,15 @@ import { InboxRowActions } from "@/components/InboxRowActions";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 import { getDecisionType } from "@/lib/conversation-decision";
 import type { ConversationView, MessageView } from "@/lib/app-data";
+import type { QuickReply } from "@/lib/quick-replies";
+import { matchQuickReply } from "@/lib/quick-replies";
 
 type Props = {
   conversation: ConversationView;
   initialMessages: MessageView[];
   currency: "EUR" | "BRL";
   unitOptions: string[];
+  quickReplies?: QuickReply[];
 };
 
 type MessageWithDelivery = MessageView & {
@@ -149,6 +152,7 @@ export function ConversationWorkspace({
   initialMessages,
   currency,
   unitOptions,
+  quickReplies = [],
 }: Props) {
   const router = useRouter();
   const { t, lang } = useI18n();
@@ -165,8 +169,24 @@ export function ConversationWorkspace({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const supabase = useMemo(() => createBrowserClient(), []);
 
+  const latestCustomerMessage = useMemo(() => {
+    const inbound = [...messages]
+      .reverse()
+      .find((message) => message.direction === "inbound" && message.senderType === "customer" && message.text?.trim());
+    return inbound?.text?.trim() ?? "";
+  }, [messages]);
+
+  const matchedQuickReply = useMemo(
+    () => matchQuickReply(latestCustomerMessage, quickReplies),
+    [latestCustomerMessage, quickReplies],
+  );
+
   // AI Suggestion
   const aiSuggestion = useMemo(() => {
+    if (matchedQuickReply) {
+      return matchedQuickReply.text;
+    }
+
     const leadType = (conversation.leadType ?? "").toLowerCase();
 
     if (conversation.estimatedValue === 0 || !conversation.leadType) {
@@ -189,7 +209,7 @@ export function ConversationWorkspace({
     if (lang === "pt") return `Posso ajudar com ${conversation.leadType.toLowerCase()} e indicar o próximo passo.`;
     if (lang === "en") return `I can help with ${conversation.leadType.toLowerCase()} and guide the next step.`;
     return `Puedo ayudarte con ${conversation.leadType.toLowerCase()} y orientarte en el siguiente paso.`;
-  }, [conversation.estimatedValue, conversation.leadType, lang]);
+  }, [conversation.estimatedValue, conversation.leadType, lang, matchedQuickReply]);
 
   const statusLabel = useMemo(() => {
     if (conversation.status === "new") return t("inbox_filter_new");
@@ -274,6 +294,9 @@ export function ConversationWorkspace({
         riskHigh: "Risco alto de perda",
         unassigned: "Sem responsável",
         phone: "Telefone",
+        quickReplies: "Respostas rápidas",
+        suggestedReply: "Resposta sugerida",
+        matchedFaq: "Detetámos uma pergunta frequente.",
       };
     }
 
@@ -291,6 +314,9 @@ export function ConversationWorkspace({
         riskHigh: "High churn risk",
         unassigned: "Unassigned",
         phone: "Phone",
+        quickReplies: "Quick replies",
+        suggestedReply: "Suggested reply",
+        matchedFaq: "We detected a frequent question.",
       };
     }
 
@@ -308,6 +334,9 @@ export function ConversationWorkspace({
       riskHigh: "Riesgo alto de pérdida",
       unassigned: "Sin asignar",
       phone: "Teléfono",
+      quickReplies: "Respuestas rápidas",
+      suggestedReply: "Respuesta sugerida",
+      matchedFaq: "Detectamos una pregunta frecuente.",
     };
   }, [lang]);
 
@@ -454,6 +483,12 @@ export function ConversationWorkspace({
   }
 
   async function fillDraftWithSuggestion() {
+    if (matchedQuickReply) {
+      setDraft(matchedQuickReply.text);
+      textareaRef.current?.focus();
+      return;
+    }
+
     setGeneratingSuggestion(true);
     setError(null);
 
@@ -524,6 +559,29 @@ export function ConversationWorkspace({
         )}
 
         <div className="composer">
+          {quickReplies.length > 0 ? (
+            <div className="conversation-quick-replies">
+              <p className="conversation-quick-replies-label">{panelCopy.quickReplies}</p>
+              <div className="conversation-quick-replies-row">
+                {quickReplies.map((reply) => (
+                  <button
+                    key={reply.id}
+                    className={[
+                      "conversation-quick-reply-chip",
+                      matchedQuickReply?.id === reply.id ? "conversation-quick-reply-chip-active" : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                    type="button"
+                    onClick={() => setDraft(reply.text)}
+                    title={reply.text}
+                  >
+                    {reply.title}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
           <textarea
             ref={textareaRef}
             className="input conversation-composer-input"
@@ -533,7 +591,12 @@ export function ConversationWorkspace({
             onChange={(event) => setDraft(event.target.value)}
           />
           <div className="conversation-ai-suggestion">
-            <p className="conversation-ai-title">{t("conversation_ai_label")}</p>
+            <p className="conversation-ai-title">
+              {matchedQuickReply ? panelCopy.suggestedReply : t("conversation_ai_label")}
+            </p>
+            {matchedQuickReply ? (
+              <p className="conversation-ai-meta">{panelCopy.matchedFaq}</p>
+            ) : null}
             <p className="conversation-ai-text">“{aiSuggestion}”</p>
           </div>
           {error && <p className="warn">{error}</p>}

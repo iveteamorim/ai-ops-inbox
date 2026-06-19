@@ -7,7 +7,10 @@ import { PilotFeedbackHistory } from "@/components/PilotFeedbackHistory";
 import { TeamMembersList } from "@/components/TeamMembersList";
 import { ChannelsOverview } from "@/components/settings/ChannelsOverview";
 import { WorkspaceDangerZone } from "@/components/WorkspaceDangerZone";
+import { QuickRepliesForm } from "@/components/QuickRepliesForm";
 import { formatChannel, getBusinessSetup } from "@/lib/app-data";
+import { getQuickReplies } from "@/lib/quick-replies";
+import { getQuickRepliesFormCopy } from "@/lib/settings/quick-replies-copy";
 import { canSeeCustomerFeedback } from "@/lib/internal-access";
 import { translate } from "@/lib/i18n/dictionaries";
 import { parseEmailReplyConfigState } from "@/lib/messaging/email-reply-state";
@@ -91,6 +94,8 @@ export default async function SettingsPage() {
   const showCustomerFeedback = canSeeCustomerFeedback(workspaceMode);
   const channelsOverviewCopy = getChannelsOverviewCopy(lang);
   const businessSetup = getBusinessSetup(context.company);
+  const quickReplies = getQuickReplies(context.company);
+  const quickRepliesCopy = getQuickRepliesFormCopy(lang);
   const roleLabel = formatRoleLabel(lang, context.profile.role);
   const workspaceLabel = context.company?.name ?? "Novua Inbox";
   const emailChannel = channels.find((channel) => channel.type === "email") ?? null;
@@ -223,6 +228,12 @@ export default async function SettingsPage() {
                 </div>
               </article>
             )}
+
+            {canManageTeam ? (
+              <article className="card settings-section-card">
+                <QuickRepliesForm initialValue={quickReplies} labels={quickRepliesCopy} />
+              </article>
+            ) : null}
 
             <article className="card settings-section-card">
               <p className="label">

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { enforceSameOrigin } from "@/lib/security/request-origin";
+import { getQuickReplies, matchQuickReply, formatQuickRepliesForPrompt } from "@/lib/quick-replies";
 import { getWorkspaceMember } from "@/lib/workspace-access";
 
 type PostBody = {
@@ -143,11 +144,26 @@ export async function POST(request: Request) {
       (message) => message.direction === "inbound" && message.sender_type === "customer" && message.text?.trim(),
     )?.text?.trim() ?? "";
 
+  const { data: companyRow } = await authContext.admin
+    .from("companies")
+    .select("config")
+    .eq("id", access.conversation.company_id)
+    .maybeSingle<{ config: Record<string, unknown> | null }>();
+
+  const quickReplies = getQuickReplies(companyRow).replies;
+  const matchedQuickReply = matchQuickReply(latestCustomerMessage, quickReplies);
+
+  if (matchedQuickReply) {
+    return NextResponse.json({ ok: true, suggestion: matchedQuickReply.text, source: "quick_reply" });
+  }
+
   const systemPrompt = [
     "You write suggested replies for a business operator handling inbound leads.",
     "Write one short reply in the same language as the latest customer message.",
     "Keep it practical and natural, 1 to 3 short sentences.",
-    "Do not invent exact pricing, dates, or availability you do not know.",
+    "Use the approved quick replies below when one clearly fits the customer's question.",
+    "You may reuse an approved reply verbatim when it answers the question.",
+    "Do not invent exact pricing, dates, or availability that are not in the approved replies.",
     "If the lead is unclear, ask one clarifying question.",
     "If the lead shows commercial intent, move the conversation forward.",
     "Do not mention internal scoring, value, risk, or labels.",
@@ -160,6 +176,8 @@ export async function POST(request: Request) {
     `Lead type: ${access.conversation.lead_type ?? "Unclassified"}`,
     `Estimated value: ${Number(access.conversation.estimated_value ?? 0)}`,
     `Latest customer message: ${latestCustomerMessage || "None"}`,
+    "Approved quick replies:",
+    formatQuickRepliesForPrompt(quickReplies),
     "Recent messages:",
     recentTranscript || "No recent messages.",
   ].join("\n");
