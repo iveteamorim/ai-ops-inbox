@@ -140,68 +140,77 @@ export function InboxDecisionView({
 
         <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
           <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-4 sm:p-5 overflow-y-auto lg:h-[640px]">
-            <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-gray-400">
-              <button
-                type="button"
-                onClick={() => setActiveFilter("all")}
-                className={`rounded-full border px-3 py-1 transition ${
-                  activeFilter === "all" ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE
-                }`}
-              >
-                {labels.filterAll}
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveFilter("risk")}
-                className={`rounded-full border px-3 py-1 transition ${
-                  activeFilter === "risk" ? FILTER_PILL_RISK_ACTIVE : FILTER_PILL_INACTIVE
-                }`}
-              >
-                {labels.filterRisk}
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveFilter("assigned")}
-                className={`rounded-full border px-3 py-1 transition ${
-                  activeFilter === "assigned" ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE
-                }`}
-              >
-                {labels.filterAssigned}
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveFilter("new")}
-                className={`rounded-full border px-3 py-1 transition ${
-                  activeFilter === "new" ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE
-                }`}
-              >
-                {labels.filterNew}
-              </button>
-            </div>
-
-            <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-gray-400">
-              <span className="mr-1 text-xs uppercase tracking-[0.14em] text-gray-500">{labels.channel}</span>
-              <button
-                type="button"
-                onClick={() => setActiveChannelFilter("all")}
-                className={`rounded-full border px-3 py-1 transition ${
-                  activeChannelFilter === "all" ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE
-                }`}
-              >
-                {labels.filterChannelAll}
-              </button>
-              {channelOptions.map((option) => (
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-2 text-sm text-gray-400">
                 <button
-                  key={option.channel}
                   type="button"
-                  onClick={() => setActiveChannelFilter(option.channel)}
+                  onClick={() => setActiveFilter("all")}
                   className={`rounded-full border px-3 py-1 transition ${
-                    activeChannelFilter === option.channel ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE
+                    activeFilter === "all" ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE
                   }`}
                 >
-                  {option.label}
+                  {labels.filterAll}
                 </button>
-              ))}
+                <button
+                  type="button"
+                  onClick={() => setActiveFilter("risk")}
+                  className={`rounded-full border px-3 py-1 transition ${
+                    activeFilter === "risk" ? FILTER_PILL_RISK_ACTIVE : FILTER_PILL_INACTIVE
+                  }`}
+                >
+                  {labels.filterRisk}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveFilter("assigned")}
+                  className={`rounded-full border px-3 py-1 transition ${
+                    activeFilter === "assigned" ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE
+                  }`}
+                >
+                  {labels.filterAssigned}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveFilter("new")}
+                  className={`rounded-full border px-3 py-1 transition ${
+                    activeFilter === "new" ? FILTER_PILL_ACTIVE : FILTER_PILL_INACTIVE
+                  }`}
+                >
+                  {labels.filterNew}
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2 text-sm text-gray-400">
+                <label
+                  htmlFor="inbox-channel-filter"
+                  className="text-xs uppercase tracking-[0.14em] text-gray-500"
+                >
+                  {labels.channel}
+                </label>
+                <div className="relative">
+                  <select
+                    id="inbox-channel-filter"
+                    value={activeChannelFilter}
+                    onChange={(event) =>
+                      setActiveChannelFilter(event.target.value as "all" | ChannelType)
+                    }
+                    className="appearance-none rounded-full border border-white/10 bg-white/5 py-1.5 pl-3 pr-8 text-sm text-gray-200 transition hover:border-white/20 focus:border-white/30 focus:outline-none"
+                  >
+                    <option value="all">{labels.filterChannelAll}</option>
+                    {channelOptions.map((option) => (
+                      <option key={option.channel} value={option.channel}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-gray-400"
+                  >
+                    ▼
+                  </span>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-4">
