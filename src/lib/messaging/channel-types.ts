@@ -22,6 +22,14 @@ export function channelSettingsAnchor(channel: ChannelType): string {
   return `${channel}-setup`;
 }
 
+export function channelSettingsPath(channel: ChannelType): string {
+  return `/settings/${channel}`;
+}
+
+export function isChannelSettingsPath(segment: string): segment is ChannelType {
+  return isChannelType(segment);
+}
+
 export function channelBadgeClass(channel: ChannelType): string {
   switch (channel) {
     case "whatsapp":

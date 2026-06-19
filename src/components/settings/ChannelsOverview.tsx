@@ -1,6 +1,5 @@
 import Link from "next/link";
-import type { ChannelType } from "@/lib/messaging/channel-types";
-import { CHANNEL_TYPES, channelSettingsAnchor } from "@/lib/messaging/channel-types";
+import { CHANNEL_TYPES, channelSettingsPath, type ChannelType } from "@/lib/messaging/channel-types";
 import { ChannelBadge } from "@/components/ChannelBadge";
 
 type ChannelRow = {
@@ -73,7 +72,7 @@ export function ChannelsOverview({
           return (
             <Link
               key={type}
-              href={`#${channelSettingsAnchor(type)}`}
+              href={channelSettingsPath(type)}
               className={[
                 "settings-channel-tile settings-channel-tile-link",
                 isConnected ? "settings-channel-tile-connected" : "",
