@@ -99,12 +99,13 @@ export function FormChannelSetup({
   const [backupEntryMessage, setBackupEntryMessage] = useState(googleFormsBackup?.fields.message ?? "");
   const [backupEnabled, setBackupEnabled] = useState(Boolean(googleFormsBackup));
 
-  async function handleActivate() {
+  async function handleActivate(regenerate = false) {
     setError(null);
 
     const response = await fetch("/api/channels/form", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ regenerate }),
     });
     const data = (await response.json().catch(() => ({}))) as {
       ok?: boolean;
@@ -186,9 +187,15 @@ export function FormChannelSetup({
 
       {canManage ? (
         <div style={{ marginBottom: 16 }}>
-          <button className="button" type="button" onClick={handleActivate} disabled={isPending}>
-            {liveActive ? labels.regenerate : labels.activate}
-          </button>
+          {!liveActive ? (
+            <button className="button" type="button" onClick={() => handleActivate(false)} disabled={isPending}>
+              {labels.activate}
+            </button>
+          ) : (
+            <button className="button" type="button" onClick={() => handleActivate(true)} disabled={isPending}>
+              {labels.regenerate}
+            </button>
+          )}
           {error ? <p className="note">{error}</p> : null}
         </div>
       ) : (

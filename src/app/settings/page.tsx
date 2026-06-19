@@ -19,6 +19,8 @@ import { redirect } from "next/navigation";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/config";
 import { translate } from "@/lib/i18n/dictionaries";
 import { formatChannel, getAppContext, getBusinessSetup, getSettingsData } from "@/lib/app-data";
+import { ensureFormChannelForCompany } from "@/lib/messaging/ensure-form-channel";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { ChannelType } from "@/lib/messaging/channel-types";
 import { canManageInternalWorkspace, canSeeCustomerFeedback, getWorkspaceMode } from "@/lib/internal-access";
 import { getWhatsAppEmbeddedSignupRuntimeConfig } from "@/lib/whatsapp-embedded-signup";
@@ -494,7 +496,21 @@ export default async function SettingsPage() {
   let feedbackHistory = [] as Awaited<ReturnType<typeof getSettingsData>>["feedbackHistory"];
   let settingsLoadError: string | null = null;
 
+  const workspaceMode = getWorkspaceMode(context.company, context.user.email);
+  if (workspaceMode === "customer_demo") {
+    redirect("/dashboard");
+  }
+
+  const canSeeInternalSetup = canManageInternalWorkspace(workspaceMode);
+  const showCustomerFeedback = canSeeCustomerFeedback(workspaceMode);
+  const canManageTeam = context.profile.role === "owner" || context.profile.role === "admin";
+
   try {
+    if (canManageTeam) {
+      const admin = createAdminClient();
+      await ensureFormChannelForCompany(admin, context.profile.company_id, context.user.id);
+    }
+
     ({ channels, team, pendingInvites, setupRequests, feedbackHistory } = await getSettingsData(
       context.supabase,
       context.profile.company_id,
@@ -508,14 +524,7 @@ export default async function SettingsPage() {
       error: settingsLoadError,
     });
   }
-  const workspaceMode = getWorkspaceMode(context.company, context.user.email);
-  if (workspaceMode === "customer_demo") {
-    redirect("/dashboard");
-  }
 
-  const canSeeInternalSetup = canManageInternalWorkspace(workspaceMode);
-  const showCustomerFeedback = canSeeCustomerFeedback(workspaceMode);
-  const canManageTeam = context.profile.role === "owner" || context.profile.role === "admin";
   const seatLimit =
     context.company?.plan === "growth" ? 6 : context.company?.plan === "pro" ? 15 : 3;
   const usedSeats = team.length + pendingInvites.length;

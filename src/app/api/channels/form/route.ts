@@ -93,13 +93,14 @@ export async function POST(request: Request) {
   }
 
   const admin = createAdminClient();
-  const token = createFormToken();
   const now = new Date().toISOString();
   const appUrl = getPublicAppUrl(request);
+  const body = (await request.json().catch(() => ({}))) as { regenerate?: boolean };
+  const shouldRegenerate = body.regenerate === true;
 
   const { data: existingChannel, error: existingError } = await admin
     .from("channels")
-    .select("id, config")
+    .select("id, external_account_id, is_active, config")
     .eq("company_id", profile.company_id)
     .eq("type", "form")
     .maybeSingle<ChannelRow>();
@@ -107,6 +108,11 @@ export async function POST(request: Request) {
   if (existingError) {
     return NextResponse.json({ ok: false, error: existingError.message }, { status: 500 });
   }
+
+  const token =
+    existingChannel?.external_account_id && !shouldRegenerate
+      ? existingChannel.external_account_id
+      : createFormToken();
 
   if (existingChannel?.id) {
     const { error: updateError } = await admin
