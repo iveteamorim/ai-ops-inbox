@@ -197,7 +197,7 @@ export default async function InboxPage() {
   const context = await getAppContext();
   if (context.kind !== "ready") {
     return (
-      <section className="page">
+      <section className="page inbox-page">
         <AppNav />
         <header className="header">
           <div>
@@ -407,7 +407,7 @@ export default async function InboxPage() {
   }));
 
   return (
-    <section className="page">
+    <section className="page inbox-page">
       <AutoRefresh intervalMs={12000} />
       <AppNav
         showSetup={canSeeInternalSetup}
