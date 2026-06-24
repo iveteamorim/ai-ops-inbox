@@ -2364,7 +2364,7 @@ textarea:focus-visible {
   }
 }
 
-/* Auth pages: purple theme (login, signup, reset-password, accept-invite) */
+/* Auth pages: navy theme (login, signup, reset-password, accept-invite) */
 .auth-page-layout {
   position: relative;
   z-index: 1;
@@ -2388,7 +2388,7 @@ textarea:focus-visible {
   margin-bottom: 0;
   border: 0;
   background: transparent;
-  color: #ddd6fe;
+  color: rgba(255, 255, 255, 0.72);
   font-size: 1.35rem;
   line-height: 1;
   text-decoration: none;
@@ -2400,7 +2400,7 @@ textarea:focus-visible {
 }
 
 .auth-page .auth-back-link:focus-visible {
-  outline: 2px solid rgba(155, 124, 242, 0.65);
+  outline: 2px solid rgba(255, 255, 255, 0.45);
   outline-offset: 2px;
   border-radius: 8px;
 }
@@ -2409,12 +2409,12 @@ textarea:focus-visible {
   width: 100%;
   max-width: 420px;
   border-radius: 24px;
-  border: 1px solid rgba(155, 124, 242, 0.22);
-  background: linear-gradient(180deg, rgba(20, 18, 34, 0.96) 0%, rgba(10, 12, 20, 0.94) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(17, 31, 53, 0.98) 0%, rgba(10, 22, 40, 0.96) 100%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.05),
     0 28px 80px rgba(0, 0, 0, 0.42),
-    0 0 70px rgba(122, 108, 240, 0.1);
+    0 0 70px rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(18px);
   padding: 32px 28px 28px;
 }
@@ -2430,7 +2430,7 @@ textarea:focus-visible {
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #c4b5fd;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .auth-page .auth-panel-title {
@@ -2445,7 +2445,7 @@ textarea:focus-visible {
   margin: 8px 0 0;
   font-size: 0.95rem;
   line-height: 1.55;
-  color: #a1a1aa;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .auth-page .auth-panel-body .form {
@@ -2454,22 +2454,22 @@ textarea:focus-visible {
 }
 
 .auth-page .label {
-  color: #a1a1aa;
+  color: rgba(255, 255, 255, 0.55);
   font-size: 0.78rem;
   letter-spacing: 0.1em;
 }
 
 .auth-page .input {
-  background: rgba(8, 10, 18, 0.92);
-  border-color: rgba(155, 124, 242, 0.16);
+  background: rgba(8, 16, 30, 0.92);
+  border-color: rgba(255, 255, 255, 0.14);
   border-radius: 12px;
-  color: #f4f4f5;
+  color: #ffffff;
   padding: 12px 14px;
   margin-bottom: 12px;
 }
 
 .auth-page .input:focus-visible {
-  outline-color: rgba(155, 124, 242, 0.65);
+  outline-color: rgba(255, 255, 255, 0.45);
 }
 
 .auth-page .password-toggle {
@@ -2481,24 +2481,24 @@ textarea:focus-visible {
   margin-top: 4px;
   border-radius: 12px;
   min-height: 46px;
-  background: linear-gradient(120deg, #7a6cf0 0%, #9b7cf2 100%);
-  color: #ffffff;
-  box-shadow: 0 14px 34px rgba(122, 108, 240, 0.28);
+  background: #ffffff;
+  color: #0a1628;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.25);
 }
 
 .auth-page .button:hover:not(:disabled) {
-  background: linear-gradient(120deg, #8a7cf2 0%, #ab8cf8 100%);
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .auth-page .action-link {
   width: 100%;
   margin-top: 14px;
   text-align: center;
-  color: #c4b5fd;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .auth-page .action-link:hover {
-  color: #ede9fe;
+  color: #ffffff;
 }
 
 .auth-page .form > p:last-child {
@@ -2506,7 +2506,7 @@ textarea:focus-visible {
   margin-bottom: 0;
   text-align: center;
   font-size: 0.9rem;
-  color: #a1a1aa;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .auth-page .form .subtitle {
@@ -2571,7 +2571,7 @@ textarea:focus-visible {
 }
 
 .auth-page a {
-  color: #ddd6fe;
+  color: rgba(255, 255, 255, 0.78);
 }
 
 .auth-page a:hover {
