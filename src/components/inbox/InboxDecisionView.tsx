@@ -59,9 +59,14 @@ type InboxDecisionViewProps = {
 };
 
 const FILTER_PILL_INACTIVE =
-  "border-white/10 bg-white/5 text-gray-400 hover:border-white/20 hover:text-gray-300";
+  "border-white/10 bg-white/5 text-white/50 hover:border-white/20 hover:text-white/75";
 const FILTER_PILL_ACTIVE = "border-white/30 bg-white/10 text-white";
-const FILTER_PILL_RISK_ACTIVE = "border-yellow-500/40 bg-yellow-500/15 text-yellow-200";
+const FILTER_PILL_RISK_ACTIVE = "border-amber-400/35 bg-amber-500/12 text-amber-200";
+
+const PANEL_SURFACE =
+  "rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(17,31,53,0.98),rgba(10,22,40,0.97))]";
+const CARD_SURFACE = "rounded-2xl border border-white/8 bg-[#111f35]";
+const INNER_CARD_SURFACE = "rounded-2xl border border-white/8 bg-[#0d182b]";
 
 export function InboxDecisionView({
   conversations,
@@ -133,40 +138,40 @@ export function InboxDecisionView({
 
   if (conversations.length === 0) {
     return (
-      <main className="min-h-screen bg-[#07110E] text-white -m-6">
+      <main className="inbox-decision-view min-h-screen bg-[#0a1628] text-white -m-6">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <p className="text-gray-300">{labels.emptyState}</p>
+          <p className="text-white/65">{labels.emptyState}</p>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#07110E] text-white -m-6">
+    <main className="inbox-decision-view min-h-screen bg-[#0a1628] text-white -m-6">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 opacity-80">
-            <div className="text-xs text-gray-400">{labels.risk}</div>
-            <div className="mt-1 text-2xl font-semibold text-yellow-400">{riskAmountLabel}</div>
+          <div className="rounded-2xl border border-white/10 bg-[#111f35] px-4 py-3">
+            <div className="text-xs text-white/50">{labels.risk}</div>
+            <div className="mt-1 text-2xl font-semibold text-amber-300">{riskAmountLabel}</div>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 opacity-80">
-            <div className="text-xs text-gray-400">{labels.active}</div>
-            <div className="mt-1 text-2xl font-semibold text-blue-400">{activeAmountLabel}</div>
+          <div className="rounded-2xl border border-white/10 bg-[#111f35] px-4 py-3">
+            <div className="text-xs text-white/50">{labels.active}</div>
+            <div className="mt-1 text-2xl font-semibold text-sky-300">{activeAmountLabel}</div>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 opacity-80">
-            <div className="text-xs text-gray-400">{labels.highValue}</div>
-            <div className="mt-1 text-2xl font-semibold text-green-400">{highValueAmountLabel}</div>
+          <div className="rounded-2xl border border-white/10 bg-[#111f35] px-4 py-3">
+            <div className="text-xs text-white/50">{labels.highValue}</div>
+            <div className="mt-1 text-2xl font-semibold text-emerald-300">{highValueAmountLabel}</div>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 opacity-80">
-            <div className="text-xs text-gray-400">{labels.newEntry}</div>
+          <div className="rounded-2xl border border-white/10 bg-[#111f35] px-4 py-3">
+            <div className="text-xs text-white/50">{labels.newEntry}</div>
             <div className="mt-1 text-2xl font-semibold text-white">{newCountLabel}</div>
           </div>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
-          <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-4 sm:p-5 overflow-y-auto lg:h-[640px]">
+          <section className={`${PANEL_SURFACE} overflow-y-auto p-4 sm:p-5 lg:h-[640px]`}>
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+              <div className="flex flex-wrap items-center gap-2 text-sm text-white/55">
                 <button
                   type="button"
                   onClick={() => setActiveFilter("all")}
@@ -205,18 +210,18 @@ export function InboxDecisionView({
                 </button>
               </div>
 
-              <div className="flex items-center gap-2 text-sm text-gray-400">
-                <span className="text-xs uppercase tracking-[0.14em] text-gray-500">{labels.channel}</span>
+              <div className="flex items-center gap-2 text-sm text-white/55">
+                <span className="text-xs uppercase tracking-[0.14em] text-white/40">{labels.channel}</span>
                 <div className="relative" ref={channelMenuRef}>
                   <button
                     type="button"
                     aria-haspopup="listbox"
                     aria-expanded={channelMenuOpen}
                     onClick={() => setChannelMenuOpen((open) => !open)}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 py-1.5 pl-3 pr-3 text-sm text-gray-200 transition hover:border-white/20 focus:border-white/30 focus:outline-none"
+                    className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 py-1.5 pl-3 pr-3 text-sm text-white/85 transition hover:border-white/20 focus:border-white/30 focus:outline-none"
                   >
                     <span>{activeChannelLabel}</span>
-                    <span aria-hidden="true" className="text-[10px] text-gray-400">
+                    <span aria-hidden="true" className="text-[10px] text-white/45">
                       ▼
                     </span>
                   </button>
@@ -225,7 +230,7 @@ export function InboxDecisionView({
                     <div
                       role="listbox"
                       aria-label={labels.channel}
-                      className="absolute right-0 top-[calc(100%+8px)] z-20 min-w-[180px] overflow-hidden rounded-xl border border-white/10 bg-[#10211C] p-1 shadow-[0_16px_36px_rgba(0,0,0,0.35)]"
+                      className="absolute right-0 top-[calc(100%+8px)] z-20 min-w-[180px] overflow-hidden rounded-xl border border-white/10 bg-[#111f35] p-1 shadow-[0_16px_36px_rgba(0,0,0,0.35)]"
                     >
                       <button
                         type="button"
@@ -238,7 +243,7 @@ export function InboxDecisionView({
                         className={`block w-full rounded-lg px-3 py-2 text-left text-sm transition ${
                           activeChannelFilter === "all"
                             ? "bg-white/10 text-white"
-                            : "text-gray-200 hover:bg-white/5"
+                            : "text-white/75 hover:bg-white/5"
                         }`}
                       >
                         {labels.filterChannelAll}
@@ -256,7 +261,7 @@ export function InboxDecisionView({
                           className={`block w-full rounded-lg px-3 py-2 text-left text-sm transition ${
                             activeChannelFilter === option.channel
                               ? "bg-white/10 text-white"
-                              : "text-gray-200 hover:bg-white/5"
+                              : "text-white/75 hover:bg-white/5"
                           }`}
                         >
                           {option.label}
@@ -270,9 +275,7 @@ export function InboxDecisionView({
 
             <div className="space-y-4">
               {filteredConversations.length === 0 ? (
-                <div className="rounded-2xl border border-white/5 bg-[#10211C] p-5 text-gray-300">
-                  {emptyListMessage}
-                </div>
+                <div className={`${CARD_SURFACE} p-5 text-white/65`}>{emptyListMessage}</div>
               ) : null}
 
               {filteredConversations.map((conversation) => {
@@ -293,8 +296,8 @@ export function InboxDecisionView({
                     className={[
                       "w-full rounded-2xl border p-4 text-left transition-all duration-300",
                       isSelected
-                        ? "border-green-400/40 bg-[#132922] shadow-[0_0_35px_rgba(52,211,153,0.12)]"
-                        : "border-white/5 bg-[#10211C] hover:border-white/10",
+                        ? "border-white/25 bg-[#152238] shadow-[0_0_35px_rgba(255,255,255,0.05)]"
+                        : "border-white/8 bg-[#111f35] hover:border-white/15",
                     ].join(" ")}
                   >
                     <div className="flex items-start justify-between gap-4">
@@ -306,7 +309,7 @@ export function InboxDecisionView({
                             {conversation.state}
                           </span>
                         </div>
-                        <p className="mt-2 line-clamp-2 text-base leading-7 text-gray-300">{conversation.message}</p>
+                        <p className="mt-2 line-clamp-2 text-base leading-7 text-white/65">{conversation.message}</p>
                       </div>
 
                       <div className="text-right">
@@ -317,19 +320,19 @@ export function InboxDecisionView({
 
                     <div className="mt-4 grid gap-3 border-t border-white/10 pt-3 text-sm sm:grid-cols-3">
                       <div>
-                        <div className="text-gray-500">{labels.temporalState}</div>
-                        <div className="mt-1 text-gray-200">{conversation.delay}</div>
+                        <div className="text-white/45">{labels.temporalState}</div>
+                        <div className="mt-1 text-white/80">{conversation.delay}</div>
                       </div>
                       <div>
-                        <div className="text-gray-500">{labels.owner}</div>
-                        <div className="mt-1 text-gray-200">{conversation.owner}</div>
+                        <div className="text-white/45">{labels.owner}</div>
+                        <div className="mt-1 text-white/80">{conversation.owner}</div>
                       </div>
                       <div>
-                        <div className="text-gray-500">{labels.nextAction}</div>
+                        <div className="text-white/45">{labels.nextAction}</div>
                         <Link
                           href={`/conversation/${conversation.id}`}
                           onClick={(event) => event.stopPropagation()}
-                          className="mt-1 inline-flex font-medium text-emerald-300 underline-offset-4 hover:text-emerald-200 hover:underline"
+                          className="mt-1 inline-flex font-medium text-white/80 underline-offset-4 hover:text-white hover:underline"
                         >
                           {conversation.action}
                         </Link>
@@ -341,71 +344,69 @@ export function InboxDecisionView({
             </div>
           </section>
 
-          <aside className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,22,0.98),rgba(10,18,16,0.97))] p-5 sm:p-6 lg:h-[640px] lg:overflow-y-auto">
-            <p className="text-xs uppercase tracking-[0.18em] text-gray-400">{labels.decisionLayer}</p>
+          <aside className={`${PANEL_SURFACE} p-5 sm:p-6 lg:h-[640px] lg:overflow-y-auto`}>
+            <p className="text-xs uppercase tracking-[0.18em] text-white/45">{labels.decisionLayer}</p>
 
             {!selected ? (
-              <div className="mt-5 rounded-2xl border border-white/5 bg-[#101B18] p-5 text-gray-300">
-                {emptyListMessage}
-              </div>
+              <div className={`${INNER_CARD_SURFACE} mt-5 p-5 text-white/65`}>{emptyListMessage}</div>
             ) : (
               <>
-            <div className="mt-5 rounded-2xl border border-white/5 bg-[#101B18] p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-2xl font-semibold text-white">{selected.name}</p>
-                    <ChannelBadge label={selected.channelLabel} channel={selected.channel} />
+                <div className={`${INNER_CARD_SURFACE} mt-5 p-5`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-2xl font-semibold text-white">{selected.name}</p>
+                        <ChannelBadge label={selected.channelLabel} channel={selected.channel} />
+                      </div>
+                      <p className="mt-2 text-sm text-white/55">{selected.delay}</p>
+                    </div>
+                    <span className={`rounded-full border px-3 py-1 text-sm ${selected.stateClass}`}>{selected.state}</span>
                   </div>
-                  <p className="mt-2 text-sm text-gray-400">{selected.delay}</p>
+
+                  <div className="mt-6 h-2 w-full overflow-hidden rounded-full bg-white/10">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-white/75 via-white/45 to-amber-300/80"
+                      style={{ width: `${selected.progress}%` }}
+                    />
+                  </div>
+
+                  <div className="mt-6 grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-xs uppercase tracking-[0.18em] text-white/45">{labels.value}</div>
+                      <div className="mt-2 text-3xl font-semibold text-white">{selected.value}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase tracking-[0.18em] text-white/45">{labels.riskLabel}</div>
+                      <div className={`mt-2 text-3xl font-semibold ${selected.riskClass}`}>{selected.risk}</div>
+                    </div>
+                  </div>
                 </div>
-                <span className={`rounded-full border px-3 py-1 text-sm ${selected.stateClass}`}>{selected.state}</span>
-              </div>
 
-              <div className="mt-6 h-2 w-full overflow-hidden rounded-full bg-white/10">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-green-400 via-lime-300 to-yellow-400"
-                  style={{ width: `${selected.progress}%` }}
-                />
-              </div>
+                <div className={`${INNER_CARD_SURFACE} mt-5 p-5`}>
+                  <p className="text-xs uppercase tracking-[0.18em] text-white/45">{labels.whatNow}</p>
+                  <p className="mt-3 text-2xl font-semibold text-white">{selected.action}</p>
+                  <p className="mt-3 text-base leading-7 text-white/55">{labels.decisionCopy}</p>
 
-              <div className="mt-6 grid grid-cols-2 gap-4">
-                <div>
-                  <div className="text-xs uppercase tracking-[0.18em] text-gray-400">{labels.value}</div>
-                  <div className="mt-2 text-3xl font-semibold text-white">{selected.value}</div>
+                  <div className="mt-6 flex flex-col gap-3">
+                    <Link
+                      href={`/conversation/${selected.id}`}
+                      className="rounded-2xl bg-white px-5 py-3 text-base font-semibold text-[#0a1628] transition hover:bg-white/90"
+                    >
+                      {selected.action}
+                    </Link>
+                    <Link
+                      href={`/conversation/${selected.id}?assign=1`}
+                      className="rounded-2xl border border-white/12 px-5 py-3 text-base font-medium text-white/85 transition hover:bg-white/5"
+                    >
+                      {labels.assignOwner}
+                    </Link>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xs uppercase tracking-[0.18em] text-gray-400">{labels.riskLabel}</div>
-                  <div className={`mt-2 text-3xl font-semibold ${selected.riskClass}`}>{selected.risk}</div>
+
+                <div className={`${INNER_CARD_SURFACE} mt-5 p-5`}>
+                  <p className="text-xs uppercase tracking-[0.18em] text-white/45">{labels.productPrinciple}</p>
+                  <p className="mt-3 text-lg font-semibold text-white">{labels.decisionCopy}</p>
                 </div>
-              </div>
-            </div>
-
-            <div className="mt-5 rounded-2xl border border-white/5 bg-[#101B18] p-5">
-              <p className="text-xs uppercase tracking-[0.18em] text-gray-400">{labels.whatNow}</p>
-              <p className="mt-3 text-2xl font-semibold text-white">{selected.action}</p>
-              <p className="mt-3 text-base leading-7 text-gray-400">{labels.decisionCopy}</p>
-
-              <div className="mt-6 flex flex-col gap-3">
-                <Link
-                  href={`/conversation/${selected.id}`}
-                  className="rounded-2xl bg-green-500 px-5 py-3 text-base font-semibold text-black transition hover:bg-green-400"
-                >
-                  {selected.action}
-                </Link>
-                <Link
-                  href={`/conversation/${selected.id}?assign=1`}
-                  className="rounded-2xl border border-white/10 px-5 py-3 text-base font-medium text-gray-200 transition hover:bg-white/5"
-                >
-                  {labels.assignOwner}
-                </Link>
-              </div>
-            </div>
-
-            <div className="mt-5 rounded-2xl border border-white/5 bg-[#101B18] p-5">
-              <p className="text-xs uppercase tracking-[0.18em] text-gray-400">{labels.productPrinciple}</p>
-              <p className="mt-3 text-lg font-semibold text-white">{labels.decisionCopy}</p>
-            </div>
               </>
             )}
           </aside>
