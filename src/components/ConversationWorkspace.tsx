@@ -41,7 +41,7 @@ function DeliveryCheckmarks({ message }: { message: MessageWithDelivery }) {
         title="Read"
         style={{
           marginLeft: 6,
-          color: "#22c55e",
+          color: "#e2e8f0",
           fontSize: 12,
           fontWeight: 700,
         }}
