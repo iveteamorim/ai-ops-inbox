@@ -211,7 +211,7 @@ export default async function DashboardPage() {
   const context = await getAppContext();
   if (context.kind !== "ready") {
     return (
-      <section className="page">
+      <section className="page dashboard-page">
         <AppNav />
         <header className="header">
           <div>
@@ -337,7 +337,7 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <section className="page">
+    <section className="page dashboard-page">
       <AppNav
         showSetup={canSeeInternalSetup}
         showSettings={workspaceMode !== "customer_demo"}
