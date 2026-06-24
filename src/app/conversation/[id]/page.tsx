@@ -34,7 +34,7 @@ export default async function ConversationPage({ params }: { params: Promise<{ i
   const quickReplies = getQuickReplies(context.company).replies;
 
   return (
-    <section className="page">
+    <section className="page conversation-page">
       <AppNav
         showSetup={canSeeInternalSetup}
         showLocale={canSeeInternalSetup}
