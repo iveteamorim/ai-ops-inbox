@@ -138,7 +138,7 @@ export function InboxDecisionView({
 
   if (conversations.length === 0) {
     return (
-      <main className="inbox-decision-view min-h-screen bg-[#0a1628] text-white -m-6">
+      <main className="inbox-decision-view min-h-screen bg-[#0a1628] text-white">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <p className="text-white/65">{labels.emptyState}</p>
         </div>
@@ -147,7 +147,7 @@ export function InboxDecisionView({
   }
 
   return (
-    <main className="inbox-decision-view min-h-screen bg-[#0a1628] text-white -m-6">
+    <main className="inbox-decision-view min-h-screen bg-[#0a1628] text-white">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="rounded-2xl border border-white/10 bg-[#111f35] px-4 py-3">

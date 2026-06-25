@@ -50,7 +50,7 @@ export function DashboardDecisionView({
   totalRiskLabel,
 }: DashboardDecisionViewProps) {
   return (
-    <main className="dashboard-decision-view min-h-screen bg-[#0a1628] text-white -m-6">
+    <main className="dashboard-decision-view min-h-screen bg-[#0a1628] text-white">
       <div className="mx-auto max-w-7xl px-6 py-8 md:px-10">
         <div className="mb-8">
           <p className="mb-2 text-xs tracking-[0.28em] text-white/45">NOVUA · DASHBOARD</p>

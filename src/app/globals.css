@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #081111;
-  --bg-soft: #0f1c1a;
-  --card: rgba(13, 27, 25, 0.72);
-  --card-solid: #112523;
-  --text: #ecf7f5;
-  --muted: #b8cbc7;
-  --line: rgba(182, 215, 207, 0.2);
-  --brand: #22c55e;
-  --brand-deep: #15803d;
+  --bg: #0a1628;
+  --bg-soft: #111f35;
+  --card: rgba(17, 31, 53, 0.82);
+  --card-solid: #111f35;
+  --text: #f8fafc;
+  --muted: rgba(255, 255, 255, 0.58);
+  --line: rgba(255, 255, 255, 0.12);
+  --brand: #ffffff;
+  --brand-deep: #cbd5e1;
   --warn: #f59e0b;
   --danger: #ef4444;
 }
@@ -21,15 +21,15 @@
 body {
   margin: 0;
   background:
-    radial-gradient(900px 500px at 5% -10%, #1f4138 0%, transparent 60%),
-    radial-gradient(900px 500px at 100% 0%, #17393f 0%, transparent 52%),
-    linear-gradient(180deg, #081111 0%, #06100f 100%);
+    radial-gradient(900px 500px at 5% -10%, rgba(30, 58, 95, 0.28) 0%, transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(37, 99, 235, 0.08) 0%, transparent 52%),
+    linear-gradient(180deg, #0a1628 0%, #07101f 100%);
   color: var(--text);
   font-family: "Sora", "Manrope", "Avenir Next", "Segoe UI", sans-serif;
 }
 
 a {
-  color: #9ff3c8;
+  color: rgba(255, 255, 255, 0.78);
 }
 
 .app-shell {
@@ -1325,12 +1325,21 @@ textarea:focus-visible {
   margin: -24px;
   padding: 24px;
   min-height: 100vh;
+  background: var(--dashboard-bg);
+}
+
+.dashboard-page {
+  margin: -24px;
+  padding: 24px;
+  min-height: 100vh;
+  background: var(--dashboard-bg);
 }
 
 .conversation-page {
   margin: -24px;
   padding: 24px;
   min-height: 100vh;
+  background: var(--dashboard-bg);
 }
 
 .dashboard-page,
