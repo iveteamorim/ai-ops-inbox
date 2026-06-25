@@ -17,7 +17,7 @@ export default function NovuaLanding() {
       name: "Maria",
       message: t("landing_mockup_msg_1"),
       status: t("landing_mockup_status_high"),
-      statusClass: "border-[#10b981]/35 bg-[#10b981]/12 text-[#6ee7b7]",
+      statusClass: "border-sky-500/35 bg-sky-500/12 text-sky-300",
       value: t("landing_mockup_value_1"),
       time: t("landing_conversation_1_time"),
     },
@@ -45,7 +45,7 @@ export default function NovuaLanding() {
     {
       title: t("landing_panel_1_title"),
       metric: t("landing_mockup_status_high"),
-      metricClass: "text-[#6ee7b7]",
+      metricClass: "text-sky-300",
       progress: "78%",
       action: t("landing_panel_1_action"),
       helper: t("landing_panel_1_helper"),
@@ -118,9 +118,9 @@ export default function NovuaLanding() {
   return (
     <main className="landing-page min-h-screen bg-[#0a1628] text-white -m-4 overflow-hidden md:-m-6">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-[-10%] top-[-4%] h-[34rem] w-[34rem] rounded-full bg-[#1e3a5f]/30 blur-3xl" />
-        <div className="absolute right-[-8%] top-16 h-[30rem] w-[30rem] rounded-full bg-[#2563eb]/8 blur-3xl" />
-        <div className="absolute left-[34%] top-[42%] h-[20rem] w-[20rem] rounded-full bg-white/[0.03] blur-3xl" />
+        <div className="absolute left-[-10%] top-[-4%] h-[34rem] w-[34rem] rounded-full bg-[#1e3a5f]/22 blur-3xl" />
+        <div className="absolute right-[-8%] top-16 h-[28rem] w-[28rem] rounded-full bg-white/[0.04] blur-3xl" />
+        <div className="absolute left-[34%] top-[42%] h-[18rem] w-[18rem] rounded-full bg-[#111f35]/60 blur-3xl" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 pt-1 pb-8 sm:px-6 sm:pt-3 lg:px-8 lg:pt-4">

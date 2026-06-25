@@ -39,7 +39,7 @@ export function channelBadgeClass(channel: ChannelType): string {
     case "email":
       return "border-sky-500/35 bg-sky-500/12 text-sky-300";
     case "form":
-      return "border-violet-500/35 bg-violet-500/12 text-violet-300";
+      return "border-slate-400/30 bg-white/8 text-slate-200";
     default:
       return "border-white/15 bg-white/5 text-gray-300";
   }

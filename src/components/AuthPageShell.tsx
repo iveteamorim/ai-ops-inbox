@@ -16,9 +16,9 @@ export function AuthPageShell({ title, subtitle, children }: Props) {
   return (
     <section className="auth-page landing-page relative min-h-screen overflow-hidden bg-[#0a1628] text-white -m-4 md:-m-6">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-[-10%] top-[-4%] h-[34rem] w-[34rem] rounded-full bg-[#1e3a5f]/30 blur-3xl" />
-        <div className="absolute right-[-8%] top-16 h-[30rem] w-[30rem] rounded-full bg-[#2563eb]/8 blur-3xl" />
-        <div className="absolute left-[34%] top-[42%] h-[20rem] w-[20rem] rounded-full bg-white/[0.03] blur-3xl" />
+        <div className="absolute left-[-10%] top-[-4%] h-[34rem] w-[34rem] rounded-full bg-[#1e3a5f]/22 blur-3xl" />
+        <div className="absolute right-[-8%] top-16 h-[28rem] w-[28rem] rounded-full bg-white/[0.04] blur-3xl" />
+        <div className="absolute left-[34%] top-[42%] h-[18rem] w-[18rem] rounded-full bg-[#111f35]/60 blur-3xl" />
       </div>
 
       <Link

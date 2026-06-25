@@ -322,7 +322,7 @@ export default async function DashboardPage() {
       value: format(highValueAmount),
       count: `${highValueLeads.length} ${highValueLeads.length === 1 ? copy.leadOne : copy.leadMany}`,
       action: lang === "pt" ? "Priorizar leads > €150" : lang === "en" ? "Prioritize > €150" : "Priorizar leads > €150",
-      tone: "green" as const,
+      tone: "blue" as const,
       href: "/inbox",
     },
     {

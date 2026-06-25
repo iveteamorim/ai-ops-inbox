@@ -53,7 +53,7 @@ export function DashboardDecisionView({
     <main className="dashboard-decision-view min-h-screen bg-[#0a1628] text-white">
       <div className="mx-auto max-w-7xl px-6 py-8 md:px-10">
         <div className="mb-8">
-          <p className="mb-2 text-xs tracking-[0.28em] text-white/45">NOVUA · DASHBOARD</p>
+          <p className="dashboard-brand-label mb-2 text-xs text-white/45">NOVUA · DASHBOARD</p>
           <h1 className="text-2xl font-semibold md:text-3xl">{headerTitle}</h1>
           <p className="mt-2 text-sm text-white/60 md:text-base">{headerSubtitle}</p>
         </div>
@@ -70,10 +70,7 @@ export function DashboardDecisionView({
               <p className="mt-1 text-sm text-white/55">{riskDetail}</p>
             </div>
 
-            <Link
-              className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#0a1628] transition hover:bg-white/90"
-              href="/inbox?scope=no_response"
-            >
+            <Link className="dashboard-primary-cta" href="/inbox?scope=no_response">
               {riskButtonLabel}
             </Link>
           </div>
@@ -97,7 +94,7 @@ export function DashboardDecisionView({
                   group.tone === "yellow"
                     ? "border-amber-400/25 bg-amber-500/10 text-amber-300"
                     : group.tone === "green"
-                      ? "border-emerald-400/25 bg-emerald-500/10 text-emerald-300"
+                      ? "border-sky-400/25 bg-sky-500/10 text-sky-300"
                       : "border-sky-400/25 bg-sky-500/10 text-sky-300";
 
                 return (
@@ -111,7 +108,7 @@ export function DashboardDecisionView({
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-white">{group.value}</p>
-                      <Link className="text-xs text-white/75 hover:text-white" href={group.href}>
+                      <Link className="dashboard-card-action" href={group.href}>
                         {openLabel} →
                       </Link>
                     </div>
