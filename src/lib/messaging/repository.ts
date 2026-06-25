@@ -1,0 +1,781 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { randomUUID } from "crypto";
+import type { WhatsAppInboundMessage } from "@/lib/messaging/whatsapp";
+import type { InstagramInboundMessage } from "@/lib/messaging/instagram";
+import { getLeadTypesFromBusinessConfig } from "@/lib/revenue/classify";
+import { forwardLeadToGoogleForms, resolveGoogleFormsBackup } from "@/lib/messaging/google-forms-backup";
+import { triageConversation, type ServiceType } from "@/lib/triage/triage-conversation";
+
+type CompanyChannel = {
+  company_id: string;
+  config?: Record<string, unknown> | null;
+};
+
+type CompanyRow = {
+  config: Record<string, unknown> | null;
+};
+
+type DbError = {
+  code?: string;
+  message?: string;
+};
+
+type ContactRow = {
+  id: string;
+};
+
+type ConversationRow = {
+  id: string;
+  status: "new" | "active" | "won" | "lost" | "no_response";
+  unit: string | null;
+  last_message_at: string | null;
+  last_inbound_at: string | null;
+  last_outbound_at: string | null;
+  created_at: string;
+};
+
+type InboundMessageInput = {
+  source: "whatsapp" | "instagram";
+  channelType: "whatsapp" | "instagram";
+  externalAccountId: string;
+  contactKey: { phone?: string | null; externalRef?: string | null };
+  contactName: string | null;
+  text: string;
+  externalMessageId: string;
+  rawMessage: unknown;
+};
+
+async function persistInboundMessage(
+  supabase: SupabaseClient,
+  message: InboundMessageInput,
+): Promise<{ saved: boolean; reason?: string }> {
+  const { data: channel } = await supabase
+    .from("channels")
+    .select("company_id")
+    .eq("type", message.channelType)
+    .eq("external_account_id", message.externalAccountId)
+    .eq("is_active", true)
+    .maybeSingle<CompanyChannel>();
+
+  if (!channel?.company_id) {
+    return { saved: false, reason: "missing_channel_mapping" };
+  }
+
+  const companyId = channel.company_id;
+  const { data: company } = await supabase
+    .from("companies")
+    .select("config")
+    .eq("id", companyId)
+    .maybeSingle<CompanyRow>();
+  const leadTypes = getLeadTypesFromBusinessConfig(company?.config);
+  const serviceCatalog: ServiceType[] = leadTypes.map((item) => ({
+    name: item.name,
+    estimatedValue: item.estimatedValue,
+  }));
+
+  const { error: eventInsertError } = await supabase.from("webhook_events").insert({
+    source: message.source,
+    external_id: message.externalMessageId,
+    company_id: companyId,
+    payload: message.rawMessage,
+    status: "received",
+  });
+
+  if (eventInsertError) {
+    const dbError = eventInsertError as DbError;
+    if (dbError.code === "23505") {
+      return { saved: false, reason: "duplicate_event" };
+    }
+    throw new Error(`Failed to insert webhook event: ${eventInsertError.message}`);
+  }
+
+  let contactId: string;
+  const contactQuery = supabase.from("contacts").select("id").eq("company_id", companyId);
+  const contactLookup = message.contactKey.phone
+    ? contactQuery.eq("phone", message.contactKey.phone)
+    : contactQuery.eq("external_ref", message.contactKey.externalRef ?? "");
+  const { data: existingContact } = await contactLookup.maybeSingle<ContactRow>();
+
+  if (existingContact?.id) {
+    contactId = existingContact.id;
+  } else {
+    const { data: insertedContact, error: contactError } = await supabase
+      .from("contacts")
+      .insert({
+        company_id: companyId,
+        name: message.contactName,
+        phone: message.contactKey.phone ?? null,
+        external_ref: message.contactKey.externalRef ?? null,
+      })
+      .select("id")
+      .single<ContactRow>();
+
+    if (contactError || !insertedContact?.id) {
+      throw new Error(`Failed to create contact: ${contactError?.message ?? "unknown"}`);
+    }
+
+    contactId = insertedContact.id;
+  }
+
+  let conversationId: string;
+  const { data: existingConversation } = await supabase
+    .from("conversations")
+    .select("id, status, unit, last_message_at, last_inbound_at, last_outbound_at, created_at")
+    .eq("company_id", companyId)
+    .eq("contact_id", contactId)
+    .eq("channel", message.channelType)
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle<ConversationRow>();
+
+  if (existingConversation?.id) {
+    conversationId = existingConversation.id;
+  } else {
+    const now = new Date().toISOString();
+    const { data: insertedConversation, error: conversationError } = await supabase
+      .from("conversations")
+      .insert({
+        company_id: companyId,
+        contact_id: contactId,
+        channel: message.channelType,
+        status: "new",
+        last_message_at: now,
+        last_inbound_at: now,
+      })
+      .select("id")
+      .single<ConversationRow>();
+
+    if (conversationError || !insertedConversation?.id) {
+      throw new Error(
+        `Failed to create conversation: ${conversationError?.message ?? "unknown"}`,
+      );
+    }
+
+    conversationId = insertedConversation.id;
+  }
+
+  const conversationForTriage = existingConversation ?? {
+    id: conversationId,
+    status: "new" as const,
+    unit: null,
+    last_message_at: null,
+    last_inbound_at: null,
+    last_outbound_at: null,
+    created_at: new Date().toISOString(),
+  };
+
+  const referenceTimestamp =
+    conversationForTriage.last_outbound_at ??
+    conversationForTriage.last_inbound_at ??
+    conversationForTriage.last_message_at ??
+    conversationForTriage.created_at;
+  const lastContactHoursAgo = Math.max(
+    0,
+    Math.round((Date.now() - new Date(referenceTimestamp).getTime()) / (1000 * 60 * 60)),
+  );
+  const triage = triageConversation(
+    {
+      customerName: message.contactName ?? "",
+      lastCustomerMessage: message.text,
+      conversationStatus:
+        conversationForTriage.status === "active"
+          ? "in_conversation"
+          : conversationForTriage.status,
+      lastContactHoursAgo,
+      assignedUnit: conversationForTriage.unit,
+    },
+    serviceCatalog,
+  );
+
+  const { error: messageError } = await supabase.from("messages").insert({
+    company_id: companyId,
+    conversation_id: conversationId,
+    direction: "inbound",
+    sender_type: "customer",
+    channel: message.channelType,
+    external_id: message.externalMessageId,
+    text: message.text,
+    raw_payload: message.rawMessage,
+  });
+
+  if (messageError) {
+    throw new Error(`Failed to insert message: ${messageError.message}`);
+  }
+
+  const now = new Date().toISOString();
+  const hasExistingHumanReply = Boolean(conversationForTriage.last_outbound_at);
+  const nextStatus =
+    conversationForTriage.status === "won"
+      ? "won"
+      : conversationForTriage.status === "lost"
+        ? "active"
+        : hasExistingHumanReply || conversationForTriage.status === "active" || conversationForTriage.status === "no_response"
+          ? "active"
+          : "new";
+  const { error: conversationUpdateError } = await supabase
+    .from("conversations")
+    .update({
+      status: nextStatus,
+      lead_type: triage.leadType,
+      estimated_value: triage.estimatedValue,
+      last_message_at: now,
+      last_inbound_at: now,
+    })
+    .eq("id", conversationId);
+
+  if (conversationUpdateError) {
+    throw new Error(`Failed to update conversation: ${conversationUpdateError.message}`);
+  }
+
+  const { error: webhookUpdateError } = await supabase
+    .from("webhook_events")
+    .update({
+      status: "processed",
+      processed_at: now,
+    })
+    .eq("source", message.source)
+    .eq("external_id", message.externalMessageId);
+
+  if (webhookUpdateError) {
+    throw new Error(`Failed to update webhook event: ${webhookUpdateError.message}`);
+  }
+
+  return { saved: true };
+}
+
+export async function persistWhatsAppInbound(
+  supabase: SupabaseClient,
+  message: WhatsAppInboundMessage,
+): Promise<{ saved: boolean; reason?: string }> {
+  return persistInboundMessage(supabase, {
+    source: "whatsapp",
+    channelType: "whatsapp",
+    externalAccountId: message.phoneNumberId,
+    contactKey: { phone: message.fromPhone, externalRef: null },
+    contactName: message.fromName,
+    text: message.text,
+    externalMessageId: message.externalMessageId,
+    rawMessage: message.rawMessage,
+  });
+}
+
+export async function persistInstagramInbound(
+  supabase: SupabaseClient,
+  message: InstagramInboundMessage,
+): Promise<{ saved: boolean; reason?: string }> {
+  return persistInboundMessage(supabase, {
+    source: "instagram",
+    channelType: "instagram",
+    externalAccountId: message.instagramAccountId,
+    contactKey: { phone: null, externalRef: message.fromExternalId },
+    contactName: message.fromName,
+    text: message.text,
+    externalMessageId: message.externalMessageId,
+    rawMessage: message.rawMessage,
+  });
+}
+
+type FormLeadInput = {
+  token: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  message: string;
+  rawPayload: unknown;
+};
+
+async function findOrCreateFormContact(
+  supabase: SupabaseClient,
+  companyId: string,
+  contact: { name: string; email: string | null; phone: string | null },
+) {
+  let contactId: string | null = null;
+
+  if (contact.email) {
+    const { data: byEmail } = await supabase
+      .from("contacts")
+      .select("id")
+      .eq("company_id", companyId)
+      .eq("email", contact.email)
+      .maybeSingle<ContactRow>();
+
+    if (byEmail?.id) contactId = byEmail.id;
+  }
+
+  if (!contactId && contact.phone) {
+    const { data: byPhone } = await supabase
+      .from("contacts")
+      .select("id")
+      .eq("company_id", companyId)
+      .eq("phone", contact.phone)
+      .maybeSingle<ContactRow>();
+
+    if (byPhone?.id) contactId = byPhone.id;
+  }
+
+  if (contactId) {
+    await supabase
+      .from("contacts")
+      .update({
+        name: contact.name,
+        email: contact.email,
+        phone: contact.phone,
+      })
+      .eq("id", contactId);
+    return contactId;
+  }
+
+  const { data: insertedContact, error: contactError } = await supabase
+    .from("contacts")
+    .insert({
+      company_id: companyId,
+      name: contact.name,
+      email: contact.email,
+      phone: contact.phone,
+      external_ref: `form:${randomUUID()}`,
+    })
+    .select("id")
+    .single<ContactRow>();
+
+  if (contactError || !insertedContact?.id) {
+    throw new Error(`Failed to create contact: ${contactError?.message ?? "unknown"}`);
+  }
+
+  return insertedContact.id;
+}
+
+export async function persistFormLead(
+  supabase: SupabaseClient,
+  lead: FormLeadInput,
+): Promise<{ saved: boolean; reason?: string; conversationId?: string; googleFormsForwarded?: boolean }> {
+  const { data: channel } = await supabase
+    .from("channels")
+    .select("company_id, config")
+    .eq("type", "form")
+    .eq("external_account_id", lead.token)
+    .eq("is_active", true)
+    .maybeSingle<CompanyChannel>();
+
+  if (!channel?.company_id) {
+    return { saved: false, reason: "invalid_token" };
+  }
+
+  const companyId = channel.company_id;
+  const externalMessageId = `form-${randomUUID()}`;
+
+  const { data: company } = await supabase
+    .from("companies")
+    .select("config")
+    .eq("id", companyId)
+    .maybeSingle<CompanyRow>();
+  const leadTypes = getLeadTypesFromBusinessConfig(company?.config);
+  const serviceCatalog: ServiceType[] = leadTypes.map((item) => ({
+    name: item.name,
+    estimatedValue: item.estimatedValue,
+  }));
+
+  const { error: eventInsertError } = await supabase.from("webhook_events").insert({
+    source: "form",
+    external_id: externalMessageId,
+    company_id: companyId,
+    payload: lead.rawPayload,
+    status: "received",
+  });
+
+  if (eventInsertError) {
+    const dbError = eventInsertError as DbError;
+    if (dbError.code === "23505") {
+      return { saved: false, reason: "duplicate_event" };
+    }
+    throw new Error(`Failed to insert webhook event: ${eventInsertError.message}`);
+  }
+
+  const contactId = await findOrCreateFormContact(supabase, companyId, {
+    name: lead.name,
+    email: lead.email,
+    phone: lead.phone,
+  });
+
+  let conversationId: string;
+  const { data: existingConversation } = await supabase
+    .from("conversations")
+    .select("id, status, unit, last_message_at, last_inbound_at, last_outbound_at, created_at")
+    .eq("company_id", companyId)
+    .eq("contact_id", contactId)
+    .eq("channel", "form")
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle<ConversationRow>();
+
+  if (existingConversation?.id) {
+    conversationId = existingConversation.id;
+  } else {
+    const now = new Date().toISOString();
+    const { data: insertedConversation, error: conversationError } = await supabase
+      .from("conversations")
+      .insert({
+        company_id: companyId,
+        contact_id: contactId,
+        channel: "form",
+        status: "new",
+        last_message_at: now,
+        last_inbound_at: now,
+      })
+      .select("id")
+      .single<ConversationRow>();
+
+    if (conversationError || !insertedConversation?.id) {
+      throw new Error(
+        `Failed to create conversation: ${conversationError?.message ?? "unknown"}`,
+      );
+    }
+
+    conversationId = insertedConversation.id;
+  }
+
+  const conversationForTriage = existingConversation ?? {
+    id: conversationId,
+    status: "new" as const,
+    unit: null,
+    last_message_at: null,
+    last_inbound_at: null,
+    last_outbound_at: null,
+    created_at: new Date().toISOString(),
+  };
+
+  const referenceTimestamp =
+    conversationForTriage.last_outbound_at ??
+    conversationForTriage.last_inbound_at ??
+    conversationForTriage.last_message_at ??
+    conversationForTriage.created_at;
+  const lastContactHoursAgo = Math.max(
+    0,
+    Math.round((Date.now() - new Date(referenceTimestamp).getTime()) / (1000 * 60 * 60)),
+  );
+  const triage = triageConversation(
+    {
+      customerName: lead.name,
+      lastCustomerMessage: lead.message,
+      conversationStatus:
+        conversationForTriage.status === "active"
+          ? "in_conversation"
+          : conversationForTriage.status,
+      lastContactHoursAgo,
+      assignedUnit: conversationForTriage.unit,
+    },
+    serviceCatalog,
+  );
+
+  const { error: messageError } = await supabase.from("messages").insert({
+    company_id: companyId,
+    conversation_id: conversationId,
+    direction: "inbound",
+    sender_type: "customer",
+    channel: "form",
+    external_id: externalMessageId,
+    text: lead.message,
+    raw_payload: lead.rawPayload,
+  });
+
+  if (messageError) {
+    throw new Error(`Failed to insert message: ${messageError.message}`);
+  }
+
+  const now = new Date().toISOString();
+  const hasExistingHumanReply = Boolean(conversationForTriage.last_outbound_at);
+  const nextStatus =
+    conversationForTriage.status === "won"
+      ? "won"
+      : conversationForTriage.status === "lost"
+        ? "active"
+        : hasExistingHumanReply ||
+            conversationForTriage.status === "active" ||
+            conversationForTriage.status === "no_response"
+          ? "active"
+          : "new";
+
+  const { error: conversationUpdateError } = await supabase
+    .from("conversations")
+    .update({
+      status: nextStatus,
+      lead_type: triage.leadType,
+      estimated_value: triage.estimatedValue,
+      last_message_at: now,
+      last_inbound_at: now,
+    })
+    .eq("id", conversationId);
+
+  if (conversationUpdateError) {
+    throw new Error(`Failed to update conversation: ${conversationUpdateError.message}`);
+  }
+
+  const { error: webhookUpdateError } = await supabase
+    .from("webhook_events")
+    .update({
+      status: "processed",
+      processed_at: now,
+    })
+    .eq("source", "form")
+    .eq("external_id", externalMessageId);
+
+  if (webhookUpdateError) {
+    throw new Error(`Failed to update webhook event: ${webhookUpdateError.message}`);
+  }
+
+  let googleFormsForwarded = false;
+  const googleFormsBackup = resolveGoogleFormsBackup(channel.config);
+  if (googleFormsBackup) {
+    const forwardResult = await forwardLeadToGoogleForms(googleFormsBackup, {
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone,
+      message: lead.message,
+    });
+    googleFormsForwarded = forwardResult.forwarded;
+    if (!forwardResult.forwarded) {
+      console.warn("google_forms_backup_forward_failed", {
+        companyId,
+        error: forwardResult.error ?? "unknown_error",
+      });
+    }
+  }
+
+  return { saved: true, conversationId, googleFormsForwarded };
+}
+
+type EmailInboundInput = {
+  inboundAddress: string;
+  fromEmail: string;
+  fromName: string | null;
+  subject: string;
+  text: string;
+  externalMessageId: string;
+  rawPayload: unknown;
+};
+
+async function findOrCreateEmailContact(
+  supabase: SupabaseClient,
+  companyId: string,
+  contact: { name: string | null; email: string },
+) {
+  const { data: byEmail } = await supabase
+    .from("contacts")
+    .select("id")
+    .eq("company_id", companyId)
+    .eq("email", contact.email)
+    .maybeSingle<ContactRow>();
+
+  if (byEmail?.id) {
+    if (contact.name) {
+      await supabase.from("contacts").update({ name: contact.name }).eq("id", byEmail.id);
+    }
+    return byEmail.id;
+  }
+
+  const { data: insertedContact, error: contactError } = await supabase
+    .from("contacts")
+    .insert({
+      company_id: companyId,
+      name: contact.name,
+      email: contact.email,
+      phone: null,
+      external_ref: `email:${randomUUID()}`,
+    })
+    .select("id")
+    .single<ContactRow>();
+
+  if (contactError || !insertedContact?.id) {
+    throw new Error(`Failed to create contact: ${contactError?.message ?? "unknown"}`);
+  }
+
+  return insertedContact.id;
+}
+
+export async function persistEmailInbound(
+  supabase: SupabaseClient,
+  message: EmailInboundInput,
+): Promise<{ saved: boolean; reason?: string; conversationId?: string }> {
+  const inboundAddress = message.inboundAddress.trim().toLowerCase();
+
+  const { data: channel } = await supabase
+    .from("channels")
+    .select("company_id, config")
+    .eq("type", "email")
+    .eq("external_account_id", inboundAddress)
+    .eq("is_active", true)
+    .maybeSingle<CompanyChannel>();
+
+  if (!channel?.company_id) {
+    return { saved: false, reason: "missing_channel_mapping" };
+  }
+
+  const companyId = channel.company_id;
+
+  const { data: company } = await supabase
+    .from("companies")
+    .select("config")
+    .eq("id", companyId)
+    .maybeSingle<CompanyRow>();
+  const leadTypes = getLeadTypesFromBusinessConfig(company?.config);
+  const serviceCatalog: ServiceType[] = leadTypes.map((item) => ({
+    name: item.name,
+    estimatedValue: item.estimatedValue,
+  }));
+
+  const { error: eventInsertError } = await supabase.from("webhook_events").insert({
+    source: "email",
+    external_id: message.externalMessageId,
+    company_id: companyId,
+    payload: message.rawPayload,
+    status: "received",
+  });
+
+  if (eventInsertError) {
+    const dbError = eventInsertError as DbError;
+    if (dbError.code === "23505") {
+      return { saved: false, reason: "duplicate_event" };
+    }
+    throw new Error(`Failed to insert webhook event: ${eventInsertError.message}`);
+  }
+
+  const contactId = await findOrCreateEmailContact(supabase, companyId, {
+    name: message.fromName,
+    email: message.fromEmail,
+  });
+
+  let conversationId: string;
+  const { data: existingConversation } = await supabase
+    .from("conversations")
+    .select("id, status, unit, last_message_at, last_inbound_at, last_outbound_at, created_at")
+    .eq("company_id", companyId)
+    .eq("contact_id", contactId)
+    .eq("channel", "email")
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle<ConversationRow>();
+
+  if (existingConversation?.id) {
+    conversationId = existingConversation.id;
+  } else {
+    const now = new Date().toISOString();
+    const { data: insertedConversation, error: conversationError } = await supabase
+      .from("conversations")
+      .insert({
+        company_id: companyId,
+        contact_id: contactId,
+        channel: "email",
+        status: "new",
+        last_message_at: now,
+        last_inbound_at: now,
+      })
+      .select("id")
+      .single<ConversationRow>();
+
+    if (conversationError || !insertedConversation?.id) {
+      throw new Error(
+        `Failed to create conversation: ${conversationError?.message ?? "unknown"}`,
+      );
+    }
+
+    conversationId = insertedConversation.id;
+  }
+
+  const conversationForTriage = existingConversation ?? {
+    id: conversationId,
+    status: "new" as const,
+    unit: null,
+    last_message_at: null,
+    last_inbound_at: null,
+    last_outbound_at: null,
+    created_at: new Date().toISOString(),
+  };
+
+  const referenceTimestamp =
+    conversationForTriage.last_outbound_at ??
+    conversationForTriage.last_inbound_at ??
+    conversationForTriage.last_message_at ??
+    conversationForTriage.created_at;
+  const lastContactHoursAgo = Math.max(
+    0,
+    Math.round((Date.now() - new Date(referenceTimestamp).getTime()) / (1000 * 60 * 60)),
+  );
+  const triage = triageConversation(
+    {
+      customerName: message.fromName ?? message.fromEmail,
+      lastCustomerMessage: message.text,
+      conversationStatus:
+        conversationForTriage.status === "active"
+          ? "in_conversation"
+          : conversationForTriage.status,
+      lastContactHoursAgo,
+      assignedUnit: conversationForTriage.unit,
+    },
+    serviceCatalog,
+  );
+
+  const { error: messageError } = await supabase.from("messages").insert({
+    company_id: companyId,
+    conversation_id: conversationId,
+    direction: "inbound",
+    sender_type: "customer",
+    channel: "email",
+    external_id: message.externalMessageId,
+    text: message.text,
+    raw_payload: {
+      ...(typeof message.rawPayload === "object" && message.rawPayload
+        ? (message.rawPayload as Record<string, unknown>)
+        : {}),
+      subject: message.subject,
+      from_email: message.fromEmail,
+      inbound_address: inboundAddress,
+    },
+  });
+
+  if (messageError) {
+    const dbError = messageError as DbError;
+    if (dbError.code === "23505") {
+      return { saved: false, reason: "duplicate_message" };
+    }
+    throw new Error(`Failed to insert message: ${messageError.message}`);
+  }
+
+  const now = new Date().toISOString();
+  const nextStatus =
+    conversationForTriage.status === "won" || conversationForTriage.status === "lost"
+      ? conversationForTriage.status
+      : triage.riskStatus === "at_risk"
+        ? "no_response"
+        : conversationForTriage.status === "new"
+          ? "new"
+          : "active";
+
+  const { error: conversationUpdateError } = await supabase
+    .from("conversations")
+    .update({
+      status: nextStatus,
+      lead_type: triage.leadType,
+      estimated_value: triage.estimatedValue,
+      last_message_at: now,
+      last_inbound_at: now,
+    })
+    .eq("id", conversationId);
+
+  if (conversationUpdateError) {
+    throw new Error(`Failed to update conversation: ${conversationUpdateError.message}`);
+  }
+
+  const { error: webhookUpdateError } = await supabase
+    .from("webhook_events")
+    .update({
+      status: "processed",
+      processed_at: now,
+    })
+    .eq("source", "email")
+    .eq("external_id", message.externalMessageId);
+
+  if (webhookUpdateError) {
+    throw new Error(`Failed to update webhook event: ${webhookUpdateError.message}`);
+  }
+
+  return { saved: true, conversationId };
+}

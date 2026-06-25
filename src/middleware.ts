@@ -1,0 +1,168 @@
+import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import { createClient as createAdminSupabaseClient } from "@supabase/supabase-js";
+import { hasTrialExpired } from "@/lib/trial";
+import { LANG_COOKIE, normalizeLang } from "@/lib/i18n/config";
+import { isNovuaInternalUser } from "@/lib/internal-access";
+
+const PUBLIC_PATHS = [
+  "/",
+  "/demo",
+  "/login",
+  "/signup",
+  "/privacy",
+  "/terms",
+  "/accept-invite",
+  "/reset-password",
+  "/api/webhooks/whatsapp",
+  "/api/webhooks/instagram",
+  "/api/webhooks/stripe",
+  "/api/webhooks/email",
+  "/api/leads/form",
+  "/diagnostico",
+];
+const INTERNAL_BYPASS = ["/_next", "/favicon.ico"];
+
+function isPublicPath(pathname: string): boolean {
+  if (PUBLIC_PATHS.includes(pathname)) return true;
+  if (pathname.startsWith("/f/")) return true;
+  if (pathname.startsWith("/form/")) return true;
+  return false;
+}
+
+function isBypassPath(pathname: string): boolean {
+  return INTERNAL_BYPASS.some((path) => pathname.startsWith(path));
+}
+
+function applyLanguageCookie(request: NextRequest, response: NextResponse) {
+  const current = request.cookies.get(LANG_COOKIE)?.value;
+  const lang = current ? normalizeLang(current) : "en";
+
+  if (!current || current !== lang) {
+    response.cookies.set(LANG_COOKIE, lang, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+    });
+  }
+}
+
+function createAdminClient() {
+  const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !serviceRole) {
+    return null;
+  }
+
+  return createAdminSupabaseClient(url, serviceRole, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+}
+
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (isBypassPath(pathname)) {
+    const response = NextResponse.next();
+    applyLanguageCookie(request, response);
+    return response;
+  }
+
+  const response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  });
+
+  applyLanguageCookie(request, response);
+
+  if (isPublicPath(pathname)) {
+    return response;
+  }
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !anonKey) {
+    if (!isPublicPath(pathname)) {
+      const redirectResponse = NextResponse.redirect(new URL("/login", request.url));
+      applyLanguageCookie(request, redirectResponse);
+      return redirectResponse;
+    }
+
+    return response;
+  }
+
+  const supabase = createServerClient(url, anonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          response.cookies.set(name, value, options);
+        });
+      },
+    },
+  });
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const isInternalWorkspace = isNovuaInternalUser(user?.email);
+  let companyPlan: string | null = null;
+
+  if (user) {
+    const admin = createAdminClient();
+    const { data: profile } = admin
+      ? await admin.from("profiles").select("company_id").eq("id", user.id).maybeSingle<{ company_id: string }>()
+      : { data: null };
+
+    if (profile?.company_id) {
+      const { data: company } = admin
+        ? await admin.from("companies").select("plan").eq("id", profile.company_id).maybeSingle<{ plan: string }>()
+        : await supabase.from("companies").select("plan").eq("id", profile.company_id).maybeSingle<{ plan: string }>();
+      companyPlan = company?.plan ?? null;
+    }
+  }
+
+  const trialEndsAt = (user?.user_metadata?.trial_ends_at as string | undefined) ?? null;
+  const trialExpired = !isInternalWorkspace && (companyPlan === null || companyPlan === "trial") && hasTrialExpired(trialEndsAt);
+
+  if (!user && !isPublicPath(pathname)) {
+    const redirectResponse = NextResponse.redirect(new URL("/login", request.url));
+    applyLanguageCookie(request, redirectResponse);
+    return redirectResponse;
+  }
+
+  if (user && (pathname === "/" || pathname === "/login" || pathname === "/signup")) {
+    const redirectResponse = NextResponse.redirect(
+      new URL(trialExpired ? "/billing" : "/dashboard", request.url),
+    );
+    applyLanguageCookie(request, redirectResponse);
+    return redirectResponse;
+  }
+
+  if (user && trialExpired && pathname !== "/billing" && pathname !== "/auth/signout") {
+    const redirectResponse = NextResponse.redirect(new URL("/billing", request.url));
+    applyLanguageCookie(request, redirectResponse);
+    return redirectResponse;
+  }
+
+  if (user && isInternalWorkspace && pathname === "/billing") {
+    const redirectResponse = NextResponse.redirect(new URL("/dashboard", request.url));
+    applyLanguageCookie(request, redirectResponse);
+    return redirectResponse;
+  }
+
+  return response;
+}
+
+export const config = {
+  matcher: ["/((?!.*\\..*|_next/static|_next/image).*)"],
+};

@@ -1,0 +1,716 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import { createClient as createBrowserClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+import { InboxRowActions } from "@/components/InboxRowActions";
+import { useI18n } from "@/components/i18n/LanguageProvider";
+import { getDecisionType } from "@/lib/conversation-decision";
+import type { ConversationView, MessageView } from "@/lib/app-data";
+import type { QuickReply } from "@/lib/quick-replies";
+import { buildFallbackReplySuggestion } from "@/lib/reply-suggestions";
+import { resolveQuickReplyMatch } from "@/lib/quick-replies";
+
+type Props = {
+  conversation: ConversationView;
+  initialMessages: MessageView[];
+  currency: "EUR" | "BRL";
+  unitOptions: string[];
+  quickReplies?: QuickReply[];
+};
+
+type MessageWithDelivery = MessageView & {
+  deliveryStatus?: string | null;
+  delivery_status?: string | null;
+  deliveredAt?: string | null;
+  delivered_at?: string | null;
+  readAt?: string | null;
+  read_at?: string | null;
+};
+
+function DeliveryCheckmarks({ message }: { message: MessageWithDelivery }) {
+  if (message.senderType !== "agent") return null;
+
+  const status = message.deliveryStatus ?? message.delivery_status;
+
+  if (status === "read") {
+    return (
+      <span
+        className="delivery-checkmarks delivery-read"
+        title="Read"
+        style={{
+          marginLeft: 6,
+          color: "#e2e8f0",
+          fontSize: 12,
+          fontWeight: 700,
+        }}
+      >
+        ✓✓
+      </span>
+    );
+  }
+
+  if (status === "delivered") {
+    return (
+      <span
+        className="delivery-checkmarks"
+        title="Delivered"
+        style={{
+          marginLeft: 6,
+          color: "#94a3b8",
+          fontSize: 12,
+          fontWeight: 700,
+        }}
+      >
+        ✓✓
+      </span>
+    );
+  }
+
+  if (status === "sent") {
+    return (
+      <span
+        className="delivery-checkmarks"
+        title="Sent"
+        style={{
+          marginLeft: 6,
+          color: "#64748b",
+          fontSize: 12,
+          fontWeight: 700,
+        }}
+      >
+        ✓
+      </span>
+    );
+  }
+
+  return null;
+}
+
+function formatMoney(lang: string, currency: "EUR" | "BRL", value: number) {
+  return new Intl.NumberFormat(lang, {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function formatTime(isoDate: string) {
+  const parsed = new Date(isoDate);
+  if (Number.isNaN(parsed.getTime())) return "";
+  return parsed.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+function formatRelativeAge(isoDate: string | null, lang: string) {
+  if (!isoDate) return "";
+  const timestamp = new Date(isoDate).getTime();
+  if (Number.isNaN(timestamp)) return "";
+
+  const diffMs = Date.now() - timestamp;
+  const diffMinutes = Math.max(0, Math.floor(diffMs / 60000));
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMinutes < 60) {
+    if (lang === "pt") return `há ${diffMinutes} min`;
+    if (lang === "en") return `${diffMinutes} min ago`;
+    return `hace ${diffMinutes} min`;
+  }
+
+  if (diffHours < 24) {
+    if (lang === "pt") return `há ${diffHours} h`;
+    if (lang === "en") return `${diffHours}h ago`;
+    return `hace ${diffHours} h`;
+  }
+
+  if (lang === "pt") return `há ${diffDays} dias`;
+  if (lang === "en") return `${diffDays} days ago`;
+  return `hace ${diffDays} días`;
+}
+
+function statusClass(status: string) {
+  if (status === "new") return "status-new";
+  if (status === "active") return "status-active";
+  if (status === "won") return "status-won";
+  if (status === "no_response") return "status-no-response";
+  return "status-lost";
+}
+
+function formatChannel(
+  channel: ConversationView["channel"],
+  lang: string,
+  t: ReturnType<typeof useI18n>["t"]
+) {
+  if (channel === "whatsapp") return "WhatsApp";
+  if (channel === "instagram") return "Instagram";
+  if (channel === "email") return "Email";
+  return t("conversation_channel_form");
+}
+
+export function ConversationWorkspace({
+  conversation,
+  initialMessages,
+  currency,
+  unitOptions,
+  quickReplies = [],
+}: Props) {
+  const router = useRouter();
+  const { t, lang } = useI18n();
+
+  const [messages, setMessages] = useState<MessageWithDelivery[]>(
+    initialMessages as MessageWithDelivery[]
+  );
+  const [draft, setDraft] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+  const [generatingSuggestion, setGeneratingSuggestion] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState<"active" | "won" | "lost" | null>(null);
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const supabase = useMemo(() => createBrowserClient(), []);
+
+  const latestCustomerMessage = useMemo(() => {
+    const inbound = [...messages]
+      .reverse()
+      .find((message) => message.direction === "inbound" && message.senderType === "customer" && message.text?.trim());
+    return inbound?.text?.trim() ?? "";
+  }, [messages]);
+
+  const matchedQuickReply = useMemo(
+    () => resolveQuickReplyMatch(latestCustomerMessage, quickReplies),
+    [latestCustomerMessage, quickReplies],
+  );
+
+  const aiSuggestion = useMemo(() => {
+    if (matchedQuickReply) {
+      return matchedQuickReply.text;
+    }
+
+    return buildFallbackReplySuggestion({
+      message: latestCustomerMessage,
+      leadType: conversation.leadType,
+      estimatedValue: conversation.estimatedValue,
+    });
+  }, [conversation.estimatedValue, conversation.leadType, latestCustomerMessage, matchedQuickReply]);
+
+  const statusLabel = useMemo(() => {
+    if (conversation.status === "new") return t("inbox_filter_new");
+    if (conversation.status === "active") return t("inbox_filter_in_progress");
+    if (conversation.status === "no_response") return t("inbox_filter_no_reply");
+    if (conversation.status === "won") return t("revenue_filter_won");
+    return t("inbox_filter_lost");
+  }, [conversation.status, t]);
+
+  const decisionType = useMemo(() => getDecisionType(conversation), [conversation]);
+
+  const decisionCopy = useMemo(() => {
+    if (lang === "pt") {
+      if (decisionType === "recover") {
+        return { title: "Em risco", body: "O cliente escreveu e continua à espera. Convém responder primeiro." };
+      }
+      if (decisionType === "complex") {
+        return { title: "Requer revisão", body: "Este caso está marcado como complexo e merece intervenção humana direta." };
+      }
+      if (decisionType === "new") {
+        return { title: "Novo lead", body: "Primeiro contacto sem resposta. Revê intenção e próximo passo." };
+      }
+      if (decisionType === "won") {
+        return { title: "Ganho", body: "A conversa já foi marcada como recuperada. Usa-a como referência de fecho." };
+      }
+      if (decisionType === "lost") {
+        return { title: "Perdido", body: "A oportunidade foi marcada como perdida. Se o cliente voltar, será reativada." };
+      }
+      return { title: "Em conversa", body: "Há interesse, mas falta avançar para o próximo passo antes de perder momentum." };
+    }
+
+    if (lang === "en") {
+      if (decisionType === "recover") {
+        return { title: "At risk", body: "The lead is waiting for a reply. This should be handled first." };
+      }
+      if (decisionType === "complex") {
+        return { title: "Needs review", body: "This case is marked as complex and needs direct human intervention." };
+      }
+      if (decisionType === "new") {
+        return { title: "New lead", body: "First contact with no reply yet. Review intent and next step." };
+      }
+      if (decisionType === "won") {
+        return { title: "Won", body: "This conversation is already marked as recovered. Use it as a closing reference." };
+      }
+      if (decisionType === "lost") {
+        return { title: "Lost", body: "This opportunity was marked as lost. If the lead comes back, it can be reactivated." };
+      }
+      return { title: "In conversation", body: "There is interest, but the next step still needs to happen before momentum is lost." };
+    }
+
+    // Spanish
+    if (decisionType === "recover") {
+      return { title: "En riesgo", body: "El cliente escribió y sigue esperando respuesta. Conviene responder primero." };
+    }
+    if (decisionType === "complex") {
+      return { title: "Requiere revisión", body: "Este caso está marcado como complejo y merece intervención humana directa." };
+    }
+    if (decisionType === "new") {
+      return { title: "Nuevo lead", body: "Primer contacto sin respuesta todavía. Revisa intención y siguiente paso." };
+    }
+    if (decisionType === "won") {
+      return { title: "Ganado", body: "La conversación ya se marcó como recuperada. Úsala como referencia de cierre." };
+    }
+    if (decisionType === "lost") {
+      return { title: "Perdido", body: "La oportunidad se marcó como perdida. Si el cliente vuelve, se reactivará." };
+    }
+    return { title: "En conversación", body: "Hay interés, pero falta avanzar al siguiente paso antes de perder momentum." };
+  }, [decisionType, lang]);
+
+  const panelCopy = useMemo(() => {
+    if (lang === "pt") {
+      return {
+        currentState: "Estado atual",
+        whatNow: "O que fazer agora",
+        sendReply: "Responder agora",
+        useAi: "Responder com IA",
+        moneyInPlayNow: "em jogo agora",
+        lastReply: "Última resposta",
+        noReplyYet: "Sem resposta ainda",
+        riskLow: "Risco baixo de perda",
+        riskMedium: "Risco médio de perda",
+        riskHigh: "Risco alto de perda",
+        unassigned: "Sem responsável",
+        phone: "Telefone",
+        quickReplies: "Respostas rápidas",
+        suggestedReply: "Resposta sugerida",
+        matchedFaq: "Detetámos uma pergunta frequente.",
+      };
+    }
+
+    if (lang === "en") {
+      return {
+        currentState: "Current state",
+        whatNow: "What to do now",
+        sendReply: "Reply now",
+        useAi: "Reply with AI",
+        moneyInPlayNow: "in play right now",
+        lastReply: "Last reply",
+        noReplyYet: "No reply yet",
+        riskLow: "Low churn risk",
+        riskMedium: "Medium churn risk",
+        riskHigh: "High churn risk",
+        unassigned: "Unassigned",
+        phone: "Phone",
+        quickReplies: "Quick replies",
+        suggestedReply: "Suggested reply",
+        matchedFaq: "We detected a frequent question.",
+      };
+    }
+
+    // Spanish
+    return {
+      currentState: "Estado actual",
+      whatNow: "Qué hacer ahora",
+      sendReply: "Responder ahora",
+      useAi: "Responder con IA",
+      moneyInPlayNow: "en juego ahora mismo",
+      lastReply: "Última respuesta",
+      noReplyYet: "Sin respuesta todavía",
+      riskLow: "Riesgo bajo de pérdida",
+      riskMedium: "Riesgo medio de pérdida",
+      riskHigh: "Riesgo alto de pérdida",
+      unassigned: "Sin asignar",
+      phone: "Teléfono",
+      quickReplies: "Respuestas rápidas",
+      suggestedReply: "Respuesta sugerida",
+      matchedFaq: "Detectamos una pregunta frecuente.",
+    };
+  }, [lang]);
+
+  const lastReplyAge = formatRelativeAge(conversation.lastOutboundAt ?? conversation.lastMessageAt, lang);
+
+  const riskLabel =
+    decisionType === "recover"
+      ? panelCopy.riskHigh
+      : conversation.status === "new"
+        ? panelCopy.riskLow
+        : panelCopy.riskMedium;
+
+  // Real-time subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel(`conversation-${conversation.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversation.id}`,
+        },
+        () => router.refresh()
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "conversations",
+          filter: `id=eq.${conversation.id}`,
+        },
+        () => router.refresh()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [conversation.id, router, supabase]);
+
+  // === Suas funções (mantidas iguais) ===
+  async function sendReply(overrideText?: string) {
+    const text = (overrideText ?? draft).trim();
+    if (!text) return;
+
+    setSending(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          conversation_id: conversation.id,
+          text,
+        }),
+      });
+
+      const payload = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+      if (!response.ok || !payload?.ok) {
+        if (payload?.error === "conversation_already_assigned") {
+          setError(lang === "en" ? "Another agent already claimed this conversation." : lang === "pt" ? "Outro agente já ficou com esta conversa." : "Otro agente ya ha cogido esta conversación.");
+          router.refresh();
+          return;
+        }
+        if (payload?.error === "contact_email_missing") {
+          setError(lang === "en" ? "This contact has no email address." : lang === "pt" ? "Este contacto não tem email." : "Este contacto no tiene email.");
+          return;
+        }
+        if (payload?.error === "reply_email_not_configured") {
+          setError(lang === "en" ? "Confirm the reply email for this channel in Settings." : lang === "pt" ? "Confirma o email de resposta deste canal em Settings." : "Confirma el email de respuesta de este canal en Settings.");
+          return;
+        }
+        if (payload?.error === "email_provider_not_configured") {
+          setError(lang === "en" ? "Email sending is not configured yet on the server." : lang === "pt" ? "O envio de email ainda não está configurado no servidor." : "El envío de email aún no está configurado en el servidor.");
+          return;
+        }
+        if (payload?.error === "instagram_channel_missing") {
+          setError(lang === "en" ? "Instagram is not connected for this workspace yet." : lang === "pt" ? "O Instagram ainda não está ligado neste workspace." : "Instagram aún no está conectado en este workspace.");
+          return;
+        }
+        if (payload?.error === "contact_external_ref_missing") {
+          setError(lang === "en" ? "This Instagram contact cannot be replied to yet." : lang === "pt" ? "Ainda não é possível responder a este contacto do Instagram." : "Aún no se puede responder a este contacto de Instagram.");
+          return;
+        }
+        if (payload?.error === "instagram_access_token_not_configured") {
+          setError(lang === "en" ? "Instagram sending is not configured yet on the server." : lang === "pt" ? "O envio por Instagram ainda não está configurado no servidor." : "El envío por Instagram aún no está configurado en el servidor.");
+          return;
+        }
+        setError(payload?.error ?? (lang === "en" ? "Failed to send message" : lang === "pt" ? "Não foi possível enviar a mensagem" : "No se pudo enviar el mensaje"));
+        return;
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `local-${Date.now()}`,
+          direction: "outbound",
+          senderType: "agent",
+          text,
+          createdAt: new Date().toISOString(),
+          deliveryStatus: "sent",
+        } as MessageWithDelivery,
+      ]);
+
+      setDraft(overrideText ? draft : "");
+      router.refresh();
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : (lang === "en" ? "Failed to send message" : lang === "pt" ? "Não foi possível enviar a mensagem" : "No se pudo enviar el mensaje"));
+    } finally {
+      setSending(false);
+    }
+  }
+
+  async function updateBusinessStatus(status: "active" | "won" | "lost") {
+    setUpdatingStatus(status);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/conversations/manage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversationId: conversation.id,
+          status,
+        }),
+      });
+
+      const payload = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+      if (!response.ok || !payload?.ok) {
+        setError(payload?.error ?? t("inbox_update_error"));
+        return;
+      }
+
+      router.refresh();
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : t("inbox_update_error"));
+    } finally {
+      setUpdatingStatus(null);
+    }
+  }
+
+  async function fillDraftWithSuggestion() {
+    if (matchedQuickReply) {
+      setDraft(matchedQuickReply.text);
+      textareaRef.current?.focus();
+      return;
+    }
+
+    setGeneratingSuggestion(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/conversations/suggest-reply", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          conversation_id: conversation.id,
+        }),
+      });
+
+      const payload = (await response.json().catch(() => null)) as
+        | { ok?: boolean; suggestion?: string; error?: string }
+        | null;
+
+      if (!response.ok || !payload?.ok || !payload.suggestion?.trim()) {
+        setDraft(aiSuggestion);
+        textareaRef.current?.focus();
+        return;
+      }
+
+      setDraft(payload.suggestion.trim());
+      textareaRef.current?.focus();
+    } catch {
+      setDraft(aiSuggestion);
+      textareaRef.current?.focus();
+    } finally {
+      setGeneratingSuggestion(false);
+    }
+  }
+
+  return (
+    <div className="conversation-layout">
+      <article className="card conversation-main-card">
+        <p className="label">{t("conversation_messages")}</p>
+
+        {messages.length === 0 ? (
+          <div className="empty-state">
+            <h3>{t("conversation_empty_title")}</h3>
+            <p>{t("conversation_empty_body")}</p>
+          </div>
+        ) : (
+          <div className="chat-list">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`chat-bubble ${
+                  message.senderType === "agent" ? "chat-agent" : "chat-client"
+                }`}
+              >
+                <p
+                  className="chat-meta"
+                  style={{ display: "flex", alignItems: "center", gap: 6 }}
+                >
+                  <span>
+                    {message.senderType === "agent"
+                      ? t("conversation_sender_agent")
+                      : t("conversation_sender_client")}{" "}
+                    · {formatTime(message.createdAt)}
+                  </span>
+                  <DeliveryCheckmarks message={message} />
+                </p>
+                <p className="chat-text">{message.text}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="composer">
+          {quickReplies.length > 0 ? (
+            <div className="conversation-quick-replies">
+              <p className="conversation-quick-replies-label">{panelCopy.quickReplies}</p>
+              <div className="conversation-quick-replies-row">
+                {quickReplies.map((reply) => (
+                  <button
+                    key={reply.id}
+                    className={[
+                      "conversation-quick-reply-chip",
+                      matchedQuickReply?.id === reply.id ? "conversation-quick-reply-chip-active" : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                    type="button"
+                    onClick={() => setDraft(reply.text)}
+                    title={reply.text}
+                  >
+                    {reply.title}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          <textarea
+            ref={textareaRef}
+            className="input conversation-composer-input"
+            rows={3}
+            placeholder={t("conversation_placeholder")}
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+          />
+          <div className="conversation-ai-suggestion">
+            <p className="conversation-ai-title">
+              {matchedQuickReply ? panelCopy.suggestedReply : t("conversation_ai_label")}
+            </p>
+            {matchedQuickReply ? (
+              <p className="conversation-ai-meta">{panelCopy.matchedFaq}</p>
+            ) : null}
+            <p className="conversation-ai-text">“{aiSuggestion}”</p>
+          </div>
+          {error && <p className="warn">{error}</p>}
+          <div className="actions conversation-composer-actions">
+            <button
+              className="button"
+              type="button"
+              onClick={fillDraftWithSuggestion}
+              disabled={sending || generatingSuggestion}
+            >
+              {generatingSuggestion ? "..." : panelCopy.useAi}
+            </button>
+            <button
+              className="mini-button"
+              type="button"
+              onClick={() => sendReply()}
+              disabled={sending || !draft.trim()}
+            >
+              {sending ? "..." : t("inbox_reply")}
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <aside className="conversation-side">
+        <article className="card conversation-side-card">
+          <p className="label">{t("conversation_lead_panel")}</p>
+
+          <div className="conversation-money-card">
+            <p className="conversation-money-value">
+              💰 {formatMoney(lang, currency, conversation.estimatedValue)} {panelCopy.moneyInPlayNow}
+            </p>
+            <p className="conversation-money-type">{conversation.leadType ?? t("inbox_unclassified")}</p>
+            <p className="conversation-money-meta">
+              ⏱ {panelCopy.lastReply} {lastReplyAge || panelCopy.noReplyYet}
+            </p>
+            <p className="conversation-money-risk">🔥 {riskLabel}</p>
+          </div>
+
+          <div className="conversation-state-card">
+            <p className="label">{panelCopy.currentState}</p>
+            <p className={`conversation-state-title ${decisionType === "recover" ? "conversation-state-risk" : ""}`.trim()}>
+              {decisionCopy.title}
+            </p>
+            <p className="subtitle conversation-state-body">{decisionCopy.body}</p>
+          </div>
+
+          <div className="conversation-side-actions">
+            <p className="label">{panelCopy.whatNow}</p>
+            <div className="actions conversation-side-actions-row">
+              <button className="button" type="button" onClick={() => sendReply()} disabled={sending || !draft.trim()}>
+                {sending ? "..." : panelCopy.sendReply}
+              </button>
+              <button
+                className="button conversation-success-button"
+                type="button"
+                disabled={updatingStatus !== null || conversation.status === "won"}
+                onClick={() => updateBusinessStatus("won")}
+              >
+                {updatingStatus === "won" ? "..." : t("conversation_mark_won")}
+              </button>
+              <button
+                className="mini-button mini-warn"
+                type="button"
+                disabled={updatingStatus !== null || conversation.status === "lost"}
+                onClick={() => updateBusinessStatus("lost")}
+              >
+                {updatingStatus === "lost" ? "..." : t("conversation_mark_lost")}
+              </button>
+            </div>
+          </div>
+
+          {/* resto do painel lateral mantido igual */}
+          <div className="conversation-details-card">
+            <p className="label">{t("conversation_details")}</p>
+            <div className="preview-row">
+              <span>{t("inbox_assigned")}</span>
+              <span>{conversation.assignedTo ?? panelCopy.unassigned}</span>
+            </div>
+            <div className="preview-row">
+              <span>{t("inbox_channel")}</span>
+              <span>{formatChannel(conversation.channel, lang, t)}</span>
+            </div>
+            <div className="preview-row">
+              <span>{t("inbox_status")}</span>
+              <span className={`badge ${statusClass(conversation.status)}`}>{statusLabel}</span>
+            </div>
+            <div className="preview-row">
+              <span>{t("inbox_unit")}</span>
+              <span>{conversation.unit ?? t("inbox_no_unit")}</span>
+            </div>
+            {conversation.contactPhone && (
+              <div className="preview-row">
+                <span>{panelCopy.phone}</span>
+                <span>{conversation.contactPhone}</span>
+              </div>
+            )}
+            {conversation.status === "won" && (
+              <div className="preview-row">
+                <span>{t("conversation_recovered")}</span>
+                <span>{formatMoney(lang, currency, conversation.expectedValue || conversation.estimatedValue)}</span>
+              </div>
+            )}
+          </div>
+
+          <details className="conversation-manage-details">
+            <summary>{t("conversation_details")}</summary>
+            <div style={{ marginTop: 16 }}>
+              <InboxRowActions
+                conversationId={conversation.id}
+                currentStatus={conversation.status}
+                currentUnit={conversation.unit}
+                unitOptions={unitOptions}
+                labels={{
+                  status: t("inbox_status"),
+                  unit: t("inbox_unit"),
+                  noUnit: t("inbox_no_unit"),
+                  save: t("inbox_change_status"),
+                  saving: "...",
+                  new: t("inbox_filter_new"),
+                  active: t("inbox_filter_in_progress"),
+                  noResponse: t("inbox_filter_no_reply"),
+                  won: t("revenue_filter_won"),
+                  lost: t("inbox_filter_lost"),
+                  error: t("inbox_update_error"),
+                }}
+              />
+            </div>
+          </details>
+        </article>
+      </aside>
+    </div>
+  );
+}
