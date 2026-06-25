@@ -160,7 +160,7 @@ export function InboxDecisionView({
           </div>
           <div className="rounded-2xl border border-white/10 bg-[#111f35] px-4 py-3">
             <div className="text-xs text-white/50">{labels.highValue}</div>
-            <div className="mt-1 text-2xl font-semibold text-emerald-300">{highValueAmountLabel}</div>
+            <div className="mt-1 text-2xl font-semibold text-white">{highValueAmountLabel}</div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-[#111f35] px-4 py-3">
             <div className="text-xs text-white/50">{labels.newEntry}</div>

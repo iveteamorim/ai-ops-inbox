@@ -1321,12 +1321,34 @@ textarea:focus-visible {
   color: #ffffff;
 }
 
+.inbox-page {
+  margin: -24px;
+  padding: 24px;
+  min-height: 100vh;
+}
+
+.conversation-page {
+  margin: -24px;
+  padding: 24px;
+  min-height: 100vh;
+}
+
 .dashboard-page,
 .inbox-page,
 .conversation-page,
 .dashboard-page .dashboard-decision-view,
 .inbox-page .inbox-decision-view {
   background: var(--dashboard-bg);
+}
+
+.inbox-page a,
+.conversation-page a {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.inbox-page a:hover,
+.conversation-page a:hover {
+  color: #ffffff;
 }
 
 .dashboard-page .nav,
