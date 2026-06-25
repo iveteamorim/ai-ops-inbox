@@ -157,8 +157,8 @@ function conversationPriorityScore(row: {
 
 function riskLabel(priority: "high" | "medium" | "low", copy: InboxLangCopy) {
   if (priority === "high") return { label: copy.riskHigh, className: "text-yellow-400" };
-  if (priority === "medium") return { label: copy.riskMedium, className: "text-blue-400" };
-  return { label: copy.riskLow, className: "text-green-400" };
+  if (priority === "medium") return { label: copy.riskMedium, className: "text-sky-300" };
+  return { label: copy.riskLow, className: "text-white/55" };
 }
 
 function progressFor(priority: "high" | "medium" | "low") {
@@ -172,10 +172,10 @@ function stateClassFor(status: string) {
     return "border-yellow-500/30 bg-yellow-500/10 text-yellow-400";
   }
   if (status === "active") {
-    return "border-blue-500/30 bg-blue-500/10 text-blue-400";
+    return "border-sky-400/25 bg-sky-500/10 text-sky-300";
   }
   if (status === "won") {
-    return "border-green-500/30 bg-green-500/10 text-green-400";
+    return "border-white/20 bg-white/8 text-white/75";
   }
   if (status === "lost") {
     return "border-white/15 bg-white/5 text-gray-300";

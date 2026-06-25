@@ -33,7 +33,7 @@ export function isChannelSettingsPath(segment: string): segment is ChannelType {
 export function channelBadgeClass(channel: ChannelType): string {
   switch (channel) {
     case "whatsapp":
-      return "border-emerald-500/35 bg-emerald-500/12 text-emerald-300";
+      return "border-white/20 bg-white/8 text-white/75";
     case "instagram":
       return "border-pink-500/35 bg-pink-500/12 text-pink-300";
     case "email":
